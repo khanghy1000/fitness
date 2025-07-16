@@ -1,0 +1,44 @@
+{
+    "name": "fitness",
+    "version": "1.0.0",
+    "description": "",
+    "main": "src/index.ts",
+    "type": "module",
+    "scripts": {
+        "start": "tsx src/index.ts",
+        "dev": "tsx watch src/index.ts",
+        "format": "prettier --write .",
+        "db-push": "drizzle-kit push",
+        "db-generate": "drizzle-kit generate",
+        "db-migrate": "drizzle-kit migrate",
+        "auth-generate": "npx @better-auth/cli generate"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "packageManager": "pnpm@10.12.4",
+    "dependencies": {
+        "better-auth": "^1.2.12",
+        "body-parser": "^2.2.0",
+        "cookie-parser": "^1.4.7",
+        "cors": "^2.8.5",
+        "dotenv": "^17.2.0",
+        "drizzle-orm": "^0.44.3",
+        "express": "^5.1.0",
+        "morgan": "^1.10.0",
+        "pg": "^8.16.3"
+    },
+    "devDependencies": {
+        "@types/body-parser": "^1.19.6",
+        "@types/cookie-parser": "^1.4.9",
+        "@types/cors": "^2.8.19",
+        "@types/express": "^5.0.3",
+        "@types/morgan": "^1.9.10",
+        "@types/node": "^24.0.14",
+        "@types/pg": "^8.15.4",
+        "drizzle-kit": "^0.31.4",
+        "prettier": "^3.6.2",
+        "tsx": "^4.20.3",
+        "typescript": "^5.8.3"
+    }
+}
