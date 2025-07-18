@@ -17,6 +17,7 @@ app.use(cors());
 app.use(urlencoded({ extended: false }));
 
 // BetterAuth middleware
+// Docs: /api/auth/reference
 app.all('/api/auth/{*any}', toNodeHandler(auth));
 
 app.use(json());
