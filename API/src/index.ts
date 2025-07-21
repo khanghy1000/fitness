@@ -7,6 +7,7 @@ import 'dotenv/config';
 import { routes } from './routes/index.ts';
 import { toNodeHandler } from 'better-auth/node';
 import { auth } from '@lib/auth.ts';
+import { attachUserSession } from '@middlewares/auth.middleware.ts';
 
 const { urlencoded, json } = bodyHandler;
 
@@ -19,6 +20,7 @@ app.use(urlencoded({ extended: false }));
 // BetterAuth middleware
 // Docs: /api/auth/reference
 app.all('/api/auth/{*any}', toNodeHandler(auth));
+app.use(attachUserSession);
 
 app.use(json());
 app.use(cookieParser());

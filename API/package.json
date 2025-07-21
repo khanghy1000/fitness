@@ -8,10 +8,10 @@
         "start": "tsx src/index.ts",
         "dev": "tsx watch src/index.ts",
         "format": "prettier --write .",
-        "db-push": "drizzle-kit push",
-        "db-generate": "drizzle-kit generate",
-        "db-migrate": "drizzle-kit migrate",
-        "auth-generate": "npx @better-auth/cli generate"
+        "db:push": "drizzle-kit push",
+        "db:generate": "drizzle-kit generate",
+        "db:migrate": "drizzle-kit migrate",
+        "auth:generate": "npx @better-auth/cli generate"
     },
     "keywords": [],
     "author": "",

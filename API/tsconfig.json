@@ -112,7 +112,8 @@
         "baseUrl": "./src",
         "paths": {
             "@lib/*": ["lib/*"],
-            "@services/*": ["services/*"]
+            "@services/*": ["services/*"],
+            "@middlewares/*": ["middlewares/*"],
         }
     }
 }

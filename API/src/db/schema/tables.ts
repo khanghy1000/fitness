@@ -8,6 +8,8 @@ import {
     json,
     uuid,
     serial,
+    unique,
+    primaryKey,
 } from 'drizzle-orm/pg-core';
 
 export const user = pgTable('user', {
@@ -24,8 +26,8 @@ export const user = pgTable('user', {
     updatedAt: timestamp('updated_at')
         .$defaultFn(() => /* @__PURE__ */ new Date())
         .notNull(),
-    role: text('role', { enum: ['admin', 'trainer', 'user'] })
-        .default('user')
+    role: text('role', { enum: ['admin', 'coach', 'trainee'] })
+        .default('trainee')
         .notNull(),
 });
 
@@ -73,67 +75,61 @@ export const verification = pgTable('verification', {
     ),
 });
 
-// Exercise Categories
-export const exerciseCategory = pgTable('exercise_category', {
-    id: text('id').primaryKey(),
-    name: text('name').notNull(),
-    description: text('description'),
-    type: text('type', {
-        enum: [
-            'running',
-            'jumping',
-            'upper_body',
-            'lower_body',
-            'full_body',
-            'cardio',
-            'strength',
-            'flexibility',
-        ],
-    }).notNull(),
-    createdAt: timestamp('created_at')
-        .$defaultFn(() => new Date())
-        .notNull(),
-    updatedAt: timestamp('updated_at')
-        .$defaultFn(() => new Date())
-        .notNull(),
-});
+// Trainer-User Relationships
+export const coachTrainee = pgTable(
+    'coach_trainee',
+    {
+        coachId: text('coach_id').references(() => user.id, {
+            onDelete: 'cascade',
+        }),
+        traineeId: text('trainee_id').references(() => user.id, {
+            onDelete: 'cascade',
+        }),
+        status: text('status', {
+            enum: ['pending', 'active', 'inactive', 'blocked'],
+        }).default('pending'),
+        startDate: timestamp('start_date'),
+        endDate: timestamp('end_date'),
+        notes: text('notes'),
+        createdAt: timestamp('created_at')
+            .$defaultFn(() => new Date())
+            .notNull(),
+        updatedAt: timestamp('updated_at')
+            .$defaultFn(() => new Date())
+            .notNull(),
+    },
+    (t) => [primaryKey({ columns: [t.coachId, t.traineeId] })]
+);
 
-// Exercises
-export const exercise = pgTable('exercise', {
-    id: text('id').primaryKey(),
+// 'high_stepping',
+// 'push_up',
+// 'squat',
+// 'jumping_jack',
+// 'skipping',
+// 'mountain_climber',
+// 'plank_jack',
+// 'sit_up',
+// 'lunge',
+// 'abdominal_crunch',
+// 'bicycle_crunch',
+// 'leg_raise',
+// 'heel_touch',
+// 'flutter_kick',
+// 'plank',
+// 'cobra_stretch',
+// 'custom'
+
+// Exercise Categories
+export const exerciseType = pgTable('exercise_type', {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
     name: text('name').notNull(),
-    // description: text('description'),
-    // instructions: text('instructions'),
-    categoryId: text('category_id').references(() => exerciseCategory.id, {
-        onDelete: 'cascade',
-    }),
-    difficulty: text('difficulty', {
-        enum: ['beginner', 'intermediate', 'advanced'],
-    }).default('beginner'),
-    sets: integer('sets'), // number of sets
-    reps: integer('rep'), // number of repetitions
-    restTime: integer('rest_time'), // in seconds
-    duration: integer('duration'), // in seconds
-    calories: integer('calories'), // estimated calories burned
-    // muscleGroups: json('muscle_groups').$type<string[]>(), // array of muscle groups
-    // equipment: json('equipment').$type<string[]>(), // array of required equipment
-    // videoUrl: text('video_url'),
-    // imageUrl: text('image_url'),
-    createdBy: text('created_by').references(() => user.id, {
-        onDelete: 'cascade',
-    }),
-    isActive: boolean('is_active').default(true),
-    createdAt: timestamp('created_at')
-        .$defaultFn(() => new Date())
-        .notNull(),
-    updatedAt: timestamp('updated_at')
-        .$defaultFn(() => new Date())
-        .notNull(),
+    // devicePosition: text('device_position', { enum: ['thigh', 'arm']}).default('thigh'),
+    imageUrl: text('image_url'),
 });
 
 // Nutrition Plans
 export const nutritionPlan = pgTable('nutrition_plan', {
-    id: text('id').primaryKey(),
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
     name: text('name').notNull(),
     description: text('description'),
     totalCalories: integer('total_calories'),
@@ -166,31 +162,27 @@ export const nutritionPlan = pgTable('nutrition_plan', {
 
 // Workout Plans
 export const workoutPlan = pgTable('workout_plan', {
-    id: text('id').primaryKey(),
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
     name: text('name').notNull(),
     description: text('description'),
-    goal: text('goal', {
-        enum: [
-            'weight_loss',
-            'muscle_gain',
-            'endurance',
-            'strength',
-            'flexibility',
-            'general_fitness',
-        ],
-    }),
+    // goal: text('goal', {
+    //     enum: [
+    //         'weight_loss',
+    //         'muscle_gain',
+    //         'endurance',
+    //         'strength',
+    //         'flexibility',
+    //         'general_fitness',
+    //     ],
+    // }),
     difficulty: text('difficulty', {
         enum: ['beginner', 'intermediate', 'advanced'],
     }).default('beginner'),
-    duration: integer('duration'), // in weeks
-    daysPerWeek: integer('days_per_week'),
+    // duration: integer('duration'), // in weeks
     estimatedCalories: integer('estimated_calories'),
     createdBy: text('created_by').references(() => user.id, {
         onDelete: 'cascade',
     }),
-    nutritionPlanId: text('nutrition_plan_id').references(
-        () => nutritionPlan.id
-    ),
     isActive: boolean('is_active').default(true),
     createdAt: timestamp('created_at')
         .$defaultFn(() => new Date())
@@ -200,49 +192,46 @@ export const workoutPlan = pgTable('workout_plan', {
         .notNull(),
 });
 
-// Workout Plan Exercises (junction table for exercises in a workout plan)
-export const workoutPlanExercise = pgTable('workout_plan_exercise', {
-    id: text('id').primaryKey(),
-    workoutPlanId: text('workout_plan_id').references(() => workoutPlan.id, {
-        onDelete: 'cascade',
-    }),
-    exerciseId: text('exercise_id').references(() => exercise.id, {
-        onDelete: 'cascade',
-    }),
-    dayOfWeek: integer('day_of_week'), // 1-7
+export const workoutPlanDay = pgTable(
+    'workout_plan_day',
+    {
+        id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+        workoutPlanId: integer('workout_plan_id').references(
+            () => workoutPlan.id,
+            {
+                onDelete: 'cascade',
+            }
+        ),
+        day: integer('day').notNull(),
+        isRestDay: boolean('is_rest_day').default(false),
+        estimatedCalories: integer('estimated_calories'),
+        duration: integer('duration'), // in seconds
+    },
+    (t) => [unique().on(t.workoutPlanId, t.day)]
+);
+
+// Workout Plan Day Exercises (junction table for exercises in a workout plan day)
+export const workoutPlanDayExercise = pgTable('workout_plan_day_exercise', {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    workoutPlanDayId: integer('workout_plan_day_id').references(
+        () => workoutPlanDay.id,
+        {
+            onDelete: 'cascade',
+        }
+    ),
+    exerciseTypeId: integer('exercise_type_id').references(
+        () => exerciseType.id,
+        {
+            onDelete: 'cascade',
+        }
+    ),
     order: integer('order'), // order in the day
-    sets: integer('sets'),
-    reps: integer('reps'),
-    duration: integer('duration'), // in seconds
-    restTime: integer('rest_time'), // rest between sets in seconds
-    weight: real('weight'), // in kg
-    distance: real('distance'), // in meters/km
     targetReps: integer('target_reps'),
     targetSets: integer('target_sets'),
     targetDuration: integer('target_duration'),
-    targetWeight: real('target_weight'),
-    targetDistance: real('target_distance'),
-    notes: text('notes'),
-    createdAt: timestamp('created_at')
-        .$defaultFn(() => new Date())
-        .notNull(),
-    updatedAt: timestamp('updated_at')
-        .$defaultFn(() => new Date())
-        .notNull(),
-});
-
-// Trainer-User Relationships
-export const trainerUser = pgTable('trainer_user', {
-    id: text('id').primaryKey(),
-    trainerId: text('trainer_id').references(() => user.id, {
-        onDelete: 'cascade',
-    }),
-    userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
-    status: text('status', {
-        enum: ['pending', 'active', 'inactive', 'blocked'],
-    }).default('pending'),
-    startDate: timestamp('start_date'),
-    endDate: timestamp('end_date'),
+    estimatedCalories: integer('estimated_calories'),
+    // targetWeight: real('target_weight'),
+    // targetDistance: real('target_distance'),
     notes: text('notes'),
     createdAt: timestamp('created_at')
         .$defaultFn(() => new Date())
@@ -254,9 +243,9 @@ export const trainerUser = pgTable('trainer_user', {
 
 // User Workout Plans (assigned plans)
 export const userWorkoutPlan = pgTable('user_workout_plan', {
-    id: text('id').primaryKey(),
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
     userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
-    workoutPlanId: text('workout_plan_id').references(() => workoutPlan.id, {
+    workoutPlanId: integer('workout_plan_id').references(() => workoutPlan.id, {
         onDelete: 'cascade',
     }),
     assignedBy: text('assigned_by').references(() => user.id), // trainer who assigned
@@ -275,12 +264,45 @@ export const userWorkoutPlan = pgTable('user_workout_plan', {
         .notNull(),
 });
 
-// Workout Sessions
-export const workoutSession = pgTable('workout_session', {
-    id: text('id').primaryKey(),
+// User Nutrition Plans (assigned nutrition plans)
+export const userNutritionPlan = pgTable('user_nutrition_plan', {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
     userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
-    userWorkoutPlanId: text('user_workout_plan_id').references(
-        () => userWorkoutPlan.id
+    nutritionPlanId: integer('nutrition_plan_id').references(
+        () => nutritionPlan.id,
+        {
+            onDelete: 'cascade',
+        }
+    ),
+    assignedBy: text('assigned_by').references(() => user.id), // trainer who assigned
+    startDate: timestamp('start_date').notNull(),
+    endDate: timestamp('end_date'),
+    status: text('status', {
+        enum: ['active', 'completed', 'paused', 'cancelled'],
+    }).default('active'),
+    // adherence: real('adherence').default(0), // percentage 0-100 - Need to add new table to track
+    notes: text('notes'),
+    createdAt: timestamp('created_at')
+        .$defaultFn(() => new Date())
+        .notNull(),
+    updatedAt: timestamp('updated_at')
+        .$defaultFn(() => new Date())
+        .notNull(),
+});
+
+// Workout Sessions
+// Used when trainee plans a workout session
+// Or when trainee starts a workout session
+export const workoutSession = pgTable('workout_session', {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
+    userWorkoutPlanId: integer('user_workout_plan_id').references(
+        () => userWorkoutPlan.id,
+        { onDelete: 'cascade' }
+    ),
+    workoutPlanDayId: integer('workout_plan_day_id').references(
+        () => workoutPlanDay.id,
+        { onDelete: 'cascade' }
     ),
     date: timestamp('date').notNull(),
     startTime: timestamp('start_time'),
@@ -302,21 +324,24 @@ export const workoutSession = pgTable('workout_session', {
 
 // Exercise Results/Logs
 export const exerciseResult = pgTable('exercise_result', {
-    id: text('id').primaryKey(),
-    workoutSessionId: text('workout_session_id').references(
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    workoutSessionId: integer('workout_session_id').references(
         () => workoutSession.id,
         { onDelete: 'cascade' }
     ),
-    exerciseId: text('exercise_id').references(() => exercise.id, {
-        onDelete: 'cascade',
-    }),
+    workoutPlanExerciseId: integer('workout_plan_exercise_id').references(
+        () => workoutPlanDayExercise.id,
+        {
+            onDelete: 'cascade',
+        }
+    ),
     userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
     sets: integer('sets'),
     reps: integer('reps'),
     duration: integer('duration'), // in seconds
+    calories: integer('calories'),
     // weight: real('weight'), // in kg
     // distance: real('distance'), // in meters/km
-    // calories: integer('calories'),
     // heartRate: integer('heart_rate'), // average heart rate
     // maxHeartRate: integer('max_heart_rate'),
     // difficulty: integer('difficulty'), // 1-10 perceived exertion
@@ -329,7 +354,7 @@ export const exerciseResult = pgTable('exercise_result', {
 
 // User Stats/Measurements
 export const userStats = pgTable('user_stats', {
-    id: text('id').primaryKey(),
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
     userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
     weight: real('weight'), // in kg
     height: real('height'), // in cm
@@ -342,30 +367,8 @@ export const userStats = pgTable('user_stats', {
     arms: real('arms'), // in cm
     thighs: real('thighs'), // in cm
     recordedAt: timestamp('recorded_at').notNull(),
-    recordedBy: text('recorded_by').references(() => user.id), // who recorded it (user or trainer)
+    recordedBy: text('recorded_by').references(() => user.id), // who recorded it (coach or trainee)
     notes: text('notes'),
-    createdAt: timestamp('created_at')
-        .$defaultFn(() => new Date())
-        .notNull(),
-});
-
-// Messages between trainers and users
-export const message = pgTable('message', {
-    id: text('id').primaryKey(),
-    senderId: text('sender_id').references(() => user.id, {
-        onDelete: 'cascade',
-    }),
-    recipientId: text('recipient_id').references(() => user.id, {
-        onDelete: 'cascade',
-    }),
-    content: text('content').notNull(),
-    type: text('type', {
-        enum: ['text', 'image', 'video', 'audio', 'file'],
-    }).default('text'),
-    // fileUrl: text('file_url'),
-    readAt: timestamp('read_at'),
-    isRead: boolean('is_read').default(false),
-    replyToId: text('reply_to_id'), // references message.id
     createdAt: timestamp('created_at')
         .$defaultFn(() => new Date())
         .notNull(),
@@ -373,7 +376,7 @@ export const message = pgTable('message', {
 
 // User Goals
 export const userGoal = pgTable('user_goal', {
-    id: text('id').primaryKey(),
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
     userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
     type: text('type', {
         enum: [
@@ -402,6 +405,28 @@ export const userGoal = pgTable('user_goal', {
         .$defaultFn(() => new Date())
         .notNull(),
     updatedAt: timestamp('updated_at')
+        .$defaultFn(() => new Date())
+        .notNull(),
+});
+
+// Messages between coach and trainee
+export const message = pgTable('message', {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    senderId: text('sender_id').references(() => user.id, {
+        onDelete: 'cascade',
+    }),
+    recipientId: text('recipient_id').references(() => user.id, {
+        onDelete: 'cascade',
+    }),
+    content: text('content').notNull(),
+    type: text('type', {
+        enum: ['text', 'image', 'video', 'audio', 'file'],
+    }).default('text'),
+    // fileUrl: text('file_url'),
+    readAt: timestamp('read_at'),
+    isRead: boolean('is_read').default(false),
+    replyToId: text('reply_to_id'), // references message.id
+    createdAt: timestamp('created_at')
         .$defaultFn(() => new Date())
         .notNull(),
 });

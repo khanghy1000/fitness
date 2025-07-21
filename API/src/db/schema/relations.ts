@@ -4,36 +4,57 @@ import {
     session,
     account,
     verification,
-    exerciseCategory,
-    exercise,
+    coachTrainee,
+    exerciseType,
     nutritionPlan,
     workoutPlan,
-    workoutPlanExercise,
-    trainerUser,
+    workoutPlanDay,
+    workoutPlanDayExercise,
     userWorkoutPlan,
+    userNutritionPlan,
     workoutSession,
     exerciseResult,
     userStats,
-    message,
     userGoal,
+    message,
 } from './tables.ts';
 
-// User relations
 export const userRelations = relations(user, ({ many }) => ({
     sessions: many(session),
     accounts: many(account),
-    createdExercises: many(exercise),
+
+    // Coach-Trainee relationships
+    coachRelationships: many(coachTrainee, { relationName: 'coach' }),
+    traineeRelationships: many(coachTrainee, { relationName: 'trainee' }),
+
+    // Created content
     createdNutritionPlans: many(nutritionPlan),
     createdWorkoutPlans: many(workoutPlan),
-    trainerRelationships: many(trainerUser, { relationName: 'trainer' }),
-    userRelationships: many(trainerUser, { relationName: 'trainee' }),
-    assignedWorkoutPlans: many(userWorkoutPlan),
+
+    // Assigned workout plans
+    userWorkoutPlans: many(userWorkoutPlan, { relationName: 'assignedUser' }),
+    assignedWorkoutPlans: many(userWorkoutPlan, { relationName: 'assignedBy' }),
+
+    // Assigned nutrition plans
+    userNutritionPlans: many(userNutritionPlan, {
+        relationName: 'assignedUser',
+    }),
+    assignedNutritionPlans: many(userNutritionPlan, {
+        relationName: 'assignedBy',
+    }),
+
+    // Workout sessions and results
     workoutSessions: many(workoutSession),
     exerciseResults: many(exerciseResult),
-    stats: many(userStats),
+
+    // Stats and goals
+    userStats: many(userStats, { relationName: 'statsUser' }),
+    recordedStats: many(userStats, { relationName: 'recordedBy' }),
+    userGoals: many(userGoal),
+
+    // Messages
     sentMessages: many(message, { relationName: 'sender' }),
     receivedMessages: many(message, { relationName: 'recipient' }),
-    goals: many(userGoal),
 }));
 
 // Session relations
@@ -44,7 +65,6 @@ export const sessionRelations = relations(session, ({ one }) => ({
     }),
 }));
 
-// Account relations
 export const accountRelations = relations(account, ({ one }) => ({
     user: one(user, {
         fields: [account.userId],
@@ -52,90 +72,77 @@ export const accountRelations = relations(account, ({ one }) => ({
     }),
 }));
 
-// Exercise Category relations
-export const exerciseCategoryRelations = relations(
-    exerciseCategory,
-    ({ many }) => ({
-        exercises: many(exercise),
-    })
-);
-
-// Exercise relations
-export const exerciseRelations = relations(exercise, ({ one, many }) => ({
-    category: one(exerciseCategory, {
-        fields: [exercise.categoryId],
-        references: [exerciseCategory.id],
-    }),
-    creator: one(user, {
-        fields: [exercise.createdBy],
+export const coachTraineeRelations = relations(coachTrainee, ({ one }) => ({
+    coach: one(user, {
+        fields: [coachTrainee.coachId],
         references: [user.id],
-    }),
-    workoutPlanExercises: many(workoutPlanExercise),
-    results: many(exerciseResult),
-}));
-
-// Nutrition Plan relations
-export const nutritionPlanRelations = relations(
-    nutritionPlan,
-    ({ one, many }) => ({
-        creator: one(user, {
-            fields: [nutritionPlan.createdBy],
-            references: [user.id],
-        }),
-        workoutPlans: many(workoutPlan),
-    })
-);
-
-// Workout Plan relations
-export const workoutPlanRelations = relations(workoutPlan, ({ one, many }) => ({
-    creator: one(user, {
-        fields: [workoutPlan.createdBy],
-        references: [user.id],
-    }),
-    nutritionPlan: one(nutritionPlan, {
-        fields: [workoutPlan.nutritionPlanId],
-        references: [nutritionPlan.id],
-    }),
-    exercises: many(workoutPlanExercise),
-    userPlans: many(userWorkoutPlan),
-}));
-
-// Workout Plan Exercise relations
-export const workoutPlanExerciseRelations = relations(
-    workoutPlanExercise,
-    ({ one }) => ({
-        workoutPlan: one(workoutPlan, {
-            fields: [workoutPlanExercise.workoutPlanId],
-            references: [workoutPlan.id],
-        }),
-        exercise: one(exercise, {
-            fields: [workoutPlanExercise.exerciseId],
-            references: [exercise.id],
-        }),
-    })
-);
-
-// Trainer User relations
-export const trainerUserRelations = relations(trainerUser, ({ one }) => ({
-    trainer: one(user, {
-        fields: [trainerUser.trainerId],
-        references: [user.id],
-        relationName: 'trainer',
+        relationName: 'coach',
     }),
     trainee: one(user, {
-        fields: [trainerUser.userId],
+        fields: [coachTrainee.traineeId],
         references: [user.id],
         relationName: 'trainee',
     }),
 }));
 
-// User Workout Plan relations
+export const exerciseTypeRelations = relations(exerciseType, ({ many }) => ({
+    workoutPlanDayExercises: many(workoutPlanDayExercise),
+}));
+
+export const nutritionPlanRelations = relations(
+    nutritionPlan,
+    ({ one, many }) => ({
+        createdBy: one(user, {
+            fields: [nutritionPlan.createdBy],
+            references: [user.id],
+        }),
+        userNutritionPlans: many(userNutritionPlan),
+    })
+);
+
+export const workoutPlanRelations = relations(workoutPlan, ({ one, many }) => ({
+    createdBy: one(user, {
+        fields: [workoutPlan.createdBy],
+        references: [user.id],
+    }),
+    workoutPlanDays: many(workoutPlanDay),
+    userWorkoutPlans: many(userWorkoutPlan),
+}));
+
+export const workoutPlanDayRelations = relations(
+    workoutPlanDay,
+    ({ one, many }) => ({
+        workoutPlan: one(workoutPlan, {
+            fields: [workoutPlanDay.workoutPlanId],
+            references: [workoutPlan.id],
+        }),
+        exercises: many(workoutPlanDayExercise),
+        workoutSessions: many(workoutSession),
+    })
+);
+
+export const workoutPlanDayExerciseRelations = relations(
+    workoutPlanDayExercise,
+    ({ one, many }) => ({
+        workoutPlanDay: one(workoutPlanDay, {
+            fields: [workoutPlanDayExercise.workoutPlanDayId],
+            references: [workoutPlanDay.id],
+        }),
+        exerciseType: one(exerciseType, {
+            fields: [workoutPlanDayExercise.exerciseTypeId],
+            references: [exerciseType.id],
+        }),
+        exerciseResults: many(exerciseResult),
+    })
+);
+
 export const userWorkoutPlanRelations = relations(
     userWorkoutPlan,
     ({ one, many }) => ({
         user: one(user, {
             fields: [userWorkoutPlan.userId],
             references: [user.id],
+            relationName: 'assignedUser',
         }),
         workoutPlan: one(workoutPlan, {
             fields: [userWorkoutPlan.workoutPlanId],
@@ -144,12 +151,32 @@ export const userWorkoutPlanRelations = relations(
         assignedBy: one(user, {
             fields: [userWorkoutPlan.assignedBy],
             references: [user.id],
+            relationName: 'assignedBy',
         }),
-        sessions: many(workoutSession),
+        workoutSessions: many(workoutSession),
     })
 );
 
-// Workout Session relations
+export const userNutritionPlanRelations = relations(
+    userNutritionPlan,
+    ({ one }) => ({
+        user: one(user, {
+            fields: [userNutritionPlan.userId],
+            references: [user.id],
+            relationName: 'assignedUser',
+        }),
+        nutritionPlan: one(nutritionPlan, {
+            fields: [userNutritionPlan.nutritionPlanId],
+            references: [nutritionPlan.id],
+        }),
+        assignedBy: one(user, {
+            fields: [userNutritionPlan.assignedBy],
+            references: [user.id],
+            relationName: 'assignedBy',
+        }),
+    })
+);
+
 export const workoutSessionRelations = relations(
     workoutSession,
     ({ one, many }) => ({
@@ -161,19 +188,22 @@ export const workoutSessionRelations = relations(
             fields: [workoutSession.userWorkoutPlanId],
             references: [userWorkoutPlan.id],
         }),
+        workoutPlanDay: one(workoutPlanDay, {
+            fields: [workoutSession.workoutPlanDayId],
+            references: [workoutPlanDay.id],
+        }),
         exerciseResults: many(exerciseResult),
     })
 );
 
-// Exercise Result relations
 export const exerciseResultRelations = relations(exerciseResult, ({ one }) => ({
     workoutSession: one(workoutSession, {
         fields: [exerciseResult.workoutSessionId],
         references: [workoutSession.id],
     }),
-    exercise: one(exercise, {
-        fields: [exerciseResult.exerciseId],
-        references: [exercise.id],
+    workoutPlanExercise: one(workoutPlanDayExercise, {
+        fields: [exerciseResult.workoutPlanExerciseId],
+        references: [workoutPlanDayExercise.id],
     }),
     user: one(user, {
         fields: [exerciseResult.userId],
@@ -181,19 +211,26 @@ export const exerciseResultRelations = relations(exerciseResult, ({ one }) => ({
     }),
 }));
 
-// User Stats relations
 export const userStatsRelations = relations(userStats, ({ one }) => ({
     user: one(user, {
         fields: [userStats.userId],
         references: [user.id],
+        relationName: 'statsUser',
     }),
     recordedBy: one(user, {
         fields: [userStats.recordedBy],
         references: [user.id],
+        relationName: 'recordedBy',
     }),
 }));
 
-// Message relations
+export const userGoalRelations = relations(userGoal, ({ one }) => ({
+    user: one(user, {
+        fields: [userGoal.userId],
+        references: [user.id],
+    }),
+}));
+
 export const messageRelations = relations(message, ({ one }) => ({
     sender: one(user, {
         fields: [message.senderId],
@@ -204,13 +241,5 @@ export const messageRelations = relations(message, ({ one }) => ({
         fields: [message.recipientId],
         references: [user.id],
         relationName: 'recipient',
-    }),
-}));
-
-// User Goal relations
-export const userGoalRelations = relations(userGoal, ({ one }) => ({
-    user: one(user, {
-        fields: [userGoal.userId],
-        references: [user.id],
     }),
 }));
