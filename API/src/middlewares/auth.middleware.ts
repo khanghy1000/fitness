@@ -15,14 +15,24 @@ async function attachUserSession(
 }
 
 async function requireCoach(req: Request, res: Response, next: NextFunction) {
-    if (req.session?.user.role === 'coach') {
+    const session = await auth.api.getSession({
+        headers: fromNodeHeaders(req.headers),
+    });
+    req.session = session;
+
+    if (session?.user.role === 'coach') {
         return next();
     }
     return res.status(403).json({ error: 'Forbidden: Coach role required' });
 }
 
 async function requireTrainee(req: Request, res: Response, next: NextFunction) {
-    if (req.session?.user.role === 'trainee') {
+    const session = await auth.api.getSession({
+        headers: fromNodeHeaders(req.headers),
+    });
+    req.session = session;
+
+    if (session?.user.role === 'trainee') {
         return next();
     }
     return res.status(403).json({ error: 'Forbidden: Trainee role required' });
@@ -33,7 +43,12 @@ async function requireAuthenticated(
     res: Response,
     next: NextFunction
 ) {
-    if (req.session) {
+    const session = await auth.api.getSession({
+        headers: fromNodeHeaders(req.headers),
+    });
+    req.session = session;
+
+    if (session) {
         return next();
     }
     return res

@@ -3,19 +3,47 @@ import cors from 'cors';
 import logger from 'morgan';
 import cookieParser from 'cookie-parser';
 import bodyHandler from 'body-parser';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 import 'dotenv/config';
 import { routes } from './routes/index.ts';
 import { toNodeHandler } from 'better-auth/node';
 import { auth } from '@lib/auth.ts';
 import { attachUserSession } from '@middlewares/auth.middleware.ts';
+import { initializeSocketIO } from './socket/index.ts';
+import { apiReference } from '@scalar/express-api-reference';
+import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
+import { z } from 'zod';
+import { generateApiDocs } from 'utils/generate-openapi.ts';
+
+extendZodWithOpenApi(z);
+generateApiDocs();
 
 const { urlencoded, json } = bodyHandler;
 
 const app = express();
+const server = createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: '*',
+        methods: ['GET', 'POST'],
+    },
+});
+
+// Initialize Socket.IO handlers
+initializeSocketIO(io);
 
 app.use(logger('dev'));
 app.use(cors());
 app.use(urlencoded({ extended: false }));
+
+app.use(
+    '/scalar',
+    apiReference({
+        // Put your OpenAPI url here:
+        url: '/openapi.json',
+    })
+);
 
 // BetterAuth middleware
 // Docs: /api/auth/reference
@@ -46,6 +74,7 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
 
 app.use(errorHandler);
 
-app.listen(3000, () => {
+server.listen(3000, () => {
     console.log('Server is running on http://localhost:3000');
+    console.log('Socket.IO server is ready for real-time messaging');
 });

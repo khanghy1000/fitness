@@ -1,0 +1,2479 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Fitness API",
+    "description": "A comprehensive fitness tracking and coaching API that allows coaches to manage trainees, create workout and nutrition plans, and track progress.",
+    "contact": {
+      "name": "API Support",
+      "email": "support@fitness-api.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Development server"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT token for authentication"
+      }
+    },
+    "schemas": {
+      "IdParam": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^\\d+$",
+            "description": "Unique identifier",
+            "example": "123"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "DayIdParam": {
+        "type": "object",
+        "properties": {
+          "dayId": {
+            "type": "string",
+            "pattern": "^\\d+$",
+            "description": "Workout plan day identifier",
+            "example": "456"
+          }
+        },
+        "required": [
+          "dayId"
+        ]
+      },
+      "MyQuery": {
+        "type": "object",
+        "properties": {
+          "my": {
+            "type": "string",
+            "enum": [
+              "true",
+              "false"
+            ],
+            "description": "Filter by current user resources",
+            "example": "true"
+          }
+        }
+      },
+      "PaginationQuery": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "string",
+            "description": "Number of items to return",
+            "example": "10"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Number of items to skip",
+            "example": "0"
+          }
+        }
+      },
+      "SuccessMessage": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Success message",
+            "example": "Operation completed successfully"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "ConnectRequest": {
+        "type": "object",
+        "properties": {
+          "coachId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "ID of the coach to connect with",
+            "example": "coach123"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Optional notes for connection request",
+            "example": "Looking for strength training guidance"
+          }
+        },
+        "required": [
+          "coachId"
+        ]
+      },
+      "ConnectionRequestType": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "sent",
+              "received"
+            ],
+            "description": "Type of connection requests to retrieve",
+            "example": "sent"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "TraineeId": {
+        "type": "object",
+        "properties": {
+          "traineeId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "ID of the trainee",
+            "example": "trainee456"
+          }
+        },
+        "required": [
+          "traineeId"
+        ]
+      },
+      "TraineeParam": {
+        "type": "object",
+        "properties": {
+          "traineeId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Trainee identifier from URL parameter",
+            "example": "trainee789"
+          }
+        },
+        "required": [
+          "traineeId"
+        ]
+      },
+      "Connection": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Connection ID",
+            "example": 1
+          },
+          "coachId": {
+            "type": "string",
+            "description": "Coach user ID"
+          },
+          "traineeId": {
+            "type": "string",
+            "description": "Trainee user ID"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "accepted",
+              "rejected",
+              "ended"
+            ],
+            "description": "Connection status"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Connection notes"
+          },
+          "requestedAt": {
+            "type": "string",
+            "description": "Request date"
+          },
+          "respondedAt": {
+            "type": "string",
+            "description": "Response date"
+          }
+        },
+        "required": [
+          "id",
+          "coachId",
+          "traineeId",
+          "status",
+          "requestedAt"
+        ]
+      },
+      "ExerciseType": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Exercise type ID",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "Exercise name",
+            "example": "Push-ups"
+          },
+          "devicePosition": {
+            "type": "string",
+            "enum": [
+              "thigh",
+              "arm",
+              "none"
+            ],
+            "description": "Device position for tracking",
+            "example": "thigh"
+          },
+          "logType": {
+            "type": "string",
+            "enum": [
+              "reps",
+              "duration"
+            ],
+            "description": "Type of logging for this exercise",
+            "example": "reps"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "devicePosition",
+          "logType"
+        ]
+      },
+      "RecordExerciseResult": {
+        "type": "object",
+        "properties": {
+          "workoutPlanDayExerciseId": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "ID of the workout plan day exercise",
+            "example": 789
+          },
+          "reps": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Number of repetitions completed",
+            "example": 15
+          },
+          "duration": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Duration of exercise in seconds",
+            "example": 180
+          },
+          "calories": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Calories burned during exercise",
+            "example": 45
+          }
+        },
+        "required": [
+          "workoutPlanDayExerciseId"
+        ]
+      },
+      "Food": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Name of the food item",
+            "example": "Grilled Chicken Breast"
+          },
+          "quantity": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Quantity of the food",
+            "example": "150g"
+          },
+          "calories": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Calories per serving",
+            "example": 231
+          },
+          "protein": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Protein content in grams",
+            "example": 43.5
+          },
+          "carbs": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Carbohydrate content in grams",
+            "example": 0
+          },
+          "fat": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Fat content in grams",
+            "example": 5
+          },
+          "fiber": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Fiber content in grams",
+            "example": 0
+          }
+        },
+        "required": [
+          "name",
+          "quantity",
+          "calories"
+        ]
+      },
+      "Meal": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Name of the meal",
+            "example": "Breakfast"
+          },
+          "time": {
+            "type": "string",
+            "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$",
+            "description": "Time when meal should be consumed",
+            "example": "08:00:00"
+          },
+          "calories": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Total calories for the meal",
+            "example": 450
+          },
+          "protein": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Total protein for the meal",
+            "example": 25.5
+          },
+          "carbs": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Total carbs for the meal",
+            "example": 45
+          },
+          "fat": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Total fat for the meal",
+            "example": 12
+          },
+          "fiber": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Total fiber for the meal",
+            "example": 8
+          },
+          "foods": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Food"
+            },
+            "minItems": 1,
+            "description": "List of foods in this meal"
+          }
+        },
+        "required": [
+          "name",
+          "time",
+          "foods"
+        ]
+      },
+      "WeekdayPlan": {
+        "type": "object",
+        "properties": {
+          "weekday": {
+            "type": "string",
+            "enum": [
+              "sun",
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat"
+            ],
+            "description": "Day of the week",
+            "example": "mon"
+          },
+          "totalCalories": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Total calories for the day",
+            "example": 2000
+          },
+          "protein": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Total protein for the day",
+            "example": 150
+          },
+          "carbs": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Total carbs for the day",
+            "example": 200
+          },
+          "fat": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Total fat for the day",
+            "example": 66
+          },
+          "fiber": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Total fiber for the day",
+            "example": 25
+          },
+          "meals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Meal"
+            },
+            "minItems": 1,
+            "description": "List of meals for this day"
+          }
+        },
+        "required": [
+          "weekday",
+          "meals"
+        ]
+      },
+      "CreateNutritionPlan": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Name of the nutrition plan",
+            "example": "High Protein Diet"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the nutrition plan",
+            "example": "A diet plan focused on muscle building"
+          },
+          "weekdayPlans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WeekdayPlan"
+            },
+            "minItems": 1,
+            "description": "Nutrition plans for each day of the week"
+          }
+        },
+        "required": [
+          "name",
+          "weekdayPlans"
+        ]
+      },
+      "UpdateNutritionPlan": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Updated name of the nutrition plan"
+          },
+          "description": {
+            "type": "string",
+            "description": "Updated description of the nutrition plan"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Whether the nutrition plan is active",
+            "example": true
+          },
+          "weekdayPlans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WeekdayPlan"
+            },
+            "description": "Updated weekday plans"
+          }
+        }
+      },
+      "AssignNutritionPlan": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "ID of the user to assign the plan to",
+            "example": "user123"
+          },
+          "startDate": {
+            "type": "string",
+            "description": "Start date for the nutrition plan",
+            "example": "2025-01-01"
+          },
+          "endDate": {
+            "type": "string",
+            "description": "End date for the nutrition plan",
+            "example": "2025-03-01"
+          }
+        },
+        "required": [
+          "userId",
+          "startDate"
+        ]
+      },
+      "MealCompletion": {
+        "type": "object",
+        "properties": {
+          "nutritionPlanMealId": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "ID of the nutrition plan meal",
+            "example": 123
+          },
+          "caloriesConsumed": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Actual calories consumed",
+            "example": 420
+          },
+          "proteinConsumed": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Actual protein consumed",
+            "example": 23.5
+          },
+          "carbsConsumed": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Actual carbs consumed",
+            "example": 40
+          },
+          "fatConsumed": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Actual fat consumed",
+            "example": 11
+          },
+          "fiberConsumed": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Actual fiber consumed",
+            "example": 7.5
+          },
+          "notes": {
+            "type": "string",
+            "description": "Notes about the meal completion",
+            "example": "Felt satisfied after this meal"
+          }
+        },
+        "required": [
+          "nutritionPlanMealId"
+        ]
+      },
+      "NutritionAdherence": {
+        "type": "object",
+        "properties": {
+          "userNutritionPlanId": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "ID of the user nutrition plan",
+            "example": 456
+          },
+          "date": {
+            "type": "string",
+            "description": "Date of adherence record",
+            "example": "2025-01-15"
+          },
+          "weekday": {
+            "type": "string",
+            "enum": [
+              "sun",
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat"
+            ],
+            "description": "Day of the week",
+            "example": "mon"
+          },
+          "totalMeals": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Total number of meals planned",
+            "example": 5
+          },
+          "adherencePercentage": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Percentage of plan followed",
+            "example": 85.5
+          },
+          "notes": {
+            "type": "string",
+            "description": "Notes about adherence",
+            "example": "Skipped afternoon snack due to meeting"
+          }
+        },
+        "required": [
+          "userNutritionPlanId"
+        ]
+      },
+      "NutritionPlan": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Nutrition plan ID",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "Plan name",
+            "example": "High Protein Diet"
+          },
+          "description": {
+            "type": "string",
+            "description": "Plan description"
+          },
+          "createdBy": {
+            "type": "string",
+            "description": "Creator user ID"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Whether plan is active"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Creation date"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Last update date"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "createdBy",
+          "isActive",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "CreateWorkoutPlan": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Name of the workout plan",
+            "example": "Push Pull Legs"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the workout plan",
+            "example": "A 6-day split focusing on push, pull, and leg movements"
+          },
+          "difficulty": {
+            "type": "string",
+            "enum": [
+              "beginner",
+              "intermediate",
+              "advanced"
+            ],
+            "description": "Difficulty level of the workout",
+            "example": "intermediate"
+          },
+          "estimatedCalories": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Estimated calories burned per session",
+            "example": 350
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdateWorkoutPlan": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Updated name of the workout plan"
+          },
+          "description": {
+            "type": "string",
+            "description": "Updated description of the workout plan"
+          },
+          "difficulty": {
+            "type": "string",
+            "enum": [
+              "beginner",
+              "intermediate",
+              "advanced"
+            ],
+            "description": "Updated difficulty level"
+          },
+          "estimatedCalories": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Updated estimated calories burned"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Whether the workout plan is active",
+            "example": true
+          }
+        }
+      },
+      "AssignWorkoutPlan": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "ID of the user to assign the plan to",
+            "example": "user456"
+          },
+          "startDate": {
+            "type": "string",
+            "description": "Start date for the workout plan",
+            "example": "2025-01-01"
+          },
+          "endDate": {
+            "type": "string",
+            "description": "End date for the workout plan",
+            "example": "2025-06-01"
+          }
+        },
+        "required": [
+          "userId",
+          "startDate"
+        ]
+      },
+      "AddDayToWorkoutPlan": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Day number in the workout plan",
+            "example": 1
+          },
+          "isRestDay": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether this is a rest day",
+            "example": false
+          },
+          "estimatedCalories": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Estimated calories burned for this day",
+            "example": 400
+          },
+          "duration": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Estimated duration in minutes",
+            "example": 60
+          }
+        },
+        "required": [
+          "day"
+        ]
+      },
+      "AddExerciseToPlanDay": {
+        "type": "object",
+        "properties": {
+          "exerciseTypeId": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "ID of the exercise type",
+            "example": 15
+          },
+          "order": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Order of exercise in the workout",
+            "example": 1
+          },
+          "targetReps": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Target number of repetitions",
+            "example": 12
+          },
+          "targetDuration": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Target duration in seconds",
+            "example": 300
+          },
+          "estimatedCalories": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Estimated calories burned for this exercise",
+            "example": 50
+          },
+          "notes": {
+            "type": "string",
+            "description": "Additional notes for the exercise",
+            "example": "Focus on form over speed"
+          }
+        },
+        "required": [
+          "exerciseTypeId"
+        ]
+      },
+      "WorkoutPlan": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Workout plan ID",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "Plan name",
+            "example": "Push Pull Legs"
+          },
+          "description": {
+            "type": "string",
+            "description": "Plan description"
+          },
+          "difficulty": {
+            "type": "string",
+            "enum": [
+              "beginner",
+              "intermediate",
+              "advanced"
+            ]
+          },
+          "estimatedCalories": {
+            "type": "number",
+            "description": "Estimated calories per session"
+          },
+          "createdBy": {
+            "type": "string",
+            "description": "Creator user ID"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Whether plan is active"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Creation date"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Last update date"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "createdBy",
+          "isActive",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "CreatePlannedWorkout": {
+        "type": "object",
+        "properties": {
+          "userWorkoutPlanId": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "ID of the user workout plan",
+            "example": 123
+          },
+          "weekdays": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "sun",
+                "mon",
+                "tue",
+                "wed",
+                "thu",
+                "fri",
+                "sat"
+              ]
+            },
+            "minItems": 1,
+            "description": "Days of the week when workout is scheduled",
+            "example": [
+              "mon",
+              "wed",
+              "fri"
+            ]
+          },
+          "time": {
+            "type": "string",
+            "pattern": "^([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$",
+            "description": "Time when workout is scheduled",
+            "example": "07:00"
+          },
+          "isActive": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether the planned workout is active",
+            "example": true
+          }
+        },
+        "required": [
+          "userWorkoutPlanId",
+          "weekdays",
+          "time"
+        ]
+      },
+      "UpdatePlannedWorkout": {
+        "type": "object",
+        "properties": {
+          "weekdays": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "sun",
+                "mon",
+                "tue",
+                "wed",
+                "thu",
+                "fri",
+                "sat"
+              ]
+            },
+            "minItems": 1,
+            "description": "Updated days of the week"
+          },
+          "time": {
+            "type": "string",
+            "pattern": "^([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$",
+            "description": "Updated time for the workout"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Updated active status"
+          }
+        }
+      },
+      "CreateUserGoal": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "weight_loss",
+              "weight_gain",
+              "muscle_gain",
+              "endurance",
+              "strength",
+              "flexibility",
+              "custom"
+            ],
+            "description": "Type of fitness goal",
+            "example": "muscle_gain"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Title of the goal",
+            "example": "Gain 10kg muscle mass"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description of the goal",
+            "example": "Focus on upper body strength and mass"
+          },
+          "targetValue": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Target value for the goal",
+            "example": 10
+          },
+          "unit": {
+            "type": "string",
+            "description": "Unit of measurement",
+            "example": "kg"
+          },
+          "targetDate": {
+            "type": "string",
+            "description": "Target completion date",
+            "example": "2025-12-31"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ],
+            "description": "Priority level of the goal",
+            "example": "high"
+          }
+        },
+        "required": [
+          "type",
+          "title"
+        ]
+      },
+      "UpdateUserGoal": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Updated title of the goal"
+          },
+          "description": {
+            "type": "string",
+            "description": "Updated description"
+          },
+          "targetValue": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Updated target value"
+          },
+          "currentValue": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Current progress value",
+            "example": 3.5
+          },
+          "unit": {
+            "type": "string",
+            "description": "Updated unit of measurement"
+          },
+          "targetDate": {
+            "type": "string",
+            "description": "Updated target date"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "completed",
+              "paused",
+              "cancelled"
+            ],
+            "description": "Updated status of the goal",
+            "example": "active"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ],
+            "description": "Updated priority level"
+          }
+        }
+      },
+      "RecordUserStats": {
+        "type": "object",
+        "properties": {
+          "weight": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Body weight in kg",
+            "example": 75.5
+          },
+          "height": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Height in cm",
+            "example": 175
+          },
+          "bodyFat": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Body fat percentage",
+            "example": 15.2
+          },
+          "muscleMass": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Muscle mass in kg",
+            "example": 35.8
+          },
+          "chest": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Chest measurement in cm",
+            "example": 102
+          },
+          "waist": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Waist measurement in cm",
+            "example": 85
+          },
+          "hips": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Hip measurement in cm",
+            "example": 95
+          },
+          "arms": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Arm measurement in cm",
+            "example": 38
+          },
+          "thighs": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Thigh measurement in cm",
+            "example": 58
+          },
+          "notes": {
+            "type": "string",
+            "description": "Additional notes about measurements",
+            "example": "Measured in the morning"
+          }
+        }
+      },
+      "UserSearchQuery": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Search term for finding users",
+            "example": "john"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "coach",
+              "trainee"
+            ],
+            "description": "Filter by user role",
+            "example": "trainee"
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "User ID",
+            "example": "user123"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "User email",
+            "example": "john.doe@example.com"
+          },
+          "name": {
+            "type": "string",
+            "description": "User full name",
+            "example": "John Doe"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "coach",
+              "trainee"
+            ],
+            "description": "User role",
+            "example": "trainee"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Account creation date",
+            "example": "2025-01-01T00:00:00Z"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "name",
+          "role",
+          "createdAt"
+        ]
+      },
+      "PingResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "pong"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "ExerciseResult": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Result ID"
+          },
+          "workoutPlanDayExerciseId": {
+            "type": "number"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "reps": {
+            "type": "number"
+          },
+          "duration": {
+            "type": "number"
+          },
+          "calories": {
+            "type": "number"
+          },
+          "recordedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "workoutPlanDayExerciseId",
+          "userId",
+          "recordedAt"
+        ]
+      },
+      "ExerciseResultWithDetails": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Result ID"
+          },
+          "workoutPlanDayExerciseId": {
+            "type": "number"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "reps": {
+            "type": "number"
+          },
+          "duration": {
+            "type": "number"
+          },
+          "calories": {
+            "type": "number"
+          },
+          "completedAt": {
+            "type": "string"
+          },
+          "workoutPlanExercise": {
+            "type": "object",
+            "properties": {
+              "exerciseType": {
+                "$ref": "#/components/schemas/ExerciseType"
+              },
+              "workoutPlanDay": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "number"
+                  },
+                  "day": {
+                    "type": "number"
+                  },
+                  "isRestDay": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "id",
+                  "day",
+                  "isRestDay"
+                ]
+              }
+            },
+            "required": [
+              "exerciseType",
+              "workoutPlanDay"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "workoutPlanDayExerciseId",
+          "userId",
+          "completedAt",
+          "workoutPlanExercise"
+        ]
+      },
+      "ExerciseResultForPlanExercise": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Result ID"
+          },
+          "workoutPlanDayExerciseId": {
+            "type": "number"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "reps": {
+            "type": "number"
+          },
+          "duration": {
+            "type": "number"
+          },
+          "calories": {
+            "type": "number"
+          },
+          "completedAt": {
+            "type": "string"
+          },
+          "workoutPlanExercise": {
+            "type": "object",
+            "properties": {
+              "exerciseType": {
+                "$ref": "#/components/schemas/ExerciseType"
+              }
+            },
+            "required": [
+              "exerciseType"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "workoutPlanDayExerciseId",
+          "userId",
+          "completedAt",
+          "workoutPlanExercise"
+        ]
+      },
+      "WorkoutPlanAssignment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "workoutPlanId": {
+            "type": "number"
+          },
+          "assignedBy": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "assignedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "workoutPlanId",
+          "assignedBy",
+          "startDate",
+          "isActive",
+          "assignedAt"
+        ]
+      },
+      "UserStats": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "weight": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          },
+          "bodyFat": {
+            "type": "number"
+          },
+          "muscleMass": {
+            "type": "number"
+          },
+          "chest": {
+            "type": "number"
+          },
+          "waist": {
+            "type": "number"
+          },
+          "hips": {
+            "type": "number"
+          },
+          "arms": {
+            "type": "number"
+          },
+          "thighs": {
+            "type": "number"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "recordedAt": {
+            "type": "string"
+          },
+          "recordedBy": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "recordedAt",
+          "recordedBy"
+        ]
+      },
+      "UserStatsResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "weight": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          },
+          "bodyFat": {
+            "type": "number"
+          },
+          "muscleMass": {
+            "type": "number"
+          },
+          "chest": {
+            "type": "number"
+          },
+          "waist": {
+            "type": "number"
+          },
+          "hips": {
+            "type": "number"
+          },
+          "arms": {
+            "type": "number"
+          },
+          "thighs": {
+            "type": "number"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "recordedAt": {
+            "type": "string"
+          },
+          "recordedBy": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "recordedAt",
+          "recordedBy"
+        ]
+      }
+    },
+    "parameters": {}
+  },
+  "paths": {
+    "/api/ping": {
+      "get": {
+        "tags": [
+          "Ping"
+        ],
+        "summary": "Health check endpoint",
+        "description": "Simple health check that returns pong",
+        "responses": {
+          "200": {
+            "description": "Successful ping response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PingResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/exercises": {
+      "get": {
+        "tags": [
+          "Exercises"
+        ],
+        "summary": "Get all exercise types",
+        "description": "Retrieve a list of all available exercise types",
+        "responses": {
+          "200": {
+            "description": "List of exercise types",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseType"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/exercises/{id}": {
+      "get": {
+        "tags": [
+          "Exercises"
+        ],
+        "summary": "Get exercise type by ID",
+        "description": "Retrieve a specific exercise type by its ID",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+$",
+              "description": "Unique identifier",
+              "example": "123"
+            },
+            "required": true,
+            "description": "Unique identifier",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Exercise type details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseType"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Exercise type not found"
+          }
+        }
+      }
+    },
+    "/api/exercises/name/{name}": {
+      "get": {
+        "tags": [
+          "Exercises"
+        ],
+        "summary": "Get exercise type by name",
+        "description": "Retrieve a specific exercise type by its name",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "description": "Name of the exercise",
+              "example": "Push-ups"
+            },
+            "required": true,
+            "description": "Name of the exercise",
+            "name": "name",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Exercise type details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseType"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Exercise type not found"
+          }
+        }
+      }
+    },
+    "/api/exercises/exercise-results": {
+      "post": {
+        "tags": [
+          "Exercises"
+        ],
+        "summary": "Record exercise result",
+        "description": "Record the result of an exercise performance",
+        "requestBody": {
+          "description": "Exercise result data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordExerciseResult"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Exercise result recorded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data"
+          }
+        }
+      }
+    },
+    "/api/exercises/results": {
+      "get": {
+        "tags": [
+          "Exercises"
+        ],
+        "summary": "Get user exercise results",
+        "description": "Retrieve all exercise results for the authenticated user",
+        "responses": {
+          "200": {
+            "description": "List of user exercise results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseResultWithDetails"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/exercises/workout-plan-day-exercise/{id}": {
+      "get": {
+        "tags": [
+          "Exercises"
+        ],
+        "summary": "Get exercise results for workout plan day exercise",
+        "description": "Retrieve exercise results for a specific workout plan day exercise",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+$",
+              "description": "Unique identifier",
+              "example": "123"
+            },
+            "required": true,
+            "description": "Unique identifier",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Exercise results for the specified workout plan day exercise",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseResultForPlanExercise"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/nutrition": {
+      "get": {
+        "tags": [
+          "Nutrition"
+        ],
+        "summary": "Get all nutrition plans",
+        "description": "Retrieve nutrition plans, optionally filtered by current user",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "description": "Filter by current user resources",
+              "example": "true"
+            },
+            "required": false,
+            "description": "Filter by current user resources",
+            "name": "my",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of nutrition plans",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NutritionPlan"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Nutrition"
+        ],
+        "summary": "Create nutrition plan",
+        "description": "Create a new nutrition plan",
+        "requestBody": {
+          "description": "Nutrition plan data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateNutritionPlan"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Nutrition plan created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NutritionPlan"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data"
+          }
+        }
+      }
+    },
+    "/api/nutrition/{id}": {
+      "get": {
+        "tags": [
+          "Nutrition"
+        ],
+        "summary": "Get nutrition plan by ID",
+        "description": "Retrieve a specific nutrition plan",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+$",
+              "description": "Unique identifier",
+              "example": "123"
+            },
+            "required": true,
+            "description": "Unique identifier",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Nutrition plan details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NutritionPlan"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Nutrition plan not found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Nutrition"
+        ],
+        "summary": "Update nutrition plan",
+        "description": "Update an existing nutrition plan (coach only)",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+$",
+              "description": "Unique identifier",
+              "example": "123"
+            },
+            "required": true,
+            "description": "Unique identifier",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "description": "Updated nutrition plan data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateNutritionPlan"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Nutrition plan updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NutritionPlan"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Nutrition plan not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Nutrition"
+        ],
+        "summary": "Delete nutrition plan",
+        "description": "Delete a nutrition plan (coach only)",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+$",
+              "description": "Unique identifier",
+              "example": "123"
+            },
+            "required": true,
+            "description": "Unique identifier",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Nutrition plan deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Nutrition plan not found"
+          }
+        }
+      }
+    },
+    "/api/workouts": {
+      "get": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Get all workout plans",
+        "description": "Retrieve workout plans, optionally filtered by current user",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "description": "Filter by current user resources",
+              "example": "true"
+            },
+            "required": false,
+            "description": "Filter by current user resources",
+            "name": "my",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of workout plans",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkoutPlan"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Create workout plan",
+        "description": "Create a new workout plan",
+        "requestBody": {
+          "description": "Workout plan data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWorkoutPlan"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Workout plan created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkoutPlan"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data"
+          }
+        }
+      }
+    },
+    "/api/workouts/{id}": {
+      "get": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Get workout plan by ID",
+        "description": "Retrieve a specific workout plan with details",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+$",
+              "description": "Unique identifier",
+              "example": "123"
+            },
+            "required": true,
+            "description": "Unique identifier",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Workout plan details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkoutPlan"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workout plan not found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Update workout plan",
+        "description": "Update an existing workout plan (coach only)",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+$",
+              "description": "Unique identifier",
+              "example": "123"
+            },
+            "required": true,
+            "description": "Unique identifier",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "description": "Updated workout plan data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWorkoutPlan"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Workout plan updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkoutPlan"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workout plan not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Delete workout plan",
+        "description": "Delete a workout plan (coach only)",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+$",
+              "description": "Unique identifier",
+              "example": "123"
+            },
+            "required": true,
+            "description": "Unique identifier",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Workout plan deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workout plan not found"
+          }
+        }
+      }
+    },
+    "/api/workouts/{id}/assign": {
+      "post": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Assign workout plan to user",
+        "description": "Assign a workout plan to a trainee (coach only)",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+$",
+              "description": "Unique identifier",
+              "example": "123"
+            },
+            "required": true,
+            "description": "Unique identifier",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "description": "Assignment data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignWorkoutPlan"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Workout plan assigned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkoutPlanAssignment"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/connections/connect": {
+      "post": {
+        "tags": [
+          "Connections"
+        ],
+        "summary": "Send connection request",
+        "description": "Send a connection request from trainee to coach",
+        "requestBody": {
+          "description": "Connection request data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnectRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Connection request sent successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Connection"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/connections/requests/{type}": {
+      "get": {
+        "tags": [
+          "Connections"
+        ],
+        "summary": "Get connection requests",
+        "description": "Get connection requests (sent or received)",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "sent",
+                "received"
+              ],
+              "description": "Type of connection requests to retrieve",
+              "example": "sent"
+            },
+            "required": true,
+            "description": "Type of connection requests to retrieve",
+            "name": "type",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of connection requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Connection"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied"
+          }
+        }
+      }
+    },
+    "/api/connections/accept": {
+      "post": {
+        "tags": [
+          "Connections"
+        ],
+        "summary": "Accept connection request",
+        "description": "Accept a connection request (coach only)",
+        "requestBody": {
+          "description": "Trainee ID to accept",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TraineeId"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Connection request accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Connection"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/connections/reject": {
+      "post": {
+        "tags": [
+          "Connections"
+        ],
+        "summary": "Reject connection request",
+        "description": "Reject a connection request (coach only)",
+        "requestBody": {
+          "description": "Trainee ID to reject",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TraineeId"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Connection request rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessage"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/connections/connections": {
+      "get": {
+        "tags": [
+          "Connections"
+        ],
+        "summary": "Get active connections",
+        "description": "Get list of active connections for the current user",
+        "responses": {
+          "200": {
+            "description": "List of active connections",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Connection"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/stats": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get user body stats",
+        "description": "Get body measurement statistics for the current user",
+        "responses": {
+          "200": {
+            "description": "User body stats",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserStats"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Record user body stats",
+        "description": "Record new body measurements for the current user",
+        "requestBody": {
+          "description": "Body measurement data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordUserStats"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Body stats recorded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserStatsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/search": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Search users",
+        "description": "Search for users by name or email, optionally filtered by role",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Search term for finding users",
+              "example": "john"
+            },
+            "required": true,
+            "description": "Search term for finding users",
+            "name": "query",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "coach",
+                "trainee"
+              ],
+              "description": "Filter by user role",
+              "example": "trainee"
+            },
+            "required": false,
+            "description": "Filter by user role",
+            "name": "role",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of matching users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "webhooks": {}
+}

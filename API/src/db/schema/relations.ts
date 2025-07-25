@@ -7,15 +7,19 @@ import {
     coachTrainee,
     exerciseType,
     nutritionPlan,
+    nutritionPlanDay,
+    nutritionPlanMeal,
+    nutritionPlanFood,
     workoutPlan,
     workoutPlanDay,
     workoutPlanDayExercise,
     userWorkoutPlan,
     userNutritionPlan,
-    workoutSession,
+    nutritionAdherence,
+    mealCompletion,
+    plannedWorkout,
     exerciseResult,
     userStats,
-    userGoal,
     message,
 } from './tables.ts';
 
@@ -43,14 +47,19 @@ export const userRelations = relations(user, ({ many }) => ({
         relationName: 'assignedBy',
     }),
 
+    // Nutrition adherence tracking
+    nutritionAdherences: many(nutritionAdherence),
+    mealCompletions: many(mealCompletion),
+
     // Workout sessions and results
-    workoutSessions: many(workoutSession),
+    plannedWorkouts: many(plannedWorkout),
+    // workoutSessions: many(workoutSession),
     exerciseResults: many(exerciseResult),
 
     // Stats and goals
     userStats: many(userStats, { relationName: 'statsUser' }),
     recordedStats: many(userStats, { relationName: 'recordedBy' }),
-    userGoals: many(userGoal),
+    // userGoals: many(userGoal),
 
     // Messages
     sentMessages: many(message, { relationName: 'sender' }),
@@ -96,7 +105,41 @@ export const nutritionPlanRelations = relations(
             fields: [nutritionPlan.createdBy],
             references: [user.id],
         }),
+        days: many(nutritionPlanDay),
         userNutritionPlans: many(userNutritionPlan),
+    })
+);
+
+export const nutritionPlanDayRelations = relations(
+    nutritionPlanDay,
+    ({ one, many }) => ({
+        nutritionPlan: one(nutritionPlan, {
+            fields: [nutritionPlanDay.nutritionPlanId],
+            references: [nutritionPlan.id],
+        }),
+        meals: many(nutritionPlanMeal),
+    })
+);
+
+export const nutritionPlanMealRelations = relations(
+    nutritionPlanMeal,
+    ({ one, many }) => ({
+        nutritionPlanDay: one(nutritionPlanDay, {
+            fields: [nutritionPlanMeal.nutritionPlanDayId],
+            references: [nutritionPlanDay.id],
+        }),
+        foods: many(nutritionPlanFood),
+        mealCompletions: many(mealCompletion),
+    })
+);
+
+export const nutritionPlanFoodRelations = relations(
+    nutritionPlanFood,
+    ({ one }) => ({
+        nutritionPlanMeal: one(nutritionPlanMeal, {
+            fields: [nutritionPlanFood.nutritionPlanMealId],
+            references: [nutritionPlanMeal.id],
+        }),
     })
 );
 
@@ -117,7 +160,7 @@ export const workoutPlanDayRelations = relations(
             references: [workoutPlan.id],
         }),
         exercises: many(workoutPlanDayExercise),
-        workoutSessions: many(workoutSession),
+        // workoutSessions: many(workoutSession),
     })
 );
 
@@ -153,13 +196,13 @@ export const userWorkoutPlanRelations = relations(
             references: [user.id],
             relationName: 'assignedBy',
         }),
-        workoutSessions: many(workoutSession),
+        // workoutSessions: many(workoutSession),
     })
 );
 
 export const userNutritionPlanRelations = relations(
     userNutritionPlan,
-    ({ one }) => ({
+    ({ one, many }) => ({
         user: one(user, {
             fields: [userNutritionPlan.userId],
             references: [user.id],
@@ -174,35 +217,66 @@ export const userNutritionPlanRelations = relations(
             references: [user.id],
             relationName: 'assignedBy',
         }),
+        nutritionAdherences: many(nutritionAdherence),
     })
 );
 
-export const workoutSessionRelations = relations(
-    workoutSession,
+export const nutritionAdherenceRelations = relations(
+    nutritionAdherence,
     ({ one, many }) => ({
+        userNutritionPlan: one(userNutritionPlan, {
+            fields: [nutritionAdherence.userNutritionPlanId],
+            references: [userNutritionPlan.id],
+        }),
         user: one(user, {
-            fields: [workoutSession.userId],
+            fields: [nutritionAdherence.userId],
             references: [user.id],
         }),
-        userWorkoutPlan: one(userWorkoutPlan, {
-            fields: [workoutSession.userWorkoutPlanId],
-            references: [userWorkoutPlan.id],
-        }),
-        workoutPlanDay: one(workoutPlanDay, {
-            fields: [workoutSession.workoutPlanDayId],
-            references: [workoutPlanDay.id],
-        }),
-        exerciseResults: many(exerciseResult),
+        mealCompletions: many(mealCompletion),
     })
 );
 
-export const exerciseResultRelations = relations(exerciseResult, ({ one }) => ({
-    workoutSession: one(workoutSession, {
-        fields: [exerciseResult.workoutSessionId],
-        references: [workoutSession.id],
+export const mealCompletionRelations = relations(mealCompletion, ({ one }) => ({
+    nutritionAdherence: one(nutritionAdherence, {
+        fields: [mealCompletion.nutritionAdherenceId],
+        references: [nutritionAdherence.id],
     }),
+    nutritionPlanMeal: one(nutritionPlanMeal, {
+        fields: [mealCompletion.nutritionPlanMealId],
+        references: [nutritionPlanMeal.id],
+    }),
+    user: one(user, {
+        fields: [mealCompletion.userId],
+        references: [user.id],
+    }),
+}));
+
+// export const workoutSessionRelations = relations(
+//     workoutSession,
+//     ({ one, many }) => ({
+//         user: one(user, {
+//             fields: [workoutSession.userId],
+//             references: [user.id],
+//         }),
+//         userWorkoutPlan: one(userWorkoutPlan, {
+//             fields: [workoutSession.userWorkoutPlanId],
+//             references: [userWorkoutPlan.id],
+//         }),
+//         workoutPlanDay: one(workoutPlanDay, {
+//             fields: [workoutSession.workoutPlanDayId],
+//             references: [workoutPlanDay.id],
+//         }),
+//         exerciseResults: many(exerciseResult),
+//     })
+// );
+
+export const exerciseResultRelations = relations(exerciseResult, ({ one }) => ({
+    // workoutSession: one(workoutSession, {
+    //     fields: [exerciseResult.workoutSessionId],
+    //     references: [workoutSession.id],
+    // }),
     workoutPlanExercise: one(workoutPlanDayExercise, {
-        fields: [exerciseResult.workoutPlanExerciseId],
+        fields: [exerciseResult.workoutPlanDayExerciseId],
         references: [workoutPlanDayExercise.id],
     }),
     user: one(user, {
@@ -224,12 +298,12 @@ export const userStatsRelations = relations(userStats, ({ one }) => ({
     }),
 }));
 
-export const userGoalRelations = relations(userGoal, ({ one }) => ({
-    user: one(user, {
-        fields: [userGoal.userId],
-        references: [user.id],
-    }),
-}));
+// export const userGoalRelations = relations(userGoal, ({ one }) => ({
+//     user: one(user, {
+//         fields: [userGoal.userId],
+//         references: [user.id],
+//     }),
+// }));
 
 export const messageRelations = relations(message, ({ one }) => ({
     sender: one(user, {
@@ -241,5 +315,16 @@ export const messageRelations = relations(message, ({ one }) => ({
         fields: [message.recipientId],
         references: [user.id],
         relationName: 'recipient',
+    }),
+}));
+
+export const plannedWorkoutRelations = relations(plannedWorkout, ({ one }) => ({
+    user: one(user, {
+        fields: [plannedWorkout.userId],
+        references: [user.id],
+    }),
+    userWorkoutPlan: one(userWorkoutPlan, {
+        fields: [plannedWorkout.userWorkoutPlanId],
+        references: [userWorkoutPlan.id],
     }),
 }));

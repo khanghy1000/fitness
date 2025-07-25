@@ -10,6 +10,7 @@ import {
     serial,
     unique,
     primaryKey,
+    time,
 } from 'drizzle-orm/pg-core';
 
 export const user = pgTable('user', {
@@ -26,7 +27,7 @@ export const user = pgTable('user', {
     updatedAt: timestamp('updated_at')
         .$defaultFn(() => /* @__PURE__ */ new Date())
         .notNull(),
-    role: text('role', { enum: ['admin', 'coach', 'trainee'] })
+    role: text('role', { enum: ['coach', 'trainee'] })
         .default('trainee')
         .notNull(),
 });
@@ -101,30 +102,19 @@ export const coachTrainee = pgTable(
     (t) => [primaryKey({ columns: [t.coachId, t.traineeId] })]
 );
 
-// 'high_stepping',
-// 'push_up',
-// 'squat',
-// 'jumping_jack',
-// 'skipping',
-// 'mountain_climber',
-// 'plank_jack',
-// 'sit_up',
-// 'lunge',
-// 'abdominal_crunch',
-// 'bicycle_crunch',
-// 'leg_raise',
-// 'heel_touch',
-// 'flutter_kick',
-// 'plank',
-// 'cobra_stretch',
-// 'custom'
-
 // Exercise Categories
 export const exerciseType = pgTable('exercise_type', {
     id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-    name: text('name').notNull(),
-    // devicePosition: text('device_position', { enum: ['thigh', 'arm']}).default('thigh'),
-    imageUrl: text('image_url'),
+    name: text('name').notNull().unique(),
+    devicePosition: text('device_position', {
+        enum: ['thigh', 'arm', 'none'],
+    }).default('thigh'),
+    logType: text('log_type', {
+        enum: ['reps', 'duration'],
+    })
+        .default('reps')
+        .notNull(),
+    // imageUrl: text('image_url'),
 });
 
 // Nutrition Plans
@@ -132,26 +122,81 @@ export const nutritionPlan = pgTable('nutrition_plan', {
     id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
     name: text('name').notNull(),
     description: text('description'),
-    totalCalories: integer('total_calories'),
-    protein: real('protein'), // in grams
-    carbs: real('carbs'), // in grams
-    fat: real('fat'), // in grams
-    fiber: real('fiber'), // in grams
-    meals: json('meals').$type<
-        Array<{
-            name: string;
-            time: string;
-            foods: Array<{
-                name: string;
-                quantity: string;
-                calories: number;
-            }>;
-        }>
-    >(),
     createdBy: text('created_by').references(() => user.id, {
         onDelete: 'cascade',
     }),
     isActive: boolean('is_active').default(true),
+    createdAt: timestamp('created_at')
+        .$defaultFn(() => new Date())
+        .notNull(),
+    updatedAt: timestamp('updated_at')
+        .$defaultFn(() => new Date())
+        .notNull(),
+});
+
+// Nutrition Plan Days (for each weekday)
+export const nutritionPlanDay = pgTable(
+    'nutrition_plan_day',
+    {
+        id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+        nutritionPlanId: integer('nutrition_plan_id').references(
+            () => nutritionPlan.id,
+            { onDelete: 'cascade' }
+        ),
+        weekday: text('weekday', {
+            enum: ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'],
+        }).notNull(),
+        totalCalories: integer('total_calories'),
+        protein: real('protein'), // in grams
+        carbs: real('carbs'), // in grams
+        fat: real('fat'), // in grams
+        fiber: real('fiber'), // in grams
+        createdAt: timestamp('created_at')
+            .$defaultFn(() => new Date())
+            .notNull(),
+        updatedAt: timestamp('updated_at')
+            .$defaultFn(() => new Date())
+            .notNull(),
+    },
+    (t) => [unique().on(t.nutritionPlanId, t.weekday)]
+);
+
+// Meals for each nutrition plan day
+export const nutritionPlanMeal = pgTable('nutrition_plan_meal', {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    nutritionPlanDayId: integer('nutrition_plan_day_id').references(
+        () => nutritionPlanDay.id,
+        { onDelete: 'cascade' }
+    ),
+    name: text('name').notNull(), // e.g., "Breakfast", "Lunch", "Dinner", "Snack"
+    time: time('time').notNull(), // Time of day (e.g., "07:30:00", "12:00:00", "18:30:00")
+    calories: integer('calories'),
+    protein: real('protein'), // in grams
+    carbs: real('carbs'), // in grams
+    fat: real('fat'), // in grams
+    fiber: real('fiber'), // in grams
+    createdAt: timestamp('created_at')
+        .$defaultFn(() => new Date())
+        .notNull(),
+    updatedAt: timestamp('updated_at')
+        .$defaultFn(() => new Date())
+        .notNull(),
+});
+
+// Foods in each meal
+export const nutritionPlanFood = pgTable('nutrition_plan_food', {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    nutritionPlanMealId: integer('nutrition_plan_meal_id').references(
+        () => nutritionPlanMeal.id,
+        { onDelete: 'cascade' }
+    ),
+    name: text('name').notNull(),
+    quantity: text('quantity').notNull(), // e.g., "1 cup", "100g", "2 pieces"
+    calories: integer('calories').notNull(),
+    protein: real('protein'), // in grams
+    carbs: real('carbs'), // in grams
+    fat: real('fat'), // in grams
+    fiber: real('fiber'), // in grams
     createdAt: timestamp('created_at')
         .$defaultFn(() => new Date())
         .notNull(),
@@ -227,7 +272,6 @@ export const workoutPlanDayExercise = pgTable('workout_plan_day_exercise', {
     ),
     order: integer('order'), // order in the day
     targetReps: integer('target_reps'),
-    targetSets: integer('target_sets'),
     targetDuration: integer('target_duration'),
     estimatedCalories: integer('estimated_calories'),
     // targetWeight: real('target_weight'),
@@ -280,7 +324,6 @@ export const userNutritionPlan = pgTable('user_nutrition_plan', {
     status: text('status', {
         enum: ['active', 'completed', 'paused', 'cancelled'],
     }).default('active'),
-    // adherence: real('adherence').default(0), // percentage 0-100 - Need to add new table to track
     notes: text('notes'),
     createdAt: timestamp('created_at')
         .$defaultFn(() => new Date())
@@ -290,30 +333,24 @@ export const userNutritionPlan = pgTable('user_nutrition_plan', {
         .notNull(),
 });
 
-// Workout Sessions
-// Used when trainee plans a workout session
-// Or when trainee starts a workout session
-export const workoutSession = pgTable('workout_session', {
+// Daily nutrition adherence tracking
+export const nutritionAdherence = pgTable('nutrition_adherence', {
     id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    userNutritionPlanId: integer('user_nutrition_plan_id').references(
+        () => userNutritionPlan.id,
+        { onDelete: 'cascade' }
+    ),
     userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
-    userWorkoutPlanId: integer('user_workout_plan_id').references(
-        () => userWorkoutPlan.id,
-        { onDelete: 'cascade' }
-    ),
-    workoutPlanDayId: integer('workout_plan_day_id').references(
-        () => workoutPlanDay.id,
-        { onDelete: 'cascade' }
-    ),
-    date: timestamp('date').notNull(),
-    startTime: timestamp('start_time'),
-    endTime: timestamp('end_time'),
-    totalDuration: integer('total_duration'), // in seconds
-    totalCalories: integer('total_calories'),
-    status: text('status', {
-        enum: ['planned', 'in_progress', 'completed', 'skipped'],
-    }).default('planned'),
-    // notes: text('notes'),
-    // rating: integer('rating'), // 1-5 stars
+    date: timestamp('date').notNull(), // Date for which adherence is tracked
+    weekday: text('weekday', {
+        enum: ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'],
+    }).notNull(),
+    mealsCompleted: integer('meals_completed').default(0), // Number of meals completed
+    totalMeals: integer('total_meals').default(0), // Total meals planned for the day
+    adherencePercentage: real('adherence_percentage').default(0), // 0-100%
+    totalCaloriesConsumed: integer('total_calories_consumed').default(0),
+    totalCaloriesPlanned: integer('total_calories_planned').default(0),
+    notes: text('notes'), // User notes about the day
     createdAt: timestamp('created_at')
         .$defaultFn(() => new Date())
         .notNull(),
@@ -322,21 +359,98 @@ export const workoutSession = pgTable('workout_session', {
         .notNull(),
 });
 
+// Meal completion tracking
+export const mealCompletion = pgTable('meal_completion', {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    nutritionAdherenceId: integer('nutrition_adherence_id').references(
+        () => nutritionAdherence.id,
+        { onDelete: 'cascade' }
+    ),
+    nutritionPlanMealId: integer('nutrition_plan_meal_id').references(
+        () => nutritionPlanMeal.id,
+        { onDelete: 'cascade' }
+    ),
+    userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
+    isCompleted: boolean('is_completed').default(false),
+    completedAt: timestamp('completed_at'),
+    caloriesConsumed: integer('calories_consumed'),
+    proteinConsumed: real('protein_consumed'),
+    carbsConsumed: real('carbs_consumed'),
+    fatConsumed: real('fat_consumed'),
+    fiberConsumed: real('fiber_consumed'),
+    notes: text('notes'), // User notes about the specific meal
+    createdAt: timestamp('created_at')
+        .$defaultFn(() => new Date())
+        .notNull(),
+    updatedAt: timestamp('updated_at')
+        .$defaultFn(() => new Date())
+        .notNull(),
+});
+
+// Planned Workouts (for recurring workout notifications) (May not needed - can be local data in app)
+export const plannedWorkout = pgTable('planned_workout', {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
+    userWorkoutPlanId: integer('user_workout_plan_id').references(
+        () => userWorkoutPlan.id,
+        { onDelete: 'cascade' }
+    ),
+    weekdays: json('weekdays')
+        .$type<('sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat')[]>()
+        .notNull(), // Array of weekdays: ['sun', 'mon', 'tue']
+    time: time('time').notNull(), // Time of day without timezone (e.g., "07:30:00", "18:00:00")
+    isActive: boolean('is_active').default(true), // can be enabled/disabled
+    createdAt: timestamp('created_at')
+        .$defaultFn(() => new Date())
+        .notNull(),
+    updatedAt: timestamp('updated_at')
+        .$defaultFn(() => new Date())
+        .notNull(),
+});
+
+// Workout Sessions
+// Used only when trainee actually starts/completes a workout
+// export const workoutSession = pgTable('workout_session', {
+//     id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+//     userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
+//     userWorkoutPlanId: integer('user_workout_plan_id').references(
+//         () => userWorkoutPlan.id,
+//         { onDelete: 'cascade' }
+//     ),
+//     workoutPlanDayId: integer('workout_plan_day_id').references(
+//         () => workoutPlanDay.id,
+//         { onDelete: 'cascade' }
+//     ),
+//     startTime: timestamp('start_time'),
+//     endTime: timestamp('end_time'),
+//     totalDuration: integer('total_duration'), // in seconds
+//     totalCalories: integer('total_calories'),
+//     status: text('status', {
+//         enum: ['in_progress', 'done'],
+//     }).default('in_progress'),
+//     // rating: integer('rating'), // 1-5 stars
+//     // notes: text('notes'),
+//     createdAt: timestamp('created_at')
+//         .$defaultFn(() => new Date())
+//         .notNull(),
+//     updatedAt: timestamp('updated_at')
+//         .$defaultFn(() => new Date())
+//         .notNull(),
+// });
+
 // Exercise Results/Logs
 export const exerciseResult = pgTable('exercise_result', {
     id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-    workoutSessionId: integer('workout_session_id').references(
-        () => workoutSession.id,
-        { onDelete: 'cascade' }
-    ),
-    workoutPlanExerciseId: integer('workout_plan_exercise_id').references(
-        () => workoutPlanDayExercise.id,
-        {
-            onDelete: 'cascade',
-        }
-    ),
+    // workoutSessionId: integer('workout_session_id').references(
+    //     () => workoutSession.id,
+    //     { onDelete: 'cascade' }
+    // ),
+    workoutPlanDayExerciseId: integer(
+        'workout_plan_day_exercise_id'
+    ).references(() => workoutPlanDayExercise.id, {
+        onDelete: 'cascade',
+    }),
     userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
-    sets: integer('sets'),
     reps: integer('reps'),
     duration: integer('duration'), // in seconds
     calories: integer('calories'),
@@ -375,39 +489,39 @@ export const userStats = pgTable('user_stats', {
 });
 
 // User Goals
-export const userGoal = pgTable('user_goal', {
-    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-    userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
-    type: text('type', {
-        enum: [
-            'weight_loss',
-            'weight_gain',
-            'muscle_gain',
-            'endurance',
-            'strength',
-            'flexibility',
-            'custom',
-        ],
-    }).notNull(),
-    title: text('title').notNull(),
-    description: text('description'),
-    targetValue: real('target_value'),
-    currentValue: real('current_value').default(0),
-    unit: text('unit'), // kg, cm, minutes, etc.
-    targetDate: timestamp('target_date'),
-    status: text('status', {
-        enum: ['active', 'completed', 'paused', 'cancelled'],
-    }).default('active'),
-    priority: text('priority', { enum: ['low', 'medium', 'high'] }).default(
-        'medium'
-    ),
-    createdAt: timestamp('created_at')
-        .$defaultFn(() => new Date())
-        .notNull(),
-    updatedAt: timestamp('updated_at')
-        .$defaultFn(() => new Date())
-        .notNull(),
-});
+// export const userGoal = pgTable('user_goal', {
+//     id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+//     userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
+//     type: text('type', {
+//         enum: [
+//             'weight_loss',
+//             'weight_gain',
+//             'muscle_gain',
+//             'endurance',
+//             'strength',
+//             'flexibility',
+//             'custom',
+//         ],
+//     }).notNull(),
+//     title: text('title').notNull(),
+//     description: text('description'),
+//     targetValue: real('target_value'),
+//     currentValue: real('current_value').default(0),
+//     unit: text('unit'), // kg, cm, minutes, etc.
+//     targetDate: timestamp('target_date'),
+//     status: text('status', {
+//         enum: ['active', 'completed', 'paused', 'cancelled'],
+//     }).default('active'),
+//     priority: text('priority', { enum: ['low', 'medium', 'high'] }).default(
+//         'medium'
+//     ),
+//     createdAt: timestamp('created_at')
+//         .$defaultFn(() => new Date())
+//         .notNull(),
+//     updatedAt: timestamp('updated_at')
+//         .$defaultFn(() => new Date())
+//         .notNull(),
+// });
 
 // Messages between coach and trainee
 export const message = pgTable('message', {
