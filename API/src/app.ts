@@ -46,7 +46,6 @@ app.use(
 );
 
 // BetterAuth middleware
-// Docs: /api/auth/reference
 app.all('/api/auth/{*any}', toNodeHandler(auth));
 app.use(attachUserSession);
 
