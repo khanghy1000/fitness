@@ -18,23 +18,6 @@ router.get('/', requireAuthenticated, async (req, res) => {
     res.json(exerciseTypes);
 });
 
-// Get exercise type by ID
-router.get(
-    '/:id',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    async (req, res) => {
-        const id = (req.params as any).id as number;
-
-        const exerciseType = await ExerciseService.getExerciseTypeById(id);
-        if (!exerciseType) {
-            return res.status(404).json({ error: 'Exercise type not found' });
-        }
-
-        res.json(exerciseType);
-    }
-);
-
 // Get exercise type by name
 router.get('/name/:name', requireAuthenticated, async (req, res) => {
     const name = req.params.name;
@@ -90,6 +73,23 @@ router.get(
             );
 
         res.json(results);
+    }
+);
+
+// Get exercise type by ID
+router.get(
+    '/:id',
+    requireAuthenticated,
+    validateParams(idParamSchema),
+    async (req, res) => {
+        const id = (req.params as any).id as number;
+
+        const exerciseType = await ExerciseService.getExerciseTypeById(id);
+        if (!exerciseType) {
+            return res.status(404).json({ error: 'Exercise type not found' });
+        }
+
+        res.json(exerciseType);
     }
 );
 
