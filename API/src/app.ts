@@ -40,8 +40,10 @@ app.use(urlencoded({ extended: false }));
 app.use(
     '/scalar',
     apiReference({
-        // Put your OpenAPI url here:
-        url: '/openapi.json',
+        sources: [
+            { url: '/openapi.json', title: 'Api' },
+            { url: '/api/auth/open-api/generate-schema', title: 'Auth' },
+        ],
     })
 );
 
