@@ -336,10 +336,7 @@ registry.registerPath({
     tags: ['Nutrition'],
     summary: 'Get all nutrition plans',
     description:
-        'Retrieve nutrition plans, optionally filtered by current user',
-    request: {
-        query: myQuerySchema,
-    },
+        'Retrieve nutrition plans',
     responses: {
         200: {
             description: 'List of nutrition plans',
@@ -469,10 +466,7 @@ registry.registerPath({
     path: '/api/workouts',
     tags: ['Workouts'],
     summary: 'Get all workout plans',
-    description: 'Retrieve workout plans, optionally filtered by current user',
-    request: {
-        query: myQuerySchema,
-    },
+    description: 'Retrieve workout plans',
     responses: {
         200: {
             description: 'List of workout plans',

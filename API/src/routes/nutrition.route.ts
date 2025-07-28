@@ -10,7 +10,6 @@ import {
 } from '@middlewares/validation.middleware.ts';
 import {
     idParamSchema,
-    myQuerySchema,
     createNutritionPlanSchema,
     updateNutritionPlanSchema,
     assignNutritionPlanSchema,
@@ -30,23 +29,14 @@ const getWeekdayEnum = (
 };
 
 // Get all nutrition plans
-router.get(
-    '/',
-    requireAuthenticated,
-    validateQuery(myQuerySchema),
-    async (req, res) => {
-        const { my } = req.query as { my?: string };
-        let createdBy: string | undefined;
-
-        // If 'my' query param is present, filter by user's own plans
-        if (my === 'true') {
-            createdBy = req.session!.user.id;
-        }
-
-        const plans = await NutritionService.getAllNutritionPlans(createdBy);
-        res.json(plans);
-    }
-);
+router.get('/', requireAuthenticated, async (req, res) => {
+    const user = req.session!.user;
+    const plans = await NutritionService.getAllNutritionPlans(
+        user.id,
+        user.role
+    );
+    res.json(plans);
+});
 
 // Get nutrition plan by ID with full details
 router.get(

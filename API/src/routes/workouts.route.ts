@@ -11,7 +11,6 @@ import {
 import {
     idParamSchema,
     dayIdParamSchema,
-    myQuerySchema,
     createWorkoutPlanSchema,
     updateWorkoutPlanSchema,
     assignWorkoutPlanSchema,
@@ -23,23 +22,11 @@ import { WorkoutService } from '@services/workout.service.ts';
 const router = Router();
 
 // Get all workout plans
-router.get(
-    '/',
-    requireAuthenticated,
-    validateQuery(myQuerySchema),
-    async (req, res) => {
-        const { my } = req.query as { my?: string };
-        let createdBy: string | undefined;
-
-        // If 'my' query param is present, filter by user's own plans
-        if (my === 'true') {
-            createdBy = req.session!.user.id;
-        }
-
-        const plans = await WorkoutService.getAllWorkoutPlans(createdBy);
-        res.json(plans);
-    }
-);
+router.get('/', requireAuthenticated, async (req, res) => {
+    const user = req.session!.user;
+    const plans = await WorkoutService.getAllWorkoutPlans(user.id, user.role);
+    res.json(plans);
+});
 
 // Get workout plan by ID with full details
 router.get(

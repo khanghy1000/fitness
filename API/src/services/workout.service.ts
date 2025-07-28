@@ -5,16 +5,56 @@ import {
     workoutPlanDayExercise,
     userWorkoutPlan,
 } from '../db/schema/tables.ts';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, or } from 'drizzle-orm';
 
 export class WorkoutService {
-    static async getAllWorkoutPlans(createdBy?: string) {
-        if (createdBy) {
+    static async getAllWorkoutPlans(userId: string, userRole: string) {
+        if (userRole === 'coach') {
+            // Coaches get only their created plans
             return await db
                 .select()
                 .from(workoutPlan)
-                .where(eq(workoutPlan.createdBy, createdBy));
+                .where(eq(workoutPlan.createdBy, userId));
+        } else if (userRole === 'trainee') {
+            // Trainees get both created plans and assigned plans
+            const createdPlans = await db
+                .select()
+                .from(workoutPlan)
+                .where(eq(workoutPlan.createdBy, userId));
+
+            const assignedPlans = await db
+                .select({
+                    id: workoutPlan.id,
+                    name: workoutPlan.name,
+                    description: workoutPlan.description,
+                    difficulty: workoutPlan.difficulty,
+                    estimatedCalories: workoutPlan.estimatedCalories,
+                    createdBy: workoutPlan.createdBy,
+                    isActive: workoutPlan.isActive,
+                    createdAt: workoutPlan.createdAt,
+                    updatedAt: workoutPlan.updatedAt,
+                })
+                .from(workoutPlan)
+                .innerJoin(
+                    userWorkoutPlan,
+                    eq(userWorkoutPlan.workoutPlanId, workoutPlan.id)
+                )
+                .where(eq(userWorkoutPlan.userId, userId));
+
+            // Combine and deduplicate plans
+            const allPlans = [...createdPlans];
+            const createdPlanIds = new Set(createdPlans.map((p) => p.id));
+
+            for (const assignedPlan of assignedPlans) {
+                if (!createdPlanIds.has(assignedPlan.id)) {
+                    allPlans.push(assignedPlan);
+                }
+            }
+
+            return allPlans;
         }
+
+        // Default fallback
         return await db.select().from(workoutPlan);
     }
 

@@ -43,13 +43,51 @@ type WeekdayPlanType = {
 };
 
 export class NutritionService {
-    static async getAllNutritionPlans(createdBy?: string) {
-        if (createdBy) {
+    static async getAllNutritionPlans(userId: string, userRole: string) {
+        if (userRole === 'coach') {
+            // Coaches get only their created plans
             return await db
                 .select()
                 .from(nutritionPlan)
-                .where(eq(nutritionPlan.createdBy, createdBy));
+                .where(eq(nutritionPlan.createdBy, userId));
+        } else if (userRole === 'trainee') {
+            // Trainees get both created plans and assigned plans
+            const createdPlans = await db
+                .select()
+                .from(nutritionPlan)
+                .where(eq(nutritionPlan.createdBy, userId));
+
+            const assignedPlans = await db
+                .select({
+                    id: nutritionPlan.id,
+                    name: nutritionPlan.name,
+                    description: nutritionPlan.description,
+                    createdBy: nutritionPlan.createdBy,
+                    isActive: nutritionPlan.isActive,
+                    createdAt: nutritionPlan.createdAt,
+                    updatedAt: nutritionPlan.updatedAt,
+                })
+                .from(nutritionPlan)
+                .innerJoin(
+                    userNutritionPlan,
+                    eq(userNutritionPlan.nutritionPlanId, nutritionPlan.id)
+                )
+                .where(eq(userNutritionPlan.userId, userId));
+
+            // Combine and deduplicate plans
+            const allPlans = [...createdPlans];
+            const createdPlanIds = new Set(createdPlans.map((p) => p.id));
+
+            for (const assignedPlan of assignedPlans) {
+                if (!createdPlanIds.has(assignedPlan.id)) {
+                    allPlans.push(assignedPlan);
+                }
+            }
+
+            return allPlans;
         }
+
+        // Default fallback
         return await db.select().from(nutritionPlan);
     }
 
