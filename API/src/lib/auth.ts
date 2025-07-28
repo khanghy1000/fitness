@@ -16,7 +16,7 @@ export const auth = betterAuth({
                 type: ['coach', 'trainee'],
                 required: true,
                 defaultValue: 'trainee',
-                input: false,
+                input: true,
             },
         },
     },
