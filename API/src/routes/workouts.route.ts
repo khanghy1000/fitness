@@ -22,7 +22,171 @@ import { WorkoutService } from '@services/workout.service.ts';
 
 const router = Router();
 
-// ===== WORKOUT PLANS =====
+// Get specific day by ID
+router.get(
+    '/days/:id',
+    requireAuthenticated,
+    validateParams(idParamSchema),
+    async (req, res) => {
+        const id = (req.params as any).id as number;
+        const day = await WorkoutService.getWorkoutPlanDayById(id);
+
+        if (!day) {
+            return res
+                .status(404)
+                .json({ error: 'Workout plan day not found' });
+        }
+
+        res.json(day);
+    }
+);
+
+// Update workout plan day
+router.put(
+    '/days/:id',
+    requireAuthenticated,
+    validateParams(idParamSchema),
+    validateBody(updateWorkoutPlanDaySchema),
+    async (req, res) => {
+        const id = (req.params as any).id as number;
+        const updateData = req.body;
+
+        const day = await WorkoutService.updateWorkoutPlanDay(id, updateData);
+        if (!day) {
+            return res
+                .status(404)
+                .json({ error: 'Workout plan day not found' });
+        }
+
+        res.json(day);
+    }
+);
+
+// Delete workout plan day
+router.delete(
+    '/days/:id',
+    requireAuthenticated,
+    validateParams(idParamSchema),
+    async (req, res) => {
+        const id = (req.params as any).id as number;
+
+        const day = await WorkoutService.deleteWorkoutPlanDay(id);
+        if (!day) {
+            return res
+                .status(404)
+                .json({ error: 'Workout plan day not found' });
+        }
+
+        res.json({ message: 'Workout plan day deleted successfully' });
+    }
+);
+
+// Get all exercises for a workout plan day
+router.get(
+    '/days/:id/exercises',
+    requireAuthenticated,
+    validateParams(idParamSchema),
+    async (req, res) => {
+        const workoutPlanDayId = (req.params as any).id as number;
+        const exercises =
+            await WorkoutService.getWorkoutPlanDayExercises(workoutPlanDayId);
+        res.json(exercises);
+    }
+);
+
+// Get specific exercise by ID
+router.get(
+    '/exercises/:id',
+    requireAuthenticated,
+    validateParams(idParamSchema),
+    async (req, res) => {
+        const id = (req.params as any).id as number;
+        const exercise = await WorkoutService.getWorkoutPlanDayExerciseById(id);
+
+        if (!exercise) {
+            return res
+                .status(404)
+                .json({ error: 'Workout plan exercise not found' });
+        }
+
+        res.json(exercise);
+    }
+);
+
+// Add exercise to workout plan day
+router.post(
+    '/days/:id/exercises',
+    requireAuthenticated,
+    validateParams(idParamSchema),
+    validateBody(addExerciseToPlanDaySchema),
+    async (req, res) => {
+        const workoutPlanDayId = (req.params as any).id as number;
+        const exerciseData = req.body;
+
+        const exercise = await WorkoutService.addExerciseToPlanDay(
+            workoutPlanDayId,
+            exerciseData
+        );
+
+        res.status(201).json(exercise);
+    }
+);
+
+// Update workout plan exercise
+router.put(
+    '/exercises/:id',
+    requireAuthenticated,
+    validateParams(idParamSchema),
+    validateBody(updateExerciseInPlanDaySchema),
+    async (req, res) => {
+        const id = (req.params as any).id as number;
+        const updateData = req.body;
+
+        const exercise = await WorkoutService.updateExerciseInPlanDay(
+            id,
+            updateData
+        );
+        if (!exercise) {
+            return res
+                .status(404)
+                .json({ error: 'Workout plan exercise not found' });
+        }
+
+        res.json(exercise);
+    }
+);
+
+// Delete workout plan exercise
+router.delete(
+    '/exercises/:id',
+    requireAuthenticated,
+    validateParams(idParamSchema),
+    async (req, res) => {
+        const id = (req.params as any).id as number;
+
+        const exercise = await WorkoutService.deleteExerciseFromPlanDay(id);
+        if (!exercise) {
+            return res
+                .status(404)
+                .json({ error: 'Workout plan exercise not found' });
+        }
+
+        res.json({ message: 'Workout plan exercise deleted successfully' });
+    }
+);
+
+// Get user's assigned workout plans
+router.get('/assigned/:userId', requireAuthenticated, async (req, res) => {
+    const userId = req.params.userId;
+
+    // Check if user is requesting their own data or if they're a coach
+    if (req.session!.user.id !== userId && req.session!.user.role !== 'coach') {
+        return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const plans = await WorkoutService.getUserAssignedWorkoutPlans(userId);
+    res.json(plans);
+});
 
 // Get all workout plans
 // Coaches get only their created plans
@@ -132,8 +296,6 @@ router.post(
     }
 );
 
-// ===== WORKOUT PLAN DAYS =====
-
 // Get all days for a workout plan
 router.get(
     '/:id/days',
@@ -143,25 +305,6 @@ router.get(
         const workoutPlanId = (req.params as any).id as number;
         const days = await WorkoutService.getWorkoutPlanDays(workoutPlanId);
         res.json(days);
-    }
-);
-
-// Get specific day by ID
-router.get(
-    '/days/:id',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    async (req, res) => {
-        const id = (req.params as any).id as number;
-        const day = await WorkoutService.getWorkoutPlanDayById(id);
-
-        if (!day) {
-            return res
-                .status(404)
-                .json({ error: 'Workout plan day not found' });
-        }
-
-        res.json(day);
     }
 );
 
@@ -183,156 +326,5 @@ router.post(
         res.status(201).json(planDay);
     }
 );
-
-// Update workout plan day
-router.put(
-    '/days/:id',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    validateBody(updateWorkoutPlanDaySchema),
-    async (req, res) => {
-        const id = (req.params as any).id as number;
-        const updateData = req.body;
-
-        const day = await WorkoutService.updateWorkoutPlanDay(id, updateData);
-        if (!day) {
-            return res
-                .status(404)
-                .json({ error: 'Workout plan day not found' });
-        }
-
-        res.json(day);
-    }
-);
-
-// Delete workout plan day
-router.delete(
-    '/days/:id',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    async (req, res) => {
-        const id = (req.params as any).id as number;
-
-        const day = await WorkoutService.deleteWorkoutPlanDay(id);
-        if (!day) {
-            return res
-                .status(404)
-                .json({ error: 'Workout plan day not found' });
-        }
-
-        res.json({ message: 'Workout plan day deleted successfully' });
-    }
-);
-
-// ===== WORKOUT PLAN DAY EXERCISES =====
-
-// Get all exercises for a workout plan day
-router.get(
-    '/days/:id/exercises',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    async (req, res) => {
-        const workoutPlanDayId = (req.params as any).id as number;
-        const exercises =
-            await WorkoutService.getWorkoutPlanDayExercises(workoutPlanDayId);
-        res.json(exercises);
-    }
-);
-
-// Get specific exercise by ID
-router.get(
-    '/exercises/:id',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    async (req, res) => {
-        const id = (req.params as any).id as number;
-        const exercise = await WorkoutService.getWorkoutPlanDayExerciseById(id);
-
-        if (!exercise) {
-            return res
-                .status(404)
-                .json({ error: 'Workout plan exercise not found' });
-        }
-
-        res.json(exercise);
-    }
-);
-
-// Add exercise to workout plan day
-router.post(
-    '/days/:id/exercises',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    validateBody(addExerciseToPlanDaySchema),
-    async (req, res) => {
-        const workoutPlanDayId = (req.params as any).id as number;
-        const exerciseData = req.body;
-
-        const exercise = await WorkoutService.addExerciseToPlanDay(
-            workoutPlanDayId,
-            exerciseData
-        );
-
-        res.status(201).json(exercise);
-    }
-);
-
-// Update workout plan exercise
-router.put(
-    '/exercises/:id',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    validateBody(updateExerciseInPlanDaySchema),
-    async (req, res) => {
-        const id = (req.params as any).id as number;
-        const updateData = req.body;
-
-        const exercise = await WorkoutService.updateExerciseInPlanDay(
-            id,
-            updateData
-        );
-        if (!exercise) {
-            return res
-                .status(404)
-                .json({ error: 'Workout plan exercise not found' });
-        }
-
-        res.json(exercise);
-    }
-);
-
-// Delete workout plan exercise
-router.delete(
-    '/exercises/:id',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    async (req, res) => {
-        const id = (req.params as any).id as number;
-
-        const exercise = await WorkoutService.deleteExerciseFromPlanDay(id);
-        if (!exercise) {
-            return res
-                .status(404)
-                .json({ error: 'Workout plan exercise not found' });
-        }
-
-        res.json({ message: 'Workout plan exercise deleted successfully' });
-    }
-);
-
-// ===== USER ASSIGNMENTS =====
-
-// Get user's assigned workout plans
-router.get('/assigned/:userId', requireAuthenticated, async (req, res) => {
-    const userId = req.params.userId;
-
-    // Check if user is requesting their own data or if they're a coach
-    if (req.session!.user.id !== userId && req.session!.user.role !== 'coach') {
-        return res.status(403).json({ error: 'Access denied' });
-    }
-
-    const plans = await WorkoutService.getUserAssignedWorkoutPlans(userId);
-    res.json(plans);
-});
 
 export default router;

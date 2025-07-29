@@ -34,8 +34,6 @@ const getWeekdayEnum = (
     return weekdays[dayNumber];
 };
 
-// ===== NUTRITION PLANS =====
-
 // Get all nutrition plans
 // Coaches get only their created plans
 // Trainees get both created plans and assigned plans
@@ -47,23 +45,6 @@ router.get('/', requireAuthenticated, async (req, res) => {
     );
     res.json(plans);
 });
-
-// Get nutrition plan by ID with full details
-router.get(
-    '/:id',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    async (req, res) => {
-        const id = (req.params as any).id as number;
-
-        const plan = await NutritionService.getNutritionPlanById(id);
-        if (!plan) {
-            return res.status(404).json({ error: 'Nutrition plan not found' });
-        }
-
-        res.json(plan);
-    }
-);
 
 // Create new nutrition plan (authenticated users can create)
 router.post(
@@ -83,79 +64,6 @@ router.post(
     }
 );
 
-// Update nutrition plan (coach only)
-router.put(
-    '/:id',
-    requireCoach,
-    validateParams(idParamSchema),
-    validateBody(updateNutritionPlanSchema),
-    async (req, res) => {
-        const id = (req.params as any).id as number;
-        const updateData = req.body;
-
-        const plan = await NutritionService.updateNutritionPlan(id, updateData);
-        if (!plan) {
-            return res.status(404).json({ error: 'Nutrition plan not found' });
-        }
-
-        res.json(plan);
-    }
-);
-
-// Delete nutrition plan (coach only)
-router.delete(
-    '/:id',
-    requireCoach,
-    validateParams(idParamSchema),
-    async (req, res) => {
-        const id = (req.params as any).id as number;
-
-        const plan = await NutritionService.deleteNutritionPlan(id);
-        if (!plan) {
-            return res.status(404).json({ error: 'Nutrition plan not found' });
-        }
-
-        res.json({ message: 'Nutrition plan deleted successfully' });
-    }
-);
-
-// Assign nutrition plan to trainee (coach only)
-router.post(
-    '/:id/assign',
-    requireCoach,
-    validateParams(idParamSchema),
-    validateBody(assignNutritionPlanSchema),
-    async (req, res) => {
-        const nutritionPlanId = (req.params as any).id as number;
-        const { userId, startDate, endDate } = req.body;
-
-        const assignment = await NutritionService.assignNutritionPlanToUser({
-            userId,
-            nutritionPlanId,
-            assignedBy: req.session!.user.id,
-            startDate: new Date(startDate),
-            endDate: endDate ? new Date(endDate) : undefined,
-        });
-
-        res.status(201).json(assignment);
-    }
-);
-
-// ===== NUTRITION PLAN DAYS =====
-
-// Get all days for a nutrition plan
-router.get(
-    '/:id/days',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    async (req, res) => {
-        const nutritionPlanId = (req.params as any).id as number;
-        const days =
-            await NutritionService.getNutritionPlanDays(nutritionPlanId);
-        res.json(days);
-    }
-);
-
 // Get specific day by ID
 router.get(
     '/days/:id',
@@ -172,21 +80,6 @@ router.get(
         }
 
         res.json(day);
-    }
-);
-
-// Create new day for nutrition plan
-router.post(
-    '/:id/days',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    validateBody(createNutritionPlanDaySchema),
-    async (req, res) => {
-        const nutritionPlanId = (req.params as any).id as number;
-        const dayData = { ...req.body, nutritionPlanId };
-
-        const day = await NutritionService.createNutritionPlanDay(dayData);
-        res.status(201).json(day);
     }
 );
 
@@ -232,8 +125,6 @@ router.delete(
         res.json({ message: 'Nutrition plan day deleted successfully' });
     }
 );
-
-// ===== NUTRITION PLAN MEALS =====
 
 // Get all meals for a nutrition plan day
 router.get(
@@ -325,8 +216,6 @@ router.delete(
     }
 );
 
-// ===== NUTRITION PLAN FOODS =====
-
 // Get all foods for a nutrition plan meal
 router.get(
     '/meals/:id/foods',
@@ -417,8 +306,6 @@ router.delete(
     }
 );
 
-// ===== USER ASSIGNMENTS AND ADHERENCE =====
-
 // Get user's assigned nutrition plans with adherence info
 router.get('/assigned/:userId', requireAuthenticated, async (req, res) => {
     const userId = req.params.userId;
@@ -485,6 +372,109 @@ router.get(
             date
         );
         res.json(adherence);
+    }
+);
+
+// Get nutrition plan by ID with full details
+router.get(
+    '/:id',
+    requireAuthenticated,
+    validateParams(idParamSchema),
+    async (req, res) => {
+        const id = (req.params as any).id as number;
+
+        const plan = await NutritionService.getNutritionPlanById(id);
+        if (!plan) {
+            return res.status(404).json({ error: 'Nutrition plan not found' });
+        }
+
+        res.json(plan);
+    }
+);
+
+// Update nutrition plan (coach only)
+router.put(
+    '/:id',
+    requireCoach,
+    validateParams(idParamSchema),
+    validateBody(updateNutritionPlanSchema),
+    async (req, res) => {
+        const id = (req.params as any).id as number;
+        const updateData = req.body;
+
+        const plan = await NutritionService.updateNutritionPlan(id, updateData);
+        if (!plan) {
+            return res.status(404).json({ error: 'Nutrition plan not found' });
+        }
+
+        res.json(plan);
+    }
+);
+
+// Delete nutrition plan (coach only)
+router.delete(
+    '/:id',
+    requireCoach,
+    validateParams(idParamSchema),
+    async (req, res) => {
+        const id = (req.params as any).id as number;
+
+        const plan = await NutritionService.deleteNutritionPlan(id);
+        if (!plan) {
+            return res.status(404).json({ error: 'Nutrition plan not found' });
+        }
+
+        res.json({ message: 'Nutrition plan deleted successfully' });
+    }
+);
+
+// Assign nutrition plan to trainee (coach only)
+router.post(
+    '/:id/assign',
+    requireCoach,
+    validateParams(idParamSchema),
+    validateBody(assignNutritionPlanSchema),
+    async (req, res) => {
+        const nutritionPlanId = (req.params as any).id as number;
+        const { userId, startDate, endDate } = req.body;
+
+        const assignment = await NutritionService.assignNutritionPlanToUser({
+            userId,
+            nutritionPlanId,
+            assignedBy: req.session!.user.id,
+            startDate: new Date(startDate),
+            endDate: endDate ? new Date(endDate) : undefined,
+        });
+
+        res.status(201).json(assignment);
+    }
+);
+
+// Get all days for a nutrition plan
+router.get(
+    '/:id/days',
+    requireAuthenticated,
+    validateParams(idParamSchema),
+    async (req, res) => {
+        const nutritionPlanId = (req.params as any).id as number;
+        const days =
+            await NutritionService.getNutritionPlanDays(nutritionPlanId);
+        res.json(days);
+    }
+);
+
+// Create new day for nutrition plan
+router.post(
+    '/:id/days',
+    requireAuthenticated,
+    validateParams(idParamSchema),
+    validateBody(createNutritionPlanDaySchema),
+    async (req, res) => {
+        const nutritionPlanId = (req.params as any).id as number;
+        const dayData = { ...req.body, nutritionPlanId };
+
+        const day = await NutritionService.createNutritionPlanDay(dayData);
+        res.status(201).json(day);
     }
 );
 

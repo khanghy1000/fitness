@@ -22,6 +22,58 @@ router.get('/', requireAuthenticated, async (req, res) => {
     res.json(plannedWorkouts);
 });
 
+// Create/Schedule a planned workout
+router.post(
+    '/',
+    requireAuthenticated,
+    validateBody(createPlannedWorkoutSchema),
+    async (req, res) => {
+        const { userWorkoutPlanId, weekdays, time, isActive } = req.body;
+
+        const plannedWorkout = await PlannedWorkoutService.createPlannedWorkout(
+            {
+                userId: req.session!.user.id,
+                userWorkoutPlanId,
+                weekdays,
+                time,
+                isActive,
+            }
+        );
+
+        res.status(201).json(plannedWorkout);
+    }
+);
+
+// Get today's planned workouts
+router.get('/today', requireAuthenticated, async (req, res) => {
+    const todaysWorkouts = await PlannedWorkoutService.getTodaysPlannedWorkouts(
+        req.session!.user.id
+    );
+
+    res.json(todaysWorkouts);
+});
+
+// Get planned workouts for a specific weekday
+router.get('/weekday/:weekday', requireAuthenticated, async (req, res) => {
+    const { weekday } = req.params;
+
+    // Validate weekday parameter
+    const validWeekdays = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+    if (!validWeekdays.includes(weekday)) {
+        return res.status(400).json({
+            error: 'Weekday must be one of: sun, mon, tue, wed, thu, fri, sat',
+        });
+    }
+
+    const plannedWorkouts =
+        await PlannedWorkoutService.getUserPlannedWorkoutsForWeekday(
+            req.session!.user.id,
+            weekday as 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat'
+        );
+
+    res.json(plannedWorkouts);
+});
+
 // Get planned workout by ID
 router.get(
     '/:id',
@@ -42,28 +94,6 @@ router.get(
         }
 
         res.json(plannedWorkout);
-    }
-);
-
-// Create/Schedule a planned workout
-router.post(
-    '/',
-    requireAuthenticated,
-    validateBody(createPlannedWorkoutSchema),
-    async (req, res) => {
-        const { userWorkoutPlanId, weekdays, time, isActive } = req.body;
-
-        const plannedWorkout = await PlannedWorkoutService.createPlannedWorkout(
-            {
-                userId: req.session!.user.id,
-                userWorkoutPlanId,
-                weekdays,
-                time,
-                isActive,
-            }
-        );
-
-        res.status(201).json(plannedWorkout);
     }
 );
 
@@ -145,35 +175,5 @@ router.post(
         res.json(updatedPlannedWorkout);
     }
 );
-
-// Get planned workouts for a specific weekday
-router.get('/weekday/:weekday', requireAuthenticated, async (req, res) => {
-    const { weekday } = req.params;
-
-    // Validate weekday parameter
-    const validWeekdays = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-    if (!validWeekdays.includes(weekday)) {
-        return res.status(400).json({
-            error: 'Weekday must be one of: sun, mon, tue, wed, thu, fri, sat',
-        });
-    }
-
-    const plannedWorkouts =
-        await PlannedWorkoutService.getUserPlannedWorkoutsForWeekday(
-            req.session!.user.id,
-            weekday as 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat'
-        );
-
-    res.json(plannedWorkouts);
-});
-
-// Get today's planned workouts
-router.get('/today', requireAuthenticated, async (req, res) => {
-    const todaysWorkouts = await PlannedWorkoutService.getTodaysPlannedWorkouts(
-        req.session!.user.id
-    );
-
-    res.json(todaysWorkouts);
-});
 
 export default router;
