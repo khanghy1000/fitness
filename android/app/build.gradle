@@ -1,0 +1,86 @@
+plugins {
+    alias(libs.plugins.android.application)
+    id 'com.google.dagger.hilt.android'
+    id 'com.chaquo.python'
+}
+
+android {
+    namespace 'com.example.fitness'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId "com.example.fitness"
+        minSdk 24
+        targetSdk 36
+        versionCode 1
+        versionName "1.0"
+        ndk {
+            abiFilters "arm64-v8a", "x86_64"
+        }
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+}
+
+chaquopy {
+    defaultConfig {version = "3.11"}
+    productFlavors {}
+    sourceSets {}
+}
+
+dependencies {
+
+    implementation libs.appcompat
+    implementation libs.material
+    implementation libs.activity
+    implementation libs.constraintlayout
+    testImplementation libs.junit
+    androidTestImplementation libs.ext.junit
+    androidTestImplementation libs.espresso.core
+
+    // Hilt for dependency injection
+    implementation libs.hilt.android
+    annotationProcessor libs.hilt.compiler
+
+    // Networking
+    implementation libs.okhttp
+    implementation libs.logging.interceptor
+    implementation libs.retrofit
+    implementation libs.converter.moshi
+    implementation libs.moshi
+
+    // Lombok
+    compileOnly libs.lombok
+    annotationProcessor libs.lombok
+
+    // Image loading
+    implementation libs.glide
+    annotationProcessor libs.glide.compiler
+
+    // Room for local database
+    implementation libs.room.runtime
+    annotationProcessor libs.room.compiler
+    implementation libs.room.guava
+    testImplementation libs.room.testing
+    implementation libs.room.paging
+
+}
+
+hilt {
+    enableAggregatingTask = true
+}
