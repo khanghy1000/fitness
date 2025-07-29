@@ -119,27 +119,6 @@ router.get('/nutrition-plans', requireAuthenticated, async (req, res) => {
     res.json(plans);
 });
 
-// Record nutrition adherence
-router.post(
-    '/nutrition-adherence',
-    requireAuthenticated,
-    validateBody(nutritionAdherenceSchema),
-    async (req, res) => {
-        const { userNutritionPlanId, date, adherencePercentage, notes } =
-            req.body;
-
-        const adherence = await UserService.recordNutritionAdherence({
-            userId: req.session!.user.id,
-            userNutritionPlanId,
-            date: date ? new Date(date) : new Date(),
-            adherencePercentage,
-            notes,
-        });
-
-        res.status(201).json(adherence);
-    }
-);
-
 // Search for users (for coaches to find trainees)
 router.get(
     '/search',

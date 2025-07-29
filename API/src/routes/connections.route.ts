@@ -154,54 +154,6 @@ router.post(
     }
 );
 
-// Get trainee progress (coach only)
-router.get(
-    '/trainee/:traineeId/progress',
-    requireCoach,
-    validateParams(traineeParamSchema),
-    async (req, res) => {
-        const { traineeId } = req.params;
-
-        // Verify coach-trainee relationship
-        const connection = await CoachTraineeService.getActiveConnections(
-            req.session!.user.id,
-            'coach'
-        );
-
-        const hasConnection = connection.some(
-            (conn) => conn.traineeId === traineeId
-        );
-
-        if (!hasConnection) {
-            return res
-                .status(403)
-                .json({ error: 'No active connection with this trainee' });
-        }
-
-        // Get trainee's workout progress
-        const workoutPlans =
-            await WorkoutService.getUserAssignedWorkoutPlans(traineeId);
-
-        // Get trainee's nutrition adherence
-        const nutritionAdherence =
-            await UserService.getNutritionAdherence(traineeId);
-
-        // Get recent body stats
-        const bodyStats = await UserService.getUserStats(traineeId);
-
-        // Get recent exercise results (replacing workout sessions)
-        const exerciseResults =
-            await ExerciseService.getUserExerciseResults(traineeId);
-
-        res.json({
-            workoutPlans,
-            nutritionAdherence,
-            bodyStats,
-            exerciseResults,
-        });
-    }
-);
-
 // Get coach's trainees list
 router.get('/trainees', requireCoach, async (req, res) => {
     const connections = await CoachTraineeService.getActiveConnections(

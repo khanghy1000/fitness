@@ -17,6 +17,7 @@ import {
     updateWorkoutPlanDaySchema,
     addExerciseToPlanDaySchema,
     updateExerciseInPlanDaySchema,
+    recordExerciseResultSchema,
 } from '../validation/schemas.ts';
 import { WorkoutService } from '@services/workout.service.ts';
 
@@ -187,6 +188,26 @@ router.get('/assigned/:userId', requireAuthenticated, async (req, res) => {
     const plans = await WorkoutService.getUserAssignedWorkoutPlans(userId);
     res.json(plans);
 });
+
+// Record exercise result
+router.post(
+    '/exercise-results',
+    requireAuthenticated,
+    validateBody(recordExerciseResultSchema),
+    async (req, res) => {
+        const { workoutPlanDayExerciseId, reps, duration, calories } = req.body;
+
+        const result = await WorkoutService.recordExerciseResult({
+            workoutPlanDayExerciseId,
+            userId: req.session!.user.id,
+            reps,
+            duration,
+            calories,
+        });
+
+        res.status(201).json(result);
+    }
+);
 
 // Get all workout plans
 // Coaches get only their created plans

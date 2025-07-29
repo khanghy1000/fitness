@@ -10,6 +10,7 @@ import {
 } from '@middlewares/validation.middleware.ts';
 import {
     idParamSchema,
+    nutritionPlanIdParamSchema,
     createNutritionPlanSchema,
     updateNutritionPlanSchema,
     assignNutritionPlanSchema,
@@ -306,7 +307,7 @@ router.delete(
     }
 );
 
-// Get user's assigned nutrition plans with adherence info
+// Get user's assigned nutrition plans
 router.get('/assigned/:userId', requireAuthenticated, async (req, res) => {
     const userId = req.params.userId;
 
@@ -321,14 +322,16 @@ router.get('/assigned/:userId', requireAuthenticated, async (req, res) => {
 
 // Create daily adherence record
 router.post(
-    '/adherence',
+    '/:nutritionPlanId/adherence',
     requireAuthenticated,
+    validateParams(nutritionPlanIdParamSchema),
     validateBody(nutritionAdherenceSchema),
     async (req, res) => {
-        const { userNutritionPlanId, date, weekday, totalMeals } = req.body;
+        const nutritionPlanId = (req.params as any).nutritionPlanId as number;
+        const { date, weekday, totalMeals } = req.body;
 
         const adherence = await NutritionService.createDailyAdherence({
-            userNutritionPlanId,
+            nutritionPlanId,
             userId: req.session!.user.id,
             date: new Date(date || new Date()),
             weekday: weekday || getWeekdayEnum(new Date().getDay()),
@@ -339,12 +342,35 @@ router.post(
     }
 );
 
+// Update daily adherence record
+router.put(
+    '/:nutritionPlanId/adherence/:id',
+    requireAuthenticated,
+    validateParams(nutritionPlanIdParamSchema.merge(idParamSchema)),
+    validateBody(nutritionAdherenceSchema),
+    async (req, res) => {
+        const id = (req.params as any).id as number;
+        const updateData = req.body;
+        const adherence = await NutritionService.updateDailyAdherence(
+            id,
+            updateData
+        );
+        if (!adherence) {
+            return res
+                .status(404)
+                .json({ error: 'Adherence record not found' });
+        }
+        res.json(adherence);
+    }
+);
+
 // Complete a meal
 router.post(
-    '/adherence/:adherenceId/meals/:mealId/complete',
+    '/:nutritionPlanId/adherence/:adherenceId/meals/:mealId/complete',
     requireAuthenticated,
     validateBody(mealCompletionSchema),
     async (req, res) => {
+        const nutritionPlanId = parseInt(req.params.nutritionPlanId);
         const adherenceId = parseInt(req.params.adherenceId);
         const mealId = parseInt(req.params.mealId);
 
@@ -359,19 +385,22 @@ router.post(
     }
 );
 
-// Get daily adherence
+// Get adherence history for a nutrition plan
 router.get(
-    '/adherence/:userNutritionPlanId/:date',
+    '/:nutritionPlanId/adherence',
     requireAuthenticated,
+    validateParams(nutritionPlanIdParamSchema),
     async (req, res) => {
-        const userNutritionPlanId = parseInt(req.params.userNutritionPlanId);
-        const date = new Date(req.params.date);
+        const nutritionPlanId = (req.params as any).nutritionPlanId as number;
+        const userId = req.session!.user.id;
 
-        const adherence = await NutritionService.getDailyAdherence(
-            userNutritionPlanId,
-            date
-        );
-        res.json(adherence);
+        const adherenceHistory =
+            await NutritionService.getUserAdherenceHistoryByPlan(
+                userId,
+                nutritionPlanId
+            );
+
+        res.json(adherenceHistory);
     }
 );
 

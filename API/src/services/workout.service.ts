@@ -4,6 +4,7 @@ import {
     workoutPlanDay,
     workoutPlanDayExercise,
     userWorkoutPlan,
+    exerciseResult,
 } from '../db/schema/tables.ts';
 import { eq, and, or } from 'drizzle-orm';
 
@@ -307,5 +308,23 @@ export class WorkoutService {
             .where(eq(workoutPlanDayExercise.id, id))
             .returning();
         return result[0] || null;
+    }
+
+    // Record exercise result
+    static async recordExerciseResult(data: {
+        workoutPlanDayExerciseId: number;
+        userId: string;
+        reps?: number;
+        duration?: number;
+        calories?: number;
+    }) {
+        const result = await db
+            .insert(exerciseResult)
+            .values({
+                ...data,
+                completedAt: new Date(),
+            })
+            .returning();
+        return result[0];
     }
 }

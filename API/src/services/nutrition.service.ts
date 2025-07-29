@@ -9,7 +9,7 @@ import {
     nutritionAdherence,
     mealCompletion,
 } from '../db/schema/tables.ts';
-import { eq, and, inArray } from 'drizzle-orm';
+import { eq, and, inArray, desc, sql } from 'drizzle-orm';
 
 type FoodType = {
     name: string;
@@ -179,53 +179,73 @@ export class NutritionService {
     }
 
     static async getUserAssignedNutritionPlans(userId: string) {
-        // Get user nutrition plans
-        const userPlans = await db
-            .select()
-            .from(userNutritionPlan)
-            .where(eq(userNutritionPlan.userId, userId));
-
-        // Get the detailed plans and assigned by info
-        const result = [];
-        for (const userPlan of userPlans) {
-            if (!userPlan.nutritionPlanId) continue;
-
-            const plan = await this.getNutritionPlanById(
-                userPlan.nutritionPlanId
-            );
-            const assignedBy = userPlan.assignedBy
-                ? await db
-                      .select({
-                          id: user.id,
-                          name: user.name,
-                          image: user.image,
-                      })
-                      .from(user)
-                      .where(eq(user.id, userPlan.assignedBy))
-                : null;
-
-            result.push({
-                ...userPlan,
-                nutritionPlan: plan,
-                assignedBy: assignedBy?.[0] || null,
-            });
-        }
-
-        return result;
+        return await db.query.userNutritionPlan.findMany({
+            where: eq(userNutritionPlan.userId, userId),
+            with: {
+                nutritionPlan: {
+                    with: {
+                        days: {
+                            with: {
+                                meals: {
+                                    with: {
+                                        foods: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                nutritionAdherences: {
+                    orderBy: (adherence) => desc(adherence.date),
+                },
+            },
+        });
     }
 
     // Adherence tracking methods
+
+    // Helper method to get userNutritionPlanId from nutritionPlanId and userId
+    static async getUserNutritionPlanId(
+        userId: string,
+        nutritionPlanId: number
+    ) {
+        const result = await db
+            .select({ id: userNutritionPlan.id })
+            .from(userNutritionPlan)
+            .where(
+                and(
+                    eq(userNutritionPlan.userId, userId),
+                    eq(userNutritionPlan.nutritionPlanId, nutritionPlanId)
+                )
+            );
+        return result[0]?.id || null;
+    }
+
     static async createDailyAdherence(data: {
-        userNutritionPlanId: number;
+        nutritionPlanId: number;
         userId: string;
         date: Date;
         weekday: 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
-        totalMeals: number;
+        totalMeals?: number;
     }) {
+        // Get the userNutritionPlanId from nutritionPlanId and userId
+        const userNutritionPlanId = await this.getUserNutritionPlanId(
+            data.userId,
+            data.nutritionPlanId
+        );
+
+        if (!userNutritionPlanId) {
+            throw new Error('User nutrition plan not found');
+        }
+
         const result = await db
             .insert(nutritionAdherence)
             .values({
-                ...data,
+                userNutritionPlanId,
+                userId: data.userId,
+                date: data.date,
+                weekday: data.weekday,
+                totalMeals: data.totalMeals || 0,
                 mealsCompleted: 0,
                 adherencePercentage: 0,
                 totalCaloriesConsumed: 0,
@@ -254,7 +274,21 @@ export class NutritionService {
         return result[0] || null;
     }
 
-    static async getDailyAdherence(userNutritionPlanId: number, date: Date) {
+    static async getDailyAdherence(
+        userId: string,
+        nutritionPlanId: number,
+        date: Date
+    ) {
+        // Get the userNutritionPlanId from nutritionPlanId and userId
+        const userNutritionPlanId = await this.getUserNutritionPlanId(
+            userId,
+            nutritionPlanId
+        );
+
+        if (!userNutritionPlanId) {
+            return null;
+        }
+
         const result = await db
             .select()
             .from(nutritionAdherence)
@@ -312,9 +346,44 @@ export class NutritionService {
             .where(
                 and(
                     eq(nutritionAdherence.userId, userId),
-                    eq(nutritionAdherence.date, startDate) // This needs proper date range query
+                    eq(nutritionAdherence.date, startDate)
                 )
             );
+    }
+
+    // Get user adherence history by nutrition plan ID
+    static async getUserAdherenceHistoryByPlan(
+        userId: string,
+        nutritionPlanId: number,
+        startDate?: Date,
+        endDate?: Date
+    ) {
+        const userNutritionPlanId = await this.getUserNutritionPlanId(
+            userId,
+            nutritionPlanId
+        );
+
+        if (!userNutritionPlanId) {
+            return [];
+        }
+
+        const conditions = [
+            eq(nutritionAdherence.userNutritionPlanId, userNutritionPlanId),
+            eq(nutritionAdherence.userId, userId),
+        ];
+
+        if (startDate) {
+            conditions.push(sql`${nutritionAdherence.date} >= ${startDate}`);
+        }
+        if (endDate) {
+            conditions.push(sql`${nutritionAdherence.date} <= ${endDate}`);
+        }
+
+        return await db
+            .select()
+            .from(nutritionAdherence)
+            .where(and(...conditions))
+            .orderBy(desc(nutritionAdherence.date));
     }
 
     // Nutrition Plan Day methods

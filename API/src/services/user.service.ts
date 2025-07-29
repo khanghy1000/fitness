@@ -97,37 +97,6 @@ export class UserService {
         return stats[0] || null;
     }
 
-    static async recordNutritionAdherence(data: {
-        userId: string;
-        userNutritionPlanId: number;
-        date: Date;
-        adherencePercentage: number;
-        notes?: string;
-    }) {
-        // Create a nutrition adherence table entry
-        // For now, we'll use the userStats table to store this data
-        // In a real implementation, you'd want a separate nutritionAdherence table
-        const result = await db
-            .insert(userStats)
-            .values({
-                userId: data.userId,
-                recordedBy: data.userId,
-                recordedAt: data.date,
-                notes: `Nutrition adherence: ${data.adherencePercentage}% - ${data.notes || ''}`,
-            })
-            .returning();
-        return result[0];
-    }
-
-    static async getNutritionAdherence(userId: string) {
-        // Get nutrition adherence records
-        return await db
-            .select()
-            .from(userStats)
-            .where(eq(userStats.userId, userId))
-            .orderBy(desc(userStats.recordedAt));
-    }
-
     static async searchUsers(query: string, role?: 'coach' | 'trainee') {
         const conditions = [];
 

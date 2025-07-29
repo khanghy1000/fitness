@@ -27,6 +27,19 @@ export const dayIdParamSchema = z
     })
     .openapi('DayIdParam');
 
+export const nutritionPlanIdParamSchema = z
+    .object({
+        nutritionPlanId: z
+            .string()
+            .regex(/^\d+$/, 'Nutrition Plan ID must be a valid number')
+            .transform(Number)
+            .openapi({
+                description: 'Nutrition plan identifier',
+                example: '123',
+            }),
+    })
+    .openapi('NutritionPlanIdParam');
+
 export const myQuerySchema = z
     .object({
         my: z.enum(['true', 'false']).optional().openapi({
@@ -717,14 +730,6 @@ export const recordUserStatsSchema = z
 
 export const nutritionAdherenceSchema = z
     .object({
-        userNutritionPlanId: z
-            .number()
-            .positive()
-            .or(z.string().transform(Number))
-            .openapi({
-                description: 'ID of the user nutrition plan',
-                example: 456,
-            }),
         date: z
             .string()
             .refine((date) => !isNaN(Date.parse(date)), {

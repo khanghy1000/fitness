@@ -30,52 +30,6 @@ router.get('/name/:name', requireAuthenticated, async (req, res) => {
     res.json(exerciseType);
 });
 
-// Record exercise result
-router.post(
-    '/exercise-results',
-    requireAuthenticated,
-    validateBody(recordExerciseResultSchema),
-    async (req, res) => {
-        const { workoutPlanDayExerciseId, reps, duration, calories } = req.body;
-
-        const result = await ExerciseService.recordExerciseResult({
-            workoutPlanDayExerciseId,
-            userId: req.session!.user.id,
-            reps,
-            duration,
-            calories,
-        });
-
-        res.status(201).json(result);
-    }
-);
-
-// Get user's exercise results
-router.get('/results', requireAuthenticated, async (req, res) => {
-    const results = await ExerciseService.getUserExerciseResults(
-        req.session!.user.id
-    );
-    res.json(results);
-});
-
-// Get exercise results for a specific workout plan day exercise
-router.get(
-    '/workout-plan-day-exercise/:id',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    async (req, res) => {
-        const workoutPlanDayExerciseId = (req.params as any).id as number;
-
-        const results =
-            await ExerciseService.getExerciseResultsByWorkoutPlanDayExercise(
-                workoutPlanDayExerciseId,
-                req.session!.user.id
-            );
-
-        res.json(results);
-    }
-);
-
 // Get exercise type by ID
 router.get(
     '/:id',
