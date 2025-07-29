@@ -81,6 +81,7 @@ router.post(
         const planData = {
             ...req.body,
             createdBy: req.session!.user.id,
+            userRole: req.session!.user.role,
         };
 
         const plan = await NutritionService.createNutritionPlan(planData);

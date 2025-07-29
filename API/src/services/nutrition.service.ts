@@ -162,6 +162,7 @@ export class NutritionService {
         description?: string;
         createdBy: string;
         weekdayPlans: WeekdayPlanType[];
+        userRole?: string;
     }) {
         return await db.transaction(async (tx) => {
             // Create the main nutrition plan
@@ -219,6 +220,16 @@ export class NutritionService {
                         await tx.insert(nutritionPlanFood).values(foodsData);
                     }
                 }
+            }
+
+            // Auto-assign to trainee if they created it
+            if (data.userRole === 'trainee') {
+                await tx.insert(userNutritionPlan).values({
+                    userId: data.createdBy,
+                    nutritionPlanId: plan.id,
+                    assignedBy: data.createdBy,
+                    startDate: new Date(),
+                });
             }
 
             return plan;

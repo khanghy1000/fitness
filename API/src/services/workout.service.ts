@@ -82,9 +82,35 @@ export class WorkoutService {
         difficulty?: 'beginner' | 'intermediate' | 'advanced';
         estimatedCalories?: number;
         createdBy: string;
+        userRole?: string;
     }) {
-        const result = await db.insert(workoutPlan).values(data).returning();
-        return result[0];
+        return await db.transaction(async (tx) => {
+            // Create the workout plan
+            const result = await tx
+                .insert(workoutPlan)
+                .values({
+                    name: data.name,
+                    description: data.description,
+                    difficulty: data.difficulty,
+                    estimatedCalories: data.estimatedCalories,
+                    createdBy: data.createdBy,
+                })
+                .returning();
+
+            const createdPlan = result[0];
+
+            // Auto-assign to trainee if they created it
+            if (data.userRole === 'trainee') {
+                await tx.insert(userWorkoutPlan).values({
+                    userId: data.createdBy,
+                    workoutPlanId: createdPlan.id,
+                    assignedBy: data.createdBy,
+                    startDate: new Date(),
+                });
+            }
+
+            return createdPlan;
+        });
     }
 
     static async updateWorkoutPlan(
