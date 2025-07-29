@@ -1,6 +1,14 @@
 package com.example.fitness.di;
 
 import com.example.fitness.Constants;
+import com.example.fitness.data.network.*;
+import com.example.fitness.data.network.retrofit.AuthApi;
+import com.example.fitness.data.network.retrofit.ConnectionsApi;
+import com.example.fitness.data.network.retrofit.ExercisesApi;
+import com.example.fitness.data.network.retrofit.NutritionApi;
+import com.example.fitness.data.network.retrofit.PlannedWorkoutsApi;
+import com.example.fitness.data.network.retrofit.UsersApi;
+import com.example.fitness.data.network.retrofit.WorkoutsApi;
 import com.squareup.moshi.Moshi;
 
 import java.util.concurrent.TimeUnit;
@@ -28,7 +36,7 @@ public class NetworkModule {
 
     @Provides
     @Singleton
-    public OkHttpClient provideOkHttpClient() {
+    public OkHttpClient provideOkHttpClient(AuthInterceptor authInterceptor) {
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
                 .readTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)
@@ -37,6 +45,9 @@ public class NetworkModule {
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         builder.addInterceptor(loggingInterceptor);
+        
+        // Add auth interceptor
+        builder.addInterceptor(authInterceptor);
 
         return builder.build();
     }
@@ -49,5 +60,47 @@ public class NetworkModule {
                 .client(okHttpClient)
                 .addConverterFactory(MoshiConverterFactory.create(moshi))
                 .build();
+    }
+
+    @Provides
+    @Singleton
+    public AuthApi provideAuthApi(Retrofit retrofit) {
+        return retrofit.create(AuthApi.class);
+    }
+
+    @Provides
+    @Singleton
+    public ConnectionsApi provideConnectionsApi(Retrofit retrofit) {
+        return retrofit.create(ConnectionsApi.class);
+    }
+
+    @Provides
+    @Singleton
+    public UsersApi provideUsersApi(Retrofit retrofit) {
+        return retrofit.create(UsersApi.class);
+    }
+
+    @Provides
+    @Singleton
+    public ExercisesApi provideExercisesApi(Retrofit retrofit) {
+        return retrofit.create(ExercisesApi.class);
+    }
+
+    @Provides
+    @Singleton
+    public NutritionApi provideNutritionApi(Retrofit retrofit) {
+        return retrofit.create(NutritionApi.class);
+    }
+
+    @Provides
+    @Singleton
+    public WorkoutsApi provideWorkoutsApi(Retrofit retrofit) {
+        return retrofit.create(WorkoutsApi.class);
+    }
+
+    @Provides
+    @Singleton
+    public PlannedWorkoutsApi providePlannedWorkoutsApi(Retrofit retrofit) {
+        return retrofit.create(PlannedWorkoutsApi.class);
     }
 }

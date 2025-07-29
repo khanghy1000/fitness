@@ -15,6 +15,9 @@ okhttp = "4.12.0"
 retrofit = "3.0.0"
 glide = "4.16.0"
 room = "2.7.2"
+datastore = "1.1.7"
+kotlin = "2.2.0"
+coreKtx = "1.16.0"
 
 [libraries]
 converter-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "retrofit" }
@@ -39,7 +42,10 @@ room-compiler = { group = "androidx.room", name = "room-compiler", version.ref =
 room-guava = { group = "androidx.room", name = "room-guava", version.ref = "room" }
 room-testing = { group = "androidx.room", name = "room-testing", version.ref = "room" }
 room-paging = { group = "androidx.room", name = "room-paging", version.ref = "room" }
+datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
+core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 
