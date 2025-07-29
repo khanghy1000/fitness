@@ -7,16 +7,14 @@ import { z } from 'zod';
 import {
     // Common schemas
     idParamSchema,
-    dayIdParamSchema,
-    myQuerySchema,
-    paginationQuerySchema,
+    nutritionPlanIdParamSchema,
+    workoutPlanIdParamSchema,
     successMessageSchema,
 
     // Connection schemas
     connectRequestSchema,
     connectionRequestTypeSchema,
     traineeIdSchema,
-    traineeParamSchema,
     connectionSchema,
 
     // Exercise schemas
@@ -24,28 +22,34 @@ import {
     recordExerciseResultSchema,
 
     // Nutrition schemas
-    createNutritionPlanSchema,
-    updateNutritionPlanSchema,
     assignNutritionPlanSchema,
     mealCompletionSchema,
     nutritionAdherenceSchema,
     nutritionPlanSchema,
+    createNutritionPlanSchema,
+    updateNutritionPlanSchema,
+    createNutritionPlanDaySchema,
+    updateNutritionPlanDaySchema,
+    createNutritionPlanMealSchema,
+    updateNutritionPlanMealSchema,
+    createNutritionPlanFoodSchema,
+    updateNutritionPlanFoodSchema,
 
     // Workout schemas
+    assignWorkoutPlanSchema,
+    workoutPlanSchema,
     createWorkoutPlanSchema,
     updateWorkoutPlanSchema,
-    assignWorkoutPlanSchema,
     addDayToWorkoutPlanSchema,
+    updateWorkoutPlanDaySchema,
     addExerciseToPlanDaySchema,
-    workoutPlanSchema,
+    updateExerciseInPlanDaySchema,
 
     // Planned workout schemas
     createPlannedWorkoutSchema,
     updatePlannedWorkoutSchema,
 
     // User schemas
-    createUserGoalSchema,
-    updateUserGoalSchema,
     recordUserStatsSchema,
     userSearchQuerySchema,
     userSchema,
@@ -53,18 +57,28 @@ import {
 
 const registry = new OpenAPIRegistry();
 
-// Register all schemas
+const userIdQuerySchema = z
+    .object({
+        userId: z.string().optional().openapi({
+            description: 'User ID for coach to specify which user',
+            example: 'user123',
+        }),
+    })
+    .openapi('UserIdQuery');
+
+// Register schemas
+
+// Common schemas
+registry.register('userIdQuery', userIdQuerySchema);
 registry.register('IdParam', idParamSchema);
-registry.register('DayIdParam', dayIdParamSchema);
-registry.register('MyQuery', myQuerySchema);
-registry.register('PaginationQuery', paginationQuerySchema);
+registry.register('NutritionPlanIdParam', nutritionPlanIdParamSchema);
+registry.register('WorkoutPlanIdParam', workoutPlanIdParamSchema);
 registry.register('SuccessMessage', successMessageSchema);
 
 // Connection schemas
 registry.register('ConnectRequest', connectRequestSchema);
 registry.register('ConnectionRequestType', connectionRequestTypeSchema);
 registry.register('TraineeId', traineeIdSchema);
-registry.register('TraineeParam', traineeParamSchema);
 registry.register('Connection', connectionSchema);
 
 // Exercise schemas
@@ -72,28 +86,34 @@ registry.register('ExerciseType', exerciseTypeSchema);
 registry.register('RecordExerciseResult', recordExerciseResultSchema);
 
 // Nutrition schemas
-registry.register('CreateNutritionPlan', createNutritionPlanSchema);
-registry.register('UpdateNutritionPlan', updateNutritionPlanSchema);
 registry.register('AssignNutritionPlan', assignNutritionPlanSchema);
 registry.register('MealCompletion', mealCompletionSchema);
 registry.register('NutritionAdherence', nutritionAdherenceSchema);
 registry.register('NutritionPlan', nutritionPlanSchema);
+registry.register('CreateNutritionPlan', createNutritionPlanSchema);
+registry.register('UpdateNutritionPlan', updateNutritionPlanSchema);
+registry.register('CreateNutritionPlanDay', createNutritionPlanDaySchema);
+registry.register('UpdateNutritionPlanDay', updateNutritionPlanDaySchema);
+registry.register('CreateNutritionPlanMeal', createNutritionPlanMealSchema);
+registry.register('UpdateNutritionPlanMeal', updateNutritionPlanMealSchema);
+registry.register('CreateNutritionPlanFood', createNutritionPlanFoodSchema);
+registry.register('UpdateNutritionPlanFood', updateNutritionPlanFoodSchema);
 
 // Workout schemas
+registry.register('AssignWorkoutPlan', assignWorkoutPlanSchema);
+registry.register('WorkoutPlan', workoutPlanSchema);
 registry.register('CreateWorkoutPlan', createWorkoutPlanSchema);
 registry.register('UpdateWorkoutPlan', updateWorkoutPlanSchema);
-registry.register('AssignWorkoutPlan', assignWorkoutPlanSchema);
 registry.register('AddDayToWorkoutPlan', addDayToWorkoutPlanSchema);
+registry.register('UpdateWorkoutPlanDay', updateWorkoutPlanDaySchema);
 registry.register('AddExerciseToPlanDay', addExerciseToPlanDaySchema);
-registry.register('WorkoutPlan', workoutPlanSchema);
+registry.register('UpdateExerciseInPlanDay', updateExerciseInPlanDaySchema);
 
 // Planned workout schemas
 registry.register('CreatePlannedWorkout', createPlannedWorkoutSchema);
 registry.register('UpdatePlannedWorkout', updatePlannedWorkoutSchema);
 
 // User schemas
-registry.register('CreateUserGoal', createUserGoalSchema);
-registry.register('UpdateUserGoal', updateUserGoalSchema);
 registry.register('RecordUserStats', recordUserStatsSchema);
 registry.register('UserSearchQuery', userSearchQuerySchema);
 registry.register('User', userSchema);
@@ -123,514 +143,7 @@ registry.registerPath({
     },
 });
 
-// Exercise routes
-registry.registerPath({
-    method: 'get',
-    path: '/api/exercises',
-    tags: ['Exercises'],
-    summary: 'Get all exercise types',
-    description: 'Retrieve a list of all available exercise types',
-    responses: {
-        200: {
-            description: 'List of exercise types',
-            content: {
-                'application/json': {
-                    schema: z.array(exerciseTypeSchema),
-                },
-            },
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-    },
-});
-
-registry.registerPath({
-    method: 'get',
-    path: '/api/exercises/{id}',
-    tags: ['Exercises'],
-    summary: 'Get exercise type by ID',
-    description: 'Retrieve a specific exercise type by its ID',
-    request: {
-        params: idParamSchema,
-    },
-    responses: {
-        200: {
-            description: 'Exercise type details',
-            content: {
-                'application/json': {
-                    schema: exerciseTypeSchema,
-                },
-            },
-        },
-        404: {
-            description: 'Exercise type not found',
-        },
-    },
-});
-
-registry.registerPath({
-    method: 'get',
-    path: '/api/exercises/name/{name}',
-    tags: ['Exercises'],
-    summary: 'Get exercise type by name',
-    description: 'Retrieve a specific exercise type by its name',
-    request: {
-        params: z
-            .object({
-                name: z.string().openapi({
-                    description: 'Name of the exercise',
-                    example: 'Push-ups',
-                }),
-            })
-            .openapi('ExerciseNameParam'),
-    },
-    responses: {
-        200: {
-            description: 'Exercise type details',
-            content: {
-                'application/json': {
-                    schema: exerciseTypeSchema,
-                },
-            },
-        },
-        404: {
-            description: 'Exercise type not found',
-        },
-    },
-});
-
-registry.registerPath({
-    method: 'post',
-    path: '/api/exercises/exercise-results',
-    tags: ['Exercises'],
-    summary: 'Record exercise result',
-    description: 'Record the result of an exercise performance',
-    request: {
-        body: {
-            description: 'Exercise result data',
-            content: {
-                'application/json': {
-                    schema: recordExerciseResultSchema,
-                },
-            },
-        },
-    },
-    responses: {
-        201: {
-            description: 'Exercise result recorded successfully',
-            content: {
-                'application/json': {
-                    schema: z
-                        .object({
-                            id: z
-                                .number()
-                                .openapi({ description: 'Result ID' }),
-                            workoutPlanDayExerciseId: z.number(),
-                            userId: z.string(),
-                            reps: z.number().optional(),
-                            duration: z.number().optional(),
-                            calories: z.number().optional(),
-                            recordedAt: z.string(),
-                        })
-                        .openapi('ExerciseResult'),
-                },
-            },
-        },
-        400: {
-            description: 'Invalid input data',
-        },
-    },
-});
-
-registry.registerPath({
-    method: 'get',
-    path: '/api/exercises/results',
-    tags: ['Exercises'],
-    summary: 'Get user exercise results',
-    description: 'Retrieve all exercise results for the authenticated user',
-    responses: {
-        200: {
-            description: 'List of user exercise results',
-            content: {
-                'application/json': {
-                    schema: z.array(
-                        z
-                            .object({
-                                id: z
-                                    .number()
-                                    .openapi({ description: 'Result ID' }),
-                                workoutPlanDayExerciseId: z.number(),
-                                userId: z.string(),
-                                reps: z.number().optional(),
-                                duration: z.number().optional(),
-                                calories: z.number().optional(),
-                                completedAt: z.string(),
-                                workoutPlanExercise: z.object({
-                                    exerciseType: exerciseTypeSchema,
-                                    workoutPlanDay: z.object({
-                                        id: z.number(),
-                                        day: z.number(),
-                                        isRestDay: z.boolean(),
-                                    }),
-                                }),
-                            })
-                            .openapi('ExerciseResultWithDetails')
-                    ),
-                },
-            },
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-    },
-});
-
-registry.registerPath({
-    method: 'get',
-    path: '/api/exercises/workout-plan-day-exercise/{id}',
-    tags: ['Exercises'],
-    summary: 'Get exercise results for workout plan day exercise',
-    description:
-        'Retrieve exercise results for a specific workout plan day exercise',
-    request: {
-        params: idParamSchema,
-    },
-    responses: {
-        200: {
-            description:
-                'Exercise results for the specified workout plan day exercise',
-            content: {
-                'application/json': {
-                    schema: z.array(
-                        z
-                            .object({
-                                id: z
-                                    .number()
-                                    .openapi({ description: 'Result ID' }),
-                                workoutPlanDayExerciseId: z.number(),
-                                userId: z.string(),
-                                reps: z.number().optional(),
-                                duration: z.number().optional(),
-                                calories: z.number().optional(),
-                                completedAt: z.string(),
-                                workoutPlanExercise: z.object({
-                                    exerciseType: exerciseTypeSchema,
-                                }),
-                            })
-                            .openapi('ExerciseResultForPlanExercise')
-                    ),
-                },
-            },
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-    },
-});
-
-// Nutrition routes
-registry.registerPath({
-    method: 'get',
-    path: '/api/nutrition',
-    tags: ['Nutrition'],
-    summary: 'Get all nutrition plans',
-    description:
-        'Retrieve nutrition plans',
-    responses: {
-        200: {
-            description: 'List of nutrition plans',
-            content: {
-                'application/json': {
-                    schema: z.array(nutritionPlanSchema),
-                },
-            },
-        },
-    },
-});
-
-registry.registerPath({
-    method: 'get',
-    path: '/api/nutrition/{id}',
-    tags: ['Nutrition'],
-    summary: 'Get nutrition plan by ID',
-    description: 'Retrieve a specific nutrition plan',
-    request: {
-        params: idParamSchema,
-    },
-    responses: {
-        200: {
-            description: 'Nutrition plan details',
-            content: {
-                'application/json': {
-                    schema: nutritionPlanSchema,
-                },
-            },
-        },
-        404: {
-            description: 'Nutrition plan not found',
-        },
-    },
-});
-
-registry.registerPath({
-    method: 'post',
-    path: '/api/nutrition',
-    tags: ['Nutrition'],
-    summary: 'Create nutrition plan',
-    description: 'Create a new nutrition plan',
-    request: {
-        body: {
-            description: 'Nutrition plan data',
-            content: {
-                'application/json': {
-                    schema: createNutritionPlanSchema,
-                },
-            },
-        },
-    },
-    responses: {
-        201: {
-            description: 'Nutrition plan created successfully',
-            content: {
-                'application/json': {
-                    schema: nutritionPlanSchema,
-                },
-            },
-        },
-        400: {
-            description: 'Invalid input data',
-        },
-    },
-});
-
-registry.registerPath({
-    method: 'put',
-    path: '/api/nutrition/{id}',
-    tags: ['Nutrition'],
-    summary: 'Update nutrition plan',
-    description: 'Update an existing nutrition plan (coach only)',
-    request: {
-        params: idParamSchema,
-        body: {
-            description: 'Updated nutrition plan data',
-            content: {
-                'application/json': {
-                    schema: updateNutritionPlanSchema,
-                },
-            },
-        },
-    },
-    responses: {
-        200: {
-            description: 'Nutrition plan updated successfully',
-            content: {
-                'application/json': {
-                    schema: nutritionPlanSchema,
-                },
-            },
-        },
-        404: {
-            description: 'Nutrition plan not found',
-        },
-    },
-});
-
-registry.registerPath({
-    method: 'delete',
-    path: '/api/nutrition/{id}',
-    tags: ['Nutrition'],
-    summary: 'Delete nutrition plan',
-    description: 'Delete a nutrition plan (coach only)',
-    request: {
-        params: idParamSchema,
-    },
-    responses: {
-        200: {
-            description: 'Nutrition plan deleted successfully',
-            content: {
-                'application/json': {
-                    schema: successMessageSchema,
-                },
-            },
-        },
-        404: {
-            description: 'Nutrition plan not found',
-        },
-    },
-});
-
-// Workout routes
-registry.registerPath({
-    method: 'get',
-    path: '/api/workouts',
-    tags: ['Workouts'],
-    summary: 'Get all workout plans',
-    description: 'Retrieve workout plans',
-    responses: {
-        200: {
-            description: 'List of workout plans',
-            content: {
-                'application/json': {
-                    schema: z.array(workoutPlanSchema),
-                },
-            },
-        },
-    },
-});
-
-registry.registerPath({
-    method: 'get',
-    path: '/api/workouts/{id}',
-    tags: ['Workouts'],
-    summary: 'Get workout plan by ID',
-    description: 'Retrieve a specific workout plan with details',
-    request: {
-        params: idParamSchema,
-    },
-    responses: {
-        200: {
-            description: 'Workout plan details',
-            content: {
-                'application/json': {
-                    schema: workoutPlanSchema,
-                },
-            },
-        },
-        404: {
-            description: 'Workout plan not found',
-        },
-    },
-});
-
-registry.registerPath({
-    method: 'post',
-    path: '/api/workouts',
-    tags: ['Workouts'],
-    summary: 'Create workout plan',
-    description: 'Create a new workout plan',
-    request: {
-        body: {
-            description: 'Workout plan data',
-            content: {
-                'application/json': {
-                    schema: createWorkoutPlanSchema,
-                },
-            },
-        },
-    },
-    responses: {
-        201: {
-            description: 'Workout plan created successfully',
-            content: {
-                'application/json': {
-                    schema: workoutPlanSchema,
-                },
-            },
-        },
-        400: {
-            description: 'Invalid input data',
-        },
-    },
-});
-
-registry.registerPath({
-    method: 'put',
-    path: '/api/workouts/{id}',
-    tags: ['Workouts'],
-    summary: 'Update workout plan',
-    description: 'Update an existing workout plan (coach only)',
-    request: {
-        params: idParamSchema,
-        body: {
-            description: 'Updated workout plan data',
-            content: {
-                'application/json': {
-                    schema: updateWorkoutPlanSchema,
-                },
-            },
-        },
-    },
-    responses: {
-        200: {
-            description: 'Workout plan updated successfully',
-            content: {
-                'application/json': {
-                    schema: workoutPlanSchema,
-                },
-            },
-        },
-        404: {
-            description: 'Workout plan not found',
-        },
-    },
-});
-
-registry.registerPath({
-    method: 'delete',
-    path: '/api/workouts/{id}',
-    tags: ['Workouts'],
-    summary: 'Delete workout plan',
-    description: 'Delete a workout plan (coach only)',
-    request: {
-        params: idParamSchema,
-    },
-    responses: {
-        200: {
-            description: 'Workout plan deleted successfully',
-            content: {
-                'application/json': {
-                    schema: successMessageSchema,
-                },
-            },
-        },
-        404: {
-            description: 'Workout plan not found',
-        },
-    },
-});
-
-registry.registerPath({
-    method: 'post',
-    path: '/api/workouts/{id}/assign',
-    tags: ['Workouts'],
-    summary: 'Assign workout plan to user',
-    description: 'Assign a workout plan to a trainee (coach only)',
-    request: {
-        params: idParamSchema,
-        body: {
-            description: 'Assignment data',
-            content: {
-                'application/json': {
-                    schema: assignWorkoutPlanSchema,
-                },
-            },
-        },
-    },
-    responses: {
-        201: {
-            description: 'Workout plan assigned successfully',
-            content: {
-                'application/json': {
-                    schema: z
-                        .object({
-                            id: z.number(),
-                            userId: z.string(),
-                            workoutPlanId: z.number(),
-                            assignedBy: z.string(),
-                            startDate: z.string(),
-                            endDate: z.string().optional(),
-                            isActive: z.boolean(),
-                            assignedAt: z.string(),
-                        })
-                        .openapi('WorkoutPlanAssignment'),
-                },
-            },
-        },
-    },
-});
-
-// Connection routes
+// Connections routes
 registry.registerPath({
     method: 'post',
     path: '/api/connections/connect',
@@ -656,6 +169,12 @@ registry.registerPath({
                 },
             },
         },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized - Trainee role required',
+        },
     },
 });
 
@@ -677,8 +196,11 @@ registry.registerPath({
                 },
             },
         },
+        401: {
+            description: 'Unauthorized',
+        },
         403: {
-            description: 'Access denied',
+            description: 'Access denied - Role mismatch',
         },
     },
 });
@@ -708,6 +230,15 @@ registry.registerPath({
                 },
             },
         },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized - Coach role required',
+        },
+        404: {
+            description: 'Connection request not found',
+        },
     },
 });
 
@@ -736,6 +267,15 @@ registry.registerPath({
                 },
             },
         },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized - Coach role required',
+        },
+        404: {
+            description: 'Connection request not found',
+        },
     },
 });
 
@@ -754,19 +294,83 @@ registry.registerPath({
                 },
             },
         },
+        401: {
+            description: 'Unauthorized',
+        },
+        403: {
+            description: 'Access denied',
+        },
     },
 });
 
-// User routes
+registry.registerPath({
+    method: 'post',
+    path: '/api/connections/disconnect',
+    tags: ['Connections'],
+    summary: 'End connection',
+    description: 'End an active connection (coach only)',
+    request: {
+        body: {
+            description: 'Trainee ID to disconnect',
+            content: {
+                'application/json': {
+                    schema: traineeIdSchema,
+                },
+            },
+        },
+    },
+    responses: {
+        200: {
+            description: 'Connection ended successfully',
+            content: {
+                'application/json': {
+                    schema: successMessageSchema,
+                },
+            },
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized - Coach role required',
+        },
+        404: {
+            description: 'Active connection not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'get',
+    path: '/api/connections/trainees',
+    tags: ['Connections'],
+    summary: 'Get coach trainees',
+    description: 'Get list of trainees connected to the coach',
+    responses: {
+        200: {
+            description: 'List of connected trainees',
+            content: {
+                'application/json': {
+                    schema: z.array(connectionSchema),
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized - Coach role required',
+        },
+    },
+});
+
+// Users routes
 registry.registerPath({
     method: 'get',
     path: '/api/users/stats',
     tags: ['Users'],
     summary: 'Get user body stats',
-    description: 'Get body measurement statistics for the current user',
+    description: 'Get all body measurement statistics for the current user',
     responses: {
         200: {
-            description: 'User body stats',
+            description: 'User body stats history',
             content: {
                 'application/json': {
                     schema: z.array(
@@ -791,6 +395,48 @@ registry.registerPath({
                     ),
                 },
             },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'get',
+    path: '/api/users/stats/latest',
+    tags: ['Users'],
+    summary: 'Get latest user body stats',
+    description:
+        'Get the most recent body measurement statistics for the current user',
+    responses: {
+        200: {
+            description: 'Latest user body stats',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            userId: z.string(),
+                            weight: z.number().optional(),
+                            height: z.number().optional(),
+                            bodyFat: z.number().optional(),
+                            muscleMass: z.number().optional(),
+                            chest: z.number().optional(),
+                            waist: z.number().optional(),
+                            hips: z.number().optional(),
+                            arms: z.number().optional(),
+                            thighs: z.number().optional(),
+                            notes: z.string().optional(),
+                            recordedAt: z.string(),
+                            recordedBy: z.string(),
+                        })
+                        .openapi('LatestUserStats'),
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
         },
     },
 });
@@ -837,6 +483,80 @@ registry.registerPath({
                 },
             },
         },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'get',
+    path: '/api/users/workout-plans',
+    tags: ['Users'],
+    summary: 'Get user assigned workout plans',
+    description: 'Get all workout plans assigned to the current user',
+    responses: {
+        200: {
+            description: 'List of assigned workout plans',
+            content: {
+                'application/json': {
+                    schema: z.array(
+                        z
+                            .object({
+                                id: z.number(),
+                                userId: z.string(),
+                                workoutPlan: workoutPlanSchema.optional(),
+                                assignedBy: z.string(),
+                                startDate: z.string(),
+                                endDate: z.string().optional(),
+                                isActive: z.boolean(),
+                                assignedAt: z.string(),
+                            })
+                            .openapi('UserWorkoutPlan')
+                    ),
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'get',
+    path: '/api/users/nutrition-plans',
+    tags: ['Users'],
+    summary: 'Get user assigned nutrition plans',
+    description: 'Get all nutrition plans assigned to the current user',
+    responses: {
+        200: {
+            description: 'List of assigned nutrition plans',
+            content: {
+                'application/json': {
+                    schema: z.array(
+                        z
+                            .object({
+                                id: z.number(),
+                                userId: z.string(),
+                                nutritionPlan: nutritionPlanSchema.optional(),
+                                assignedBy: z.string(),
+                                startDate: z.string(),
+                                endDate: z.string().optional(),
+                                isActive: z.boolean(),
+                                assignedAt: z.string(),
+                            })
+                            .openapi('UserNutritionPlan')
+                    ),
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
     },
 });
 
@@ -858,6 +578,2356 @@ registry.registerPath({
                     schema: z.array(userSchema),
                 },
             },
+        },
+        400: {
+            description: 'Invalid query parameters',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'get',
+    path: '/api/users/nutrition/{nutritionPlanId}/assign',
+    tags: ['Users'],
+    summary: 'Get nutrition plan assignment',
+    description: 'Get nutrition plan assignment details for a specific plan',
+    request: {
+        params: nutritionPlanIdParamSchema,
+        query: userIdQuerySchema,
+    },
+    responses: {
+        200: {
+            description: 'Nutrition plan assignment details',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            userId: z.string(),
+                            nutritionPlan: nutritionPlanSchema.optional(),
+                            assignedBy: z.string(),
+                            startDate: z.string(),
+                            endDate: z.string().optional(),
+                            isActive: z.boolean(),
+                            assignedAt: z.string(),
+                        })
+                        .openapi('NutritionPlanAssignment')
+                        .nullable(),
+                },
+            },
+        },
+        400: {
+            description: 'Missing userId parameter for coaches',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        403: {
+            description: 'Access denied',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'post',
+    path: '/api/users/nutrition/{nutritionPlanId}/assign',
+    tags: ['Users'],
+    summary: 'Assign nutrition plan',
+    description: 'Assign a nutrition plan to a trainee (coach only)',
+    request: {
+        params: nutritionPlanIdParamSchema,
+        body: {
+            description: 'Assignment data',
+            content: {
+                'application/json': {
+                    schema: assignNutritionPlanSchema,
+                },
+            },
+        },
+    },
+    responses: {
+        201: {
+            description: 'Nutrition plan assigned successfully',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            userId: z.string(),
+                            nutritionPlanId: z.number(),
+                            assignedBy: z.string(),
+                            startDate: z.string(),
+                            endDate: z.string().optional(),
+                            isActive: z.boolean(),
+                            assignedAt: z.string(),
+                        })
+                        .openapi('NutritionPlanAssignmentResponse'),
+                },
+            },
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized - Coach role required',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'post',
+    path: '/api/users/nutrition/{nutritionPlanId}/adherence',
+    tags: ['Users'],
+    summary: 'Create daily adherence record',
+    description: 'Create a daily nutrition adherence record',
+    request: {
+        params: nutritionPlanIdParamSchema,
+        body: {
+            description: 'Adherence data',
+            content: {
+                'application/json': {
+                    schema: nutritionAdherenceSchema,
+                },
+            },
+        },
+    },
+    responses: {
+        201: {
+            description: 'Daily adherence record created successfully',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            nutritionPlanId: z.number(),
+                            userId: z.string(),
+                            date: z.string(),
+                            weekday: z.enum([
+                                'sun',
+                                'mon',
+                                'tue',
+                                'wed',
+                                'thu',
+                                'fri',
+                                'sat',
+                            ]),
+                            totalMeals: z.number(),
+                            adherencePercentage: z.number().optional(),
+                            notes: z.string().optional(),
+                        })
+                        .openapi('NutritionAdherenceResponse'),
+                },
+            },
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'put',
+    path: '/api/users/nutrition/{nutritionPlanId}/adherence/{id}',
+    tags: ['Users'],
+    summary: 'Update daily adherence record',
+    description: 'Update an existing daily nutrition adherence record',
+    request: {
+        params: nutritionPlanIdParamSchema.merge(idParamSchema),
+        body: {
+            description: 'Updated adherence data',
+            content: {
+                'application/json': {
+                    schema: nutritionAdherenceSchema,
+                },
+            },
+        },
+    },
+    responses: {
+        200: {
+            description: 'Daily adherence record updated successfully',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            nutritionPlanId: z.number(),
+                            userId: z.string(),
+                            date: z.string(),
+                            weekday: z.enum([
+                                'sun',
+                                'mon',
+                                'tue',
+                                'wed',
+                                'thu',
+                                'fri',
+                                'sat',
+                            ]),
+                            totalMeals: z.number(),
+                            adherencePercentage: z.number().optional(),
+                            notes: z.string().optional(),
+                        })
+                        .openapi('UpdatedNutritionAdherenceResponse'),
+                },
+            },
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'Adherence record not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'post',
+    path: '/api/users/nutrition/{nutritionPlanId}/adherence/{adherenceId}/meals/{mealId}/complete',
+    tags: ['Users'],
+    summary: 'Complete a meal',
+    description: 'Mark a meal as completed with actual consumption data',
+    request: {
+        params: z
+            .object({
+                nutritionPlanId: z
+                    .string()
+                    .regex(/^\d+$/, 'Nutrition Plan ID must be a valid number')
+                    .transform(Number),
+                adherenceId: z
+                    .string()
+                    .regex(/^\d+$/, 'Adherence ID must be a valid number')
+                    .transform(Number),
+                mealId: z
+                    .string()
+                    .regex(/^\d+$/, 'Meal ID must be a valid number')
+                    .transform(Number),
+            })
+            .openapi('MealCompletionParams'),
+        body: {
+            description: 'Meal completion data',
+            content: {
+                'application/json': {
+                    schema: mealCompletionSchema,
+                },
+            },
+        },
+    },
+    responses: {
+        201: {
+            description: 'Meal completed successfully',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            nutritionAdherenceId: z.number(),
+                            nutritionPlanMealId: z.number(),
+                            userId: z.string(),
+                            caloriesConsumed: z.number().optional(),
+                            proteinConsumed: z.number().optional(),
+                            carbsConsumed: z.number().optional(),
+                            fatConsumed: z.number().optional(),
+                            fiberConsumed: z.number().optional(),
+                            notes: z.string().optional(),
+                            completedAt: z.string(),
+                        })
+                        .openapi('MealCompletionResponse'),
+                },
+            },
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'get',
+    path: '/api/users/nutrition/{nutritionPlanId}/adherence',
+    tags: ['Users'],
+    summary: 'Get nutrition adherence history',
+    description: 'Get adherence history for a nutrition plan',
+    request: {
+        params: nutritionPlanIdParamSchema,
+        query: userIdQuerySchema,
+    },
+    responses: {
+        200: {
+            description: 'Nutrition adherence history',
+            content: {
+                'application/json': {
+                    schema: z.array(
+                        z
+                            .object({
+                                id: z.number(),
+                                nutritionPlanId: z.number(),
+                                userId: z.string(),
+                                date: z.string(),
+                                weekday: z.enum([
+                                    'sun',
+                                    'mon',
+                                    'tue',
+                                    'wed',
+                                    'thu',
+                                    'fri',
+                                    'sat',
+                                ]),
+                                totalMeals: z.number(),
+                                adherencePercentage: z.number().optional(),
+                                notes: z.string().optional(),
+                                mealsCompleted: z.array(z.any()).optional(),
+                            })
+                            .openapi('NutritionAdherenceHistory')
+                    ),
+                },
+            },
+        },
+        400: {
+            description: 'Missing userId parameter for coaches',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        403: {
+            description: 'Access denied',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'post',
+    path: '/api/users/workout/exercise-results',
+    tags: ['Users'],
+    summary: 'Record exercise result',
+    description: 'Record the result of an exercise performance',
+    request: {
+        body: {
+            description: 'Exercise result data',
+            content: {
+                'application/json': {
+                    schema: recordExerciseResultSchema,
+                },
+            },
+        },
+    },
+    responses: {
+        201: {
+            description: 'Exercise result recorded successfully',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            workoutPlanDayExerciseId: z.number(),
+                            userWorkoutPlanId: z.number(),
+                            userId: z.string(),
+                            reps: z.number().optional(),
+                            duration: z.number().optional(),
+                            calories: z.number().optional(),
+                            recordedAt: z.string(),
+                        })
+                        .openapi('ExerciseResult'),
+                },
+            },
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'get',
+    path: '/api/users/workout/{workoutPlanId}/assign',
+    tags: ['Users'],
+    summary: 'Get workout plan assignment',
+    description: 'Get workout plan assignment details for a specific plan',
+    request: {
+        params: workoutPlanIdParamSchema,
+        query: userIdQuerySchema,
+    },
+    responses: {
+        200: {
+            description: 'Workout plan assignment details',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            userId: z.string(),
+                            workoutPlan: workoutPlanSchema.optional(),
+                            assignedBy: z.string(),
+                            startDate: z.string(),
+                            endDate: z.string().optional(),
+                            isActive: z.boolean(),
+                            assignedAt: z.string(),
+                        })
+                        .openapi('WorkoutPlanAssignment')
+                        .nullable(),
+                },
+            },
+        },
+        400: {
+            description: 'Missing userId parameter for coaches',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        403: {
+            description: 'Access denied',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'post',
+    path: '/api/users/workout/{workoutPlanId}/assign',
+    tags: ['Users'],
+    summary: 'Assign workout plan',
+    description: 'Assign a workout plan to a trainee (coach only)',
+    request: {
+        params: workoutPlanIdParamSchema,
+        body: {
+            description: 'Assignment data',
+            content: {
+                'application/json': {
+                    schema: assignWorkoutPlanSchema,
+                },
+            },
+        },
+    },
+    responses: {
+        201: {
+            description: 'Workout plan assigned successfully',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            userId: z.string(),
+                            workoutPlanId: z.number(),
+                            assignedBy: z.string(),
+                            startDate: z.string(),
+                            endDate: z.string().optional(),
+                            isActive: z.boolean(),
+                            assignedAt: z.string(),
+                        })
+                        .openapi('WorkoutPlanAssignmentResponse'),
+                },
+            },
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized - Coach role required',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'get',
+    path: '/api/users/workout/{workoutPlanId}/results',
+    tags: ['Users'],
+    summary: 'Get workout plan results',
+    description: 'Get exercise results for a specific workout plan',
+    request: {
+        params: workoutPlanIdParamSchema,
+        query: userIdQuerySchema,
+    },
+    responses: {
+        200: {
+            description: 'Workout plan exercise results',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            workoutPlan: workoutPlanSchema,
+                            userWorkoutPlan: z.object({
+                                id: z.number(),
+                                userId: z.string(),
+                                assignedBy: z.string(),
+                                startDate: z.string(),
+                                endDate: z.string().optional(),
+                                isActive: z.boolean(),
+                            }),
+                            results: z.array(
+                                z.object({
+                                    id: z.number(),
+                                    workoutPlanDayExerciseId: z.number(),
+                                    userWorkoutPlanId: z.number(),
+                                    userId: z.string(),
+                                    reps: z.number().optional(),
+                                    duration: z.number().optional(),
+                                    calories: z.number().optional(),
+                                    recordedAt: z.string(),
+                                    workoutPlanDayExercise: z.object({
+                                        exerciseType: exerciseTypeSchema,
+                                        workoutPlanDay: z.object({
+                                            day: z.number(),
+                                            isRestDay: z.boolean(),
+                                        }),
+                                    }),
+                                })
+                            ),
+                        })
+                        .openapi('WorkoutPlanResults'),
+                },
+            },
+        },
+        400: {
+            description: 'Missing userId parameter for coaches',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        403: {
+            description: 'Access denied',
+        },
+        404: {
+            description: 'Workout plan not found or not assigned to user',
+        },
+    },
+});
+
+// Exercise routes
+registry.registerPath({
+    method: 'get',
+    path: '/api/exercises',
+    tags: ['Exercises'],
+    summary: 'Get all exercise types',
+    description: 'Retrieve a list of all available exercise types',
+    responses: {
+        200: {
+            description: 'List of exercise types',
+            content: {
+                'application/json': {
+                    schema: z.array(exerciseTypeSchema),
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'get',
+    path: '/api/exercises/name/{name}',
+    tags: ['Exercises'],
+    summary: 'Get exercise type by name',
+    description: 'Retrieve a specific exercise type by its name',
+    request: {
+        params: z
+            .object({
+                name: z.string().openapi({
+                    description: 'Name of the exercise',
+                    example: 'Push-ups',
+                }),
+            })
+            .openapi('ExerciseNameParam'),
+    },
+    responses: {
+        200: {
+            description: 'Exercise type details',
+            content: {
+                'application/json': {
+                    schema: exerciseTypeSchema,
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'Exercise type not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'get',
+    path: '/api/exercises/{id}',
+    tags: ['Exercises'],
+    summary: 'Get exercise type by ID',
+    description: 'Retrieve a specific exercise type by its ID',
+    request: {
+        params: idParamSchema,
+    },
+    responses: {
+        200: {
+            description: 'Exercise type details',
+            content: {
+                'application/json': {
+                    schema: exerciseTypeSchema,
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'Exercise type not found',
+        },
+    },
+});
+
+// Nutrition routes
+registry.registerPath({
+    method: 'get',
+    path: '/api/nutrition',
+    tags: ['Nutrition'],
+    summary: 'Get all nutrition plans',
+    description: 'Get all nutrition plans accessible to the current user',
+    responses: {
+        200: {
+            description: 'List of nutrition plans',
+            content: {
+                'application/json': {
+                    schema: z.array(nutritionPlanSchema),
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'post',
+    path: '/api/nutrition',
+    tags: ['Nutrition'],
+    summary: 'Create nutrition plan',
+    description: 'Create a new nutrition plan',
+    request: {
+        body: {
+            description: 'Nutrition plan data',
+            content: {
+                'application/json': {
+                    schema: createNutritionPlanSchema,
+                },
+            },
+        },
+    },
+    responses: {
+        201: {
+            description: 'Nutrition plan created successfully',
+            content: {
+                'application/json': {
+                    schema: nutritionPlanSchema,
+                },
+            },
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'get',
+    path: '/api/nutrition/{id}',
+    tags: ['Nutrition'],
+    summary: 'Get nutrition plan by ID',
+    description: 'Get a specific nutrition plan with full details',
+    request: {
+        params: idParamSchema,
+    },
+    responses: {
+        200: {
+            description: 'Nutrition plan details',
+            content: {
+                'application/json': {
+                    schema: nutritionPlanSchema,
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'Nutrition plan not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'put',
+    path: '/api/nutrition/{id}',
+    tags: ['Nutrition'],
+    summary: 'Update nutrition plan',
+    description: 'Update a nutrition plan (coach only)',
+    request: {
+        params: idParamSchema,
+        body: {
+            description: 'Updated nutrition plan data',
+            content: {
+                'application/json': {
+                    schema: updateNutritionPlanSchema,
+                },
+            },
+        },
+    },
+    responses: {
+        200: {
+            description: 'Nutrition plan updated successfully',
+            content: {
+                'application/json': {
+                    schema: nutritionPlanSchema,
+                },
+            },
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized - Coach role required',
+        },
+        404: {
+            description: 'Nutrition plan not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'delete',
+    path: '/api/nutrition/{id}',
+    tags: ['Nutrition'],
+    summary: 'Delete nutrition plan',
+    description: 'Delete a nutrition plan (coach only)',
+    request: {
+        params: idParamSchema,
+    },
+    responses: {
+        200: {
+            description: 'Nutrition plan deleted successfully',
+            content: {
+                'application/json': {
+                    schema: successMessageSchema,
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized - Coach role required',
+        },
+        404: {
+            description: 'Nutrition plan not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'get',
+    path: '/api/nutrition/{id}/days',
+    tags: ['Nutrition'],
+    summary: 'Get nutrition plan days',
+    description: 'Get all days for a nutrition plan',
+    request: {
+        params: idParamSchema,
+    },
+    responses: {
+        200: {
+            description: 'List of nutrition plan days',
+            content: {
+                'application/json': {
+                    schema: z.array(
+                        z
+                            .object({
+                                id: z.number(),
+                                nutritionPlanId: z.number(),
+                                weekday: z.enum([
+                                    'sun',
+                                    'mon',
+                                    'tue',
+                                    'wed',
+                                    'thu',
+                                    'fri',
+                                    'sat',
+                                ]),
+                                totalCalories: z.number().optional(),
+                                protein: z.number().optional(),
+                                carbs: z.number().optional(),
+                                fat: z.number().optional(),
+                                fiber: z.number().optional(),
+                            })
+                            .openapi('NutritionPlanDay')
+                    ),
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'Nutrition plan not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'post',
+    path: '/api/nutrition/{id}/days',
+    tags: ['Nutrition'],
+    summary: 'Create nutrition plan day',
+    description: 'Create a new day for a nutrition plan',
+    request: {
+        params: idParamSchema,
+        body: {
+            description: 'Nutrition plan day data',
+            content: {
+                'application/json': {
+                    schema: createNutritionPlanDaySchema,
+                },
+            },
+        },
+    },
+    responses: {
+        201: {
+            description: 'Nutrition plan day created successfully',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            nutritionPlanId: z.number(),
+                            weekday: z.enum([
+                                'sun',
+                                'mon',
+                                'tue',
+                                'wed',
+                                'thu',
+                                'fri',
+                                'sat',
+                            ]),
+                            totalCalories: z.number().optional(),
+                            protein: z.number().optional(),
+                            carbs: z.number().optional(),
+                            fat: z.number().optional(),
+                            fiber: z.number().optional(),
+                        })
+                        .openapi('NutritionPlanDay'),
+                },
+            },
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'get',
+    path: '/api/nutrition/days/{id}',
+    tags: ['Nutrition'],
+    summary: 'Get nutrition plan day',
+    description: 'Get a specific nutrition plan day by ID',
+    request: {
+        params: idParamSchema,
+    },
+    responses: {
+        200: {
+            description: 'Nutrition plan day details',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            nutritionPlanId: z.number(),
+                            weekday: z.enum([
+                                'sun',
+                                'mon',
+                                'tue',
+                                'wed',
+                                'thu',
+                                'fri',
+                                'sat',
+                            ]),
+                            totalCalories: z.number().optional(),
+                            protein: z.number().optional(),
+                            carbs: z.number().optional(),
+                            fat: z.number().optional(),
+                            fiber: z.number().optional(),
+                        })
+                        .openapi('NutritionPlanDay'),
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'Nutrition plan day not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'put',
+    path: '/api/nutrition/days/{id}',
+    tags: ['Nutrition'],
+    summary: 'Update nutrition plan day',
+    description: 'Update a nutrition plan day',
+    request: {
+        params: idParamSchema,
+        body: {
+            description: 'Updated nutrition plan day data',
+            content: {
+                'application/json': {
+                    schema: updateNutritionPlanDaySchema,
+                },
+            },
+        },
+    },
+    responses: {
+        200: {
+            description: 'Nutrition plan day updated successfully',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            nutritionPlanId: z.number(),
+                            weekday: z.enum([
+                                'sun',
+                                'mon',
+                                'tue',
+                                'wed',
+                                'thu',
+                                'fri',
+                                'sat',
+                            ]),
+                            totalCalories: z.number().optional(),
+                            protein: z.number().optional(),
+                            carbs: z.number().optional(),
+                            fat: z.number().optional(),
+                            fiber: z.number().optional(),
+                        })
+                        .openapi('NutritionPlanDay'),
+                },
+            },
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'Nutrition plan day not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'delete',
+    path: '/api/nutrition/days/{id}',
+    tags: ['Nutrition'],
+    summary: 'Delete nutrition plan day',
+    description: 'Delete a nutrition plan day',
+    request: {
+        params: idParamSchema,
+    },
+    responses: {
+        200: {
+            description: 'Nutrition plan day deleted successfully',
+            content: {
+                'application/json': {
+                    schema: successMessageSchema,
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'Nutrition plan day not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'get',
+    path: '/api/nutrition/days/{id}/meals',
+    tags: ['Nutrition'],
+    summary: 'Get nutrition plan day meals',
+    description: 'Get all meals for a nutrition plan day',
+    request: {
+        params: idParamSchema,
+    },
+    responses: {
+        200: {
+            description: 'List of nutrition plan meals',
+            content: {
+                'application/json': {
+                    schema: z.array(
+                        z
+                            .object({
+                                id: z.number(),
+                                nutritionPlanDayId: z.number(),
+                                name: z.string(),
+                                time: z.string(),
+                                calories: z.number().optional(),
+                                protein: z.number().optional(),
+                                carbs: z.number().optional(),
+                                fat: z.number().optional(),
+                                fiber: z.number().optional(),
+                            })
+                            .openapi('NutritionPlanMeal')
+                    ),
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'Nutrition plan day not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'post',
+    path: '/api/nutrition/days/{id}/meals',
+    tags: ['Nutrition'],
+    summary: 'Create nutrition plan meal',
+    description: 'Create a new meal for a nutrition plan day',
+    request: {
+        params: idParamSchema,
+        body: {
+            description: 'Nutrition plan meal data',
+            content: {
+                'application/json': {
+                    schema: createNutritionPlanMealSchema,
+                },
+            },
+        },
+    },
+    responses: {
+        201: {
+            description: 'Nutrition plan meal created successfully',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            nutritionPlanDayId: z.number(),
+                            name: z.string(),
+                            time: z.string(),
+                            calories: z.number().optional(),
+                            protein: z.number().optional(),
+                            carbs: z.number().optional(),
+                            fat: z.number().optional(),
+                            fiber: z.number().optional(),
+                        })
+                        .openapi('NutritionPlanMeal'),
+                },
+            },
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'get',
+    path: '/api/nutrition/meals/{id}',
+    tags: ['Nutrition'],
+    summary: 'Get nutrition plan meal',
+    description: 'Get a specific nutrition plan meal by ID',
+    request: {
+        params: idParamSchema,
+    },
+    responses: {
+        200: {
+            description: 'Nutrition plan meal details',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            nutritionPlanDayId: z.number(),
+                            name: z.string(),
+                            time: z.string(),
+                            calories: z.number().optional(),
+                            protein: z.number().optional(),
+                            carbs: z.number().optional(),
+                            fat: z.number().optional(),
+                            fiber: z.number().optional(),
+                        })
+                        .openapi('NutritionPlanMeal'),
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'Nutrition plan meal not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'put',
+    path: '/api/nutrition/meals/{id}',
+    tags: ['Nutrition'],
+    summary: 'Update nutrition plan meal',
+    description: 'Update a nutrition plan meal',
+    request: {
+        params: idParamSchema,
+        body: {
+            description: 'Updated nutrition plan meal data',
+            content: {
+                'application/json': {
+                    schema: updateNutritionPlanMealSchema,
+                },
+            },
+        },
+    },
+    responses: {
+        200: {
+            description: 'Nutrition plan meal updated successfully',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            nutritionPlanDayId: z.number(),
+                            name: z.string(),
+                            time: z.string(),
+                            calories: z.number().optional(),
+                            protein: z.number().optional(),
+                            carbs: z.number().optional(),
+                            fat: z.number().optional(),
+                            fiber: z.number().optional(),
+                        })
+                        .openapi('NutritionPlanMeal'),
+                },
+            },
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'Nutrition plan meal not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'delete',
+    path: '/api/nutrition/meals/{id}',
+    tags: ['Nutrition'],
+    summary: 'Delete nutrition plan meal',
+    description: 'Delete a nutrition plan meal',
+    request: {
+        params: idParamSchema,
+    },
+    responses: {
+        200: {
+            description: 'Nutrition plan meal deleted successfully',
+            content: {
+                'application/json': {
+                    schema: successMessageSchema,
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'Nutrition plan meal not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'get',
+    path: '/api/nutrition/meals/{id}/foods',
+    tags: ['Nutrition'],
+    summary: 'Get nutrition plan meal foods',
+    description: 'Get all foods for a nutrition plan meal',
+    request: {
+        params: idParamSchema,
+    },
+    responses: {
+        200: {
+            description: 'List of nutrition plan foods',
+            content: {
+                'application/json': {
+                    schema: z.array(
+                        z
+                            .object({
+                                id: z.number(),
+                                nutritionPlanMealId: z.number(),
+                                name: z.string(),
+                                quantity: z.string(),
+                                calories: z.number(),
+                                protein: z.number().optional(),
+                                carbs: z.number().optional(),
+                                fat: z.number().optional(),
+                                fiber: z.number().optional(),
+                            })
+                            .openapi('NutritionPlanFood')
+                    ),
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'Nutrition plan meal not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'post',
+    path: '/api/nutrition/meals/{id}/foods',
+    tags: ['Nutrition'],
+    summary: 'Create nutrition plan food',
+    description: 'Create a new food for a nutrition plan meal',
+    request: {
+        params: idParamSchema,
+        body: {
+            description: 'Nutrition plan food data',
+            content: {
+                'application/json': {
+                    schema: createNutritionPlanFoodSchema,
+                },
+            },
+        },
+    },
+    responses: {
+        201: {
+            description: 'Nutrition plan food created successfully',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            nutritionPlanMealId: z.number(),
+                            name: z.string(),
+                            quantity: z.string(),
+                            calories: z.number(),
+                            protein: z.number().optional(),
+                            carbs: z.number().optional(),
+                            fat: z.number().optional(),
+                            fiber: z.number().optional(),
+                        })
+                        .openapi('NutritionPlanFood'),
+                },
+            },
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'get',
+    path: '/api/nutrition/foods/{id}',
+    tags: ['Nutrition'],
+    summary: 'Get nutrition plan food',
+    description: 'Get a specific nutrition plan food by ID',
+    request: {
+        params: idParamSchema,
+    },
+    responses: {
+        200: {
+            description: 'Nutrition plan food details',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            nutritionPlanMealId: z.number(),
+                            name: z.string(),
+                            quantity: z.string(),
+                            calories: z.number(),
+                            protein: z.number().optional(),
+                            carbs: z.number().optional(),
+                            fat: z.number().optional(),
+                            fiber: z.number().optional(),
+                        })
+                        .openapi('NutritionPlanFood'),
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'Nutrition plan food not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'put',
+    path: '/api/nutrition/foods/{id}',
+    tags: ['Nutrition'],
+    summary: 'Update nutrition plan food',
+    description: 'Update a nutrition plan food',
+    request: {
+        params: idParamSchema,
+        body: {
+            description: 'Updated nutrition plan food data',
+            content: {
+                'application/json': {
+                    schema: updateNutritionPlanFoodSchema,
+                },
+            },
+        },
+    },
+    responses: {
+        200: {
+            description: 'Nutrition plan food updated successfully',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            nutritionPlanMealId: z.number(),
+                            name: z.string(),
+                            quantity: z.string(),
+                            calories: z.number(),
+                            protein: z.number().optional(),
+                            carbs: z.number().optional(),
+                            fat: z.number().optional(),
+                            fiber: z.number().optional(),
+                        })
+                        .openapi('NutritionPlanFood'),
+                },
+            },
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'Nutrition plan food not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'delete',
+    path: '/api/nutrition/foods/{id}',
+    tags: ['Nutrition'],
+    summary: 'Delete nutrition plan food',
+    description: 'Delete a nutrition plan food',
+    request: {
+        params: idParamSchema,
+    },
+    responses: {
+        200: {
+            description: 'Nutrition plan food deleted successfully',
+            content: {
+                'application/json': {
+                    schema: successMessageSchema,
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'Nutrition plan food not found',
+        },
+    },
+});
+
+// Workouts routes
+registry.registerPath({
+    method: 'get',
+    path: '/api/workouts',
+    tags: ['Workouts'],
+    summary: 'Get all workout plans',
+    description: 'Get all workout plans accessible to the current user',
+    responses: {
+        200: {
+            description: 'List of workout plans',
+            content: {
+                'application/json': {
+                    schema: z.array(workoutPlanSchema),
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'post',
+    path: '/api/workouts',
+    tags: ['Workouts'],
+    summary: 'Create workout plan',
+    description: 'Create a new workout plan',
+    request: {
+        body: {
+            description: 'Workout plan data',
+            content: {
+                'application/json': {
+                    schema: createWorkoutPlanSchema,
+                },
+            },
+        },
+    },
+    responses: {
+        201: {
+            description: 'Workout plan created successfully',
+            content: {
+                'application/json': {
+                    schema: workoutPlanSchema,
+                },
+            },
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'get',
+    path: '/api/workouts/{id}',
+    tags: ['Workouts'],
+    summary: 'Get workout plan by ID',
+    description: 'Get a specific workout plan with full details',
+    request: {
+        params: idParamSchema,
+    },
+    responses: {
+        200: {
+            description: 'Workout plan details',
+            content: {
+                'application/json': {
+                    schema: workoutPlanSchema,
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'Workout plan not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'put',
+    path: '/api/workouts/{id}',
+    tags: ['Workouts'],
+    summary: 'Update workout plan',
+    description: 'Update a workout plan (coach only)',
+    request: {
+        params: idParamSchema,
+        body: {
+            description: 'Updated workout plan data',
+            content: {
+                'application/json': {
+                    schema: updateWorkoutPlanSchema,
+                },
+            },
+        },
+    },
+    responses: {
+        200: {
+            description: 'Workout plan updated successfully',
+            content: {
+                'application/json': {
+                    schema: workoutPlanSchema,
+                },
+            },
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized - Coach role required',
+        },
+        404: {
+            description: 'Workout plan not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'delete',
+    path: '/api/workouts/{id}',
+    tags: ['Workouts'],
+    summary: 'Delete workout plan',
+    description: 'Delete a workout plan (coach only)',
+    request: {
+        params: idParamSchema,
+    },
+    responses: {
+        200: {
+            description: 'Workout plan deleted successfully',
+            content: {
+                'application/json': {
+                    schema: successMessageSchema,
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized - Coach role required',
+        },
+        404: {
+            description: 'Workout plan not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'get',
+    path: '/api/workouts/{id}/days',
+    tags: ['Workouts'],
+    summary: 'Get workout plan days',
+    description: 'Get all days for a workout plan',
+    request: {
+        params: idParamSchema,
+    },
+    responses: {
+        200: {
+            description: 'List of workout plan days',
+            content: {
+                'application/json': {
+                    schema: z.array(
+                        z
+                            .object({
+                                id: z.number(),
+                                workoutPlanId: z.number(),
+                                day: z.number(),
+                                isRestDay: z.boolean(),
+                                estimatedCalories: z.number().optional(),
+                                duration: z.number().optional(),
+                            })
+                            .openapi('WorkoutPlanDay')
+                    ),
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'Workout plan not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'post',
+    path: '/api/workouts/{id}/days',
+    tags: ['Workouts'],
+    summary: 'Create workout plan day',
+    description: 'Create a new day for a workout plan',
+    request: {
+        params: idParamSchema,
+        body: {
+            description: 'Workout plan day data',
+            content: {
+                'application/json': {
+                    schema: addDayToWorkoutPlanSchema,
+                },
+            },
+        },
+    },
+    responses: {
+        201: {
+            description: 'Workout plan day created successfully',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            workoutPlanId: z.number(),
+                            day: z.number(),
+                            isRestDay: z.boolean(),
+                            estimatedCalories: z.number().optional(),
+                            duration: z.number().optional(),
+                        })
+                        .openapi('WorkoutPlanDay'),
+                },
+            },
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'get',
+    path: '/api/workouts/days/{id}',
+    tags: ['Workouts'],
+    summary: 'Get workout plan day',
+    description: 'Get a specific workout plan day by ID',
+    request: {
+        params: idParamSchema,
+    },
+    responses: {
+        200: {
+            description: 'Workout plan day details',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            workoutPlanId: z.number(),
+                            day: z.number(),
+                            isRestDay: z.boolean(),
+                            estimatedCalories: z.number().optional(),
+                            duration: z.number().optional(),
+                        })
+                        .openapi('WorkoutPlanDay'),
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'Workout plan day not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'put',
+    path: '/api/workouts/days/{id}',
+    tags: ['Workouts'],
+    summary: 'Update workout plan day',
+    description: 'Update a workout plan day',
+    request: {
+        params: idParamSchema,
+        body: {
+            description: 'Updated workout plan day data',
+            content: {
+                'application/json': {
+                    schema: updateWorkoutPlanDaySchema,
+                },
+            },
+        },
+    },
+    responses: {
+        200: {
+            description: 'Workout plan day updated successfully',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            workoutPlanId: z.number(),
+                            day: z.number(),
+                            isRestDay: z.boolean(),
+                            estimatedCalories: z.number().optional(),
+                            duration: z.number().optional(),
+                        })
+                        .openapi('WorkoutPlanDay'),
+                },
+            },
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'Workout plan day not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'delete',
+    path: '/api/workouts/days/{id}',
+    tags: ['Workouts'],
+    summary: 'Delete workout plan day',
+    description: 'Delete a workout plan day',
+    request: {
+        params: idParamSchema,
+    },
+    responses: {
+        200: {
+            description: 'Workout plan day deleted successfully',
+            content: {
+                'application/json': {
+                    schema: successMessageSchema,
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'Workout plan day not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'get',
+    path: '/api/workouts/days/{id}/exercises',
+    tags: ['Workouts'],
+    summary: 'Get workout plan day exercises',
+    description: 'Get all exercises for a workout plan day',
+    request: {
+        params: idParamSchema,
+    },
+    responses: {
+        200: {
+            description: 'List of workout plan exercises',
+            content: {
+                'application/json': {
+                    schema: z.array(
+                        z
+                            .object({
+                                id: z.number(),
+                                workoutPlanDayId: z.number(),
+                                exerciseTypeId: z.number(),
+                                order: z.number().optional(),
+                                targetReps: z.number().optional(),
+                                targetDuration: z.number().optional(),
+                                estimatedCalories: z.number().optional(),
+                                notes: z.string().optional(),
+                                exerciseType: exerciseTypeSchema.optional(),
+                            })
+                            .openapi('WorkoutPlanDayExercise')
+                    ),
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'Workout plan day not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'post',
+    path: '/api/workouts/days/{id}/exercises',
+    tags: ['Workouts'],
+    summary: 'Add exercise to workout plan day',
+    description: 'Add a new exercise to a workout plan day',
+    request: {
+        params: idParamSchema,
+        body: {
+            description: 'Exercise data',
+            content: {
+                'application/json': {
+                    schema: addExerciseToPlanDaySchema,
+                },
+            },
+        },
+    },
+    responses: {
+        201: {
+            description: 'Exercise added to workout plan day successfully',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            workoutPlanDayId: z.number(),
+                            exerciseTypeId: z.number(),
+                            order: z.number().optional(),
+                            targetReps: z.number().optional(),
+                            targetDuration: z.number().optional(),
+                            estimatedCalories: z.number().optional(),
+                            notes: z.string().optional(),
+                        })
+                        .openapi('WorkoutPlanDayExercise'),
+                },
+            },
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'get',
+    path: '/api/workouts/exercises/{id}',
+    tags: ['Workouts'],
+    summary: 'Get workout plan exercise',
+    description: 'Get a specific workout plan exercise by ID',
+    request: {
+        params: idParamSchema,
+    },
+    responses: {
+        200: {
+            description: 'Workout plan exercise details',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            workoutPlanDayId: z.number(),
+                            exerciseTypeId: z.number(),
+                            order: z.number().optional(),
+                            targetReps: z.number().optional(),
+                            targetDuration: z.number().optional(),
+                            estimatedCalories: z.number().optional(),
+                            notes: z.string().optional(),
+                            exerciseType: exerciseTypeSchema.optional(),
+                        })
+                        .openapi('WorkoutPlanDayExercise'),
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'Workout plan exercise not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'put',
+    path: '/api/workouts/exercises/{id}',
+    tags: ['Workouts'],
+    summary: 'Update workout plan exercise',
+    description: 'Update a workout plan exercise',
+    request: {
+        params: idParamSchema,
+        body: {
+            description: 'Updated exercise data',
+            content: {
+                'application/json': {
+                    schema: updateExerciseInPlanDaySchema,
+                },
+            },
+        },
+    },
+    responses: {
+        200: {
+            description: 'Workout plan exercise updated successfully',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            workoutPlanDayId: z.number(),
+                            exerciseTypeId: z.number(),
+                            order: z.number().optional(),
+                            targetReps: z.number().optional(),
+                            targetDuration: z.number().optional(),
+                            estimatedCalories: z.number().optional(),
+                            notes: z.string().optional(),
+                        })
+                        .openapi('WorkoutPlanDayExercise'),
+                },
+            },
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'Workout plan exercise not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'delete',
+    path: '/api/workouts/exercises/{id}',
+    tags: ['Workouts'],
+    summary: 'Delete workout plan exercise',
+    description: 'Delete a workout plan exercise',
+    request: {
+        params: idParamSchema,
+    },
+    responses: {
+        200: {
+            description: 'Workout plan exercise deleted successfully',
+            content: {
+                'application/json': {
+                    schema: successMessageSchema,
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'Workout plan exercise not found',
+        },
+    },
+});
+
+// Planned Workouts routes
+registry.registerPath({
+    method: 'get',
+    path: '/api/planned-workouts',
+    tags: ['Planned Workouts'],
+    summary: 'Get user planned workouts',
+    description: 'Get all planned workouts for the current user',
+    responses: {
+        200: {
+            description: 'List of planned workouts',
+            content: {
+                'application/json': {
+                    schema: z.array(
+                        z
+                            .object({
+                                id: z.number(),
+                                userId: z.string(),
+                                userWorkoutPlanId: z.number(),
+                                weekdays: z.array(
+                                    z.enum([
+                                        'sun',
+                                        'mon',
+                                        'tue',
+                                        'wed',
+                                        'thu',
+                                        'fri',
+                                        'sat',
+                                    ])
+                                ),
+                                time: z.string(),
+                                isActive: z.boolean(),
+                                createdAt: z.string(),
+                                updatedAt: z.string(),
+                            })
+                            .openapi('PlannedWorkout')
+                    ),
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'post',
+    path: '/api/planned-workouts',
+    tags: ['Planned Workouts'],
+    summary: 'Create planned workout',
+    description: 'Create/Schedule a new planned workout',
+    request: {
+        body: {
+            description: 'Planned workout data',
+            content: {
+                'application/json': {
+                    schema: createPlannedWorkoutSchema,
+                },
+            },
+        },
+    },
+    responses: {
+        201: {
+            description: 'Planned workout created successfully',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            userId: z.string(),
+                            userWorkoutPlanId: z.number(),
+                            weekdays: z.array(
+                                z.enum([
+                                    'sun',
+                                    'mon',
+                                    'tue',
+                                    'wed',
+                                    'thu',
+                                    'fri',
+                                    'sat',
+                                ])
+                            ),
+                            time: z.string(),
+                            isActive: z.boolean(),
+                            createdAt: z.string(),
+                            updatedAt: z.string(),
+                        })
+                        .openapi('PlannedWorkout'),
+                },
+            },
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'get',
+    path: '/api/planned-workouts/today',
+    tags: ['Planned Workouts'],
+    summary: "Get today's planned workouts",
+    description: 'Get planned workouts scheduled for today',
+    responses: {
+        200: {
+            description: "List of today's planned workouts",
+            content: {
+                'application/json': {
+                    schema: z.array(
+                        z
+                            .object({
+                                id: z.number(),
+                                userId: z.string(),
+                                userWorkoutPlanId: z.number(),
+                                weekdays: z.array(
+                                    z.enum([
+                                        'sun',
+                                        'mon',
+                                        'tue',
+                                        'wed',
+                                        'thu',
+                                        'fri',
+                                        'sat',
+                                    ])
+                                ),
+                                time: z.string(),
+                                isActive: z.boolean(),
+                                createdAt: z.string(),
+                                updatedAt: z.string(),
+                            })
+                            .openapi('PlannedWorkout')
+                    ),
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'get',
+    path: '/api/planned-workouts/weekday/{weekday}',
+    tags: ['Planned Workouts'],
+    summary: 'Get planned workouts for weekday',
+    description: 'Get planned workouts for a specific weekday',
+    request: {
+        params: z
+            .object({
+                weekday: z
+                    .enum(['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'])
+                    .openapi({
+                        description: 'Day of the week',
+                        example: 'mon',
+                    }),
+            })
+            .openapi('WeekdayParam'),
+    },
+    responses: {
+        200: {
+            description: 'List of planned workouts for the weekday',
+            content: {
+                'application/json': {
+                    schema: z.array(
+                        z
+                            .object({
+                                id: z.number(),
+                                userId: z.string(),
+                                userWorkoutPlanId: z.number(),
+                                weekdays: z.array(
+                                    z.enum([
+                                        'sun',
+                                        'mon',
+                                        'tue',
+                                        'wed',
+                                        'thu',
+                                        'fri',
+                                        'sat',
+                                    ])
+                                ),
+                                time: z.string(),
+                                isActive: z.boolean(),
+                                createdAt: z.string(),
+                                updatedAt: z.string(),
+                            })
+                            .openapi('PlannedWorkout')
+                    ),
+                },
+            },
+        },
+        400: {
+            description: 'Invalid weekday parameter',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'get',
+    path: '/api/planned-workouts/{id}',
+    tags: ['Planned Workouts'],
+    summary: 'Get planned workout by ID',
+    description: 'Get a specific planned workout by ID',
+    request: {
+        params: idParamSchema,
+    },
+    responses: {
+        200: {
+            description: 'Planned workout details',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            userId: z.string(),
+                            userWorkoutPlanId: z.number(),
+                            weekdays: z.array(
+                                z.enum([
+                                    'sun',
+                                    'mon',
+                                    'tue',
+                                    'wed',
+                                    'thu',
+                                    'fri',
+                                    'sat',
+                                ])
+                            ),
+                            time: z.string(),
+                            isActive: z.boolean(),
+                            createdAt: z.string(),
+                            updatedAt: z.string(),
+                        })
+                        .openapi('PlannedWorkout'),
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        403: {
+            description: 'Access denied',
+        },
+        404: {
+            description: 'Planned workout not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'put',
+    path: '/api/planned-workouts/{id}',
+    tags: ['Planned Workouts'],
+    summary: 'Update planned workout',
+    description: 'Update a planned workout',
+    request: {
+        params: idParamSchema,
+        body: {
+            description: 'Updated planned workout data',
+            content: {
+                'application/json': {
+                    schema: updatePlannedWorkoutSchema,
+                },
+            },
+        },
+    },
+    responses: {
+        200: {
+            description: 'Planned workout updated successfully',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            userId: z.string(),
+                            userWorkoutPlanId: z.number(),
+                            weekdays: z.array(
+                                z.enum([
+                                    'sun',
+                                    'mon',
+                                    'tue',
+                                    'wed',
+                                    'thu',
+                                    'fri',
+                                    'sat',
+                                ])
+                            ),
+                            time: z.string(),
+                            isActive: z.boolean(),
+                            createdAt: z.string(),
+                            updatedAt: z.string(),
+                        })
+                        .openapi('PlannedWorkout'),
+                },
+            },
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        403: {
+            description: 'Access denied',
+        },
+        404: {
+            description: 'Planned workout not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'delete',
+    path: '/api/planned-workouts/{id}',
+    tags: ['Planned Workouts'],
+    summary: 'Delete planned workout',
+    description: 'Delete a planned workout',
+    request: {
+        params: idParamSchema,
+    },
+    responses: {
+        200: {
+            description: 'Planned workout deleted successfully',
+            content: {
+                'application/json': {
+                    schema: successMessageSchema,
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        403: {
+            description: 'Access denied',
+        },
+        404: {
+            description: 'Planned workout not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'post',
+    path: '/api/planned-workouts/{id}/toggle',
+    tags: ['Planned Workouts'],
+    summary: 'Toggle planned workout status',
+    description: 'Toggle the active status of a planned workout',
+    request: {
+        params: idParamSchema,
+        body: {
+            description: 'Toggle status data',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            isActive: z.boolean().openapi({
+                                description: 'New active status',
+                                example: true,
+                            }),
+                        })
+                        .openapi('TogglePlannedWorkout'),
+                },
+            },
+        },
+    },
+    responses: {
+        200: {
+            description: 'Planned workout status toggled successfully',
+            content: {
+                'application/json': {
+                    schema: z
+                        .object({
+                            id: z.number(),
+                            userId: z.string(),
+                            userWorkoutPlanId: z.number(),
+                            weekdays: z.array(
+                                z.enum([
+                                    'sun',
+                                    'mon',
+                                    'tue',
+                                    'wed',
+                                    'thu',
+                                    'fri',
+                                    'sat',
+                                ])
+                            ),
+                            time: z.string(),
+                            isActive: z.boolean(),
+                            createdAt: z.string(),
+                            updatedAt: z.string(),
+                        })
+                        .openapi('PlannedWorkout'),
+                },
+            },
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        403: {
+            description: 'Access denied',
+        },
+        404: {
+            description: 'Planned workout not found',
         },
     },
 });
