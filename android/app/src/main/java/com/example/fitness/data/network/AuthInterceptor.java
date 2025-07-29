@@ -30,13 +30,18 @@ public class AuthInterceptor implements Interceptor {
             return chain.proceed(originalRequest);
         }
 
-        String token = authDataStore.getJwtToken();
-        
-        if (token != null && !token.isEmpty()) {
-            Request authenticatedRequest = originalRequest.newBuilder()
-                    .header("Authorization", "Bearer " + token)
-                    .build();
-            return chain.proceed(authenticatedRequest);
+        try {
+            String token = authDataStore.getJwtTokenSync().blockingGet();
+            
+            if (token != null && !token.isEmpty()) {
+                Request authenticatedRequest = originalRequest.newBuilder()
+                        .header("Authorization", "Bearer " + token)
+                        .build();
+                return chain.proceed(authenticatedRequest);
+            }
+        } catch (Exception e) {
+            // If there's an error getting the token, proceed without authentication
+            // This could happen if no token is stored yet
         }
 
         return chain.proceed(originalRequest);

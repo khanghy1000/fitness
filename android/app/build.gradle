@@ -86,6 +86,11 @@ dependencies {
 
     // DataStore for preferences
     implementation libs.datastore.preferences
+    // optional - RxJava3 support
+    implementation libs.datastore.preferences.rxjava3
+
+    // RxJava3
+    implementation libs.rxjava3
 
 }
 

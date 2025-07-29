@@ -8,6 +8,10 @@ import com.example.fitness.data.network.model.auth.SignInResponse;
 import com.example.fitness.data.network.model.auth.SignUpRequest;
 import com.example.fitness.data.network.model.auth.SignUpResponse;
 
+import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -45,8 +49,11 @@ public class AuthRepository {
                             signUpResponse.getUser().getEmail(),
                             signUpResponse.getUser().getName(),
                             signUpResponse.getUser().getRole()
-                    );
-                    callback.onSuccess(signUpResponse);
+                    ).subscribeOn(Schedulers.io())
+                     .subscribe(
+                         () -> callback.onSuccess(signUpResponse),
+                         throwable -> callback.onError("Failed to save auth data: " + throwable.getMessage())
+                     );
                 } else {
                     callback.onError("Sign up failed: " + response.message());
                 }
@@ -73,8 +80,11 @@ public class AuthRepository {
                             signInResponse.getUser().getEmail(),
                             signInResponse.getUser().getName(),
                             signInResponse.getUser().getRole()
-                    );
-                    callback.onSuccess(signInResponse);
+                    ).subscribeOn(Schedulers.io())
+                     .subscribe(
+                         () -> callback.onSuccess(signInResponse),
+                         throwable -> callback.onError("Failed to save auth data: " + throwable.getMessage())
+                     );
                 } else {
                     callback.onError("Sign in failed: " + response.message());
                 }
@@ -100,8 +110,11 @@ public class AuthRepository {
                             sessionResponse.getUser().getEmail(),
                             sessionResponse.getUser().getName(),
                             sessionResponse.getUser().getRole()
-                    );
-                    callback.onSuccess(sessionResponse);
+                    ).subscribeOn(Schedulers.io())
+                     .subscribe(
+                         () -> callback.onSuccess(sessionResponse),
+                         throwable -> callback.onError("Failed to save session data: " + throwable.getMessage())
+                     );
                 } else {
                     callback.onError("Get session failed: " + response.message());
                 }
@@ -115,30 +128,59 @@ public class AuthRepository {
     }
 
     public void logout() {
-        authDataStore.clearAuthData();
+        authDataStore.clearAuthData()
+            .subscribeOn(Schedulers.io())
+            .subscribe(
+                () -> {}, // Success - do nothing
+                throwable -> {} // Error - log if needed
+            );
     }
 
-    public boolean isLoggedIn() {
+    public Flowable<Boolean> isLoggedIn() {
         return authDataStore.isLoggedIn();
     }
 
-    public String getCurrentUserId() {
+    public Single<Boolean> isLoggedInSync() {
+        return authDataStore.isLoggedInSync();
+    }
+
+    public Flowable<String> getCurrentUserId() {
         return authDataStore.getUserId();
     }
 
-    public String getCurrentUserEmail() {
+    public Single<String> getCurrentUserIdSync() {
+        return authDataStore.getUserIdSync();
+    }
+
+    public Flowable<String> getCurrentUserEmail() {
         return authDataStore.getUserEmail();
     }
 
-    public String getCurrentUserName() {
+    public Single<String> getCurrentUserEmailSync() {
+        return authDataStore.getUserEmailSync();
+    }
+
+    public Flowable<String> getCurrentUserName() {
         return authDataStore.getUserName();
     }
 
-    public String getCurrentUserRole() {
+    public Single<String> getCurrentUserNameSync() {
+        return authDataStore.getUserNameSync();
+    }
+
+    public Flowable<String> getCurrentUserRole() {
         return authDataStore.getUserRole();
     }
 
-    public String getJwtToken() {
+    public Single<String> getCurrentUserRoleSync() {
+        return authDataStore.getUserRoleSync();
+    }
+
+    public Flowable<String> getJwtToken() {
         return authDataStore.getJwtToken();
+    }
+
+    public Single<String> getJwtTokenSync() {
+        return authDataStore.getJwtTokenSync();
     }
 }
