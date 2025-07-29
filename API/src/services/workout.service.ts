@@ -313,6 +313,7 @@ export class WorkoutService {
     // Record exercise result
     static async recordExerciseResult(data: {
         workoutPlanDayExerciseId: number;
+        userWorkoutPlanId: number;
         userId: string;
         reps?: number;
         duration?: number;
@@ -326,5 +327,50 @@ export class WorkoutService {
             })
             .returning();
         return result[0];
+    }
+
+    // Get workout plan results with exercise results
+    static async getWorkoutPlanResults(workoutPlanId: number, userId: string) {
+        // First get the userWorkoutPlan for this user and workout plan
+        const userPlan = await db.query.userWorkoutPlan.findFirst({
+            where: and(
+                eq(userWorkoutPlan.workoutPlanId, workoutPlanId),
+                eq(userWorkoutPlan.userId, userId)
+            ),
+        });
+
+        if (!userPlan) {
+            return null;
+        }
+
+        // Get the workout plan with all days, exercises, and exercise results
+        const workoutPlanWithResults = await db.query.workoutPlan.findFirst({
+            where: eq(workoutPlan.id, workoutPlanId),
+            with: {
+                workoutPlanDays: {
+                    with: {
+                        exercises: {
+                            with: {
+                                exerciseType: true,
+                                exerciseResults: {
+                                    where: and(
+                                        eq(exerciseResult.userId, userId),
+                                        eq(
+                                            exerciseResult.userWorkoutPlanId,
+                                            userPlan.id
+                                        )
+                                    ),
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        return {
+            ...workoutPlanWithResults,
+            userWorkoutPlan: userPlan,
+        };
     }
 }

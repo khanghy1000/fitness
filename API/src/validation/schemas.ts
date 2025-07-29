@@ -527,6 +527,14 @@ export const recordExerciseResultSchema = z
                 description: 'ID of the workout plan day exercise',
                 example: 789,
             }),
+        userWorkoutPlanId: z
+            .number()
+            .positive()
+            .or(z.string().transform(Number))
+            .openapi({
+                description: 'ID of the user workout plan',
+                example: 123,
+            }),
         reps: z.number().positive().optional().openapi({
             description: 'Number of repetitions completed',
             example: 15,
@@ -1172,3 +1180,17 @@ export const updateExerciseInPlanDaySchema = z
         }),
     })
     .openapi('UpdateExerciseInPlanDay');
+
+// Workout Plan ID parameter schema
+export const workoutPlanIdParamSchema = z
+    .object({
+        workoutPlanId: z
+            .string()
+            .regex(/^\d+$/, 'Workout Plan ID must be a valid number')
+            .transform(Number)
+            .openapi({
+                description: 'Workout plan identifier',
+                example: '123',
+            }),
+    })
+    .openapi('WorkoutPlanIdParam');

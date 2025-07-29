@@ -10,6 +10,7 @@ import {
 } from '@middlewares/validation.middleware.ts';
 import {
     idParamSchema,
+    workoutPlanIdParamSchema,
     createWorkoutPlanSchema,
     updateWorkoutPlanSchema,
     assignWorkoutPlanSchema,
@@ -195,10 +196,17 @@ router.post(
     requireAuthenticated,
     validateBody(recordExerciseResultSchema),
     async (req, res) => {
-        const { workoutPlanDayExerciseId, reps, duration, calories } = req.body;
+        const {
+            workoutPlanDayExerciseId,
+            userWorkoutPlanId,
+            reps,
+            duration,
+            calories,
+        } = req.body;
 
         const result = await WorkoutService.recordExerciseResult({
             workoutPlanDayExerciseId,
+            userWorkoutPlanId,
             userId: req.session!.user.id,
             reps,
             duration,
@@ -217,6 +225,32 @@ router.get('/', requireAuthenticated, async (req, res) => {
     const plans = await WorkoutService.getAllWorkoutPlans(user.id, user.role);
     res.json(plans);
 });
+
+// Get user exercise results for a workout plan
+router.get(
+    '/:workoutPlanId/results',
+    requireAuthenticated,
+    validateParams(workoutPlanIdParamSchema),
+    async (req, res) => {
+        const workoutPlanId = (req.params as any).workoutPlanId as number;
+        const userId = req.session!.user.id;
+
+        const results = await WorkoutService.getWorkoutPlanResults(
+            workoutPlanId,
+            userId
+        );
+
+        if (!results) {
+            return res
+                .status(404)
+                .json({
+                    error: 'Workout plan not found or not assigned to user',
+                });
+        }
+
+        res.json(results);
+    }
+);
 
 // Get workout plan by ID with full details
 router.get(

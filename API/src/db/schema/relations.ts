@@ -196,6 +196,7 @@ export const userWorkoutPlanRelations = relations(
             references: [user.id],
             relationName: 'assignedBy',
         }),
+        exerciseResults: many(exerciseResult),
         // workoutSessions: many(workoutSession),
     })
 );
@@ -278,6 +279,10 @@ export const exerciseResultRelations = relations(exerciseResult, ({ one }) => ({
     workoutPlanExercise: one(workoutPlanDayExercise, {
         fields: [exerciseResult.workoutPlanDayExerciseId],
         references: [workoutPlanDayExercise.id],
+    }),
+    userWorkoutPlan: one(userWorkoutPlan, {
+        fields: [exerciseResult.userWorkoutPlanId],
+        references: [userWorkoutPlan.id],
     }),
     user: one(user, {
         fields: [exerciseResult.userId],

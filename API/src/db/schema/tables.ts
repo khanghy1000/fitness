@@ -286,56 +286,67 @@ export const workoutPlanDayExercise = pgTable('workout_plan_day_exercise', {
 });
 
 // User Workout Plans (assigned plans)
-export const userWorkoutPlan = pgTable('user_workout_plan', {
-    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-    userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
-    workoutPlanId: integer('workout_plan_id').references(() => workoutPlan.id, {
-        onDelete: 'cascade',
-    }),
-    assignedBy: text('assigned_by').references(() => user.id), // trainer who assigned
-    startDate: timestamp('start_date').notNull(),
-    endDate: timestamp('end_date'),
-    status: text('status', {
-        enum: ['active', 'completed', 'paused', 'cancelled'],
-    }).default('active'),
-    progress: real('progress').default(0), // percentage 0-100
-    notes: text('notes'),
-    createdAt: timestamp('created_at')
-        .$defaultFn(() => new Date())
-        .notNull(),
-    updatedAt: timestamp('updated_at')
-        .$defaultFn(() => new Date())
-        .notNull(),
-}, (t) => [
-    unique().on(t.userId, t.workoutPlanId),
-]);
+export const userWorkoutPlan = pgTable(
+    'user_workout_plan',
+    {
+        id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+        userId: text('user_id').references(() => user.id, {
+            onDelete: 'cascade',
+        }),
+        workoutPlanId: integer('workout_plan_id').references(
+            () => workoutPlan.id,
+            {
+                onDelete: 'cascade',
+            }
+        ),
+        assignedBy: text('assigned_by').references(() => user.id), // trainer who assigned
+        startDate: timestamp('start_date').notNull(),
+        endDate: timestamp('end_date'),
+        status: text('status', {
+            enum: ['active', 'completed', 'paused', 'cancelled'],
+        }).default('active'),
+        progress: real('progress').default(0), // percentage 0-100
+        notes: text('notes'),
+        createdAt: timestamp('created_at')
+            .$defaultFn(() => new Date())
+            .notNull(),
+        updatedAt: timestamp('updated_at')
+            .$defaultFn(() => new Date())
+            .notNull(),
+    },
+    (t) => [unique().on(t.userId, t.workoutPlanId)]
+);
 
 // User Nutrition Plans (assigned nutrition plans)
-export const userNutritionPlan = pgTable('user_nutrition_plan', {
-    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-    userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
-    nutritionPlanId: integer('nutrition_plan_id').references(
-        () => nutritionPlan.id,
-        {
+export const userNutritionPlan = pgTable(
+    'user_nutrition_plan',
+    {
+        id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+        userId: text('user_id').references(() => user.id, {
             onDelete: 'cascade',
-        }
-    ),
-    assignedBy: text('assigned_by').references(() => user.id), // trainer who assigned
-    startDate: timestamp('start_date').notNull(),
-    endDate: timestamp('end_date'),
-    status: text('status', {
-        enum: ['active', 'completed', 'paused', 'cancelled'],
-    }).default('active'),
-    notes: text('notes'),
-    createdAt: timestamp('created_at')
-        .$defaultFn(() => new Date())
-        .notNull(),
-    updatedAt: timestamp('updated_at')
-        .$defaultFn(() => new Date())
-        .notNull(),
-}, (t) => [
-    unique().on(t.userId, t.nutritionPlanId),
-]);
+        }),
+        nutritionPlanId: integer('nutrition_plan_id').references(
+            () => nutritionPlan.id,
+            {
+                onDelete: 'cascade',
+            }
+        ),
+        assignedBy: text('assigned_by').references(() => user.id), // trainer who assigned
+        startDate: timestamp('start_date').notNull(),
+        endDate: timestamp('end_date'),
+        status: text('status', {
+            enum: ['active', 'completed', 'paused', 'cancelled'],
+        }).default('active'),
+        notes: text('notes'),
+        createdAt: timestamp('created_at')
+            .$defaultFn(() => new Date())
+            .notNull(),
+        updatedAt: timestamp('updated_at')
+            .$defaultFn(() => new Date())
+            .notNull(),
+    },
+    (t) => [unique().on(t.userId, t.nutritionPlanId)]
+);
 
 // Daily nutrition adherence tracking
 export const nutritionAdherence = pgTable('nutrition_adherence', {
@@ -454,6 +465,10 @@ export const exerciseResult = pgTable('exercise_result', {
     ).references(() => workoutPlanDayExercise.id, {
         onDelete: 'cascade',
     }),
+    userWorkoutPlanId: integer('user_workout_plan_id').references(
+        () => userWorkoutPlan.id,
+        { onDelete: 'cascade' }
+    ),
     userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
     reps: integer('reps'),
     duration: integer('duration'), // in seconds
