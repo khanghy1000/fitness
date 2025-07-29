@@ -11,6 +11,7 @@ import com.example.fitness.data.network.model.auth.SignUpResponse;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -50,6 +51,7 @@ public class AuthRepository {
                             signUpResponse.getUser().getName(),
                             signUpResponse.getUser().getRole()
                     ).subscribeOn(Schedulers.io())
+                     .observeOn(AndroidSchedulers.mainThread())
                      .subscribe(
                          () -> callback.onSuccess(signUpResponse),
                          throwable -> callback.onError("Failed to save auth data: " + throwable.getMessage())
@@ -81,6 +83,7 @@ public class AuthRepository {
                             signInResponse.getUser().getName(),
                             signInResponse.getUser().getRole()
                     ).subscribeOn(Schedulers.io())
+                     .observeOn(AndroidSchedulers.mainThread())
                      .subscribe(
                          () -> callback.onSuccess(signInResponse),
                          throwable -> callback.onError("Failed to save auth data: " + throwable.getMessage())
@@ -111,6 +114,7 @@ public class AuthRepository {
                             sessionResponse.getUser().getName(),
                             sessionResponse.getUser().getRole()
                     ).subscribeOn(Schedulers.io())
+                     .observeOn(AndroidSchedulers.mainThread())
                      .subscribe(
                          () -> callback.onSuccess(sessionResponse),
                          throwable -> callback.onError("Failed to save session data: " + throwable.getMessage())
@@ -130,6 +134,7 @@ public class AuthRepository {
     public void logout() {
         authDataStore.clearAuthData()
             .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 () -> {}, // Success - do nothing
                 throwable -> {} // Error - log if needed

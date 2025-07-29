@@ -6,6 +6,8 @@ import androidx.datastore.preferences.core.PreferencesKeys;
 import androidx.datastore.preferences.rxjava3.RxPreferenceDataStoreBuilder;
 import androidx.datastore.rxjava3.RxDataStore;
 
+import dagger.hilt.android.qualifiers.ApplicationContext;
+import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 
@@ -24,11 +26,11 @@ public class AuthDataStore {
     private final RxDataStore<Preferences> dataStore;
 
     @Inject
-    public AuthDataStore(Context context) {
+    public AuthDataStore(@ApplicationContext Context context) {
         dataStore = new RxPreferenceDataStoreBuilder(context, DATASTORE_NAME).build();
     }
 
-    public Single<Void> saveAuthData(String token, String userId, String email, String name, String role) {
+    public Completable saveAuthData(String token, String userId, String email, String name, String role) {
         return dataStore.updateDataAsync(prefs -> {
             androidx.datastore.preferences.core.MutablePreferences mutablePrefs = prefs.toMutablePreferences();
             mutablePrefs.set(JWT_TOKEN_KEY, token != null ? token : "");
@@ -39,7 +41,7 @@ public class AuthDataStore {
                 mutablePrefs.set(USER_ROLE_KEY, role);
             }
             return Single.just(mutablePrefs);
-        }).ignoreElement().toSingleDefault((Void) null);
+        }).ignoreElement();
     }
 
     public Flowable<String> getJwtToken() {
@@ -90,7 +92,7 @@ public class AuthDataStore {
         return isLoggedIn().firstOrError();
     }
 
-    public Single<Void> clearAuthData() {
+    public Completable clearAuthData() {
         return dataStore.updateDataAsync(prefs -> {
             androidx.datastore.preferences.core.MutablePreferences mutablePrefs = prefs.toMutablePreferences();
             mutablePrefs.remove(JWT_TOKEN_KEY);
@@ -99,6 +101,6 @@ public class AuthDataStore {
             mutablePrefs.remove(USER_NAME_KEY);
             mutablePrefs.remove(USER_ROLE_KEY);
             return Single.just(mutablePrefs);
-        }).ignoreElement().toSingleDefault((Void) null);
+        }).ignoreElement();
     }
 }
