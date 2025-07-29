@@ -306,7 +306,9 @@ export const userWorkoutPlan = pgTable('user_workout_plan', {
     updatedAt: timestamp('updated_at')
         .$defaultFn(() => new Date())
         .notNull(),
-});
+}, (t) => [
+    unique().on(t.userId, t.workoutPlanId),
+]);
 
 // User Nutrition Plans (assigned nutrition plans)
 export const userNutritionPlan = pgTable('user_nutrition_plan', {
@@ -331,7 +333,9 @@ export const userNutritionPlan = pgTable('user_nutrition_plan', {
     updatedAt: timestamp('updated_at')
         .$defaultFn(() => new Date())
         .notNull(),
-});
+}, (t) => [
+    unique().on(t.userId, t.nutritionPlanId),
+]);
 
 // Daily nutrition adherence tracking
 export const nutritionAdherence = pgTable('nutrition_adherence', {
