@@ -105,7 +105,7 @@ router.post(
 
 // Get user's assigned workout plans
 router.get('/workout-plans', requireAuthenticated, async (req, res) => {
-    const plans = await WorkoutService.getUserWorkoutPlans(
+    const plans = await WorkoutService.getUserAssignedWorkoutPlans(
         req.session!.user.id
     );
     res.json(plans);
@@ -113,7 +113,7 @@ router.get('/workout-plans', requireAuthenticated, async (req, res) => {
 
 // Get user's assigned nutrition plans
 router.get('/nutrition-plans', requireAuthenticated, async (req, res) => {
-    const plans = await NutritionService.getUserNutritionPlans(
+    const plans = await NutritionService.getUserAssignedNutritionPlans(
         req.session!.user.id
     );
     res.json(plans);

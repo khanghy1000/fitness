@@ -228,12 +228,6 @@ export const createNutritionPlanSchema = z
             description: 'Description of the nutrition plan',
             example: 'A diet plan focused on muscle building',
         }),
-        weekdayPlans: z
-            .array(weekdayPlanSchema)
-            .min(1, 'At least one weekday plan is required')
-            .openapi({
-                description: 'Nutrition plans for each day of the week',
-            }),
     })
     .openapi('CreateNutritionPlan');
 
@@ -252,10 +246,6 @@ export const updateNutritionPlanSchema = z
             description: 'Whether the nutrition plan is active',
             example: true,
         }),
-        weekdayPlans: z
-            .array(weekdayPlanSchema)
-            .optional()
-            .openapi({ description: 'Updated weekday plans' }),
     })
     .openapi('UpdateNutritionPlan');
 
@@ -907,3 +897,273 @@ export const connectionSchema = z
             .openapi({ description: 'Response date' }),
     })
     .openapi('Connection');
+
+// Nutrition Plan Day schemas
+export const createNutritionPlanDaySchema = z
+    .object({
+        weekday: z
+            .enum(['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'], {
+                message:
+                    'Weekday must be one of: sun, mon, tue, wed, thu, fri, sat',
+            })
+            .openapi({ description: 'Day of the week', example: 'mon' }),
+        totalCalories: z.number().min(0).optional().openapi({
+            description: 'Total calories for the day',
+            example: 2000,
+        }),
+        protein: z.number().min(0).optional().openapi({
+            description: 'Total protein for the day',
+            example: 150,
+        }),
+        carbs: z.number().min(0).optional().openapi({
+            description: 'Total carbs for the day',
+            example: 200,
+        }),
+        fat: z.number().min(0).optional().openapi({
+            description: 'Total fat for the day',
+            example: 66,
+        }),
+        fiber: z.number().min(0).optional().openapi({
+            description: 'Total fiber for the day',
+            example: 25,
+        }),
+    })
+    .openapi('CreateNutritionPlanDay');
+
+export const updateNutritionPlanDaySchema = z
+    .object({
+        weekday: z
+            .enum(['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'], {
+                message:
+                    'Weekday must be one of: sun, mon, tue, wed, thu, fri, sat',
+            })
+            .optional()
+            .openapi({ description: 'Day of the week', example: 'mon' }),
+        totalCalories: z.number().min(0).optional().openapi({
+            description: 'Total calories for the day',
+            example: 2000,
+        }),
+        protein: z.number().min(0).optional().openapi({
+            description: 'Total protein for the day',
+            example: 150,
+        }),
+        carbs: z.number().min(0).optional().openapi({
+            description: 'Total carbs for the day',
+            example: 200,
+        }),
+        fat: z.number().min(0).optional().openapi({
+            description: 'Total fat for the day',
+            example: 66,
+        }),
+        fiber: z.number().min(0).optional().openapi({
+            description: 'Total fiber for the day',
+            example: 25,
+        }),
+    })
+    .openapi('UpdateNutritionPlanDay');
+
+// Nutrition Plan Meal schemas
+export const createNutritionPlanMealSchema = z
+    .object({
+        name: z.string().min(1, 'Meal name is required').openapi({
+            description: 'Name of the meal',
+            example: 'Breakfast',
+        }),
+        time: z
+            .string()
+            .regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/, {
+                message: 'Time must be in HH:MM:SS format',
+            })
+            .openapi({
+                description: 'Time when meal should be consumed',
+                example: '08:00:00',
+            }),
+        calories: z.number().min(0).optional().openapi({
+            description: 'Total calories for the meal',
+            example: 450,
+        }),
+        protein: z.number().min(0).optional().openapi({
+            description: 'Total protein for the meal',
+            example: 25.5,
+        }),
+        carbs: z.number().min(0).optional().openapi({
+            description: 'Total carbs for the meal',
+            example: 45.0,
+        }),
+        fat: z.number().min(0).optional().openapi({
+            description: 'Total fat for the meal',
+            example: 12.0,
+        }),
+        fiber: z.number().min(0).optional().openapi({
+            description: 'Total fiber for the meal',
+            example: 8.0,
+        }),
+    })
+    .openapi('CreateNutritionPlanMeal');
+
+export const updateNutritionPlanMealSchema = z
+    .object({
+        name: z.string().min(1, 'Meal name is required').optional().openapi({
+            description: 'Name of the meal',
+            example: 'Breakfast',
+        }),
+        time: z
+            .string()
+            .regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/, {
+                message: 'Time must be in HH:MM:SS format',
+            })
+            .optional()
+            .openapi({
+                description: 'Time when meal should be consumed',
+                example: '08:00:00',
+            }),
+        calories: z.number().min(0).optional().openapi({
+            description: 'Total calories for the meal',
+            example: 450,
+        }),
+        protein: z.number().min(0).optional().openapi({
+            description: 'Total protein for the meal',
+            example: 25.5,
+        }),
+        carbs: z.number().min(0).optional().openapi({
+            description: 'Total carbs for the meal',
+            example: 45.0,
+        }),
+        fat: z.number().min(0).optional().openapi({
+            description: 'Total fat for the meal',
+            example: 12.0,
+        }),
+        fiber: z.number().min(0).optional().openapi({
+            description: 'Total fiber for the meal',
+            example: 8.0,
+        }),
+    })
+    .openapi('UpdateNutritionPlanMeal');
+
+// Nutrition Plan Food schemas
+export const createNutritionPlanFoodSchema = z
+    .object({
+        name: z.string().min(1, 'Food name is required').openapi({
+            description: 'Name of the food',
+            example: 'Greek Yogurt',
+        }),
+        quantity: z.string().min(1, 'Quantity is required').openapi({
+            description: 'Quantity of the food',
+            example: '1 cup',
+        }),
+        calories: z.number().min(0, 'Calories cannot be negative').openapi({
+            description: 'Calories in the food',
+            example: 130,
+        }),
+        protein: z.number().min(0).optional().openapi({
+            description: 'Protein content',
+            example: 20.0,
+        }),
+        carbs: z.number().min(0).optional().openapi({
+            description: 'Carbs content',
+            example: 9.0,
+        }),
+        fat: z.number().min(0).optional().openapi({
+            description: 'Fat content',
+            example: 0.7,
+        }),
+        fiber: z.number().min(0).optional().openapi({
+            description: 'Fiber content',
+            example: 0.0,
+        }),
+    })
+    .openapi('CreateNutritionPlanFood');
+
+export const updateNutritionPlanFoodSchema = z
+    .object({
+        name: z.string().min(1, 'Food name is required').optional().openapi({
+            description: 'Name of the food',
+            example: 'Greek Yogurt',
+        }),
+        quantity: z.string().min(1, 'Quantity is required').optional().openapi({
+            description: 'Quantity of the food',
+            example: '1 cup',
+        }),
+        calories: z
+            .number()
+            .min(0, 'Calories cannot be negative')
+            .optional()
+            .openapi({
+                description: 'Calories in the food',
+                example: 130,
+            }),
+        protein: z.number().min(0).optional().openapi({
+            description: 'Protein content',
+            example: 20.0,
+        }),
+        carbs: z.number().min(0).optional().openapi({
+            description: 'Carbs content',
+            example: 9.0,
+        }),
+        fat: z.number().min(0).optional().openapi({
+            description: 'Fat content',
+            example: 0.7,
+        }),
+        fiber: z.number().min(0).optional().openapi({
+            description: 'Fiber content',
+            example: 0.0,
+        }),
+    })
+    .openapi('UpdateNutritionPlanFood');
+
+// Workout Plan Day schemas
+export const updateWorkoutPlanDaySchema = z
+    .object({
+        day: z
+            .number()
+            .positive('Day must be a positive number')
+            .optional()
+            .openapi({
+                description: 'Day number in the workout plan',
+                example: 1,
+            }),
+        isRestDay: z.boolean().optional().openapi({
+            description: 'Whether this is a rest day',
+            example: false,
+        }),
+        estimatedCalories: z.number().positive().optional().openapi({
+            description: 'Estimated calories burned for this day',
+            example: 400,
+        }),
+        duration: z.number().positive().optional().openapi({
+            description: 'Estimated duration in minutes',
+            example: 60,
+        }),
+    })
+    .openapi('UpdateWorkoutPlanDay');
+
+// Workout Plan Day Exercise schemas
+export const updateExerciseInPlanDaySchema = z
+    .object({
+        exerciseTypeId: z
+            .number()
+            .positive('Exercise type ID is required')
+            .optional()
+            .openapi({ description: 'ID of the exercise type', example: 15 }),
+        order: z.number().positive().optional().openapi({
+            description: 'Order of exercise in the workout',
+            example: 1,
+        }),
+        targetReps: z.number().positive().optional().openapi({
+            description: 'Target number of repetitions',
+            example: 12,
+        }),
+        targetDuration: z.number().positive().optional().openapi({
+            description: 'Target duration in seconds',
+            example: 300,
+        }),
+        estimatedCalories: z.number().positive().optional().openapi({
+            description: 'Estimated calories burned for this exercise',
+            example: 50,
+        }),
+        notes: z.string().optional().openapi({
+            description: 'Additional notes for the exercise',
+            example: 'Focus on form over speed',
+        }),
+    })
+    .openapi('UpdateExerciseInPlanDay');

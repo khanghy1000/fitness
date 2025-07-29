@@ -187,7 +187,7 @@ export class WorkoutService {
         return result[0];
     }
 
-    static async getUserWorkoutPlans(userId: string) {
+    static async getUserAssignedWorkoutPlans(userId: string) {
         return await db.query.userWorkoutPlan.findMany({
             where: eq(userWorkoutPlan.userId, userId),
             with: {
@@ -206,5 +206,106 @@ export class WorkoutService {
                 },
             },
         });
+    }
+
+    // Workout Plan Day methods
+    static async getWorkoutPlanDays(workoutPlanId: number) {
+        return await db.query.workoutPlanDay.findMany({
+            where: eq(workoutPlanDay.workoutPlanId, workoutPlanId),
+            with: {
+                exercises: {
+                    with: {
+                        exerciseType: true,
+                    },
+                },
+            },
+        });
+    }
+
+    static async getWorkoutPlanDayById(id: number) {
+        return await db.query.workoutPlanDay.findFirst({
+            where: eq(workoutPlanDay.id, id),
+            with: {
+                exercises: {
+                    with: {
+                        exerciseType: true,
+                    },
+                },
+            },
+        });
+    }
+
+    static async updateWorkoutPlanDay(
+        id: number,
+        data: {
+            day?: number;
+            isRestDay?: boolean;
+            estimatedCalories?: number;
+            duration?: number;
+        }
+    ) {
+        const result = await db
+            .update(workoutPlanDay)
+            .set(data)
+            .where(eq(workoutPlanDay.id, id))
+            .returning();
+        return result[0] || null;
+    }
+
+    static async deleteWorkoutPlanDay(id: number) {
+        const result = await db
+            .delete(workoutPlanDay)
+            .where(eq(workoutPlanDay.id, id))
+            .returning();
+        return result[0] || null;
+    }
+
+    // Workout Plan Day Exercise methods
+    static async getWorkoutPlanDayExercises(workoutPlanDayId: number) {
+        return await db.query.workoutPlanDayExercise.findMany({
+            where: eq(
+                workoutPlanDayExercise.workoutPlanDayId,
+                workoutPlanDayId
+            ),
+            with: {
+                exerciseType: true,
+            },
+        });
+    }
+
+    static async getWorkoutPlanDayExerciseById(id: number) {
+        return await db.query.workoutPlanDayExercise.findFirst({
+            where: eq(workoutPlanDayExercise.id, id),
+            with: {
+                exerciseType: true,
+            },
+        });
+    }
+
+    static async updateExerciseInPlanDay(
+        id: number,
+        data: {
+            exerciseTypeId?: number;
+            order?: number;
+            targetReps?: number;
+            targetDuration?: number;
+            estimatedCalories?: number;
+            notes?: string;
+        }
+    ) {
+        const result = await db
+            .update(workoutPlanDayExercise)
+            .set({ ...data, updatedAt: new Date() })
+            .where(eq(workoutPlanDayExercise.id, id))
+            .returning();
+        return result[0] || null;
+    }
+
+    static async deleteExerciseFromPlanDay(id: number) {
+        const result = await db
+            .delete(workoutPlanDayExercise)
+            .where(eq(workoutPlanDayExercise.id, id))
+            .returning();
+        return result[0] || null;
     }
 }

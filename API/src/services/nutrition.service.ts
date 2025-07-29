@@ -92,76 +92,27 @@ export class NutritionService {
     }
 
     static async getNutritionPlanById(id: number) {
-        const plans = await db
-            .select()
-            .from(nutritionPlan)
-            .where(eq(nutritionPlan.id, id));
-        return plans[0] || null;
-    }
-
-    static async getNutritionPlanWithDetails(id: number) {
-        // Get the nutrition plan
-        const plan = await db
-            .select()
-            .from(nutritionPlan)
-            .where(eq(nutritionPlan.id, id));
-
-        if (!plan[0]) return null;
-
-        // Get all days for this plan
-        const days = await db
-            .select()
-            .from(nutritionPlanDay)
-            .where(eq(nutritionPlanDay.nutritionPlanId, id));
-
-        // Get all meals for these days
-        const dayIds = days.map((d) => d.id);
-        const meals =
-            dayIds.length > 0
-                ? await db
-                      .select()
-                      .from(nutritionPlanMeal)
-                      .where(
-                          inArray(nutritionPlanMeal.nutritionPlanDayId, dayIds)
-                      )
-                : [];
-
-        // Get all foods for these meals
-        const mealIds = meals.map((m) => m.id);
-        const foods =
-            mealIds.length > 0
-                ? await db
-                      .select()
-                      .from(nutritionPlanFood)
-                      .where(
-                          inArray(
-                              nutritionPlanFood.nutritionPlanMealId,
-                              mealIds
-                          )
-                      )
-                : [];
-
-        return {
-            ...plan[0],
-            days: days.map((day) => ({
-                ...day,
-                meals: meals
-                    .filter((meal) => meal.nutritionPlanDayId === day.id)
-                    .map((meal) => ({
-                        ...meal,
-                        foods: foods.filter(
-                            (food) => food.nutritionPlanMealId === meal.id
-                        ),
-                    })),
-            })),
-        };
+        const plan = await db.query.nutritionPlan.findFirst({
+            where: eq(nutritionPlan.id, id),
+            with: {
+                days: {
+                    with: {
+                        meals: {
+                            with: {
+                                foods: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+        return plan || null;
     }
 
     static async createNutritionPlan(data: {
         name: string;
         description?: string;
         createdBy: string;
-        weekdayPlans: WeekdayPlanType[];
         userRole?: string;
     }) {
         return await db.transaction(async (tx) => {
@@ -174,53 +125,6 @@ export class NutritionService {
                     createdBy: data.createdBy,
                 })
                 .returning();
-
-            // Create nutrition plan days, meals, and foods
-            for (const weekdayPlan of data.weekdayPlans) {
-                const [planDay] = await tx
-                    .insert(nutritionPlanDay)
-                    .values({
-                        nutritionPlanId: plan.id,
-                        weekday: weekdayPlan.weekday,
-                        totalCalories: weekdayPlan.totalCalories,
-                        protein: weekdayPlan.protein,
-                        carbs: weekdayPlan.carbs,
-                        fat: weekdayPlan.fat,
-                        fiber: weekdayPlan.fiber,
-                    })
-                    .returning();
-
-                for (const meal of weekdayPlan.meals) {
-                    const [planMeal] = await tx
-                        .insert(nutritionPlanMeal)
-                        .values({
-                            nutritionPlanDayId: planDay.id,
-                            name: meal.name,
-                            time: meal.time,
-                            calories: meal.calories,
-                            protein: meal.protein,
-                            carbs: meal.carbs,
-                            fat: meal.fat,
-                            fiber: meal.fiber,
-                        })
-                        .returning();
-
-                    if (meal.foods && meal.foods.length > 0) {
-                        const foodsData = meal.foods.map((food) => ({
-                            nutritionPlanMealId: planMeal.id,
-                            name: food.name,
-                            quantity: food.quantity,
-                            calories: food.calories,
-                            protein: food.protein,
-                            carbs: food.carbs,
-                            fat: food.fat,
-                            fiber: food.fiber,
-                        }));
-
-                        await tx.insert(nutritionPlanFood).values(foodsData);
-                    }
-                }
-            }
 
             // Auto-assign to trainee if they created it
             if (data.userRole === 'trainee') {
@@ -242,83 +146,14 @@ export class NutritionService {
             name?: string;
             description?: string;
             isActive?: boolean;
-            weekdayPlans?: WeekdayPlanType[];
         }
     ) {
-        return await db.transaction(async (tx) => {
-            // Update the main nutrition plan
-            const [plan] = await tx
-                .update(nutritionPlan)
-                .set({
-                    name: data.name,
-                    description: data.description,
-                    isActive: data.isActive,
-                    updatedAt: new Date(),
-                })
-                .where(eq(nutritionPlan.id, id))
-                .returning();
-
-            if (!plan) return null;
-
-            // If weekdayPlans are provided, update the structure
-            if (data.weekdayPlans) {
-                // Delete existing days (cascade will handle meals and foods)
-                await tx
-                    .delete(nutritionPlanDay)
-                    .where(eq(nutritionPlanDay.nutritionPlanId, id));
-
-                // Recreate the structure
-                for (const weekdayPlan of data.weekdayPlans) {
-                    const [planDay] = await tx
-                        .insert(nutritionPlanDay)
-                        .values({
-                            nutritionPlanId: plan.id,
-                            weekday: weekdayPlan.weekday,
-                            totalCalories: weekdayPlan.totalCalories,
-                            protein: weekdayPlan.protein,
-                            carbs: weekdayPlan.carbs,
-                            fat: weekdayPlan.fat,
-                            fiber: weekdayPlan.fiber,
-                        })
-                        .returning();
-
-                    for (const meal of weekdayPlan.meals) {
-                        const [planMeal] = await tx
-                            .insert(nutritionPlanMeal)
-                            .values({
-                                nutritionPlanDayId: planDay.id,
-                                name: meal.name,
-                                time: meal.time,
-                                calories: meal.calories,
-                                protein: meal.protein,
-                                carbs: meal.carbs,
-                                fat: meal.fat,
-                                fiber: meal.fiber,
-                            })
-                            .returning();
-
-                        if (meal.foods && meal.foods.length > 0) {
-                            const foodsData = meal.foods.map((food) => ({
-                                nutritionPlanMealId: planMeal.id,
-                                name: food.name,
-                                quantity: food.quantity,
-                                calories: food.calories,
-                                protein: food.protein,
-                                carbs: food.carbs,
-                                fat: food.fat,
-                                fiber: food.fiber,
-                            }));
-
-                            await tx
-                                .insert(nutritionPlanFood)
-                                .values(foodsData);
-                        }
-                    }
-                }
-            }
-
-            return plan;
-        });
+        const result = await db
+            .update(nutritionPlan)
+            .set({ ...data, updatedAt: new Date() })
+            .where(eq(nutritionPlan.id, id))
+            .returning();
+        return result[0] || null;
     }
 
     static async deleteNutritionPlan(id: number) {
@@ -343,7 +178,7 @@ export class NutritionService {
         return result[0];
     }
 
-    static async getUserNutritionPlans(userId: string) {
+    static async getUserAssignedNutritionPlans(userId: string) {
         // Get user nutrition plans
         const userPlans = await db
             .select()
@@ -480,5 +315,202 @@ export class NutritionService {
                     eq(nutritionAdherence.date, startDate) // This needs proper date range query
                 )
             );
+    }
+
+    // Nutrition Plan Day methods
+    static async getNutritionPlanDays(nutritionPlanId: number) {
+        return await db.query.nutritionPlanDay.findMany({
+            where: eq(nutritionPlanDay.nutritionPlanId, nutritionPlanId),
+            with: {
+                meals: {
+                    with: {
+                        foods: true,
+                    },
+                },
+            },
+        });
+    }
+
+    static async getNutritionPlanDayById(id: number) {
+        return await db.query.nutritionPlanDay.findFirst({
+            where: eq(nutritionPlanDay.id, id),
+            with: {
+                meals: {
+                    with: {
+                        foods: true,
+                    },
+                },
+            },
+        });
+    }
+
+    static async createNutritionPlanDay(data: {
+        nutritionPlanId: number;
+        weekday: 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
+        totalCalories?: number;
+        protein?: number;
+        carbs?: number;
+        fat?: number;
+        fiber?: number;
+    }) {
+        const result = await db
+            .insert(nutritionPlanDay)
+            .values(data)
+            .returning();
+        return result[0];
+    }
+
+    static async updateNutritionPlanDay(
+        id: number,
+        data: {
+            weekday?: 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
+            totalCalories?: number;
+            protein?: number;
+            carbs?: number;
+            fat?: number;
+            fiber?: number;
+        }
+    ) {
+        const result = await db
+            .update(nutritionPlanDay)
+            .set({ ...data, updatedAt: new Date() })
+            .where(eq(nutritionPlanDay.id, id))
+            .returning();
+        return result[0] || null;
+    }
+
+    static async deleteNutritionPlanDay(id: number) {
+        const result = await db
+            .delete(nutritionPlanDay)
+            .where(eq(nutritionPlanDay.id, id))
+            .returning();
+        return result[0] || null;
+    }
+
+    // Nutrition Plan Meal methods
+    static async getNutritionPlanMeals(nutritionPlanDayId: number) {
+        return await db.query.nutritionPlanMeal.findMany({
+            where: eq(nutritionPlanMeal.nutritionPlanDayId, nutritionPlanDayId),
+            with: {
+                foods: true,
+            },
+        });
+    }
+
+    static async getNutritionPlanMealById(id: number) {
+        return await db.query.nutritionPlanMeal.findFirst({
+            where: eq(nutritionPlanMeal.id, id),
+            with: {
+                foods: true,
+            },
+        });
+    }
+
+    static async createNutritionPlanMeal(data: {
+        nutritionPlanDayId: number;
+        name: string;
+        time: string;
+        calories?: number;
+        protein?: number;
+        carbs?: number;
+        fat?: number;
+        fiber?: number;
+    }) {
+        const result = await db
+            .insert(nutritionPlanMeal)
+            .values(data)
+            .returning();
+        return result[0];
+    }
+
+    static async updateNutritionPlanMeal(
+        id: number,
+        data: {
+            name?: string;
+            time?: string;
+            calories?: number;
+            protein?: number;
+            carbs?: number;
+            fat?: number;
+            fiber?: number;
+        }
+    ) {
+        const result = await db
+            .update(nutritionPlanMeal)
+            .set({ ...data, updatedAt: new Date() })
+            .where(eq(nutritionPlanMeal.id, id))
+            .returning();
+        return result[0] || null;
+    }
+
+    static async deleteNutritionPlanMeal(id: number) {
+        const result = await db
+            .delete(nutritionPlanMeal)
+            .where(eq(nutritionPlanMeal.id, id))
+            .returning();
+        return result[0] || null;
+    }
+
+    // Nutrition Plan Food methods
+    static async getNutritionPlanFoods(nutritionPlanMealId: number) {
+        return await db
+            .select()
+            .from(nutritionPlanFood)
+            .where(
+                eq(nutritionPlanFood.nutritionPlanMealId, nutritionPlanMealId)
+            );
+    }
+
+    static async getNutritionPlanFoodById(id: number) {
+        const result = await db
+            .select()
+            .from(nutritionPlanFood)
+            .where(eq(nutritionPlanFood.id, id));
+        return result[0] || null;
+    }
+
+    static async createNutritionPlanFood(data: {
+        nutritionPlanMealId: number;
+        name: string;
+        quantity: string;
+        calories: number;
+        protein?: number;
+        carbs?: number;
+        fat?: number;
+        fiber?: number;
+    }) {
+        const result = await db
+            .insert(nutritionPlanFood)
+            .values(data)
+            .returning();
+        return result[0];
+    }
+
+    static async updateNutritionPlanFood(
+        id: number,
+        data: {
+            name?: string;
+            quantity?: string;
+            calories?: number;
+            protein?: number;
+            carbs?: number;
+            fat?: number;
+            fiber?: number;
+        }
+    ) {
+        const result = await db
+            .update(nutritionPlanFood)
+            .set({ ...data, updatedAt: new Date() })
+            .where(eq(nutritionPlanFood.id, id))
+            .returning();
+        return result[0] || null;
+    }
+
+    static async deleteNutritionPlanFood(id: number) {
+        const result = await db
+            .delete(nutritionPlanFood)
+            .where(eq(nutritionPlanFood.id, id))
+            .returning();
+        return result[0] || null;
     }
 }

@@ -180,7 +180,7 @@ router.get(
 
         // Get trainee's workout progress
         const workoutPlans =
-            await WorkoutService.getUserWorkoutPlans(traineeId);
+            await WorkoutService.getUserAssignedWorkoutPlans(traineeId);
 
         // Get trainee's nutrition adherence
         const nutritionAdherence =
