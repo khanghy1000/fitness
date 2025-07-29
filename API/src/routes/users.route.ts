@@ -1,7 +1,9 @@
 import { Router } from 'express';
+import { z } from 'zod';
 import {
     requireAuthenticated,
     requireTrainee,
+    requireCoach,
 } from '@middlewares/auth.middleware.ts';
 import {
     validateBody,
@@ -15,6 +17,12 @@ import {
     recordUserStatsSchema,
     nutritionAdherenceSchema,
     userSearchQuerySchema,
+    nutritionPlanIdParamSchema,
+    workoutPlanIdParamSchema,
+    assignNutritionPlanSchema,
+    assignWorkoutPlanSchema,
+    recordExerciseResultSchema,
+    mealCompletionSchema,
 } from '../validation/schemas.ts';
 import { UserService } from '@services/user.service.ts';
 import { WorkoutService } from '@services/workout.service.ts';
@@ -133,6 +141,321 @@ router.get(
         const users = await UserService.searchUsers(query, role);
 
         res.json(users);
+    }
+);
+
+// Helper function to convert JavaScript getDay() result to weekday enum
+const getWeekdayEnum = (
+    dayNumber: number
+): 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' => {
+    const weekdays = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const;
+    return weekdays[dayNumber];
+};
+
+// Get nutrition plan assignments
+router.get(
+    '/nutrition/:nutritionPlanId/assign',
+    requireAuthenticated,
+    validateParams(nutritionPlanIdParamSchema),
+    validateQuery(z.object({ userId: z.string().optional() }).optional()),
+    async (req, res) => {
+        const nutritionPlanId = (req.params as any).nutritionPlanId as number;
+        const user = req.session!.user;
+
+        if (user.role === 'trainee') {
+            // Get current user's assigned plans
+            const plans = await NutritionService.getUserAssignedNutritionPlans(
+                user.id
+            );
+            const plan = plans.find(
+                (p) => p.nutritionPlan?.id === nutritionPlanId
+            );
+            res.json(plan || null);
+        } else if (user.role === 'coach') {
+            // Get assigned plans for specified user
+            const { userId } = req.query as { userId?: string };
+            if (!userId) {
+                return res
+                    .status(400)
+                    .json({
+                        error: 'userId query parameter is required for coaches',
+                    });
+            }
+            const plans =
+                await NutritionService.getUserAssignedNutritionPlans(userId);
+            const plan = plans.find(
+                (p) => p.nutritionPlan?.id === nutritionPlanId
+            );
+            res.json(plan || null);
+        } else {
+            res.status(403).json({ error: 'Access denied' });
+        }
+    }
+);
+
+// Assign nutrition plan to trainee (coach only)
+router.post(
+    '/nutrition/:nutritionPlanId/assign',
+    requireCoach,
+    validateParams(nutritionPlanIdParamSchema),
+    validateBody(assignNutritionPlanSchema),
+    async (req, res) => {
+        const nutritionPlanId = (req.params as any).nutritionPlanId as number;
+        const { userId, startDate, endDate } = req.body;
+
+        const assignment = await NutritionService.assignNutritionPlanToUser({
+            userId,
+            nutritionPlanId,
+            assignedBy: req.session!.user.id,
+            startDate: new Date(startDate),
+            endDate: endDate ? new Date(endDate) : undefined,
+        });
+
+        res.status(201).json(assignment);
+    }
+);
+
+// Create daily adherence record
+router.post(
+    '/nutrition/:nutritionPlanId/adherence',
+    requireAuthenticated,
+    validateParams(nutritionPlanIdParamSchema),
+    validateBody(nutritionAdherenceSchema),
+    async (req, res) => {
+        const nutritionPlanId = (req.params as any).nutritionPlanId as number;
+        const { date, weekday, totalMeals } = req.body;
+
+        const adherence = await NutritionService.createDailyAdherence({
+            nutritionPlanId,
+            userId: req.session!.user.id,
+            date: new Date(date || new Date()),
+            weekday: weekday || getWeekdayEnum(new Date().getDay()),
+            totalMeals,
+        });
+
+        res.status(201).json(adherence);
+    }
+);
+
+// Update daily adherence record
+router.put(
+    '/nutrition/:nutritionPlanId/adherence/:id',
+    requireAuthenticated,
+    validateParams(nutritionPlanIdParamSchema.merge(idParamSchema)),
+    validateBody(nutritionAdherenceSchema),
+    async (req, res) => {
+        const id = (req.params as any).id as number;
+        const updateData = req.body;
+        const adherence = await NutritionService.updateDailyAdherence(
+            id,
+            updateData
+        );
+        if (!adherence) {
+            return res
+                .status(404)
+                .json({ error: 'Adherence record not found' });
+        }
+        res.json(adherence);
+    }
+);
+
+// Complete a meal
+router.post(
+    '/nutrition/:nutritionPlanId/adherence/:adherenceId/meals/:mealId/complete',
+    requireAuthenticated,
+    validateBody(mealCompletionSchema),
+    async (req, res) => {
+        const nutritionPlanId = parseInt(req.params.nutritionPlanId);
+        const adherenceId = parseInt(req.params.adherenceId);
+        const mealId = parseInt(req.params.mealId);
+
+        const completion = await NutritionService.completeMeal({
+            nutritionAdherenceId: adherenceId,
+            nutritionPlanMealId: mealId,
+            userId: req.session!.user.id,
+            ...req.body,
+        });
+
+        res.status(201).json(completion);
+    }
+);
+
+// Get adherence history for a nutrition plan
+router.get(
+    '/nutrition/:nutritionPlanId/adherence',
+    requireAuthenticated,
+    validateParams(nutritionPlanIdParamSchema),
+    validateQuery(z.object({ userId: z.string().optional() }).optional()),
+    async (req, res) => {
+        const nutritionPlanId = (req.params as any).nutritionPlanId as number;
+        const user = req.session!.user;
+
+        if (user.role === 'trainee') {
+            // Get current user's adherence history
+            const adherenceHistory =
+                await NutritionService.getUserAdherenceHistoryByPlan(
+                    user.id,
+                    nutritionPlanId
+                );
+            res.json(adherenceHistory);
+        } else if (user.role === 'coach') {
+            // Get adherence history for specified user
+            const { userId } = req.query as { userId?: string };
+            if (!userId) {
+                return res
+                    .status(400)
+                    .json({
+                        error: 'userId query parameter is required for coaches',
+                    });
+            }
+            const adherenceHistory =
+                await NutritionService.getUserAdherenceHistoryByPlan(
+                    userId,
+                    nutritionPlanId
+                );
+            res.json(adherenceHistory);
+        } else {
+            res.status(403).json({ error: 'Access denied' });
+        }
+    }
+);
+
+// Record exercise result
+router.post(
+    '/workout/exercise-results',
+    requireAuthenticated,
+    validateBody(recordExerciseResultSchema),
+    async (req, res) => {
+        const {
+            workoutPlanDayExerciseId,
+            userWorkoutPlanId,
+            reps,
+            duration,
+            calories,
+        } = req.body;
+
+        const result = await WorkoutService.recordExerciseResult({
+            workoutPlanDayExerciseId,
+            userWorkoutPlanId,
+            userId: req.session!.user.id,
+            reps,
+            duration,
+            calories,
+        });
+
+        res.status(201).json(result);
+    }
+);
+
+// Get workout plan assignments
+router.get(
+    '/workout/:workoutPlanId/assign',
+    requireAuthenticated,
+    validateParams(workoutPlanIdParamSchema),
+    validateQuery(z.object({ userId: z.string().optional() }).optional()),
+    async (req, res) => {
+        const workoutPlanId = (req.params as any).workoutPlanId as number;
+        const user = req.session!.user;
+
+        if (user.role === 'trainee') {
+            // Get current user's assigned plans
+            const plans = await WorkoutService.getUserAssignedWorkoutPlans(
+                user.id
+            );
+            const plan = plans.find((p) => p.workoutPlan?.id === workoutPlanId);
+            res.json(plan || null);
+        } else if (user.role === 'coach') {
+            // Get assigned plans for specified user
+            const { userId } = req.query as { userId?: string };
+            if (!userId) {
+                return res
+                    .status(400)
+                    .json({
+                        error: 'userId query parameter is required for coaches',
+                    });
+            }
+            const plans =
+                await WorkoutService.getUserAssignedWorkoutPlans(userId);
+            const plan = plans.find((p) => p.workoutPlan?.id === workoutPlanId);
+            res.json(plan || null);
+        } else {
+            res.status(403).json({ error: 'Access denied' });
+        }
+    }
+);
+
+// Assign workout plan to trainee (coach only)
+router.post(
+    '/workout/:workoutPlanId/assign',
+    requireCoach,
+    validateParams(workoutPlanIdParamSchema),
+    validateBody(assignWorkoutPlanSchema),
+    async (req, res) => {
+        const workoutPlanId = (req.params as any).workoutPlanId as number;
+        const { userId, startDate, endDate } = req.body;
+
+        const assignment = await WorkoutService.assignWorkoutPlanToUser({
+            userId,
+            workoutPlanId,
+            assignedBy: req.session!.user.id,
+            startDate: new Date(startDate),
+            endDate: endDate ? new Date(endDate) : undefined,
+        });
+
+        res.status(201).json(assignment);
+    }
+);
+
+// Get user exercise results for a workout plan
+router.get(
+    '/workout/:workoutPlanId/results',
+    requireAuthenticated,
+    validateParams(workoutPlanIdParamSchema),
+    validateQuery(z.object({ userId: z.string().optional() }).optional()),
+    async (req, res) => {
+        const workoutPlanId = (req.params as any).workoutPlanId as number;
+        const user = req.session!.user;
+
+        if (user.role === 'trainee') {
+            // Get current user's exercise results
+            const results = await WorkoutService.getWorkoutPlanResults(
+                workoutPlanId,
+                user.id
+            );
+
+            if (!results) {
+                return res.status(404).json({
+                    error: 'Workout plan not found or not assigned to user',
+                });
+            }
+
+            res.json(results);
+        } else if (user.role === 'coach') {
+            // Get exercise results for specified user
+            const { userId } = req.query as { userId?: string };
+            if (!userId) {
+                return res
+                    .status(400)
+                    .json({
+                        error: 'userId query parameter is required for coaches',
+                    });
+            }
+
+            const results = await WorkoutService.getWorkoutPlanResults(
+                workoutPlanId,
+                userId
+            );
+
+            if (!results) {
+                return res.status(404).json({
+                    error: 'Workout plan not found or not assigned to user',
+                });
+            }
+
+            res.json(results);
+        } else {
+            res.status(403).json({ error: 'Access denied' });
+        }
     }
 );
 

@@ -13,12 +13,10 @@ import {
     workoutPlanIdParamSchema,
     createWorkoutPlanSchema,
     updateWorkoutPlanSchema,
-    assignWorkoutPlanSchema,
     addDayToWorkoutPlanSchema,
     updateWorkoutPlanDaySchema,
     addExerciseToPlanDaySchema,
     updateExerciseInPlanDaySchema,
-    recordExerciseResultSchema,
 } from '../validation/schemas.ts';
 import { WorkoutService } from '@services/workout.service.ts';
 
@@ -177,46 +175,6 @@ router.delete(
     }
 );
 
-// Get user's assigned workout plans
-router.get('/assigned/:userId', requireAuthenticated, async (req, res) => {
-    const userId = req.params.userId;
-
-    // Check if user is requesting their own data or if they're a coach
-    if (req.session!.user.id !== userId && req.session!.user.role !== 'coach') {
-        return res.status(403).json({ error: 'Access denied' });
-    }
-
-    const plans = await WorkoutService.getUserAssignedWorkoutPlans(userId);
-    res.json(plans);
-});
-
-// Record exercise result
-router.post(
-    '/exercise-results',
-    requireAuthenticated,
-    validateBody(recordExerciseResultSchema),
-    async (req, res) => {
-        const {
-            workoutPlanDayExerciseId,
-            userWorkoutPlanId,
-            reps,
-            duration,
-            calories,
-        } = req.body;
-
-        const result = await WorkoutService.recordExerciseResult({
-            workoutPlanDayExerciseId,
-            userWorkoutPlanId,
-            userId: req.session!.user.id,
-            reps,
-            duration,
-            calories,
-        });
-
-        res.status(201).json(result);
-    }
-);
-
 // Get all workout plans
 // Coaches get only their created plans
 // Trainees get both created plans and assigned plans
@@ -225,32 +183,6 @@ router.get('/', requireAuthenticated, async (req, res) => {
     const plans = await WorkoutService.getAllWorkoutPlans(user.id, user.role);
     res.json(plans);
 });
-
-// Get user exercise results for a workout plan
-router.get(
-    '/:workoutPlanId/results',
-    requireAuthenticated,
-    validateParams(workoutPlanIdParamSchema),
-    async (req, res) => {
-        const workoutPlanId = (req.params as any).workoutPlanId as number;
-        const userId = req.session!.user.id;
-
-        const results = await WorkoutService.getWorkoutPlanResults(
-            workoutPlanId,
-            userId
-        );
-
-        if (!results) {
-            return res
-                .status(404)
-                .json({
-                    error: 'Workout plan not found or not assigned to user',
-                });
-        }
-
-        res.json(results);
-    }
-);
 
 // Get workout plan by ID with full details
 router.get(
@@ -326,28 +258,6 @@ router.delete(
         }
 
         res.json({ message: 'Workout plan deleted successfully' });
-    }
-);
-
-// Assign workout plan to trainee (coach only)
-router.post(
-    '/:id/assign',
-    requireCoach,
-    validateParams(idParamSchema),
-    validateBody(assignWorkoutPlanSchema),
-    async (req, res) => {
-        const workoutPlanId = (req.params as any).id as number;
-        const { userId, startDate, endDate } = req.body;
-
-        const assignment = await WorkoutService.assignWorkoutPlanToUser({
-            userId,
-            workoutPlanId,
-            assignedBy: req.session!.user.id,
-            startDate: new Date(startDate),
-            endDate: endDate ? new Date(endDate) : undefined,
-        });
-
-        res.status(201).json(assignment);
     }
 );
 
