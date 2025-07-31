@@ -1,31 +1,9 @@
 package com.example.fitness.data.network.retrofit
 
-import retrofit2.http.*
-import retrofit2.Response
+import com.example.fitness.data.network.model.generated.*
 import com.squareup.moshi.Json
-
-import com.example.fitness.data.network.model.generated.AssignNutritionPlan
-import com.example.fitness.data.network.model.generated.AssignWorkoutPlan
-import com.example.fitness.data.network.model.generated.ExerciseResult
-import com.example.fitness.data.network.model.generated.LatestUserStats
-import com.example.fitness.data.network.model.generated.MealCompletion
-import com.example.fitness.data.network.model.generated.MealCompletionResponse
-import com.example.fitness.data.network.model.generated.NutritionAdherence
-import com.example.fitness.data.network.model.generated.NutritionAdherenceHistory
-import com.example.fitness.data.network.model.generated.NutritionAdherenceResponse
-import com.example.fitness.data.network.model.generated.NutritionPlanAssignment
-import com.example.fitness.data.network.model.generated.NutritionPlanAssignmentResponse
-import com.example.fitness.data.network.model.generated.RecordExerciseResult
-import com.example.fitness.data.network.model.generated.RecordUserStats
-import com.example.fitness.data.network.model.generated.UpdatedNutritionAdherenceResponse
-import com.example.fitness.data.network.model.generated.User
-import com.example.fitness.data.network.model.generated.UserNutritionPlan
-import com.example.fitness.data.network.model.generated.UserStats
-import com.example.fitness.data.network.model.generated.UserStatsResponse
-import com.example.fitness.data.network.model.generated.UserWorkoutPlan
-import com.example.fitness.data.network.model.generated.WorkoutPlanAssignment
-import com.example.fitness.data.network.model.generated.WorkoutPlanAssignmentResponse
-import com.example.fitness.data.network.model.generated.WorkoutPlanResults
+import retrofit2.http.*
+import retrofit2.Call
 
 interface UsersApi {
     /**
@@ -41,10 +19,10 @@ interface UsersApi {
      * @param adherenceId 
      * @param mealId 
      * @param mealCompletion Meal completion data (optional)
-     * @return [MealCompletionResponse]
+     * @return [Call]<[MealCompletionResponse]>
      */
     @POST("api/users/nutrition/{nutritionPlanId}/adherence/{adherenceId}/meals/{mealId}/complete")
-    suspend fun apiUsersNutritionNutritionPlanIdAdherenceAdherenceIdMealsMealIdCompletePost(@Path("nutritionPlanId") nutritionPlanId: String, @Path("adherenceId") adherenceId: String, @Path("mealId") mealId: String, @Body mealCompletion: MealCompletion? = null): Response<MealCompletionResponse>
+    fun apiUsersNutritionNutritionPlanIdAdherenceAdherenceIdMealsMealIdCompletePost(@Path("nutritionPlanId") nutritionPlanId: String, @Path("adherenceId") adherenceId: String, @Path("mealId") mealId: String, @Body mealCompletion: MealCompletion? = null): Call<MealCompletionResponse>
 
     /**
      * GET api/users/nutrition/{nutritionPlanId}/adherence
@@ -58,10 +36,10 @@ interface UsersApi {
      *
      * @param nutritionPlanId Nutrition plan identifier
      * @param userId User ID for coach to specify which user (optional)
-     * @return [kotlin.collections.List<NutritionAdherenceHistory>]
+     * @return [Call]<[kotlin.collections.List<NutritionAdherenceHistory>]>
      */
     @GET("api/users/nutrition/{nutritionPlanId}/adherence")
-    suspend fun apiUsersNutritionNutritionPlanIdAdherenceGet(@Path("nutritionPlanId") nutritionPlanId: String, @Query("userId") userId: String? = null): Response<List<NutritionAdherenceHistory>>
+    fun apiUsersNutritionNutritionPlanIdAdherenceGet(@Path("nutritionPlanId") nutritionPlanId: String, @Query("userId") userId: String? = null): Call<List<NutritionAdherenceHistory>>
 
     /**
      * PUT api/users/nutrition/{nutritionPlanId}/adherence/{id}
@@ -76,10 +54,10 @@ interface UsersApi {
      * @param nutritionPlanId Nutrition plan identifier
      * @param id Unique identifier
      * @param nutritionAdherence Updated adherence data (optional)
-     * @return [UpdatedNutritionAdherenceResponse]
+     * @return [Call]<[UpdatedNutritionAdherenceResponse]>
      */
     @PUT("api/users/nutrition/{nutritionPlanId}/adherence/{id}")
-    suspend fun apiUsersNutritionNutritionPlanIdAdherenceIdPut(@Path("nutritionPlanId") nutritionPlanId: String, @Path("id") id: String, @Body nutritionAdherence: NutritionAdherence? = null): Response<UpdatedNutritionAdherenceResponse>
+    fun apiUsersNutritionNutritionPlanIdAdherenceIdPut(@Path("nutritionPlanId") nutritionPlanId: String, @Path("id") id: String, @Body nutritionAdherence: NutritionAdherence? = null): Call<UpdatedNutritionAdherenceResponse>
 
     /**
      * POST api/users/nutrition/{nutritionPlanId}/adherence
@@ -92,10 +70,10 @@ interface UsersApi {
      *
      * @param nutritionPlanId Nutrition plan identifier
      * @param nutritionAdherence Adherence data (optional)
-     * @return [NutritionAdherenceResponse]
+     * @return [Call]<[NutritionAdherenceResponse]>
      */
     @POST("api/users/nutrition/{nutritionPlanId}/adherence")
-    suspend fun apiUsersNutritionNutritionPlanIdAdherencePost(@Path("nutritionPlanId") nutritionPlanId: String, @Body nutritionAdherence: NutritionAdherence? = null): Response<NutritionAdherenceResponse>
+    fun apiUsersNutritionNutritionPlanIdAdherencePost(@Path("nutritionPlanId") nutritionPlanId: String, @Body nutritionAdherence: NutritionAdherence? = null): Call<NutritionAdherenceResponse>
 
     /**
      * GET api/users/nutrition/{nutritionPlanId}/assign
@@ -109,10 +87,10 @@ interface UsersApi {
      *
      * @param nutritionPlanId Nutrition plan identifier
      * @param userId User ID for coach to specify which user (optional)
-     * @return [NutritionPlanAssignment]
+     * @return [Call]<[NutritionPlanAssignment]>
      */
     @GET("api/users/nutrition/{nutritionPlanId}/assign")
-    suspend fun apiUsersNutritionNutritionPlanIdAssignGet(@Path("nutritionPlanId") nutritionPlanId: String, @Query("userId") userId: String? = null): Response<NutritionPlanAssignment>
+    fun apiUsersNutritionNutritionPlanIdAssignGet(@Path("nutritionPlanId") nutritionPlanId: String, @Query("userId") userId: String? = null): Call<NutritionPlanAssignment>
 
     /**
      * POST api/users/nutrition/{nutritionPlanId}/assign
@@ -125,10 +103,10 @@ interface UsersApi {
      *
      * @param nutritionPlanId Nutrition plan identifier
      * @param assignNutritionPlan Assignment data (optional)
-     * @return [NutritionPlanAssignmentResponse]
+     * @return [Call]<[NutritionPlanAssignmentResponse]>
      */
     @POST("api/users/nutrition/{nutritionPlanId}/assign")
-    suspend fun apiUsersNutritionNutritionPlanIdAssignPost(@Path("nutritionPlanId") nutritionPlanId: String, @Body assignNutritionPlan: AssignNutritionPlan? = null): Response<NutritionPlanAssignmentResponse>
+    fun apiUsersNutritionNutritionPlanIdAssignPost(@Path("nutritionPlanId") nutritionPlanId: String, @Body assignNutritionPlan: AssignNutritionPlan? = null): Call<NutritionPlanAssignmentResponse>
 
     /**
      * GET api/users/nutrition-plans
@@ -138,10 +116,10 @@ interface UsersApi {
      *  - 200: List of assigned nutrition plans
      *  - 401: Unauthorized
      *
-     * @return [kotlin.collections.List<UserNutritionPlan>]
+     * @return [Call]<[kotlin.collections.List<UserNutritionPlan>]>
      */
     @GET("api/users/nutrition-plans")
-    suspend fun apiUsersNutritionPlansGet(): Response<List<UserNutritionPlan>>
+    fun apiUsersNutritionPlansGet(): Call<List<UserNutritionPlan>>
 
 
     /**
@@ -163,10 +141,10 @@ interface UsersApi {
      *
      * @param query Search term for finding users
      * @param role Filter by user role (optional)
-     * @return [kotlin.collections.List<User>]
+     * @return [Call]<[kotlin.collections.List<User>]>
      */
     @GET("api/users/search")
-    suspend fun apiUsersSearchGet(@Query("query") query: String, @Query("role") role: RoleApiUsersSearchGet? = null): Response<List<User>>
+    fun apiUsersSearchGet(@Query("query") query: String, @Query("role") role: RoleApiUsersSearchGet? = null): Call<List<User>>
 
     /**
      * GET api/users/stats
@@ -176,10 +154,10 @@ interface UsersApi {
      *  - 200: User body stats history
      *  - 401: Unauthorized
      *
-     * @return [kotlin.collections.List<UserStats>]
+     * @return [Call]<[kotlin.collections.List<UserStats>]>
      */
     @GET("api/users/stats")
-    suspend fun apiUsersStatsGet(): Response<List<UserStats>>
+    fun apiUsersStatsGet(): Call<List<UserStats>>
 
     /**
      * GET api/users/stats/latest
@@ -189,10 +167,10 @@ interface UsersApi {
      *  - 200: Latest user body stats
      *  - 401: Unauthorized
      *
-     * @return [LatestUserStats]
+     * @return [Call]<[LatestUserStats]>
      */
     @GET("api/users/stats/latest")
-    suspend fun apiUsersStatsLatestGet(): Response<LatestUserStats>
+    fun apiUsersStatsLatestGet(): Call<LatestUserStats>
 
     /**
      * POST api/users/stats
@@ -204,10 +182,10 @@ interface UsersApi {
      *  - 401: Unauthorized
      *
      * @param recordUserStats Body measurement data (optional)
-     * @return [UserStatsResponse]
+     * @return [Call]<[UserStatsResponse]>
      */
     @POST("api/users/stats")
-    suspend fun apiUsersStatsPost(@Body recordUserStats: RecordUserStats? = null): Response<UserStatsResponse>
+    fun apiUsersStatsPost(@Body recordUserStats: RecordUserStats? = null): Call<UserStatsResponse>
 
     /**
      * POST api/users/workout/exercise-results
@@ -219,10 +197,10 @@ interface UsersApi {
      *  - 401: Unauthorized
      *
      * @param recordExerciseResult Exercise result data (optional)
-     * @return [ExerciseResult]
+     * @return [Call]<[ExerciseResult]>
      */
     @POST("api/users/workout/exercise-results")
-    suspend fun apiUsersWorkoutExerciseResultsPost(@Body recordExerciseResult: RecordExerciseResult? = null): Response<ExerciseResult>
+    fun apiUsersWorkoutExerciseResultsPost(@Body recordExerciseResult: RecordExerciseResult? = null): Call<ExerciseResult>
 
     /**
      * GET api/users/workout-plans
@@ -232,10 +210,10 @@ interface UsersApi {
      *  - 200: List of assigned workout plans
      *  - 401: Unauthorized
      *
-     * @return [kotlin.collections.List<UserWorkoutPlan>]
+     * @return [Call]<[kotlin.collections.List<UserWorkoutPlan>]>
      */
     @GET("api/users/workout-plans")
-    suspend fun apiUsersWorkoutPlansGet(): Response<List<UserWorkoutPlan>>
+    fun apiUsersWorkoutPlansGet(): Call<List<UserWorkoutPlan>>
 
     /**
      * GET api/users/workout/{workoutPlanId}/assign
@@ -249,10 +227,10 @@ interface UsersApi {
      *
      * @param workoutPlanId Workout plan identifier
      * @param userId User ID for coach to specify which user (optional)
-     * @return [WorkoutPlanAssignment]
+     * @return [Call]<[WorkoutPlanAssignment]>
      */
     @GET("api/users/workout/{workoutPlanId}/assign")
-    suspend fun apiUsersWorkoutWorkoutPlanIdAssignGet(@Path("workoutPlanId") workoutPlanId: String, @Query("userId") userId: String? = null): Response<WorkoutPlanAssignment>
+    fun apiUsersWorkoutWorkoutPlanIdAssignGet(@Path("workoutPlanId") workoutPlanId: String, @Query("userId") userId: String? = null): Call<WorkoutPlanAssignment>
 
     /**
      * POST api/users/workout/{workoutPlanId}/assign
@@ -265,10 +243,10 @@ interface UsersApi {
      *
      * @param workoutPlanId Workout plan identifier
      * @param assignWorkoutPlan Assignment data (optional)
-     * @return [WorkoutPlanAssignmentResponse]
+     * @return [Call]<[WorkoutPlanAssignmentResponse]>
      */
     @POST("api/users/workout/{workoutPlanId}/assign")
-    suspend fun apiUsersWorkoutWorkoutPlanIdAssignPost(@Path("workoutPlanId") workoutPlanId: String, @Body assignWorkoutPlan: AssignWorkoutPlan? = null): Response<WorkoutPlanAssignmentResponse>
+    fun apiUsersWorkoutWorkoutPlanIdAssignPost(@Path("workoutPlanId") workoutPlanId: String, @Body assignWorkoutPlan: AssignWorkoutPlan? = null): Call<WorkoutPlanAssignmentResponse>
 
     /**
      * GET api/users/workout/{workoutPlanId}/results
@@ -283,9 +261,9 @@ interface UsersApi {
      *
      * @param workoutPlanId Workout plan identifier
      * @param userId User ID for coach to specify which user (optional)
-     * @return [WorkoutPlanResults]
+     * @return [Call]<[WorkoutPlanResults]>
      */
     @GET("api/users/workout/{workoutPlanId}/results")
-    suspend fun apiUsersWorkoutWorkoutPlanIdResultsGet(@Path("workoutPlanId") workoutPlanId: String, @Query("userId") userId: String? = null): Response<WorkoutPlanResults>
+    fun apiUsersWorkoutWorkoutPlanIdResultsGet(@Path("workoutPlanId") workoutPlanId: String, @Query("userId") userId: String? = null): Call<WorkoutPlanResults>
 
 }

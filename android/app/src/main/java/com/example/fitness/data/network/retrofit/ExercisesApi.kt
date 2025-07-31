@@ -1,9 +1,9 @@
 package com.example.fitness.data.network.retrofit
 
+import com.example.fitness.data.network.model.generated.*
+import com.squareup.moshi.Json
 import retrofit2.http.*
-import retrofit2.Response
-
-import com.example.fitness.data.network.model.generated.ExerciseType
+import retrofit2.Call
 
 interface ExercisesApi {
     /**
@@ -14,10 +14,10 @@ interface ExercisesApi {
      *  - 200: List of exercise types
      *  - 401: Unauthorized
      *
-     * @return [kotlin.collections.List<ExerciseType>]
+     * @return [Call]<[kotlin.collections.List<ExerciseType>]>
      */
     @GET("api/exercises")
-    suspend fun apiExercisesGet(): Response<List<ExerciseType>>
+    fun apiExercisesGet(): Call<List<ExerciseType>>
 
     /**
      * GET api/exercises/{id}
@@ -29,10 +29,10 @@ interface ExercisesApi {
      *  - 404: Exercise type not found
      *
      * @param id Unique identifier
-     * @return [ExerciseType]
+     * @return [Call]<[ExerciseType]>
      */
     @GET("api/exercises/{id}")
-    suspend fun apiExercisesIdGet(@Path("id") id: String): Response<ExerciseType>
+    fun apiExercisesIdGet(@Path("id") id: String): Call<ExerciseType>
 
     /**
      * GET api/exercises/name/{name}
@@ -44,9 +44,9 @@ interface ExercisesApi {
      *  - 404: Exercise type not found
      *
      * @param name Name of the exercise
-     * @return [ExerciseType]
+     * @return [Call]<[ExerciseType]>
      */
     @GET("api/exercises/name/{name}")
-    suspend fun apiExercisesNameNameGet(@Path("name") name: String): Response<ExerciseType>
+    fun apiExercisesNameNameGet(@Path("name") name: String): Call<ExerciseType>
 
 }

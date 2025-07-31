@@ -1,13 +1,9 @@
 package com.example.fitness.data.network.retrofit
 
-import retrofit2.http.*
-import retrofit2.Response
+import com.example.fitness.data.network.model.generated.*
 import com.squareup.moshi.Json
-
-import com.example.fitness.data.network.model.generated.ConnectRequest
-import com.example.fitness.data.network.model.generated.Connection
-import com.example.fitness.data.network.model.generated.SuccessMessage
-import com.example.fitness.data.network.model.generated.TraineeId
+import retrofit2.http.*
+import retrofit2.Call
 
 interface ConnectionsApi {
     /**
@@ -21,10 +17,10 @@ interface ConnectionsApi {
      *  - 404: Connection request not found
      *
      * @param traineeId Trainee ID to accept (optional)
-     * @return [Connection]
+     * @return [Call]<[Connection]>
      */
     @POST("api/connections/accept")
-    suspend fun apiConnectionsAcceptPost(@Body traineeId: TraineeId? = null): Response<Connection>
+    fun apiConnectionsAcceptPost(@Body traineeId: TraineeId? = null): Call<Connection>
 
     /**
      * POST api/connections/connect
@@ -36,10 +32,10 @@ interface ConnectionsApi {
      *  - 401: Unauthorized - Trainee role required
      *
      * @param connectRequest Connection request data (optional)
-     * @return [Connection]
+     * @return [Call]<[Connection]>
      */
     @POST("api/connections/connect")
-    suspend fun apiConnectionsConnectPost(@Body connectRequest: ConnectRequest? = null): Response<Connection>
+    fun apiConnectionsConnectPost(@Body connectRequest: ConnectRequest? = null): Call<Connection>
 
     /**
      * GET api/connections/connections
@@ -50,10 +46,10 @@ interface ConnectionsApi {
      *  - 401: Unauthorized
      *  - 403: Access denied
      *
-     * @return [kotlin.collections.List<Connection>]
+     * @return [Call]<[kotlin.collections.List<Connection>]>
      */
     @GET("api/connections/connections")
-    suspend fun apiConnectionsConnectionsGet(): Response<List<Connection>>
+    fun apiConnectionsConnectionsGet(): Call<List<Connection>>
 
     /**
      * POST api/connections/disconnect
@@ -66,10 +62,10 @@ interface ConnectionsApi {
      *  - 404: Active connection not found
      *
      * @param traineeId Trainee ID to disconnect (optional)
-     * @return [SuccessMessage]
+     * @return [Call]<[SuccessMessage]>
      */
     @POST("api/connections/disconnect")
-    suspend fun apiConnectionsDisconnectPost(@Body traineeId: TraineeId? = null): Response<SuccessMessage>
+    fun apiConnectionsDisconnectPost(@Body traineeId: TraineeId? = null): Call<SuccessMessage>
 
     /**
      * POST api/connections/reject
@@ -82,10 +78,10 @@ interface ConnectionsApi {
      *  - 404: Connection request not found
      *
      * @param traineeId Trainee ID to reject (optional)
-     * @return [SuccessMessage]
+     * @return [Call]<[SuccessMessage]>
      */
     @POST("api/connections/reject")
-    suspend fun apiConnectionsRejectPost(@Body traineeId: TraineeId? = null): Response<SuccessMessage>
+    fun apiConnectionsRejectPost(@Body traineeId: TraineeId? = null): Call<SuccessMessage>
 
 
     /**
@@ -106,10 +102,10 @@ interface ConnectionsApi {
      *  - 403: Access denied - Role mismatch
      *
      * @param type Type of connection requests to retrieve
-     * @return [kotlin.collections.List<Connection>]
+     * @return [Call]<[kotlin.collections.List<Connection>]>
      */
     @GET("api/connections/requests/{type}")
-    suspend fun apiConnectionsRequestsTypeGet(@Path("type") type: String): Response<List<Connection>>
+    fun apiConnectionsRequestsTypeGet(@Path("type") type: String): Call<List<Connection>>
 
     /**
      * GET api/connections/trainees
@@ -119,9 +115,9 @@ interface ConnectionsApi {
      *  - 200: List of connected trainees
      *  - 401: Unauthorized - Coach role required
      *
-     * @return [kotlin.collections.List<Connection>]
+     * @return [Call]<[kotlin.collections.List<Connection>]>
      */
     @GET("api/connections/trainees")
-    suspend fun apiConnectionsTraineesGet(): Response<List<Connection>>
+    fun apiConnectionsTraineesGet(): Call<List<Connection>>
 
 }

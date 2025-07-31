@@ -1,21 +1,9 @@
 package com.example.fitness.data.network.retrofit
 
+import com.example.fitness.data.network.model.generated.*
+import com.squareup.moshi.Json
 import retrofit2.http.*
-import retrofit2.Response
-
-import com.example.fitness.data.network.model.generated.CreateNutritionPlan
-import com.example.fitness.data.network.model.generated.CreateNutritionPlanDay
-import com.example.fitness.data.network.model.generated.CreateNutritionPlanFood
-import com.example.fitness.data.network.model.generated.CreateNutritionPlanMeal
-import com.example.fitness.data.network.model.generated.NutritionPlan
-import com.example.fitness.data.network.model.generated.NutritionPlanDay
-import com.example.fitness.data.network.model.generated.NutritionPlanFood
-import com.example.fitness.data.network.model.generated.NutritionPlanMeal
-import com.example.fitness.data.network.model.generated.SuccessMessage
-import com.example.fitness.data.network.model.generated.UpdateNutritionPlan
-import com.example.fitness.data.network.model.generated.UpdateNutritionPlanDay
-import com.example.fitness.data.network.model.generated.UpdateNutritionPlanFood
-import com.example.fitness.data.network.model.generated.UpdateNutritionPlanMeal
+import retrofit2.Call
 
 interface NutritionApi {
     /**
@@ -28,10 +16,10 @@ interface NutritionApi {
      *  - 404: Nutrition plan day not found
      *
      * @param id Unique identifier
-     * @return [SuccessMessage]
+     * @return [Call]<[SuccessMessage]>
      */
     @DELETE("api/nutrition/days/{id}")
-    suspend fun apiNutritionDaysIdDelete(@Path("id") id: String): Response<SuccessMessage>
+    fun apiNutritionDaysIdDelete(@Path("id") id: String): Call<SuccessMessage>
 
     /**
      * GET api/nutrition/days/{id}
@@ -43,10 +31,10 @@ interface NutritionApi {
      *  - 404: Nutrition plan day not found
      *
      * @param id Unique identifier
-     * @return [NutritionPlanDay]
+     * @return [Call]<[NutritionPlanDay]>
      */
     @GET("api/nutrition/days/{id}")
-    suspend fun apiNutritionDaysIdGet(@Path("id") id: String): Response<NutritionPlanDay>
+    fun apiNutritionDaysIdGet(@Path("id") id: String): Call<NutritionPlanDay>
 
     /**
      * GET api/nutrition/days/{id}/meals
@@ -58,10 +46,10 @@ interface NutritionApi {
      *  - 404: Nutrition plan day not found
      *
      * @param id Unique identifier
-     * @return [kotlin.collections.List<NutritionPlanMeal>]
+     * @return [Call]<[kotlin.collections.List<NutritionPlanMeal>]>
      */
     @GET("api/nutrition/days/{id}/meals")
-    suspend fun apiNutritionDaysIdMealsGet(@Path("id") id: String): Response<List<NutritionPlanMeal>>
+    fun apiNutritionDaysIdMealsGet(@Path("id") id: String): Call<List<NutritionPlanMeal>>
 
     /**
      * POST api/nutrition/days/{id}/meals
@@ -74,10 +62,10 @@ interface NutritionApi {
      *
      * @param id Unique identifier
      * @param createNutritionPlanMeal Nutrition plan meal data (optional)
-     * @return [NutritionPlanMeal]
+     * @return [Call]<[NutritionPlanMeal]>
      */
     @POST("api/nutrition/days/{id}/meals")
-    suspend fun apiNutritionDaysIdMealsPost(@Path("id") id: String, @Body createNutritionPlanMeal: CreateNutritionPlanMeal? = null): Response<NutritionPlanMeal>
+    fun apiNutritionDaysIdMealsPost(@Path("id") id: String, @Body createNutritionPlanMeal: CreateNutritionPlanMeal? = null): Call<NutritionPlanMeal>
 
     /**
      * PUT api/nutrition/days/{id}
@@ -91,10 +79,10 @@ interface NutritionApi {
      *
      * @param id Unique identifier
      * @param updateNutritionPlanDay Updated nutrition plan day data (optional)
-     * @return [NutritionPlanDay]
+     * @return [Call]<[NutritionPlanDay]>
      */
     @PUT("api/nutrition/days/{id}")
-    suspend fun apiNutritionDaysIdPut(@Path("id") id: String, @Body updateNutritionPlanDay: UpdateNutritionPlanDay? = null): Response<NutritionPlanDay>
+    fun apiNutritionDaysIdPut(@Path("id") id: String, @Body updateNutritionPlanDay: UpdateNutritionPlanDay? = null): Call<NutritionPlanDay>
 
     /**
      * DELETE api/nutrition/foods/{id}
@@ -106,10 +94,10 @@ interface NutritionApi {
      *  - 404: Nutrition plan food not found
      *
      * @param id Unique identifier
-     * @return [SuccessMessage]
+     * @return [Call]<[SuccessMessage]>
      */
     @DELETE("api/nutrition/foods/{id}")
-    suspend fun apiNutritionFoodsIdDelete(@Path("id") id: String): Response<SuccessMessage>
+    fun apiNutritionFoodsIdDelete(@Path("id") id: String): Call<SuccessMessage>
 
     /**
      * GET api/nutrition/foods/{id}
@@ -121,10 +109,10 @@ interface NutritionApi {
      *  - 404: Nutrition plan food not found
      *
      * @param id Unique identifier
-     * @return [NutritionPlanFood]
+     * @return [Call]<[NutritionPlanFood]>
      */
     @GET("api/nutrition/foods/{id}")
-    suspend fun apiNutritionFoodsIdGet(@Path("id") id: String): Response<NutritionPlanFood>
+    fun apiNutritionFoodsIdGet(@Path("id") id: String): Call<NutritionPlanFood>
 
     /**
      * PUT api/nutrition/foods/{id}
@@ -138,10 +126,10 @@ interface NutritionApi {
      *
      * @param id Unique identifier
      * @param updateNutritionPlanFood Updated nutrition plan food data (optional)
-     * @return [NutritionPlanFood]
+     * @return [Call]<[NutritionPlanFood]>
      */
     @PUT("api/nutrition/foods/{id}")
-    suspend fun apiNutritionFoodsIdPut(@Path("id") id: String, @Body updateNutritionPlanFood: UpdateNutritionPlanFood? = null): Response<NutritionPlanFood>
+    fun apiNutritionFoodsIdPut(@Path("id") id: String, @Body updateNutritionPlanFood: UpdateNutritionPlanFood? = null): Call<NutritionPlanFood>
 
     /**
      * GET api/nutrition
@@ -151,10 +139,10 @@ interface NutritionApi {
      *  - 200: List of nutrition plans
      *  - 401: Unauthorized
      *
-     * @return [kotlin.collections.List<NutritionPlan>]
+     * @return [Call]<[kotlin.collections.List<NutritionPlan>]>
      */
     @GET("api/nutrition")
-    suspend fun apiNutritionGet(): Response<List<NutritionPlan>>
+    fun apiNutritionGet(): Call<List<NutritionPlan>>
 
     /**
      * GET api/nutrition/{id}/days
@@ -166,10 +154,10 @@ interface NutritionApi {
      *  - 404: Nutrition plan not found
      *
      * @param id Unique identifier
-     * @return [kotlin.collections.List<NutritionPlanDay>]
+     * @return [Call]<[kotlin.collections.List<NutritionPlanDay>]>
      */
     @GET("api/nutrition/{id}/days")
-    suspend fun apiNutritionIdDaysGet(@Path("id") id: String): Response<List<NutritionPlanDay>>
+    fun apiNutritionIdDaysGet(@Path("id") id: String): Call<List<NutritionPlanDay>>
 
     /**
      * POST api/nutrition/{id}/days
@@ -182,10 +170,10 @@ interface NutritionApi {
      *
      * @param id Unique identifier
      * @param createNutritionPlanDay Nutrition plan day data (optional)
-     * @return [NutritionPlanDay]
+     * @return [Call]<[NutritionPlanDay]>
      */
     @POST("api/nutrition/{id}/days")
-    suspend fun apiNutritionIdDaysPost(@Path("id") id: String, @Body createNutritionPlanDay: CreateNutritionPlanDay? = null): Response<NutritionPlanDay>
+    fun apiNutritionIdDaysPost(@Path("id") id: String, @Body createNutritionPlanDay: CreateNutritionPlanDay? = null): Call<NutritionPlanDay>
 
     /**
      * DELETE api/nutrition/{id}
@@ -197,10 +185,10 @@ interface NutritionApi {
      *  - 404: Nutrition plan not found
      *
      * @param id Unique identifier
-     * @return [SuccessMessage]
+     * @return [Call]<[SuccessMessage]>
      */
     @DELETE("api/nutrition/{id}")
-    suspend fun apiNutritionIdDelete(@Path("id") id: String): Response<SuccessMessage>
+    fun apiNutritionIdDelete(@Path("id") id: String): Call<SuccessMessage>
 
     /**
      * GET api/nutrition/{id}
@@ -212,10 +200,10 @@ interface NutritionApi {
      *  - 404: Nutrition plan not found
      *
      * @param id Unique identifier
-     * @return [NutritionPlan]
+     * @return [Call]<[NutritionPlan]>
      */
     @GET("api/nutrition/{id}")
-    suspend fun apiNutritionIdGet(@Path("id") id: String): Response<NutritionPlan>
+    fun apiNutritionIdGet(@Path("id") id: String): Call<NutritionPlan>
 
     /**
      * PUT api/nutrition/{id}
@@ -229,10 +217,10 @@ interface NutritionApi {
      *
      * @param id Unique identifier
      * @param updateNutritionPlan Updated nutrition plan data (optional)
-     * @return [NutritionPlan]
+     * @return [Call]<[NutritionPlan]>
      */
     @PUT("api/nutrition/{id}")
-    suspend fun apiNutritionIdPut(@Path("id") id: String, @Body updateNutritionPlan: UpdateNutritionPlan? = null): Response<NutritionPlan>
+    fun apiNutritionIdPut(@Path("id") id: String, @Body updateNutritionPlan: UpdateNutritionPlan? = null): Call<NutritionPlan>
 
     /**
      * DELETE api/nutrition/meals/{id}
@@ -244,10 +232,10 @@ interface NutritionApi {
      *  - 404: Nutrition plan meal not found
      *
      * @param id Unique identifier
-     * @return [SuccessMessage]
+     * @return [Call]<[SuccessMessage]>
      */
     @DELETE("api/nutrition/meals/{id}")
-    suspend fun apiNutritionMealsIdDelete(@Path("id") id: String): Response<SuccessMessage>
+    fun apiNutritionMealsIdDelete(@Path("id") id: String): Call<SuccessMessage>
 
     /**
      * GET api/nutrition/meals/{id}/foods
@@ -259,10 +247,10 @@ interface NutritionApi {
      *  - 404: Nutrition plan meal not found
      *
      * @param id Unique identifier
-     * @return [kotlin.collections.List<NutritionPlanFood>]
+     * @return [Call]<[kotlin.collections.List<NutritionPlanFood>]>
      */
     @GET("api/nutrition/meals/{id}/foods")
-    suspend fun apiNutritionMealsIdFoodsGet(@Path("id") id: String): Response<List<NutritionPlanFood>>
+    fun apiNutritionMealsIdFoodsGet(@Path("id") id: String): Call<List<NutritionPlanFood>>
 
     /**
      * POST api/nutrition/meals/{id}/foods
@@ -275,10 +263,10 @@ interface NutritionApi {
      *
      * @param id Unique identifier
      * @param createNutritionPlanFood Nutrition plan food data (optional)
-     * @return [NutritionPlanFood]
+     * @return [Call]<[NutritionPlanFood]>
      */
     @POST("api/nutrition/meals/{id}/foods")
-    suspend fun apiNutritionMealsIdFoodsPost(@Path("id") id: String, @Body createNutritionPlanFood: CreateNutritionPlanFood? = null): Response<NutritionPlanFood>
+    fun apiNutritionMealsIdFoodsPost(@Path("id") id: String, @Body createNutritionPlanFood: CreateNutritionPlanFood? = null): Call<NutritionPlanFood>
 
     /**
      * GET api/nutrition/meals/{id}
@@ -290,10 +278,10 @@ interface NutritionApi {
      *  - 404: Nutrition plan meal not found
      *
      * @param id Unique identifier
-     * @return [NutritionPlanMeal]
+     * @return [Call]<[NutritionPlanMeal]>
      */
     @GET("api/nutrition/meals/{id}")
-    suspend fun apiNutritionMealsIdGet(@Path("id") id: String): Response<NutritionPlanMeal>
+    fun apiNutritionMealsIdGet(@Path("id") id: String): Call<NutritionPlanMeal>
 
     /**
      * PUT api/nutrition/meals/{id}
@@ -307,10 +295,10 @@ interface NutritionApi {
      *
      * @param id Unique identifier
      * @param updateNutritionPlanMeal Updated nutrition plan meal data (optional)
-     * @return [NutritionPlanMeal]
+     * @return [Call]<[NutritionPlanMeal]>
      */
     @PUT("api/nutrition/meals/{id}")
-    suspend fun apiNutritionMealsIdPut(@Path("id") id: String, @Body updateNutritionPlanMeal: UpdateNutritionPlanMeal? = null): Response<NutritionPlanMeal>
+    fun apiNutritionMealsIdPut(@Path("id") id: String, @Body updateNutritionPlanMeal: UpdateNutritionPlanMeal? = null): Call<NutritionPlanMeal>
 
     /**
      * POST api/nutrition
@@ -322,9 +310,9 @@ interface NutritionApi {
      *  - 401: Unauthorized
      *
      * @param createNutritionPlan Nutrition plan data (optional)
-     * @return [NutritionPlan]
+     * @return [Call]<[NutritionPlan]>
      */
     @POST("api/nutrition")
-    suspend fun apiNutritionPost(@Body createNutritionPlan: CreateNutritionPlan? = null): Response<NutritionPlan>
+    fun apiNutritionPost(@Body createNutritionPlan: CreateNutritionPlan? = null): Call<NutritionPlan>
 
 }

@@ -1,14 +1,9 @@
 package com.example.fitness.data.network.retrofit
 
-import retrofit2.http.*
-import retrofit2.Response
+import com.example.fitness.data.network.model.generated.*
 import com.squareup.moshi.Json
-
-import com.example.fitness.data.network.model.generated.CreatePlannedWorkout
-import com.example.fitness.data.network.model.generated.PlannedWorkout
-import com.example.fitness.data.network.model.generated.SuccessMessage
-import com.example.fitness.data.network.model.generated.TogglePlannedWorkout
-import com.example.fitness.data.network.model.generated.UpdatePlannedWorkout
+import retrofit2.http.*
+import retrofit2.Call
 
 interface PlannedWorkoutsApi {
     /**
@@ -19,10 +14,10 @@ interface PlannedWorkoutsApi {
      *  - 200: List of planned workouts
      *  - 401: Unauthorized
      *
-     * @return [kotlin.collections.List<PlannedWorkout>]
+     * @return [Call]<[kotlin.collections.List<PlannedWorkout>]>
      */
     @GET("api/planned-workouts")
-    suspend fun apiPlannedWorkoutsGet(): Response<List<PlannedWorkout>>
+    fun apiPlannedWorkoutsGet(): Call<List<PlannedWorkout>>
 
     /**
      * DELETE api/planned-workouts/{id}
@@ -35,10 +30,10 @@ interface PlannedWorkoutsApi {
      *  - 404: Planned workout not found
      *
      * @param id Unique identifier
-     * @return [SuccessMessage]
+     * @return [Call]<[SuccessMessage]>
      */
     @DELETE("api/planned-workouts/{id}")
-    suspend fun apiPlannedWorkoutsIdDelete(@Path("id") id: String): Response<SuccessMessage>
+    fun apiPlannedWorkoutsIdDelete(@Path("id") id: String): Call<SuccessMessage>
 
     /**
      * GET api/planned-workouts/{id}
@@ -51,10 +46,10 @@ interface PlannedWorkoutsApi {
      *  - 404: Planned workout not found
      *
      * @param id Unique identifier
-     * @return [PlannedWorkout]
+     * @return [Call]<[PlannedWorkout]>
      */
     @GET("api/planned-workouts/{id}")
-    suspend fun apiPlannedWorkoutsIdGet(@Path("id") id: String): Response<PlannedWorkout>
+    fun apiPlannedWorkoutsIdGet(@Path("id") id: String): Call<PlannedWorkout>
 
     /**
      * PUT api/planned-workouts/{id}
@@ -69,10 +64,10 @@ interface PlannedWorkoutsApi {
      *
      * @param id Unique identifier
      * @param updatePlannedWorkout Updated planned workout data (optional)
-     * @return [PlannedWorkout]
+     * @return [Call]<[PlannedWorkout]>
      */
     @PUT("api/planned-workouts/{id}")
-    suspend fun apiPlannedWorkoutsIdPut(@Path("id") id: String, @Body updatePlannedWorkout: UpdatePlannedWorkout? = null): Response<PlannedWorkout>
+    fun apiPlannedWorkoutsIdPut(@Path("id") id: String, @Body updatePlannedWorkout: UpdatePlannedWorkout? = null): Call<PlannedWorkout>
 
     /**
      * POST api/planned-workouts/{id}/toggle
@@ -87,10 +82,10 @@ interface PlannedWorkoutsApi {
      *
      * @param id Unique identifier
      * @param togglePlannedWorkout Toggle status data (optional)
-     * @return [PlannedWorkout]
+     * @return [Call]<[PlannedWorkout]>
      */
     @POST("api/planned-workouts/{id}/toggle")
-    suspend fun apiPlannedWorkoutsIdTogglePost(@Path("id") id: String, @Body togglePlannedWorkout: TogglePlannedWorkout? = null): Response<PlannedWorkout>
+    fun apiPlannedWorkoutsIdTogglePost(@Path("id") id: String, @Body togglePlannedWorkout: TogglePlannedWorkout? = null): Call<PlannedWorkout>
 
     /**
      * POST api/planned-workouts
@@ -102,10 +97,10 @@ interface PlannedWorkoutsApi {
      *  - 401: Unauthorized
      *
      * @param createPlannedWorkout Planned workout data (optional)
-     * @return [PlannedWorkout]
+     * @return [Call]<[PlannedWorkout]>
      */
     @POST("api/planned-workouts")
-    suspend fun apiPlannedWorkoutsPost(@Body createPlannedWorkout: CreatePlannedWorkout? = null): Response<PlannedWorkout>
+    fun apiPlannedWorkoutsPost(@Body createPlannedWorkout: CreatePlannedWorkout? = null): Call<PlannedWorkout>
 
     /**
      * GET api/planned-workouts/today
@@ -115,10 +110,10 @@ interface PlannedWorkoutsApi {
      *  - 200: List of today's planned workouts
      *  - 401: Unauthorized
      *
-     * @return [kotlin.collections.List<PlannedWorkout>]
+     * @return [Call]<[kotlin.collections.List<PlannedWorkout>]>
      */
     @GET("api/planned-workouts/today")
-    suspend fun apiPlannedWorkoutsTodayGet(): Response<List<PlannedWorkout>>
+    fun apiPlannedWorkoutsTodayGet(): Call<List<PlannedWorkout>>
 
 
     /**
@@ -144,9 +139,9 @@ interface PlannedWorkoutsApi {
      *  - 401: Unauthorized
      *
      * @param weekday Day of the week
-     * @return [kotlin.collections.List<PlannedWorkout>]
+     * @return [Call]<[kotlin.collections.List<PlannedWorkout>]>
      */
     @GET("api/planned-workouts/weekday/{weekday}")
-    suspend fun apiPlannedWorkoutsWeekdayWeekdayGet(@Path("weekday") weekday: String): Response<List<PlannedWorkout>>
+    fun apiPlannedWorkoutsWeekdayWeekdayGet(@Path("weekday") weekday: String): Call<List<PlannedWorkout>>
 
 }

@@ -1,9 +1,9 @@
 package com.example.fitness.data.network.retrofit
 
+import com.example.fitness.data.network.model.generated.*
+import com.squareup.moshi.Json
 import retrofit2.http.*
-import retrofit2.Response
-
-import com.example.fitness.data.network.model.generated.PingResponse
+import retrofit2.Call
 
 interface PingApi {
     /**
@@ -13,9 +13,9 @@ interface PingApi {
      * Responses:
      *  - 200: Successful ping response
      *
-     * @return [PingResponse]
+     * @return [Call]<[PingResponse]>
      */
     @GET("api/ping")
-    suspend fun apiPingGet(): Response<PingResponse>
+    fun apiPingGet(): Call<PingResponse>
 
 }
