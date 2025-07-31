@@ -552,9 +552,9 @@ export const message = pgTable('message', {
         onDelete: 'cascade',
     }),
     content: text('content').notNull(),
-    type: text('type', {
-        enum: ['text', 'image', 'video', 'audio', 'file'],
-    }).default('text'),
+    // type: text('type', {
+    //     enum: ['text', 'image', 'video', 'audio', 'file'],
+    // }).default('text'),
     // fileUrl: text('file_url'),
     readAt: timestamp('read_at'),
     isRead: boolean('is_read').default(false),

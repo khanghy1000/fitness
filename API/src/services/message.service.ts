@@ -7,7 +7,6 @@ export class MessageService {
         senderId: string;
         recipientId: string;
         content: string;
-        type?: 'text' | 'image' | 'video' | 'audio' | 'file';
         replyToId?: string;
     }) {
         const result = await db.insert(message).values(data).returning();

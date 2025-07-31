@@ -54,7 +54,7 @@ export function initializeSocketIO(io: Server) {
         // Handle sending messages
         socket.on('send_message', async (data) => {
             try {
-                const { recipientId, content, type = 'text', replyToId } = data;
+                const { recipientId, content, replyToId } = data;
 
                 if (!recipientId || !content) {
                     socket.emit('error', {
@@ -68,7 +68,6 @@ export function initializeSocketIO(io: Server) {
                     senderId: socket.session!.user.id!,
                     recipientId,
                     content: content.trim(),
-                    type,
                     replyToId,
                 });
 
