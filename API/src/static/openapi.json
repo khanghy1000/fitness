@@ -2322,7 +2322,7 @@
             }
           },
           "400": {
-            "description": "Invalid input data"
+            "description": "Invalid input data or connection already exists"
           },
           "401": {
             "description": "Unauthorized - Trainee role required"
@@ -2457,7 +2457,7 @@
         }
       }
     },
-    "/api/connections/connections": {
+    "/api/connections/active": {
       "get": {
         "tags": [
           "Connections"
@@ -2523,6 +2523,36 @@
           },
           "404": {
             "description": "Active connection not found"
+          }
+        }
+      }
+    },
+    "/api/connections/all": {
+      "get": {
+        "tags": [
+          "Connections"
+        ],
+        "summary": "Get all connections",
+        "description": "Get list of all connections (all statuses) for the current user",
+        "responses": {
+          "200": {
+            "description": "List of all connections",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Connection"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Access denied"
           }
         }
       }

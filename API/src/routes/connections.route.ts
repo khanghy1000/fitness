@@ -27,15 +27,26 @@ router.post(
     requireTrainee,
     validateBody(connectRequestSchema),
     async (req, res) => {
-        const { coachId, notes } = req.body;
+        try {
+            const { coachId, notes } = req.body;
 
-        const connection = await CoachTraineeService.sendConnectionRequest(
-            coachId,
-            req.session!.user.id,
-            notes
-        );
+            const connection = await CoachTraineeService.sendConnectionRequest(
+                coachId,
+                req.session!.user.id,
+                notes
+            );
 
-        res.status(201).json(connection);
+            res.status(201).json(connection);
+        } catch (error) {
+            if (
+                error instanceof Error &&
+                error.message ===
+                    'Connection request already exists or is active'
+            ) {
+                return res.status(400).json({ error: error.message });
+            }
+            res.status(500).json({ error: 'Internal server error' });
+        }
     }
 );
 
@@ -116,7 +127,7 @@ router.post(
 );
 
 // Get active connections
-router.get('/connections', requireAuthenticated, async (req, res) => {
+router.get('/active', requireAuthenticated, async (req, res) => {
     const userRole = req.session!.user.role;
 
     if (userRole !== 'coach' && userRole !== 'trainee') {
@@ -124,6 +135,22 @@ router.get('/connections', requireAuthenticated, async (req, res) => {
     }
 
     const connections = await CoachTraineeService.getActiveConnections(
+        req.session!.user.id,
+        userRole
+    );
+
+    res.json(connections);
+});
+
+// Get all connections
+router.get('/all', requireAuthenticated, async (req, res) => {
+    const userRole = req.session!.user.role;
+
+    if (userRole !== 'coach' && userRole !== 'trainee') {
+        return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const connections = await CoachTraineeService.getAllConnections(
         req.session!.user.id,
         userRole
     );

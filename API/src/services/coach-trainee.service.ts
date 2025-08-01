@@ -1,6 +1,6 @@
 import { db } from '@lib/db.ts';
 import { coachTrainee } from '../db/schema/tables.ts';
-import { eq, and, or } from 'drizzle-orm';
+import { eq, and, or, desc } from 'drizzle-orm';
 
 export class CoachTraineeService {
     static async sendConnectionRequest(
@@ -8,6 +8,19 @@ export class CoachTraineeService {
         traineeId: string,
         notes?: string
     ) {
+        // Check for existing connection between coach and trainee
+        const existingConnection = await db.query.coachTrainee.findFirst({
+            where: and(
+                eq(coachTrainee.coachId, coachId),
+                eq(coachTrainee.traineeId, traineeId)
+            ),
+        });
+
+        // If there's an existing connection that's not inactive, don't allow new request
+        if (existingConnection && existingConnection.status !== 'inactive') {
+            throw new Error('Connection request already exists or is active');
+        }
+
         const result = await db
             .insert(coachTrainee)
             .values({
@@ -61,7 +74,8 @@ export class CoachTraineeService {
             .where(
                 and(
                     eq(coachTrainee.coachId, coachId),
-                    eq(coachTrainee.traineeId, traineeId)
+                    eq(coachTrainee.traineeId, traineeId),
+                    eq(coachTrainee.status, 'pending')
                 )
             )
             .returning();
@@ -74,7 +88,8 @@ export class CoachTraineeService {
             .where(
                 and(
                     eq(coachTrainee.coachId, coachId),
-                    eq(coachTrainee.traineeId, traineeId)
+                    eq(coachTrainee.traineeId, traineeId),
+                    eq(coachTrainee.status, 'pending')
                 )
             )
             .returning();
@@ -111,6 +126,37 @@ export class CoachTraineeService {
         });
     }
 
+    static async getAllConnections(
+        userId: string,
+        userRole: 'coach' | 'trainee'
+    ) {
+        const condition =
+            userRole === 'coach'
+                ? eq(coachTrainee.coachId, userId)
+                : eq(coachTrainee.traineeId, userId);
+
+        return await db.query.coachTrainee.findMany({
+            where: condition,
+            with: {
+                coach: {
+                    columns: {
+                        id: true,
+                        name: true,
+                        email: true,
+                    },
+                },
+                trainee: {
+                    columns: {
+                        id: true,
+                        name: true,
+                        email: true,
+                    },
+                },
+            },
+            orderBy: [desc(coachTrainee.createdAt)],
+        });
+    }
+
     static async endConnection(coachId: string, traineeId: string) {
         const result = await db
             .update(coachTrainee)
@@ -122,7 +168,8 @@ export class CoachTraineeService {
             .where(
                 and(
                     eq(coachTrainee.coachId, coachId),
-                    eq(coachTrainee.traineeId, traineeId)
+                    eq(coachTrainee.traineeId, traineeId),
+                    eq(coachTrainee.status, 'active')
                 )
             )
             .returning();

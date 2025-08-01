@@ -15,7 +15,6 @@
 
 package com.example.fitness.data.network.model.generated
 
-
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import java.math.BigDecimal
@@ -28,6 +27,8 @@ import java.math.BigDecimal
  * @param traineeId Trainee user ID
  * @param status Connection status
  * @param requestedAt Request date
+ * @param coach 
+ * @param trainee 
  * @param notes Connection notes
  * @param respondedAt Response date
  */
@@ -54,6 +55,12 @@ data class Connection (
     /* Request date */
     @Json(name = "requestedAt")
     val requestedAt: String,
+
+    @Json(name = "coach")
+    val coach: UserIdNameEmail,
+
+    @Json(name = "trainee")
+    val trainee: UserIdNameEmail,
 
     /* Connection notes */
     @Json(name = "notes")

@@ -62,7 +62,25 @@ public class ConnectionsRepository {
     }
 
     public void getActiveConnections(ConnectionsCallback<java.util.List<Connection>> callback) {
-        connectionsApi.apiConnectionsConnectionsGet().enqueue(new Callback<java.util.List<Connection>>() {
+        connectionsApi.apiConnectionsActiveGet().enqueue(new Callback<java.util.List<Connection>>() {
+            @Override
+            public void onResponse(Call<java.util.List<Connection>> call, Response<java.util.List<Connection>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to get connections: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<java.util.List<Connection>> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
+    }
+
+    public void getAllConnections(ConnectionsCallback<java.util.List<Connection>> callback) {
+        connectionsApi.apiConnectionsAllGet().enqueue(new Callback<java.util.List<Connection>>() {
             @Override
             public void onResponse(Call<java.util.List<Connection>> call, Response<java.util.List<Connection>> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -125,24 +143,6 @@ public class ConnectionsRepository {
                     callback.onSuccess(response.body());
                 } else {
                     callback.onError("Failed to get connection requests: " + response.message());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<java.util.List<Connection>> call, Throwable t) {
-                callback.onError(t.getMessage());
-            }
-        });
-    }
-
-    public void getCoachTrainees(ConnectionsCallback<java.util.List<Connection>> callback) {
-        connectionsApi.apiConnectionsTraineesGet().enqueue(new Callback<java.util.List<Connection>>() {
-            @Override
-            public void onResponse(Call<java.util.List<Connection>> call, Response<java.util.List<Connection>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    callback.onSuccess(response.body());
-                } else {
-                    callback.onError("Failed to get coach trainees: " + response.message());
                 }
             }
 

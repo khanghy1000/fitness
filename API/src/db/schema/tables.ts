@@ -78,30 +78,27 @@ export const verification = pgTable('verification', {
 });
 
 // Trainer-User Relationships
-export const coachTrainee = pgTable(
-    'coach_trainee',
-    {
-        coachId: text('coach_id').references(() => user.id, {
-            onDelete: 'cascade',
-        }),
-        traineeId: text('trainee_id').references(() => user.id, {
-            onDelete: 'cascade',
-        }),
-        status: text('status', {
-            enum: ['pending', 'active', 'inactive', 'blocked'],
-        }).default('pending'),
-        startDate: timestamp('start_date'),
-        endDate: timestamp('end_date'),
-        notes: text('notes'),
-        createdAt: timestamp('created_at')
-            .$defaultFn(() => new Date())
-            .notNull(),
-        updatedAt: timestamp('updated_at')
-            .$defaultFn(() => new Date())
-            .notNull(),
-    },
-    (t) => [primaryKey({ columns: [t.coachId, t.traineeId] })]
-);
+export const coachTrainee = pgTable('coach_trainee', {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    coachId: text('coach_id').references(() => user.id, {
+        onDelete: 'cascade',
+    }),
+    traineeId: text('trainee_id').references(() => user.id, {
+        onDelete: 'cascade',
+    }),
+    status: text('status', {
+        enum: ['pending', 'active', 'inactive', 'blocked'],
+    }).default('pending'),
+    startDate: timestamp('start_date'),
+    endDate: timestamp('end_date'),
+    notes: text('notes'),
+    createdAt: timestamp('created_at')
+        .$defaultFn(() => new Date())
+        .notNull(),
+    updatedAt: timestamp('updated_at')
+        .$defaultFn(() => new Date())
+        .notNull(),
+});
 
 // Exercise Categories
 export const exerciseType = pgTable('exercise_type', {

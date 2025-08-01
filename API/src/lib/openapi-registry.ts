@@ -56,6 +56,7 @@ import {
     recordUserStatsSchema,
     userSearchQuerySchema,
     userSchema,
+    userIdNameEmailSchema,
 } from '../validation/schemas.ts';
 
 const registry = new OpenAPIRegistry();
@@ -123,6 +124,7 @@ registry.register('UpdatePlannedWorkout', updatePlannedWorkoutSchema);
 registry.register('RecordUserStats', recordUserStatsSchema);
 registry.register('UserSearchQuery', userSearchQuerySchema);
 registry.register('User', userSchema);
+registry.register('UserIdNameEmail', userIdNameEmailSchema);
 
 // Register API paths
 
@@ -176,7 +178,7 @@ registry.registerPath({
             },
         },
         400: {
-            description: 'Invalid input data',
+            description: 'Invalid input data or connection already exists',
         },
         401: {
             description: 'Unauthorized - Trainee role required',
@@ -287,7 +289,7 @@ registry.registerPath({
 
 registry.registerPath({
     method: 'get',
-    path: '/api/connections/connections',
+    path: '/api/connections/active',
     tags: ['Connections'],
     summary: 'Get active connections',
     description: 'Get list of active connections for the current user',
@@ -342,6 +344,31 @@ registry.registerPath({
         },
         404: {
             description: 'Active connection not found',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'get',
+    path: '/api/connections/all',
+    tags: ['Connections'],
+    summary: 'Get all connections',
+    description:
+        'Get list of all connections (all statuses) for the current user',
+    responses: {
+        200: {
+            description: 'List of all connections',
+            content: {
+                'application/json': {
+                    schema: z.array(connectionSchema),
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        403: {
+            description: 'Access denied',
         },
     },
 });

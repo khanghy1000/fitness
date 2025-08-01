@@ -23,22 +23,7 @@ interface ConnectionsApi {
     fun apiConnectionsAcceptPost(@Body traineeId: TraineeId? = null): Call<Connection>
 
     /**
-     * POST api/connections/connect
-     * Send connection request
-     * Send a connection request from trainee to coach
-     * Responses:
-     *  - 201: Connection request sent successfully
-     *  - 400: Invalid input data
-     *  - 401: Unauthorized - Trainee role required
-     *
-     * @param connectRequest Connection request data (optional)
-     * @return [Call]<[Connection]>
-     */
-    @POST("api/connections/connect")
-    fun apiConnectionsConnectPost(@Body connectRequest: ConnectRequest? = null): Call<Connection>
-
-    /**
-     * GET api/connections/connections
+     * GET api/connections/active
      * Get active connections
      * Get list of active connections for the current user
      * Responses:
@@ -48,8 +33,37 @@ interface ConnectionsApi {
      *
      * @return [Call]<[kotlin.collections.List<Connection>]>
      */
-    @GET("api/connections/connections")
-    fun apiConnectionsConnectionsGet(): Call<List<Connection>>
+    @GET("api/connections/active")
+    fun apiConnectionsActiveGet(): Call<List<Connection>>
+
+    /**
+     * GET api/connections/all
+     * Get all connections
+     * Get list of all connections (all statuses) for the current user
+     * Responses:
+     *  - 200: List of all connections
+     *  - 401: Unauthorized
+     *  - 403: Access denied
+     *
+     * @return [Call]<[kotlin.collections.List<Connection>]>
+     */
+    @GET("api/connections/all")
+    fun apiConnectionsAllGet(): Call<List<Connection>>
+
+    /**
+     * POST api/connections/connect
+     * Send connection request
+     * Send a connection request from trainee to coach
+     * Responses:
+     *  - 201: Connection request sent successfully
+     *  - 400: Invalid input data or connection already exists
+     *  - 401: Unauthorized - Trainee role required
+     *
+     * @param connectRequest Connection request data (optional)
+     * @return [Call]<[Connection]>
+     */
+    @POST("api/connections/connect")
+    fun apiConnectionsConnectPost(@Body connectRequest: ConnectRequest? = null): Call<Connection>
 
     /**
      * POST api/connections/disconnect
@@ -106,18 +120,5 @@ interface ConnectionsApi {
      */
     @GET("api/connections/requests/{type}")
     fun apiConnectionsRequestsTypeGet(@Path("type") type: String): Call<List<Connection>>
-
-    /**
-     * GET api/connections/trainees
-     * Get coach trainees
-     * Get list of trainees connected to the coach
-     * Responses:
-     *  - 200: List of connected trainees
-     *  - 401: Unauthorized - Coach role required
-     *
-     * @return [Call]<[kotlin.collections.List<Connection>]>
-     */
-    @GET("api/connections/trainees")
-    fun apiConnectionsTraineesGet(): Call<List<Connection>>
 
 }
