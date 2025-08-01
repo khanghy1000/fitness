@@ -24,6 +24,134 @@ public class UsersRepository {
         void onError(String error);
     }
 
+    // Nutrition Plan Assignment methods
+    public void getNutritionPlanAssignment(String nutritionPlanId, String userId, UsersCallback<NutritionPlanAssignment> callback) {
+        usersApi.apiUsersNutritionNutritionPlanIdAssignGet(nutritionPlanId, userId).enqueue(new Callback<NutritionPlanAssignment>() {
+            @Override
+            public void onResponse(Call<NutritionPlanAssignment> call, Response<NutritionPlanAssignment> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to get nutrition plan assignment: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<NutritionPlanAssignment> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
+    }
+
+    public void assignNutritionPlan(String nutritionPlanId, AssignNutritionPlan assignNutritionPlan, UsersCallback<NutritionPlanAssignmentResponse> callback) {
+        usersApi.apiUsersNutritionNutritionPlanIdAssignPost(nutritionPlanId, assignNutritionPlan).enqueue(new Callback<NutritionPlanAssignmentResponse>() {
+            @Override
+            public void onResponse(Call<NutritionPlanAssignmentResponse> call, Response<NutritionPlanAssignmentResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to assign nutrition plan: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<NutritionPlanAssignmentResponse> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
+    }
+
+    public void getUserNutritionPlans(UsersCallback<java.util.List<UserNutritionPlan>> callback) {
+        usersApi.apiUsersNutritionPlansGet().enqueue(new Callback<java.util.List<UserNutritionPlan>>() {
+            @Override
+            public void onResponse(Call<java.util.List<UserNutritionPlan>> call, Response<java.util.List<UserNutritionPlan>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to get user nutrition plans: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<java.util.List<UserNutritionPlan>> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
+    }
+
+    public void completeMeal(String userNutritionPlanId, String adherenceId, String mealId, MealCompletion mealCompletion, UsersCallback<MealCompletionResponse> callback) {
+        usersApi.apiUsersNutritionUserPlansUserNutritionPlanIdAdherenceAdherenceIdMealsMealIdCompletePost(userNutritionPlanId, adherenceId, mealId, mealCompletion).enqueue(new Callback<MealCompletionResponse>() {
+            @Override
+            public void onResponse(Call<MealCompletionResponse> call, Response<MealCompletionResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to complete meal: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MealCompletionResponse> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
+    }
+
+    public void getNutritionAdherenceHistory(String userNutritionPlanId, String userId, UsersCallback<java.util.List<NutritionAdherenceHistory>> callback) {
+        usersApi.apiUsersNutritionUserPlansUserNutritionPlanIdAdherenceGet(userNutritionPlanId, userId).enqueue(new Callback<java.util.List<NutritionAdherenceHistory>>() {
+            @Override
+            public void onResponse(Call<java.util.List<NutritionAdherenceHistory>> call, Response<java.util.List<NutritionAdherenceHistory>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to get nutrition adherence history: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<java.util.List<NutritionAdherenceHistory>> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
+    }
+
+    public void updateNutritionAdherence(String userNutritionPlanId, String id, NutritionAdherence nutritionAdherence, UsersCallback<UpdatedNutritionAdherenceResponse> callback) {
+        usersApi.apiUsersNutritionUserPlansUserNutritionPlanIdAdherenceIdPut(userNutritionPlanId, id, nutritionAdherence).enqueue(new Callback<UpdatedNutritionAdherenceResponse>() {
+            @Override
+            public void onResponse(Call<UpdatedNutritionAdherenceResponse> call, Response<UpdatedNutritionAdherenceResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to update nutrition adherence: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UpdatedNutritionAdherenceResponse> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
+    }
+
+    public void createNutritionAdherence(String userNutritionPlanId, NutritionAdherence nutritionAdherence, UsersCallback<NutritionAdherenceResponse> callback) {
+        usersApi.apiUsersNutritionUserPlansUserNutritionPlanIdAdherencePost(userNutritionPlanId, nutritionAdherence).enqueue(new Callback<NutritionAdherenceResponse>() {
+            @Override
+            public void onResponse(Call<NutritionAdherenceResponse> call, Response<NutritionAdherenceResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to create nutrition adherence: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<NutritionAdherenceResponse> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
+    }
+
+    // User Search methods
     public void searchUsers(String query, UsersApi.RoleApiUsersSearchGet role, UsersCallback<java.util.List<User>> callback) {
         usersApi.apiUsersSearchGet(query, role).enqueue(new Callback<java.util.List<User>>() {
             @Override
@@ -42,6 +170,7 @@ public class UsersRepository {
         });
     }
 
+    // User Stats methods
     public void getUserStats(UsersCallback<java.util.List<UserStats>> callback) {
         usersApi.apiUsersStatsGet().enqueue(new Callback<java.util.List<UserStats>>() {
             @Override
@@ -96,6 +225,7 @@ public class UsersRepository {
         });
     }
 
+    // Workout methods
     public void recordExerciseResult(RecordExerciseResult recordExerciseResult, UsersCallback<ExerciseResult> callback) {
         usersApi.apiUsersWorkoutExerciseResultsPost(recordExerciseResult).enqueue(new Callback<ExerciseResult>() {
             @Override
@@ -127,6 +257,24 @@ public class UsersRepository {
 
             @Override
             public void onFailure(Call<java.util.List<UserWorkoutPlan>> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
+    }
+
+    public void getUserWorkoutPlanResults(String userWorkoutPlanId, String userId, UsersCallback<WorkoutPlanResults> callback) {
+        usersApi.apiUsersWorkoutUserPlansUserWorkoutPlanIdResultsGet(userWorkoutPlanId, userId).enqueue(new Callback<WorkoutPlanResults>() {
+            @Override
+            public void onResponse(Call<WorkoutPlanResults> call, Response<WorkoutPlanResults> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to get user workout plan results: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<WorkoutPlanResults> call, Throwable t) {
                 callback.onError(t.getMessage());
             }
         });
@@ -167,79 +315,4 @@ public class UsersRepository {
             }
         });
     }
-
-    public void getWorkoutPlanResults(String workoutPlanId, String userId, UsersCallback<WorkoutPlanResults> callback) {
-        usersApi.apiUsersWorkoutWorkoutPlanIdResultsGet(workoutPlanId, userId).enqueue(new Callback<WorkoutPlanResults>() {
-            @Override
-            public void onResponse(Call<WorkoutPlanResults> call, Response<WorkoutPlanResults> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    callback.onSuccess(response.body());
-                } else {
-                    callback.onError("Failed to get workout plan results: " + response.message());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<WorkoutPlanResults> call, Throwable t) {
-                callback.onError(t.getMessage());
-            }
-        });
-    }
-
-    public void getUserNutritionPlans(UsersCallback<java.util.List<UserNutritionPlan>> callback) {
-        usersApi.apiUsersNutritionPlansGet().enqueue(new Callback<java.util.List<UserNutritionPlan>>() {
-            @Override
-            public void onResponse(Call<java.util.List<UserNutritionPlan>> call, Response<java.util.List<UserNutritionPlan>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    callback.onSuccess(response.body());
-                } else {
-                    callback.onError("Failed to get user nutrition plans: " + response.message());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<java.util.List<UserNutritionPlan>> call, Throwable t) {
-                callback.onError(t.getMessage());
-            }
-        });
-    }
-
-    public void getNutritionPlanAssignment(String nutritionPlanId, String userId, UsersCallback<NutritionPlanAssignment> callback) {
-        usersApi.apiUsersNutritionNutritionPlanIdAssignGet(nutritionPlanId, userId).enqueue(new Callback<NutritionPlanAssignment>() {
-            @Override
-            public void onResponse(Call<NutritionPlanAssignment> call, Response<NutritionPlanAssignment> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    callback.onSuccess(response.body());
-                } else {
-                    callback.onError("Failed to get nutrition plan assignment: " + response.message());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<NutritionPlanAssignment> call, Throwable t) {
-                callback.onError(t.getMessage());
-            }
-        });
-    }
-
-    public void assignNutritionPlan(String nutritionPlanId, AssignNutritionPlan assignNutritionPlan, UsersCallback<NutritionPlanAssignmentResponse> callback) {
-        usersApi.apiUsersNutritionNutritionPlanIdAssignPost(nutritionPlanId, assignNutritionPlan).enqueue(new Callback<NutritionPlanAssignmentResponse>() {
-            @Override
-            public void onResponse(Call<NutritionPlanAssignmentResponse> call, Response<NutritionPlanAssignmentResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    callback.onSuccess(response.body());
-                } else {
-                    callback.onError("Failed to assign nutrition plan: " + response.message());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<NutritionPlanAssignmentResponse> call, Throwable t) {
-                callback.onError(t.getMessage());
-            }
-        });
-    }
-
-    // Additional nutrition adherence methods would continue here...
-    // For brevity, including the main ones
 }

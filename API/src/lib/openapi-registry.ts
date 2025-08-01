@@ -8,7 +8,9 @@ import {
     // Common schemas
     idParamSchema,
     nutritionPlanIdParamSchema,
+    userNutritionPlanIdParamSchema,
     workoutPlanIdParamSchema,
+    userWorkoutPlanIdParamSchema,
     successMessageSchema,
 
     // Connection schemas
@@ -72,7 +74,9 @@ const userIdQuerySchema = z
 registry.register('userIdQuery', userIdQuerySchema);
 registry.register('IdParam', idParamSchema);
 registry.register('NutritionPlanIdParam', nutritionPlanIdParamSchema);
+registry.register('UserNutritionPlanIdParam', userNutritionPlanIdParamSchema);
 registry.register('WorkoutPlanIdParam', workoutPlanIdParamSchema);
+registry.register('UserWorkoutPlanIdParam', userWorkoutPlanIdParamSchema);
 registry.register('SuccessMessage', successMessageSchema);
 
 // Connection schemas
@@ -679,12 +683,12 @@ registry.registerPath({
 
 registry.registerPath({
     method: 'post',
-    path: '/api/users/nutrition/{nutritionPlanId}/adherence',
+    path: '/api/users/nutrition/user-plans/{userNutritionPlanId}/adherence',
     tags: ['Users'],
     summary: 'Create daily adherence record',
     description: 'Create a daily nutrition adherence record',
     request: {
-        params: nutritionPlanIdParamSchema,
+        params: userNutritionPlanIdParamSchema,
         body: {
             description: 'Adherence data',
             content: {
@@ -733,12 +737,12 @@ registry.registerPath({
 
 registry.registerPath({
     method: 'put',
-    path: '/api/users/nutrition/{nutritionPlanId}/adherence/{id}',
+    path: '/api/users/nutrition/user-plans/{userNutritionPlanId}/adherence/{id}',
     tags: ['Users'],
     summary: 'Update daily adherence record',
     description: 'Update an existing daily nutrition adherence record',
     request: {
-        params: nutritionPlanIdParamSchema.merge(idParamSchema),
+        params: userNutritionPlanIdParamSchema.merge(idParamSchema),
         body: {
             description: 'Updated adherence data',
             content: {
@@ -790,16 +794,19 @@ registry.registerPath({
 
 registry.registerPath({
     method: 'post',
-    path: '/api/users/nutrition/{nutritionPlanId}/adherence/{adherenceId}/meals/{mealId}/complete',
+    path: '/api/users/nutrition/user-plans/{userNutritionPlanId}/adherence/{adherenceId}/meals/{mealId}/complete',
     tags: ['Users'],
     summary: 'Complete a meal',
     description: 'Mark a meal as completed with actual consumption data',
     request: {
         params: z
             .object({
-                nutritionPlanId: z
+                userNutritionPlanId: z
                     .string()
-                    .regex(/^\d+$/, 'Nutrition Plan ID must be a valid number')
+                    .regex(
+                        /^\d+$/,
+                        'User Nutrition Plan ID must be a valid number'
+                    )
                     .transform(Number),
                 adherenceId: z
                     .string()
@@ -854,12 +861,12 @@ registry.registerPath({
 
 registry.registerPath({
     method: 'get',
-    path: '/api/users/nutrition/{nutritionPlanId}/adherence',
+    path: '/api/users/nutrition/user-plans/{userNutritionPlanId}/adherence',
     tags: ['Users'],
     summary: 'Get nutrition adherence history',
-    description: 'Get adherence history for a nutrition plan',
+    description: 'Get adherence history for a user nutrition plan',
     request: {
-        params: nutritionPlanIdParamSchema,
+        params: userNutritionPlanIdParamSchema,
         query: userIdQuerySchema,
     },
     responses: {
@@ -1041,12 +1048,12 @@ registry.registerPath({
 
 registry.registerPath({
     method: 'get',
-    path: '/api/users/workout/{workoutPlanId}/results',
+    path: '/api/users/workout/user-plans/{userWorkoutPlanId}/results',
     tags: ['Users'],
-    summary: 'Get workout plan results',
-    description: 'Get exercise results for a specific workout plan',
+    summary: 'Get user workout plan results',
+    description: 'Get exercise results for a specific user workout plan',
     request: {
-        params: workoutPlanIdParamSchema,
+        params: userWorkoutPlanIdParamSchema,
         query: userIdQuerySchema,
     },
     responses: {

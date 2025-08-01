@@ -240,8 +240,149 @@ public class NutritionRepository {
         });
     }
 
-    // Additional methods for meals and foods would continue here...
-    // For brevity, I'm including the main ones. The pattern continues for:
-    // - Meal CRUD operations
-    // - Food CRUD operations
+    // Meal CRUD operations
+    public void getNutritionPlanMeal(String id, NutritionCallback<NutritionPlanMeal> callback) {
+        nutritionApi.apiNutritionMealsIdGet(id).enqueue(new Callback<NutritionPlanMeal>() {
+            @Override
+            public void onResponse(Call<NutritionPlanMeal> call, Response<NutritionPlanMeal> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to get nutrition plan meal: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<NutritionPlanMeal> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
+    }
+
+    public void updateNutritionPlanMeal(String id, UpdateNutritionPlanMeal updateNutritionPlanMeal, NutritionCallback<NutritionPlanMeal> callback) {
+        nutritionApi.apiNutritionMealsIdPut(id, updateNutritionPlanMeal).enqueue(new Callback<NutritionPlanMeal>() {
+            @Override
+            public void onResponse(Call<NutritionPlanMeal> call, Response<NutritionPlanMeal> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to update nutrition plan meal: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<NutritionPlanMeal> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
+    }
+
+    public void deleteNutritionPlanMeal(String id, NutritionCallback<SuccessMessage> callback) {
+        nutritionApi.apiNutritionMealsIdDelete(id).enqueue(new Callback<SuccessMessage>() {
+            @Override
+            public void onResponse(Call<SuccessMessage> call, Response<SuccessMessage> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to delete nutrition plan meal: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SuccessMessage> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
+    }
+
+    public void getNutritionPlanMealFoods(String id, NutritionCallback<java.util.List<NutritionPlanFood>> callback) {
+        nutritionApi.apiNutritionMealsIdFoodsGet(id).enqueue(new Callback<java.util.List<NutritionPlanFood>>() {
+            @Override
+            public void onResponse(Call<java.util.List<NutritionPlanFood>> call, Response<java.util.List<NutritionPlanFood>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to get nutrition plan meal foods: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<java.util.List<NutritionPlanFood>> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
+    }
+
+    public void createNutritionPlanFood(String id, CreateNutritionPlanFood createNutritionPlanFood, NutritionCallback<NutritionPlanFood> callback) {
+        nutritionApi.apiNutritionMealsIdFoodsPost(id, createNutritionPlanFood).enqueue(new Callback<NutritionPlanFood>() {
+            @Override
+            public void onResponse(Call<NutritionPlanFood> call, Response<NutritionPlanFood> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to create nutrition plan food: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<NutritionPlanFood> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
+    }
+
+    // Food CRUD operations
+    public void getNutritionPlanFood(String id, NutritionCallback<NutritionPlanFood> callback) {
+        nutritionApi.apiNutritionFoodsIdGet(id).enqueue(new Callback<NutritionPlanFood>() {
+            @Override
+            public void onResponse(Call<NutritionPlanFood> call, Response<NutritionPlanFood> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to get nutrition plan food: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<NutritionPlanFood> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
+    }
+
+    public void updateNutritionPlanFood(String id, UpdateNutritionPlanFood updateNutritionPlanFood, NutritionCallback<NutritionPlanFood> callback) {
+        nutritionApi.apiNutritionFoodsIdPut(id, updateNutritionPlanFood).enqueue(new Callback<NutritionPlanFood>() {
+            @Override
+            public void onResponse(Call<NutritionPlanFood> call, Response<NutritionPlanFood> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to update nutrition plan food: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<NutritionPlanFood> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
+    }
+
+    public void deleteNutritionPlanFood(String id, NutritionCallback<SuccessMessage> callback) {
+        nutritionApi.apiNutritionFoodsIdDelete(id).enqueue(new Callback<SuccessMessage>() {
+            @Override
+            public void onResponse(Call<SuccessMessage> call, Response<SuccessMessage> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to delete nutrition plan food: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SuccessMessage> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
+    }
 }

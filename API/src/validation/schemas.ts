@@ -1181,6 +1181,33 @@ export const updateExerciseInPlanDaySchema = z
     })
     .openapi('UpdateExerciseInPlanDay');
 
+// Planned Workout ID parameter schemas
+export const userNutritionPlanIdParamSchema = z
+    .object({
+        userNutritionPlanId: z
+            .string()
+            .regex(/^\d+$/, 'User Nutrition Plan ID must be a valid number')
+            .transform(Number)
+            .openapi({
+                description: 'User nutrition plan identifier',
+                example: '456',
+            }),
+    })
+    .openapi('UserNutritionPlanIdParam');
+
+export const userWorkoutPlanIdParamSchema = z
+    .object({
+        userWorkoutPlanId: z
+            .string()
+            .regex(/^\d+$/, 'User Workout Plan ID must be a valid number')
+            .transform(Number)
+            .openapi({
+                description: 'User workout plan identifier',
+                example: '789',
+            }),
+    })
+    .openapi('UserWorkoutPlanIdParam');
+
 // Workout Plan ID parameter schema
 export const workoutPlanIdParamSchema = z
     .object({

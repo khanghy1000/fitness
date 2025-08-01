@@ -330,22 +330,25 @@ export class WorkoutService {
     }
 
     // Get workout plan results with exercise results
-    static async getWorkoutPlanResults(workoutPlanId: number, userId: string) {
-        // First get the userWorkoutPlan for this user and workout plan
+    static async getWorkoutPlanResults(
+        userWorkoutPlanId: number,
+        userId: string
+    ) {
+        // First get the userWorkoutPlan for this user
         const userPlan = await db.query.userWorkoutPlan.findFirst({
             where: and(
-                eq(userWorkoutPlan.workoutPlanId, workoutPlanId),
+                eq(userWorkoutPlan.id, userWorkoutPlanId),
                 eq(userWorkoutPlan.userId, userId)
             ),
         });
 
-        if (!userPlan) {
+        if (!userPlan || !userPlan.workoutPlanId) {
             return null;
         }
 
         // Get the workout plan with all days, exercises, and exercise results
         const workoutPlanWithResults = await db.query.workoutPlan.findFirst({
-            where: eq(workoutPlan.id, workoutPlanId),
+            where: eq(workoutPlan.id, userPlan.workoutPlanId),
             with: {
                 workoutPlanDays: {
                     with: {
@@ -357,7 +360,7 @@ export class WorkoutService {
                                         eq(exerciseResult.userId, userId),
                                         eq(
                                             exerciseResult.userWorkoutPlanId,
-                                            userPlan.id
+                                            userWorkoutPlanId
                                         )
                                     ),
                                 },

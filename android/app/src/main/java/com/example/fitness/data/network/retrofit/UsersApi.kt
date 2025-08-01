@@ -7,75 +7,6 @@ import retrofit2.Call
 
 interface UsersApi {
     /**
-     * POST api/users/nutrition/{nutritionPlanId}/adherence/{adherenceId}/meals/{mealId}/complete
-     * Complete a meal
-     * Mark a meal as completed with actual consumption data
-     * Responses:
-     *  - 201: Meal completed successfully
-     *  - 400: Invalid input data
-     *  - 401: Unauthorized
-     *
-     * @param nutritionPlanId 
-     * @param adherenceId 
-     * @param mealId 
-     * @param mealCompletion Meal completion data (optional)
-     * @return [Call]<[MealCompletionResponse]>
-     */
-    @POST("api/users/nutrition/{nutritionPlanId}/adherence/{adherenceId}/meals/{mealId}/complete")
-    fun apiUsersNutritionNutritionPlanIdAdherenceAdherenceIdMealsMealIdCompletePost(@Path("nutritionPlanId") nutritionPlanId: String, @Path("adherenceId") adherenceId: String, @Path("mealId") mealId: String, @Body mealCompletion: MealCompletion? = null): Call<MealCompletionResponse>
-
-    /**
-     * GET api/users/nutrition/{nutritionPlanId}/adherence
-     * Get nutrition adherence history
-     * Get adherence history for a nutrition plan
-     * Responses:
-     *  - 200: Nutrition adherence history
-     *  - 400: Missing userId parameter for coaches
-     *  - 401: Unauthorized
-     *  - 403: Access denied
-     *
-     * @param nutritionPlanId Nutrition plan identifier
-     * @param userId User ID for coach to specify which user (optional)
-     * @return [Call]<[kotlin.collections.List<NutritionAdherenceHistory>]>
-     */
-    @GET("api/users/nutrition/{nutritionPlanId}/adherence")
-    fun apiUsersNutritionNutritionPlanIdAdherenceGet(@Path("nutritionPlanId") nutritionPlanId: String, @Query("userId") userId: String? = null): Call<List<NutritionAdherenceHistory>>
-
-    /**
-     * PUT api/users/nutrition/{nutritionPlanId}/adherence/{id}
-     * Update daily adherence record
-     * Update an existing daily nutrition adherence record
-     * Responses:
-     *  - 200: Daily adherence record updated successfully
-     *  - 400: Invalid input data
-     *  - 401: Unauthorized
-     *  - 404: Adherence record not found
-     *
-     * @param nutritionPlanId Nutrition plan identifier
-     * @param id Unique identifier
-     * @param nutritionAdherence Updated adherence data (optional)
-     * @return [Call]<[UpdatedNutritionAdherenceResponse]>
-     */
-    @PUT("api/users/nutrition/{nutritionPlanId}/adherence/{id}")
-    fun apiUsersNutritionNutritionPlanIdAdherenceIdPut(@Path("nutritionPlanId") nutritionPlanId: String, @Path("id") id: String, @Body nutritionAdherence: NutritionAdherence? = null): Call<UpdatedNutritionAdherenceResponse>
-
-    /**
-     * POST api/users/nutrition/{nutritionPlanId}/adherence
-     * Create daily adherence record
-     * Create a daily nutrition adherence record
-     * Responses:
-     *  - 201: Daily adherence record created successfully
-     *  - 400: Invalid input data
-     *  - 401: Unauthorized
-     *
-     * @param nutritionPlanId Nutrition plan identifier
-     * @param nutritionAdherence Adherence data (optional)
-     * @return [Call]<[NutritionAdherenceResponse]>
-     */
-    @POST("api/users/nutrition/{nutritionPlanId}/adherence")
-    fun apiUsersNutritionNutritionPlanIdAdherencePost(@Path("nutritionPlanId") nutritionPlanId: String, @Body nutritionAdherence: NutritionAdherence? = null): Call<NutritionAdherenceResponse>
-
-    /**
      * GET api/users/nutrition/{nutritionPlanId}/assign
      * Get nutrition plan assignment
      * Get nutrition plan assignment details for a specific plan
@@ -120,6 +51,75 @@ interface UsersApi {
      */
     @GET("api/users/nutrition-plans")
     fun apiUsersNutritionPlansGet(): Call<List<UserNutritionPlan>>
+
+    /**
+     * POST api/users/nutrition/user-plans/{userNutritionPlanId}/adherence/{adherenceId}/meals/{mealId}/complete
+     * Complete a meal
+     * Mark a meal as completed with actual consumption data
+     * Responses:
+     *  - 201: Meal completed successfully
+     *  - 400: Invalid input data
+     *  - 401: Unauthorized
+     *
+     * @param userNutritionPlanId 
+     * @param adherenceId 
+     * @param mealId 
+     * @param mealCompletion Meal completion data (optional)
+     * @return [Call]<[MealCompletionResponse]>
+     */
+    @POST("api/users/nutrition/user-plans/{userNutritionPlanId}/adherence/{adherenceId}/meals/{mealId}/complete")
+    fun apiUsersNutritionUserPlansUserNutritionPlanIdAdherenceAdherenceIdMealsMealIdCompletePost(@Path("userNutritionPlanId") userNutritionPlanId: String, @Path("adherenceId") adherenceId: String, @Path("mealId") mealId: String, @Body mealCompletion: MealCompletion? = null): Call<MealCompletionResponse>
+
+    /**
+     * GET api/users/nutrition/user-plans/{userNutritionPlanId}/adherence
+     * Get nutrition adherence history
+     * Get adherence history for a user nutrition plan
+     * Responses:
+     *  - 200: Nutrition adherence history
+     *  - 400: Missing userId parameter for coaches
+     *  - 401: Unauthorized
+     *  - 403: Access denied
+     *
+     * @param userNutritionPlanId User nutrition plan identifier
+     * @param userId User ID for coach to specify which user (optional)
+     * @return [Call]<[kotlin.collections.List<NutritionAdherenceHistory>]>
+     */
+    @GET("api/users/nutrition/user-plans/{userNutritionPlanId}/adherence")
+    fun apiUsersNutritionUserPlansUserNutritionPlanIdAdherenceGet(@Path("userNutritionPlanId") userNutritionPlanId: String, @Query("userId") userId: String? = null): Call<List<NutritionAdherenceHistory>>
+
+    /**
+     * PUT api/users/nutrition/user-plans/{userNutritionPlanId}/adherence/{id}
+     * Update daily adherence record
+     * Update an existing daily nutrition adherence record
+     * Responses:
+     *  - 200: Daily adherence record updated successfully
+     *  - 400: Invalid input data
+     *  - 401: Unauthorized
+     *  - 404: Adherence record not found
+     *
+     * @param userNutritionPlanId User nutrition plan identifier
+     * @param id Unique identifier
+     * @param nutritionAdherence Updated adherence data (optional)
+     * @return [Call]<[UpdatedNutritionAdherenceResponse]>
+     */
+    @PUT("api/users/nutrition/user-plans/{userNutritionPlanId}/adherence/{id}")
+    fun apiUsersNutritionUserPlansUserNutritionPlanIdAdherenceIdPut(@Path("userNutritionPlanId") userNutritionPlanId: String, @Path("id") id: String, @Body nutritionAdherence: NutritionAdherence? = null): Call<UpdatedNutritionAdherenceResponse>
+
+    /**
+     * POST api/users/nutrition/user-plans/{userNutritionPlanId}/adherence
+     * Create daily adherence record
+     * Create a daily nutrition adherence record
+     * Responses:
+     *  - 201: Daily adherence record created successfully
+     *  - 400: Invalid input data
+     *  - 401: Unauthorized
+     *
+     * @param userNutritionPlanId User nutrition plan identifier
+     * @param nutritionAdherence Adherence data (optional)
+     * @return [Call]<[NutritionAdherenceResponse]>
+     */
+    @POST("api/users/nutrition/user-plans/{userNutritionPlanId}/adherence")
+    fun apiUsersNutritionUserPlansUserNutritionPlanIdAdherencePost(@Path("userNutritionPlanId") userNutritionPlanId: String, @Body nutritionAdherence: NutritionAdherence? = null): Call<NutritionAdherenceResponse>
 
 
     /**
@@ -216,6 +216,24 @@ interface UsersApi {
     fun apiUsersWorkoutPlansGet(): Call<List<UserWorkoutPlan>>
 
     /**
+     * GET api/users/workout/user-plans/{userWorkoutPlanId}/results
+     * Get user workout plan results
+     * Get exercise results for a specific user workout plan
+     * Responses:
+     *  - 200: Workout plan exercise results
+     *  - 400: Missing userId parameter for coaches
+     *  - 401: Unauthorized
+     *  - 403: Access denied
+     *  - 404: Workout plan not found or not assigned to user
+     *
+     * @param userWorkoutPlanId User workout plan identifier
+     * @param userId User ID for coach to specify which user (optional)
+     * @return [Call]<[WorkoutPlanResults]>
+     */
+    @GET("api/users/workout/user-plans/{userWorkoutPlanId}/results")
+    fun apiUsersWorkoutUserPlansUserWorkoutPlanIdResultsGet(@Path("userWorkoutPlanId") userWorkoutPlanId: String, @Query("userId") userId: String? = null): Call<WorkoutPlanResults>
+
+    /**
      * GET api/users/workout/{workoutPlanId}/assign
      * Get workout plan assignment
      * Get workout plan assignment details for a specific plan
@@ -247,23 +265,5 @@ interface UsersApi {
      */
     @POST("api/users/workout/{workoutPlanId}/assign")
     fun apiUsersWorkoutWorkoutPlanIdAssignPost(@Path("workoutPlanId") workoutPlanId: String, @Body assignWorkoutPlan: AssignWorkoutPlan? = null): Call<WorkoutPlanAssignmentResponse>
-
-    /**
-     * GET api/users/workout/{workoutPlanId}/results
-     * Get workout plan results
-     * Get exercise results for a specific workout plan
-     * Responses:
-     *  - 200: Workout plan exercise results
-     *  - 400: Missing userId parameter for coaches
-     *  - 401: Unauthorized
-     *  - 403: Access denied
-     *  - 404: Workout plan not found or not assigned to user
-     *
-     * @param workoutPlanId Workout plan identifier
-     * @param userId User ID for coach to specify which user (optional)
-     * @return [Call]<[WorkoutPlanResults]>
-     */
-    @GET("api/users/workout/{workoutPlanId}/results")
-    fun apiUsersWorkoutWorkoutPlanIdResultsGet(@Path("workoutPlanId") workoutPlanId: String, @Query("userId") userId: String? = null): Call<WorkoutPlanResults>
 
 }

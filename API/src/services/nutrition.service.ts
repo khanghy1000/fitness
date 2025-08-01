@@ -222,26 +222,16 @@ export class NutritionService {
     }
 
     static async createDailyAdherence(data: {
-        nutritionPlanId: number;
+        userNutritionPlanId: number;
         userId: string;
         date: Date;
         weekday: 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
         totalMeals?: number;
     }) {
-        // Get the userNutritionPlanId from nutritionPlanId and userId
-        const userNutritionPlanId = await this.getUserNutritionPlanId(
-            data.userId,
-            data.nutritionPlanId
-        );
-
-        if (!userNutritionPlanId) {
-            throw new Error('User nutrition plan not found');
-        }
-
         const result = await db
             .insert(nutritionAdherence)
             .values({
-                userNutritionPlanId,
+                userNutritionPlanId: data.userNutritionPlanId,
                 userId: data.userId,
                 date: data.date,
                 weekday: data.weekday,
@@ -276,19 +266,9 @@ export class NutritionService {
 
     static async getDailyAdherence(
         userId: string,
-        nutritionPlanId: number,
+        userNutritionPlanId: number,
         date: Date
     ) {
-        // Get the userNutritionPlanId from nutritionPlanId and userId
-        const userNutritionPlanId = await this.getUserNutritionPlanId(
-            userId,
-            nutritionPlanId
-        );
-
-        if (!userNutritionPlanId) {
-            return null;
-        }
-
         const result = await db
             .select()
             .from(nutritionAdherence)
@@ -351,22 +331,13 @@ export class NutritionService {
             );
     }
 
-    // Get user adherence history by nutrition plan ID
+    // Get user adherence history by user nutrition plan ID
     static async getUserAdherenceHistoryByPlan(
         userId: string,
-        nutritionPlanId: number,
+        userNutritionPlanId: number,
         startDate?: Date,
         endDate?: Date
     ) {
-        const userNutritionPlanId = await this.getUserNutritionPlanId(
-            userId,
-            nutritionPlanId
-        );
-
-        if (!userNutritionPlanId) {
-            return [];
-        }
-
         const conditions = [
             eq(nutritionAdherence.userNutritionPlanId, userNutritionPlanId),
             eq(nutritionAdherence.userId, userId),

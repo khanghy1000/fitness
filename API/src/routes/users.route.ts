@@ -18,7 +18,9 @@ import {
     nutritionAdherenceSchema,
     userSearchQuerySchema,
     nutritionPlanIdParamSchema,
+    userNutritionPlanIdParamSchema,
     workoutPlanIdParamSchema,
+    userWorkoutPlanIdParamSchema,
     assignNutritionPlanSchema,
     assignWorkoutPlanSchema,
     recordExerciseResultSchema,
@@ -175,11 +177,9 @@ router.get(
             // Get assigned plans for specified user
             const { userId } = req.query as { userId?: string };
             if (!userId) {
-                return res
-                    .status(400)
-                    .json({
-                        error: 'userId query parameter is required for coaches',
-                    });
+                return res.status(400).json({
+                    error: 'userId query parameter is required for coaches',
+                });
             }
             const plans =
                 await NutritionService.getUserAssignedNutritionPlans(userId);
@@ -217,16 +217,17 @@ router.post(
 
 // Create daily adherence record
 router.post(
-    '/nutrition/:nutritionPlanId/adherence',
+    '/nutrition/user-plans/:userNutritionPlanId/adherence',
     requireAuthenticated,
-    validateParams(nutritionPlanIdParamSchema),
+    validateParams(userNutritionPlanIdParamSchema),
     validateBody(nutritionAdherenceSchema),
     async (req, res) => {
-        const nutritionPlanId = (req.params as any).nutritionPlanId as number;
+        const userNutritionPlanId = (req.params as any)
+            .userNutritionPlanId as number;
         const { date, weekday, totalMeals } = req.body;
 
         const adherence = await NutritionService.createDailyAdherence({
-            nutritionPlanId,
+            userNutritionPlanId,
             userId: req.session!.user.id,
             date: new Date(date || new Date()),
             weekday: weekday || getWeekdayEnum(new Date().getDay()),
@@ -239,9 +240,9 @@ router.post(
 
 // Update daily adherence record
 router.put(
-    '/nutrition/:nutritionPlanId/adherence/:id',
+    '/nutrition/user-plans/:userNutritionPlanId/adherence/:id',
     requireAuthenticated,
-    validateParams(nutritionPlanIdParamSchema.merge(idParamSchema)),
+    validateParams(userNutritionPlanIdParamSchema.merge(idParamSchema)),
     validateBody(nutritionAdherenceSchema),
     async (req, res) => {
         const id = (req.params as any).id as number;
@@ -261,11 +262,11 @@ router.put(
 
 // Complete a meal
 router.post(
-    '/nutrition/:nutritionPlanId/adherence/:adherenceId/meals/:mealId/complete',
+    '/nutrition/user-plans/:userNutritionPlanId/adherence/:adherenceId/meals/:mealId/complete',
     requireAuthenticated,
     validateBody(mealCompletionSchema),
     async (req, res) => {
-        const nutritionPlanId = parseInt(req.params.nutritionPlanId);
+        const userNutritionPlanId = parseInt(req.params.userNutritionPlanId);
         const adherenceId = parseInt(req.params.adherenceId);
         const mealId = parseInt(req.params.mealId);
 
@@ -280,14 +281,15 @@ router.post(
     }
 );
 
-// Get adherence history for a nutrition plan
+// Get adherence history for a user nutrition plan
 router.get(
-    '/nutrition/:nutritionPlanId/adherence',
+    '/nutrition/user-plans/:userNutritionPlanId/adherence',
     requireAuthenticated,
-    validateParams(nutritionPlanIdParamSchema),
+    validateParams(userNutritionPlanIdParamSchema),
     validateQuery(z.object({ userId: z.string().optional() }).optional()),
     async (req, res) => {
-        const nutritionPlanId = (req.params as any).nutritionPlanId as number;
+        const userNutritionPlanId = (req.params as any)
+            .userNutritionPlanId as number;
         const user = req.session!.user;
 
         if (user.role === 'trainee') {
@@ -295,23 +297,21 @@ router.get(
             const adherenceHistory =
                 await NutritionService.getUserAdherenceHistoryByPlan(
                     user.id,
-                    nutritionPlanId
+                    userNutritionPlanId
                 );
             res.json(adherenceHistory);
         } else if (user.role === 'coach') {
             // Get adherence history for specified user
             const { userId } = req.query as { userId?: string };
             if (!userId) {
-                return res
-                    .status(400)
-                    .json({
-                        error: 'userId query parameter is required for coaches',
-                    });
+                return res.status(400).json({
+                    error: 'userId query parameter is required for coaches',
+                });
             }
             const adherenceHistory =
                 await NutritionService.getUserAdherenceHistoryByPlan(
                     userId,
-                    nutritionPlanId
+                    userNutritionPlanId
                 );
             res.json(adherenceHistory);
         } else {
@@ -368,11 +368,9 @@ router.get(
             // Get assigned plans for specified user
             const { userId } = req.query as { userId?: string };
             if (!userId) {
-                return res
-                    .status(400)
-                    .json({
-                        error: 'userId query parameter is required for coaches',
-                    });
+                return res.status(400).json({
+                    error: 'userId query parameter is required for coaches',
+                });
             }
             const plans =
                 await WorkoutService.getUserAssignedWorkoutPlans(userId);
@@ -406,26 +404,27 @@ router.post(
     }
 );
 
-// Get user exercise results for a workout plan
+// Get user exercise results for a user workout plan
 router.get(
-    '/workout/:workoutPlanId/results',
+    '/workout/user-plans/:userWorkoutPlanId/results',
     requireAuthenticated,
-    validateParams(workoutPlanIdParamSchema),
+    validateParams(userWorkoutPlanIdParamSchema),
     validateQuery(z.object({ userId: z.string().optional() }).optional()),
     async (req, res) => {
-        const workoutPlanId = (req.params as any).workoutPlanId as number;
+        const userWorkoutPlanId = (req.params as any)
+            .userWorkoutPlanId as number;
         const user = req.session!.user;
 
         if (user.role === 'trainee') {
             // Get current user's exercise results
             const results = await WorkoutService.getWorkoutPlanResults(
-                workoutPlanId,
+                userWorkoutPlanId,
                 user.id
             );
 
             if (!results) {
                 return res.status(404).json({
-                    error: 'Workout plan not found or not assigned to user',
+                    error: 'User workout plan not found or not assigned to user',
                 });
             }
 
@@ -434,21 +433,19 @@ router.get(
             // Get exercise results for specified user
             const { userId } = req.query as { userId?: string };
             if (!userId) {
-                return res
-                    .status(400)
-                    .json({
-                        error: 'userId query parameter is required for coaches',
-                    });
+                return res.status(400).json({
+                    error: 'userId query parameter is required for coaches',
+                });
             }
 
             const results = await WorkoutService.getWorkoutPlanResults(
-                workoutPlanId,
+                userWorkoutPlanId,
                 userId
             );
 
             if (!results) {
                 return res.status(404).json({
-                    error: 'Workout plan not found or not assigned to user',
+                    error: 'User workout plan not found or not assigned to user',
                 });
             }
 

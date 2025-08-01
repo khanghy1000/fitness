@@ -68,6 +68,20 @@
           "nutritionPlanId"
         ]
       },
+      "UserNutritionPlanIdParam": {
+        "type": "object",
+        "properties": {
+          "userNutritionPlanId": {
+            "type": "string",
+            "pattern": "^\\d+$",
+            "description": "User nutrition plan identifier",
+            "example": "456"
+          }
+        },
+        "required": [
+          "userNutritionPlanId"
+        ]
+      },
       "WorkoutPlanIdParam": {
         "type": "object",
         "properties": {
@@ -80,6 +94,20 @@
         },
         "required": [
           "workoutPlanId"
+        ]
+      },
+      "UserWorkoutPlanIdParam": {
+        "type": "object",
+        "properties": {
+          "userWorkoutPlanId": {
+            "type": "string",
+            "pattern": "^\\d+$",
+            "description": "User workout plan identifier",
+            "example": "789"
+          }
+        },
+        "required": [
+          "userWorkoutPlanId"
         ]
       },
       "SuccessMessage": {
@@ -2864,7 +2892,7 @@
         }
       }
     },
-    "/api/users/nutrition/{nutritionPlanId}/adherence": {
+    "/api/users/nutrition/user-plans/{userNutritionPlanId}/adherence": {
       "post": {
         "tags": [
           "Users"
@@ -2876,12 +2904,12 @@
             "schema": {
               "type": "string",
               "pattern": "^\\d+$",
-              "description": "Nutrition plan identifier",
-              "example": "123"
+              "description": "User nutrition plan identifier",
+              "example": "456"
             },
             "required": true,
-            "description": "Nutrition plan identifier",
-            "name": "nutritionPlanId",
+            "description": "User nutrition plan identifier",
+            "name": "userNutritionPlanId",
             "in": "path"
           }
         ],
@@ -2919,18 +2947,18 @@
           "Users"
         ],
         "summary": "Get nutrition adherence history",
-        "description": "Get adherence history for a nutrition plan",
+        "description": "Get adherence history for a user nutrition plan",
         "parameters": [
           {
             "schema": {
               "type": "string",
               "pattern": "^\\d+$",
-              "description": "Nutrition plan identifier",
-              "example": "123"
+              "description": "User nutrition plan identifier",
+              "example": "456"
             },
             "required": true,
-            "description": "Nutrition plan identifier",
-            "name": "nutritionPlanId",
+            "description": "User nutrition plan identifier",
+            "name": "userNutritionPlanId",
             "in": "path"
           },
           {
@@ -2971,7 +2999,7 @@
         }
       }
     },
-    "/api/users/nutrition/{nutritionPlanId}/adherence/{id}": {
+    "/api/users/nutrition/user-plans/{userNutritionPlanId}/adherence/{id}": {
       "put": {
         "tags": [
           "Users"
@@ -2983,12 +3011,12 @@
             "schema": {
               "type": "string",
               "pattern": "^\\d+$",
-              "description": "Nutrition plan identifier",
-              "example": "123"
+              "description": "User nutrition plan identifier",
+              "example": "456"
             },
             "required": true,
-            "description": "Nutrition plan identifier",
-            "name": "nutritionPlanId",
+            "description": "User nutrition plan identifier",
+            "name": "userNutritionPlanId",
             "in": "path"
           },
           {
@@ -3037,7 +3065,7 @@
         }
       }
     },
-    "/api/users/nutrition/{nutritionPlanId}/adherence/{adherenceId}/meals/{mealId}/complete": {
+    "/api/users/nutrition/user-plans/{userNutritionPlanId}/adherence/{adherenceId}/meals/{mealId}/complete": {
       "post": {
         "tags": [
           "Users"
@@ -3051,7 +3079,7 @@
               "pattern": "^\\d+$"
             },
             "required": true,
-            "name": "nutritionPlanId",
+            "name": "userNutritionPlanId",
             "in": "path"
           },
           {
@@ -3244,24 +3272,24 @@
         }
       }
     },
-    "/api/users/workout/{workoutPlanId}/results": {
+    "/api/users/workout/user-plans/{userWorkoutPlanId}/results": {
       "get": {
         "tags": [
           "Users"
         ],
-        "summary": "Get workout plan results",
-        "description": "Get exercise results for a specific workout plan",
+        "summary": "Get user workout plan results",
+        "description": "Get exercise results for a specific user workout plan",
         "parameters": [
           {
             "schema": {
               "type": "string",
               "pattern": "^\\d+$",
-              "description": "Workout plan identifier",
-              "example": "123"
+              "description": "User workout plan identifier",
+              "example": "789"
             },
             "required": true,
-            "description": "Workout plan identifier",
-            "name": "workoutPlanId",
+            "description": "User workout plan identifier",
+            "name": "userWorkoutPlanId",
             "in": "path"
           },
           {
