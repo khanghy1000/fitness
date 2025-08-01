@@ -1,6 +1,6 @@
 import { db } from '@lib/db.ts';
 import { coachTrainee } from '../db/schema/tables.ts';
-import { eq, and, or, desc } from 'drizzle-orm';
+import { eq, and, or, desc, ne } from 'drizzle-orm';
 
 export class CoachTraineeService {
     static async sendConnectionRequest(
@@ -12,12 +12,13 @@ export class CoachTraineeService {
         const existingConnection = await db.query.coachTrainee.findFirst({
             where: and(
                 eq(coachTrainee.coachId, coachId),
-                eq(coachTrainee.traineeId, traineeId)
+                eq(coachTrainee.traineeId, traineeId),
+                ne(coachTrainee.status, 'inactive')
             ),
         });
 
         // If there's an existing connection that's not inactive, don't allow new request
-        if (existingConnection && existingConnection.status !== 'inactive') {
+        if (existingConnection) {
             throw new Error('Connection request already exists or is active');
         }
 
