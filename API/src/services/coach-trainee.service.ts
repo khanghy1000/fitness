@@ -26,8 +26,8 @@ export class CoachTraineeService {
     ) {
         const condition =
             type === 'sent'
-                ? eq(coachTrainee.coachId, userId)
-                : eq(coachTrainee.traineeId, userId);
+                ? eq(coachTrainee.traineeId, userId)
+                : eq(coachTrainee.coachId, userId);
 
         return await db.query.coachTrainee.findMany({
             where: and(condition, eq(coachTrainee.status, 'pending')),
@@ -37,7 +37,6 @@ export class CoachTraineeService {
                         id: true,
                         name: true,
                         email: true,
-                        image: true,
                     },
                 },
                 trainee: {
@@ -45,7 +44,6 @@ export class CoachTraineeService {
                         id: true,
                         name: true,
                         email: true,
-                        image: true,
                     },
                 },
             },
