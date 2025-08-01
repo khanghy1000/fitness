@@ -6,14 +6,13 @@ import com.squareup.moshi.ToJson;
 import java.math.BigDecimal;
 
 public class BigDecimalAdapter {
-    
     @ToJson
-    public String toJson(BigDecimal value) {
-        return value != null ? value.toString() : null;
+    public Double toJson(BigDecimal value) {
+        return value != null ? value.doubleValue() : null;
     }
-    
+
     @FromJson
-    public BigDecimal fromJson(String value) {
-        return value != null ? new BigDecimal(value) : null;
+    public BigDecimal fromJson(Double value) {
+        return value != null ? BigDecimal.valueOf(value) : null;
     }
 }
