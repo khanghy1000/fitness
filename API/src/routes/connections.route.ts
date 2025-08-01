@@ -154,14 +154,4 @@ router.post(
     }
 );
 
-// Get coach's trainees list
-router.get('/trainees', requireCoach, async (req, res) => {
-    const connections = await CoachTraineeService.getActiveConnections(
-        req.session!.user.id,
-        'coach'
-    );
-
-    res.json(connections);
-});
-
 export default router;

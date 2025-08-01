@@ -187,6 +187,31 @@
           "traineeId"
         ]
       },
+      "UserIdNameEmail": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Trainee user ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Trainee full name",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Trainee email",
+            "example": "john@example.com"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email"
+        ]
+      },
       "Connection": {
         "type": "object",
         "properties": {
@@ -224,6 +249,12 @@
           "respondedAt": {
             "type": "string",
             "description": "Response date"
+          },
+          "coach": {
+            "$ref": "#/components/schemas/UserIdNameEmail"
+          },
+          "trainee": {
+            "$ref": "#/components/schemas/UserIdNameEmail"
           }
         },
         "required": [
@@ -231,7 +262,9 @@
           "coachId",
           "traineeId",
           "status",
-          "requestedAt"
+          "requestedAt",
+          "coach",
+          "trainee"
         ]
       },
       "ExerciseType": {
@@ -2490,33 +2523,6 @@
           },
           "404": {
             "description": "Active connection not found"
-          }
-        }
-      }
-    },
-    "/api/connections/trainees": {
-      "get": {
-        "tags": [
-          "Connections"
-        ],
-        "summary": "Get coach trainees",
-        "description": "Get list of trainees connected to the coach",
-        "responses": {
-          "200": {
-            "description": "List of connected trainees",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Connection"
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized - Coach role required"
           }
         }
       }

@@ -346,27 +346,6 @@ registry.registerPath({
     },
 });
 
-registry.registerPath({
-    method: 'get',
-    path: '/api/connections/trainees',
-    tags: ['Connections'],
-    summary: 'Get coach trainees',
-    description: 'Get list of trainees connected to the coach',
-    responses: {
-        200: {
-            description: 'List of connected trainees',
-            content: {
-                'application/json': {
-                    schema: z.array(connectionSchema),
-                },
-            },
-        },
-        401: {
-            description: 'Unauthorized - Coach role required',
-        },
-    },
-});
-
 // Users routes
 registry.registerPath({
     method: 'get',

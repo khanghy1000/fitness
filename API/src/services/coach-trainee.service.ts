@@ -98,7 +98,6 @@ export class CoachTraineeService {
                         id: true,
                         name: true,
                         email: true,
-                        image: true,
                     },
                 },
                 trainee: {
@@ -106,7 +105,6 @@ export class CoachTraineeService {
                         id: true,
                         name: true,
                         email: true,
-                        image: true,
                     },
                 },
             },

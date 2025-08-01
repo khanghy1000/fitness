@@ -817,6 +817,18 @@ export const successMessageSchema = z
     })
     .openapi('SuccessMessage');
 
+export const userIdNameEmailSchema = z.object({
+    id: z.string().openapi({ description: 'Trainee user ID' }),
+    name: z.string().openapi({
+        description: 'Trainee full name',
+        example: 'John Doe',
+    }),
+    email: z.string().email().openapi({
+        description: 'Trainee email',
+        example: 'john@example.com',
+    }),
+}).openapi('UserIdNameEmail');
+
 export const userSchema = z
     .object({
         id: z.string().openapi({ description: 'User ID', example: 'user123' }),
@@ -917,6 +929,8 @@ export const connectionSchema = z
             .string()
             .optional()
             .openapi({ description: 'Response date' }),
+        coach: userIdNameEmailSchema,
+        trainee: userIdNameEmailSchema
     })
     .openapi('Connection');
 
