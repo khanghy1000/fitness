@@ -36,7 +36,7 @@ import java.math.BigDecimal
  */
 
 
-data class Connection (
+data class ConnectionWithoutCoachTrainee (
 
     /* Connection ID */
     @Json(name = "id")
@@ -61,12 +61,6 @@ data class Connection (
     /* Last update date */
     @Json(name = "updatedAt")
     val updatedAt: String,
-
-    @Json(name = "coach")
-    val coach: UserIdNameEmail,
-
-    @Json(name = "trainee")
-    val trainee: UserIdNameEmail,
 
     /* Connection start date */
     @Json(name = "startDate")

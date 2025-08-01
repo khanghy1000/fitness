@@ -19,6 +19,7 @@ import {
     connectionRequestTypeSchema,
     traineeIdSchema,
     connectionSchema,
+    connectionWithoutCoachTraineeSchema,
 
     // Exercise schemas
     exerciseTypeSchema,
@@ -87,6 +88,7 @@ registry.register('ConnectRequest', connectRequestSchema);
 registry.register('ConnectionRequestType', connectionRequestTypeSchema);
 registry.register('TraineeId', traineeIdSchema);
 registry.register('Connection', connectionSchema);
+registry.register('ConnectionWithoutCoachTrainee', connectionWithoutCoachTraineeSchema)
 
 // Exercise schemas
 registry.register('ExerciseType', exerciseTypeSchema);
@@ -173,7 +175,7 @@ registry.registerPath({
             description: 'Connection request sent successfully',
             content: {
                 'application/json': {
-                    schema: connectionSchema,
+                    schema: connectionWithoutCoachTraineeSchema,
                 },
             },
         },
@@ -234,7 +236,7 @@ registry.registerPath({
             description: 'Connection request accepted',
             content: {
                 'application/json': {
-                    schema: connectionSchema,
+                    schema: connectionWithoutCoachTraineeSchema,
                 },
             },
         },

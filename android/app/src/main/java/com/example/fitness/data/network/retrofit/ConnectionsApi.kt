@@ -17,10 +17,10 @@ interface ConnectionsApi {
      *  - 404: Connection request not found
      *
      * @param traineeId Trainee ID to accept (optional)
-     * @return [Call]<[Connection]>
+     * @return [Call]<[ConnectionWithoutCoachTrainee]>
      */
     @POST("api/connections/accept")
-    fun apiConnectionsAcceptPost(@Body traineeId: TraineeId? = null): Call<Connection>
+    fun apiConnectionsAcceptPost(@Body traineeId: TraineeId? = null): Call<ConnectionWithoutCoachTrainee>
 
     /**
      * GET api/connections/active
@@ -60,10 +60,10 @@ interface ConnectionsApi {
      *  - 401: Unauthorized - Trainee role required
      *
      * @param connectRequest Connection request data (optional)
-     * @return [Call]<[Connection]>
+     * @return [Call]<[ConnectionWithoutCoachTrainee]>
      */
     @POST("api/connections/connect")
-    fun apiConnectionsConnectPost(@Body connectRequest: ConnectRequest? = null): Call<Connection>
+    fun apiConnectionsConnectPost(@Body connectRequest: ConnectRequest? = null): Call<ConnectionWithoutCoachTrainee>
 
     /**
      * POST api/connections/disconnect

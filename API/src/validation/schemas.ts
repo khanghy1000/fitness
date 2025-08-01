@@ -817,17 +817,19 @@ export const successMessageSchema = z
     })
     .openapi('SuccessMessage');
 
-export const userIdNameEmailSchema = z.object({
-    id: z.string().openapi({ description: 'Trainee user ID' }),
-    name: z.string().openapi({
-        description: 'Trainee full name',
-        example: 'John Doe',
-    }),
-    email: z.string().email().openapi({
-        description: 'Trainee email',
-        example: 'john@example.com',
-    }),
-}).openapi('UserIdNameEmail');
+export const userIdNameEmailSchema = z
+    .object({
+        id: z.string().openapi({ description: 'Trainee user ID' }),
+        name: z.string().openapi({
+            description: 'Trainee full name',
+            example: 'John Doe',
+        }),
+        email: z.string().email().openapi({
+            description: 'Trainee email',
+            example: 'john@example.com',
+        }),
+    })
+    .openapi('UserIdNameEmail');
 
 export const userSchema = z
     .object({
@@ -908,25 +910,61 @@ export const nutritionPlanSchema = z
     })
     .openapi('NutritionPlan');
 
+export const connectionWithoutCoachTraineeSchema = z
+    .object({
+        id: z.number().openapi({ description: 'Connection ID', example: 1 }),
+        coachId: z.string().openapi({ description: 'Coach user ID' }),
+        traineeId: z.string().openapi({ description: 'Trainee user ID' }),
+        status: z
+            .enum(['pending', 'active', 'inactive', 'blocked'])
+            .openapi({ description: 'Connection status' }),
+        startDate: z
+            .string()
+            .nullable()
+            .optional()
+            .openapi({ description: 'Connection start date' }),
+        endDate: z
+            .string()
+            .nullable()
+            .optional()
+            .openapi({ description: 'Connection end date' }),
+        notes: z
+            .string()
+            .nullable()
+            .optional()
+            .openapi({ description: 'Connection notes' }),
+        createdAt: z.string().openapi({ description: 'Creation date' }),
+        updatedAt: z.string().openapi({ description: 'Last update date' }),
+    })
+    .openapi('ConnectionWithoutCoachTrainee');
+
 export const connectionSchema = z
     .object({
         id: z.number().openapi({ description: 'Connection ID', example: 1 }),
         coachId: z.string().openapi({ description: 'Coach user ID' }),
         traineeId: z.string().openapi({ description: 'Trainee user ID' }),
         status: z
-            .enum(['pending', 'accepted', 'rejected', 'ended'])
+            .enum(['pending', 'active', 'inactive', 'blocked'])
             .openapi({ description: 'Connection status' }),
+        startDate: z
+            .string()
+            .nullable()
+            .optional()
+            .openapi({ description: 'Connection start date' }),
+        endDate: z
+            .string()
+            .nullable()
+            .optional()
+            .openapi({ description: 'Connection end date' }),
         notes: z
             .string()
+            .nullable()
             .optional()
             .openapi({ description: 'Connection notes' }),
-        requestedAt: z.string().openapi({ description: 'Request date' }),
-        respondedAt: z
-            .string()
-            .optional()
-            .openapi({ description: 'Response date' }),
+        createdAt: z.string().openapi({ description: 'Creation date' }),
+        updatedAt: z.string().openapi({ description: 'Last update date' }),
         coach: userIdNameEmailSchema,
-        trainee: userIdNameEmailSchema
+        trainee: userIdNameEmailSchema,
     })
     .openapi('Connection');
 

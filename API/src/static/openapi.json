@@ -232,23 +232,40 @@
             "type": "string",
             "enum": [
               "pending",
-              "accepted",
-              "rejected",
-              "ended"
+              "active",
+              "inactive",
+              "blocked"
             ],
             "description": "Connection status"
           },
+          "startDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Connection start date"
+          },
+          "endDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Connection end date"
+          },
           "notes": {
-            "type": "string",
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "Connection notes"
           },
-          "requestedAt": {
+          "createdAt": {
             "type": "string",
-            "description": "Request date"
+            "description": "Creation date"
           },
-          "respondedAt": {
+          "updatedAt": {
             "type": "string",
-            "description": "Response date"
+            "description": "Last update date"
           },
           "coach": {
             "$ref": "#/components/schemas/UserIdNameEmail"
@@ -262,9 +279,75 @@
           "coachId",
           "traineeId",
           "status",
-          "requestedAt",
+          "createdAt",
+          "updatedAt",
           "coach",
           "trainee"
+        ]
+      },
+      "ConnectionWithoutCoachTrainee": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Connection ID",
+            "example": 1
+          },
+          "coachId": {
+            "type": "string",
+            "description": "Coach user ID"
+          },
+          "traineeId": {
+            "type": "string",
+            "description": "Trainee user ID"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "active",
+              "inactive",
+              "blocked"
+            ],
+            "description": "Connection status"
+          },
+          "startDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Connection start date"
+          },
+          "endDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Connection end date"
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Connection notes"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Creation date"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Last update date"
+          }
+        },
+        "required": [
+          "id",
+          "coachId",
+          "traineeId",
+          "status",
+          "createdAt",
+          "updatedAt"
         ]
       },
       "ExerciseType": {
@@ -2310,7 +2393,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Connection"
+                  "$ref": "#/components/schemas/ConnectionWithoutCoachTrainee"
                 }
               }
             }
@@ -2394,7 +2477,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Connection"
+                  "$ref": "#/components/schemas/ConnectionWithoutCoachTrainee"
                 }
               }
             }
