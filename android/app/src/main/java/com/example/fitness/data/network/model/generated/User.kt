@@ -48,10 +48,6 @@ data class User (
     @Json(name = "role")
     val role: Role,
 
-    /* Account creation date */
-    @Json(name = "createdAt")
-    val createdAt: String
-
 ) {
 
     /**

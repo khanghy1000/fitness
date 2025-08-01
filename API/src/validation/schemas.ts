@@ -842,10 +842,6 @@ export const userSchema = z
         role: z
             .enum(['coach', 'trainee'])
             .openapi({ description: 'User role', example: 'trainee' }),
-        createdAt: z.string().openapi({
-            description: 'Account creation date',
-            example: '2025-01-01T00:00:00Z',
-        }),
     })
     .openapi('User');
 

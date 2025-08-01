@@ -1349,19 +1349,13 @@
             ],
             "description": "User role",
             "example": "trainee"
-          },
-          "createdAt": {
-            "type": "string",
-            "description": "Account creation date",
-            "example": "2025-01-01T00:00:00Z"
           }
         },
         "required": [
           "id",
           "email",
           "name",
-          "role",
-          "createdAt"
+          "role"
         ]
       },
       "PingResponse": {
