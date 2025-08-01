@@ -2,6 +2,7 @@ package com.example.fitness.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,6 +12,13 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.fitness.databinding.ActivityMainBinding;
+import com.example.fitness.ui.activity.coach.CoachExercisePlanActivity;
+import com.example.fitness.ui.activity.coach.CoachNutritionPlanActivity;
+import com.example.fitness.ui.activity.coach.CoachTraineeActivity;
+import com.example.fitness.ui.activity.trainee.TraineeCoachActivity;
+import com.example.fitness.ui.activity.trainee.TraineeExercisePlanActivity;
+import com.example.fitness.ui.activity.trainee.TraineeNutritionPlanActivity;
+import com.example.fitness.ui.activity.trainee.TraineeStatsActivity;
 import com.example.fitness.ui.viewmodel.MainViewModel;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -51,6 +59,48 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
+        
+        setupCoachActivityClickListeners();
+        setupTraineeActivityClickListeners();
+    }
+    
+    private void setupCoachActivityClickListeners() {
+        binding.btnCoachTrainee.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, CoachTraineeActivity.class);
+            startActivity(intent);
+        });
+        
+        binding.btnCoachExercisePlan.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, CoachExercisePlanActivity.class);
+            startActivity(intent);
+        });
+        
+        binding.btnCoachNutritionPlan.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, CoachNutritionPlanActivity.class);
+            startActivity(intent);
+        });
+    }
+    
+    private void setupTraineeActivityClickListeners() {
+        binding.btnTraineeCoach.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, TraineeCoachActivity.class);
+            startActivity(intent);
+        });
+        
+        binding.btnTraineeExercisePlan.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, TraineeExercisePlanActivity.class);
+            startActivity(intent);
+        });
+        
+        binding.btnTraineeNutritionPlan.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, TraineeNutritionPlanActivity.class);
+            startActivity(intent);
+        });
+        
+        binding.btnTraineeStats.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, TraineeStatsActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void observeViewModel() {
@@ -67,6 +117,29 @@ public class MainActivity extends AppCompatActivity {
                 binding.tvUserInfo.setText(userInfo);
             }
         });
+        
+        // Observe user role and show appropriate buttons
+        mainViewModel.userRole.observe(this, userRole -> {
+            if (userRole != null) {
+                showRoleSpecificButtons(userRole);
+            }
+        });
+    }
+    
+    private void showRoleSpecificButtons(String userRole) {
+        // Hide both layouts first
+        binding.layoutCoachActivities.setVisibility(View.GONE);
+        binding.layoutTraineeActivities.setVisibility(View.GONE);
+        
+        // Show the appropriate layout based on role
+        if ("coach".equalsIgnoreCase(userRole)) {
+            binding.layoutCoachActivities.setVisibility(View.VISIBLE);
+        } else if ("trainee".equalsIgnoreCase(userRole)) {
+            binding.layoutTraineeActivities.setVisibility(View.VISIBLE);
+        }
+        
+        // Show the main container
+        binding.layoutRoleSpecificButtons.setVisibility(View.VISIBLE);
     }
 
     @Override

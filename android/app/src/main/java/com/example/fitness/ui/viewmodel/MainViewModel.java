@@ -24,6 +24,9 @@ public class MainViewModel extends ViewModel {
     
     private final MutableLiveData<String> _userInfo = new MutableLiveData<>();
     public final LiveData<String> userInfo = _userInfo;
+    
+    private final MutableLiveData<String> _userRole = new MutableLiveData<>();
+    public final LiveData<String> userRole = _userRole;
 
     @Inject
     public MainViewModel(AuthRepository authRepository) {
@@ -61,12 +64,19 @@ public class MainViewModel extends ViewModel {
                                     role -> {
                                         String userInfo = "Email: " + email + "\nRole: " + role.toUpperCase();
                                         _userInfo.setValue(userInfo);
+                                        _userRole.setValue(role);
                                     },
-                                    throwable -> _userInfo.setValue("Email: " + email)
+                                    throwable -> {
+                                        _userInfo.setValue("Email: " + email);
+                                        _userRole.setValue(null);
+                                    }
                                 )
                         );
                     },
-                    throwable -> _userInfo.setValue("User information not available")
+                    throwable -> {
+                        _userInfo.setValue("User information not available");
+                        _userRole.setValue(null);
+                    }
                 )
         );
     }
