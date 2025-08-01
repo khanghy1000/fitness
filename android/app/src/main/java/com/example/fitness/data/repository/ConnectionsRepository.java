@@ -2,10 +2,15 @@ package com.example.fitness.data.repository;
 
 import com.example.fitness.data.network.retrofit.ConnectionsApi;
 import com.example.fitness.data.network.model.generated.*;
+import com.example.fitness.data.network.model.ErrorResponse;
+import com.squareup.moshi.Moshi;
+
+import java.io.IOException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -13,10 +18,32 @@ import retrofit2.Response;
 @Singleton
 public class ConnectionsRepository {
     private final ConnectionsApi connectionsApi;
+    private final Moshi moshi;
 
     @Inject
     public ConnectionsRepository(ConnectionsApi connectionsApi) {
         this.connectionsApi = connectionsApi;
+        this.moshi = new Moshi.Builder().build();
+    }
+
+    private String parseErrorMessage(Response<?> response) {
+        try (ResponseBody errorBody = response.errorBody()) {
+            if (errorBody != null) {
+                String errorBodyString = errorBody.string();
+                ErrorResponse errorResponse = moshi.adapter(ErrorResponse.class).fromJson(errorBodyString);
+                if (errorResponse != null) {
+                    String errorMessage = errorResponse.getErrorMessage();
+                    if (errorMessage != null) {
+                        return errorMessage;
+                    }
+                }
+            } else {
+                return "Request failed: " + response.message();
+            }
+        } catch (Exception e) {
+            return "Request failed: " + response.message();
+        }
+        return "Request failed: " + response.message();
     }
 
     public interface ConnectionsCallback<T> {
@@ -24,38 +51,38 @@ public class ConnectionsRepository {
         void onError(String error);
     }
 
-    public void acceptConnectionRequest(String traineeId, ConnectionsCallback<Connection> callback) {
+    public void acceptConnectionRequest(String traineeId, ConnectionsCallback<ConnectionWithoutCoachTrainee> callback) {
         TraineeId request = new TraineeId(traineeId);
-        connectionsApi.apiConnectionsAcceptPost(request).enqueue(new Callback<Connection>() {
+        connectionsApi.apiConnectionsAcceptPost(request).enqueue(new Callback<ConnectionWithoutCoachTrainee>() {
             @Override
-            public void onResponse(Call<Connection> call, Response<Connection> response) {
+            public void onResponse(Call<ConnectionWithoutCoachTrainee> call, Response<ConnectionWithoutCoachTrainee> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     callback.onSuccess(response.body());
                 } else {
-                    callback.onError("Failed to accept connection request: " + response.message());
+                    callback.onError(parseErrorMessage(response));
                 }
             }
 
             @Override
-            public void onFailure(Call<Connection> call, Throwable t) {
+            public void onFailure(Call<ConnectionWithoutCoachTrainee> call, Throwable t) {
                 callback.onError(t.getMessage());
             }
         });
     }
 
-    public void sendConnectionRequest(ConnectRequest connectRequest, ConnectionsCallback<Connection> callback) {
-        connectionsApi.apiConnectionsConnectPost(connectRequest).enqueue(new Callback<Connection>() {
+    public void sendConnectionRequest(ConnectRequest connectRequest, ConnectionsCallback<ConnectionWithoutCoachTrainee> callback) {
+        connectionsApi.apiConnectionsConnectPost(connectRequest).enqueue(new Callback<ConnectionWithoutCoachTrainee>() {
             @Override
-            public void onResponse(Call<Connection> call, Response<Connection> response) {
+            public void onResponse(Call<ConnectionWithoutCoachTrainee> call, Response<ConnectionWithoutCoachTrainee> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     callback.onSuccess(response.body());
                 } else {
-                    callback.onError("Failed to send connection request: " + response.message());
+                    callback.onError(parseErrorMessage(response));
                 }
             }
 
             @Override
-            public void onFailure(Call<Connection> call, Throwable t) {
+            public void onFailure(Call<ConnectionWithoutCoachTrainee> call, Throwable t) {
                 callback.onError(t.getMessage());
             }
         });
@@ -68,7 +95,7 @@ public class ConnectionsRepository {
                 if (response.isSuccessful() && response.body() != null) {
                     callback.onSuccess(response.body());
                 } else {
-                    callback.onError("Failed to get connections: " + response.message());
+                    callback.onError(parseErrorMessage(response));
                 }
             }
 
@@ -86,7 +113,7 @@ public class ConnectionsRepository {
                 if (response.isSuccessful() && response.body() != null) {
                     callback.onSuccess(response.body());
                 } else {
-                    callback.onError("Failed to get connections: " + response.message());
+                    callback.onError(parseErrorMessage(response));
                 }
             }
 
@@ -105,7 +132,7 @@ public class ConnectionsRepository {
                 if (response.isSuccessful() && response.body() != null) {
                     callback.onSuccess(response.body());
                 } else {
-                    callback.onError("Failed to disconnect trainee: " + response.message());
+                    callback.onError(parseErrorMessage(response));
                 }
             }
 
@@ -124,7 +151,7 @@ public class ConnectionsRepository {
                 if (response.isSuccessful() && response.body() != null) {
                     callback.onSuccess(response.body());
                 } else {
-                    callback.onError("Failed to reject connection request: " + response.message());
+                    callback.onError(parseErrorMessage(response));
                 }
             }
 
@@ -135,6 +162,9 @@ public class ConnectionsRepository {
         });
     }
 
+    /**
+     * @param type 'sent' or 'received'
+     */
     public void getConnectionRequests(String type, ConnectionsCallback<java.util.List<Connection>> callback) {
         connectionsApi.apiConnectionsRequestsTypeGet(type).enqueue(new Callback<java.util.List<Connection>>() {
             @Override
@@ -142,7 +172,7 @@ public class ConnectionsRepository {
                 if (response.isSuccessful() && response.body() != null) {
                     callback.onSuccess(response.body());
                 } else {
-                    callback.onError("Failed to get connection requests: " + response.message());
+                    callback.onError(parseErrorMessage(response));
                 }
             }
 
