@@ -2,6 +2,7 @@ package com.example.fitness.di;
 
 import com.example.fitness.Constants;
 import com.example.fitness.data.network.*;
+import com.example.fitness.data.network.adapter.BigDecimalAdapter;
 import com.example.fitness.data.network.retrofit.AuthApi;
 import com.example.fitness.data.network.retrofit.ConnectionsApi;
 import com.example.fitness.data.network.retrofit.ExercisesApi;
@@ -10,6 +11,7 @@ import com.example.fitness.data.network.retrofit.PlannedWorkoutsApi;
 import com.example.fitness.data.network.retrofit.UsersApi;
 import com.example.fitness.data.network.retrofit.WorkoutsApi;
 import com.squareup.moshi.Moshi;
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory;
 
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +33,8 @@ public class NetworkModule {
     @Singleton
     public Moshi provideMoshi() {
         return new Moshi.Builder()
+                .add(new BigDecimalAdapter())
+                .addLast(new KotlinJsonAdapterFactory())
                 .build();
     }
 

@@ -19,7 +19,7 @@ public interface AuthApi {
     @Headers({
         "Content-Type:application/json"
     })
-    @POST("auth/sign-up/email")
+    @POST("/api/auth/sign-up/email")
     Call<SignUpResponse> signUp(
         @Body SignUpRequest signUpRequest
     );
@@ -33,7 +33,7 @@ public interface AuthApi {
     @Headers({
         "Content-Type:application/json"
     })
-    @POST("auth/sign-in/email")
+    @POST("/api/auth/sign-in/email")
     Call<SignInResponse> signIn(
         @Body SignInRequest signInRequest
     );
@@ -43,6 +43,6 @@ public interface AuthApi {
      * Retrieve current user session (requires JWT token)
      * @return Call&lt;SessionResponse&gt;
      */
-    @GET("auth/get-session")
+    @GET("/api/get-session")
     Call<SessionResponse> getSession();
 }
