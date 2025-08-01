@@ -319,14 +319,105 @@ export class WorkoutService {
         duration?: number;
         calories?: number;
     }) {
-        const result = await db
-            .insert(exerciseResult)
-            .values({
-                ...data,
-                completedAt: new Date(),
+        return await db.transaction(async (tx) => {
+            // Insert exercise result
+            const result = await tx
+                .insert(exerciseResult)
+                .values({
+                    ...data,
+                    completedAt: new Date(),
+                })
+                .returning();
+
+            // Update progress for the user workout plan
+            await this.updateWorkoutPlanProgress(
+                data.userWorkoutPlanId,
+                data.userId,
+                tx
+            );
+
+            return result[0];
+        });
+    }
+
+    // Helper method to calculate and update workout plan progress
+    static async updateWorkoutPlanProgress(
+        userWorkoutPlanId: number,
+        userId: string,
+        tx: any = db
+    ) {
+        // Get user workout plan with all workout plan days and exercises
+        const userPlan = await tx.query.userWorkoutPlan.findFirst({
+            where: and(
+                eq(userWorkoutPlan.id, userWorkoutPlanId),
+                eq(userWorkoutPlan.userId, userId)
+            ),
+            with: {
+                workoutPlan: {
+                    with: {
+                        workoutPlanDays: {
+                            with: {
+                                exercises: {
+                                    with: {
+                                        exerciseResults: {
+                                            where: and(
+                                                eq(
+                                                    exerciseResult.userId,
+                                                    userId
+                                                ),
+                                                eq(
+                                                    exerciseResult.userWorkoutPlanId,
+                                                    userWorkoutPlanId
+                                                )
+                                            ),
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        if (!userPlan || !userPlan.workoutPlan) {
+            return;
+        }
+
+        const workoutPlanDays = userPlan.workoutPlan.workoutPlanDays;
+        let completedDays = 0;
+        let totalNonRestDays = 0;
+
+        for (const day of workoutPlanDays) {
+            // Skip rest days
+            if (day.isRestDay) {
+                continue;
+            }
+
+            totalNonRestDays++;
+
+            // Check if all exercises for this day are completed
+            const allExercisesCompleted = day.exercises.every(
+                (exercise: any) => exercise.exerciseResults.length > 0
+            );
+
+            if (allExercisesCompleted) {
+                completedDays++;
+            }
+        }
+
+        // Calculate progress percentage
+        const progress =
+            totalNonRestDays > 0 ? (completedDays / totalNonRestDays) * 100 : 0;
+
+        // Update user workout plan progress
+        await tx
+            .update(userWorkoutPlan)
+            .set({
+                progress: Math.round(progress * 100) / 100, // Round to 2 decimal places
+                updatedAt: new Date(),
             })
-            .returning();
-        return result[0];
+            .where(eq(userWorkoutPlan.id, userWorkoutPlanId));
     }
 
     // Get workout plan results with exercise results

@@ -53,24 +53,6 @@ interface UsersApi {
     fun apiUsersNutritionPlansGet(): Call<List<UserNutritionPlan>>
 
     /**
-     * POST api/users/nutrition/user-plans/{userNutritionPlanId}/adherence/{adherenceId}/meals/{mealId}/complete
-     * Complete a meal
-     * Mark a meal as completed with actual consumption data
-     * Responses:
-     *  - 201: Meal completed successfully
-     *  - 400: Invalid input data
-     *  - 401: Unauthorized
-     *
-     * @param userNutritionPlanId 
-     * @param adherenceId 
-     * @param mealId 
-     * @param mealCompletion Meal completion data (optional)
-     * @return [Call]<[MealCompletionResponse]>
-     */
-    @POST("api/users/nutrition/user-plans/{userNutritionPlanId}/adherence/{adherenceId}/meals/{mealId}/complete")
-    fun apiUsersNutritionUserPlansUserNutritionPlanIdAdherenceAdherenceIdMealsMealIdCompletePost(@Path("userNutritionPlanId") userNutritionPlanId: String, @Path("adherenceId") adherenceId: String, @Path("mealId") mealId: String, @Body mealCompletion: MealCompletion? = null): Call<MealCompletionResponse>
-
-    /**
      * GET api/users/nutrition/user-plans/{userNutritionPlanId}/adherence
      * Get nutrition adherence history
      * Get adherence history for a user nutrition plan
@@ -88,38 +70,22 @@ interface UsersApi {
     fun apiUsersNutritionUserPlansUserNutritionPlanIdAdherenceGet(@Path("userNutritionPlanId") userNutritionPlanId: String, @Query("userId") userId: String? = null): Call<List<NutritionAdherenceHistory>>
 
     /**
-     * PUT api/users/nutrition/user-plans/{userNutritionPlanId}/adherence/{id}
-     * Update daily adherence record
-     * Update an existing daily nutrition adherence record
+     * POST api/users/nutrition/user-plans/{userNutritionPlanId}/meals/{mealId}/complete
+     * Complete a meal
+     * Mark a meal as completed with actual consumption data. Automatically creates or updates nutrition adherence record.
      * Responses:
-     *  - 200: Daily adherence record updated successfully
+     *  - 201: Meal completed successfully
      *  - 400: Invalid input data
      *  - 401: Unauthorized
-     *  - 404: Adherence record not found
+     *  - 404: User nutrition plan or meal not found
      *
      * @param userNutritionPlanId User nutrition plan identifier
-     * @param id Unique identifier
-     * @param nutritionAdherence Updated adherence data (optional)
-     * @return [Call]<[UpdatedNutritionAdherenceResponse]>
+     * @param mealId Nutrition plan meal identifier
+     * @param mealCompletion Meal completion data (optional)
+     * @return [Call]<[MealCompletionResponse]>
      */
-    @PUT("api/users/nutrition/user-plans/{userNutritionPlanId}/adherence/{id}")
-    fun apiUsersNutritionUserPlansUserNutritionPlanIdAdherenceIdPut(@Path("userNutritionPlanId") userNutritionPlanId: String, @Path("id") id: String, @Body nutritionAdherence: NutritionAdherence? = null): Call<UpdatedNutritionAdherenceResponse>
-
-    /**
-     * POST api/users/nutrition/user-plans/{userNutritionPlanId}/adherence
-     * Create daily adherence record
-     * Create a daily nutrition adherence record
-     * Responses:
-     *  - 201: Daily adherence record created successfully
-     *  - 400: Invalid input data
-     *  - 401: Unauthorized
-     *
-     * @param userNutritionPlanId User nutrition plan identifier
-     * @param nutritionAdherence Adherence data (optional)
-     * @return [Call]<[NutritionAdherenceResponse]>
-     */
-    @POST("api/users/nutrition/user-plans/{userNutritionPlanId}/adherence")
-    fun apiUsersNutritionUserPlansUserNutritionPlanIdAdherencePost(@Path("userNutritionPlanId") userNutritionPlanId: String, @Body nutritionAdherence: NutritionAdherence? = null): Call<NutritionAdherenceResponse>
+    @POST("api/users/nutrition/user-plans/{userNutritionPlanId}/meals/{mealId}/complete")
+    fun apiUsersNutritionUserPlansUserNutritionPlanIdMealsMealIdCompletePost(@Path("userNutritionPlanId") userNutritionPlanId: String, @Path("mealId") mealId: String, @Body mealCompletion: MealCompletion? = null): Call<MealCompletionResponse>
 
 
     /**

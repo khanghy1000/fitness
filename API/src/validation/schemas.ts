@@ -292,10 +292,18 @@ export const assignNutritionPlanSchema = z
 
 export const mealCompletionSchema = z
     .object({
-        nutritionPlanMealId: z.number().positive().openapi({
-            description: 'ID of the nutrition plan meal',
-            example: 123,
-        }),
+        date: z
+            .string()
+            .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format')
+            .refine((date) => !isNaN(Date.parse(date)), {
+                message: 'Invalid date format',
+            })
+            .optional()
+            .openapi({
+                description:
+                    'Date when the meal was completed (YYYY-MM-DD format, defaults to current date). Only the date part is used for adherence tracking.',
+                example: '2025-01-15',
+            }),
         caloriesConsumed: z
             .number()
             .min(0)
@@ -740,12 +748,13 @@ export const nutritionAdherenceSchema = z
     .object({
         date: z
             .string()
+            .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format')
             .refine((date) => !isNaN(Date.parse(date)), {
                 message: 'Invalid date format',
             })
             .optional()
             .openapi({
-                description: 'Date of adherence record',
+                description: 'Date of adherence record (YYYY-MM-DD format)',
                 example: '2025-01-15',
             }),
         weekday: z
@@ -1221,3 +1230,16 @@ export const workoutPlanIdParamSchema = z
             }),
     })
     .openapi('WorkoutPlanIdParam');
+
+export const mealIdParamSchema = z
+    .object({
+        mealId: z
+            .string()
+            .regex(/^\d+$/, 'Meal ID must be a valid number')
+            .transform(Number)
+            .openapi({
+                description: 'Nutrition plan meal identifier',
+                example: '789',
+            }),
+    })
+    .openapi('MealIdParam');

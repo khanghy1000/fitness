@@ -228,12 +228,15 @@ export class NutritionService {
         weekday: 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
         totalMeals?: number;
     }) {
+        // Convert to date string in YYYY-MM-DD format for date column
+        const dateStr = data.date.toISOString().split('T')[0];
+
         const result = await db
             .insert(nutritionAdherence)
             .values({
                 userNutritionPlanId: data.userNutritionPlanId,
                 userId: data.userId,
-                date: data.date,
+                date: dateStr,
                 weekday: data.weekday,
                 totalMeals: data.totalMeals || 0,
                 mealsCompleted: 0,
@@ -269,6 +272,9 @@ export class NutritionService {
         userNutritionPlanId: number,
         date: Date
     ) {
+        // Convert to date string in YYYY-MM-DD format for date column
+        const dateStr = date.toISOString().split('T')[0];
+
         const result = await db
             .select()
             .from(nutritionAdherence)
@@ -278,16 +284,18 @@ export class NutritionService {
                         nutritionAdherence.userNutritionPlanId,
                         userNutritionPlanId
                     ),
-                    eq(nutritionAdherence.date, date)
+                    eq(nutritionAdherence.userId, userId),
+                    eq(nutritionAdherence.date, dateStr)
                 )
             );
         return result[0] || null;
     }
 
     static async completeMeal(data: {
-        nutritionAdherenceId: number;
+        userNutritionPlanId: number;
         nutritionPlanMealId: number;
         userId: string;
+        date?: Date;
         caloriesConsumed?: number;
         proteinConsumed?: number;
         carbsConsumed?: number;
@@ -295,15 +303,195 @@ export class NutritionService {
         fiberConsumed?: number;
         notes?: string;
     }) {
-        const result = await db
-            .insert(mealCompletion)
-            .values({
-                ...data,
-                isCompleted: true,
-                completedAt: new Date(),
+        return await db.transaction(async (tx) => {
+            const completionDate = data.date || new Date();
+            // Convert to date string in YYYY-MM-DD format for date column
+            const dateStr = completionDate.toISOString().split('T')[0];
+            const weekday = this.getWeekdayEnum(completionDate.getDay());
+
+            // Check if nutrition adherence record exists for this date
+            let adherence = await tx.query.nutritionAdherence.findFirst({
+                where: and(
+                    eq(
+                        nutritionAdherence.userNutritionPlanId,
+                        data.userNutritionPlanId
+                    ),
+                    eq(nutritionAdherence.userId, data.userId),
+                    eq(nutritionAdherence.date, dateStr)
+                ),
+            });
+
+            // If no adherence record exists, create one
+            if (!adherence) {
+                // Get the nutrition plan to calculate total meals for the day
+                const nutritionPlan =
+                    await tx.query.userNutritionPlan.findFirst({
+                        where: eq(
+                            userNutritionPlan.id,
+                            data.userNutritionPlanId
+                        ),
+                        with: {
+                            nutritionPlan: {
+                                with: {
+                                    days: {
+                                        where: eq(
+                                            nutritionPlanDay.weekday,
+                                            weekday
+                                        ),
+                                        with: {
+                                            meals: true,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    });
+
+                const totalMeals =
+                    nutritionPlan?.nutritionPlan?.days[0]?.meals?.length || 0;
+
+                const adherenceResult = await tx
+                    .insert(nutritionAdherence)
+                    .values({
+                        userNutritionPlanId: data.userNutritionPlanId,
+                        userId: data.userId,
+                        date: dateStr,
+                        weekday,
+                        totalMeals,
+                        mealsCompleted: 0,
+                        adherencePercentage: 0,
+                        totalCaloriesConsumed: 0,
+                        totalCaloriesPlanned: 0,
+                    })
+                    .returning();
+                adherence = adherenceResult[0];
+            }
+
+            // Check if this meal was already completed
+            const existingCompletion = await tx.query.mealCompletion.findFirst({
+                where: and(
+                    eq(mealCompletion.nutritionAdherenceId, adherence.id),
+                    eq(
+                        mealCompletion.nutritionPlanMealId,
+                        data.nutritionPlanMealId
+                    )
+                ),
+            });
+
+            let completion;
+            if (existingCompletion) {
+                // Update existing completion
+                const updateResult = await tx
+                    .update(mealCompletion)
+                    .set({
+                        isCompleted: true,
+                        completedAt: new Date(),
+                        caloriesConsumed: data.caloriesConsumed,
+                        proteinConsumed: data.proteinConsumed,
+                        carbsConsumed: data.carbsConsumed,
+                        fatConsumed: data.fatConsumed,
+                        fiberConsumed: data.fiberConsumed,
+                        notes: data.notes,
+                        updatedAt: new Date(),
+                    })
+                    .where(eq(mealCompletion.id, existingCompletion.id))
+                    .returning();
+                completion = updateResult[0];
+            } else {
+                // Create new completion
+                const completionResult = await tx
+                    .insert(mealCompletion)
+                    .values({
+                        nutritionAdherenceId: adherence.id,
+                        nutritionPlanMealId: data.nutritionPlanMealId,
+                        userId: data.userId,
+                        isCompleted: true,
+                        completedAt: new Date(),
+                        caloriesConsumed: data.caloriesConsumed,
+                        proteinConsumed: data.proteinConsumed,
+                        carbsConsumed: data.carbsConsumed,
+                        fatConsumed: data.fatConsumed,
+                        fiberConsumed: data.fiberConsumed,
+                        notes: data.notes,
+                    })
+                    .returning();
+                completion = completionResult[0];
+            }
+
+            // Update adherence statistics
+            await this.updateNutritionAdherenceStats(adherence.id, tx);
+
+            return completion;
+        });
+    }
+
+    // Helper method to update nutrition adherence statistics
+    static async updateNutritionAdherenceStats(
+        adherenceId: number,
+        tx: any = db
+    ) {
+        // Get all meal completions for this adherence record
+        const completions = await tx.query.mealCompletion.findMany({
+            where: eq(mealCompletion.nutritionAdherenceId, adherenceId),
+            with: {
+                nutritionPlanMeal: true,
+            },
+        });
+
+        // Get adherence record with total meals
+        const adherence = await tx.query.nutritionAdherence.findFirst({
+            where: eq(nutritionAdherence.id, adherenceId),
+        });
+
+        if (!adherence) return;
+
+        const completedMeals = completions.filter(
+            (c: any) => c.isCompleted
+        ).length;
+        const totalCaloriesConsumed = completions
+            .filter((c: any) => c.isCompleted)
+            .reduce(
+                (sum: number, c: any) => sum + (c.caloriesConsumed || 0),
+                0
+            );
+
+        const totalCaloriesPlanned = completions.reduce(
+            (sum: number, c: any) => sum + (c.nutritionPlanMeal?.calories || 0),
+            0
+        );
+
+        const adherencePercentage =
+            adherence.totalMeals > 0
+                ? (completedMeals / adherence.totalMeals) * 100
+                : 0;
+
+        await tx
+            .update(nutritionAdherence)
+            .set({
+                mealsCompleted: completedMeals,
+                adherencePercentage:
+                    Math.round(adherencePercentage * 100) / 100,
+                totalCaloriesConsumed,
+                totalCaloriesPlanned,
+                updatedAt: new Date(),
             })
-            .returning();
-        return result[0];
+            .where(eq(nutritionAdherence.id, adherenceId));
+    }
+
+    // Helper method to convert day number to weekday enum
+    static getWeekdayEnum(
+        dayNumber: number
+    ): 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' {
+        const weekdays = [
+            'sun',
+            'mon',
+            'tue',
+            'wed',
+            'thu',
+            'fri',
+            'sat',
+        ] as const;
+        return weekdays[dayNumber];
     }
 
     static async getMealCompletions(nutritionAdherenceId: number) {
@@ -320,15 +508,21 @@ export class NutritionService {
         startDate: Date,
         endDate: Date
     ) {
+        // Convert to date strings in YYYY-MM-DD format
+        const startDateStr = startDate.toISOString().split('T')[0];
+        const endDateStr = endDate.toISOString().split('T')[0];
+
         return await db
             .select()
             .from(nutritionAdherence)
             .where(
                 and(
                     eq(nutritionAdherence.userId, userId),
-                    eq(nutritionAdherence.date, startDate)
+                    sql`${nutritionAdherence.date} >= ${startDateStr}`,
+                    sql`${nutritionAdherence.date} <= ${endDateStr}`
                 )
-            );
+            )
+            .orderBy(desc(nutritionAdherence.date));
     }
 
     // Get user adherence history by user nutrition plan ID
@@ -344,10 +538,12 @@ export class NutritionService {
         ];
 
         if (startDate) {
-            conditions.push(sql`${nutritionAdherence.date} >= ${startDate}`);
+            const startDateStr = startDate.toISOString().split('T')[0];
+            conditions.push(sql`${nutritionAdherence.date} >= ${startDateStr}`);
         }
         if (endDate) {
-            conditions.push(sql`${nutritionAdherence.date} <= ${endDate}`);
+            const endDateStr = endDate.toISOString().split('T')[0];
+            conditions.push(sql`${nutritionAdherence.date} <= ${endDateStr}`);
         }
 
         return await db

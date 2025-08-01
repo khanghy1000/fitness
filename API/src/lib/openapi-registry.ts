@@ -11,6 +11,7 @@ import {
     userNutritionPlanIdParamSchema,
     workoutPlanIdParamSchema,
     userWorkoutPlanIdParamSchema,
+    mealIdParamSchema,
     successMessageSchema,
 
     // Connection schemas
@@ -77,6 +78,7 @@ registry.register('NutritionPlanIdParam', nutritionPlanIdParamSchema);
 registry.register('UserNutritionPlanIdParam', userNutritionPlanIdParamSchema);
 registry.register('WorkoutPlanIdParam', workoutPlanIdParamSchema);
 registry.register('UserWorkoutPlanIdParam', userWorkoutPlanIdParamSchema);
+registry.register('MealIdParam', mealIdParamSchema);
 registry.register('SuccessMessage', successMessageSchema);
 
 // Connection schemas
@@ -683,141 +685,13 @@ registry.registerPath({
 
 registry.registerPath({
     method: 'post',
-    path: '/api/users/nutrition/user-plans/{userNutritionPlanId}/adherence',
-    tags: ['Users'],
-    summary: 'Create daily adherence record',
-    description: 'Create a daily nutrition adherence record',
-    request: {
-        params: userNutritionPlanIdParamSchema,
-        body: {
-            description: 'Adherence data',
-            content: {
-                'application/json': {
-                    schema: nutritionAdherenceSchema,
-                },
-            },
-        },
-    },
-    responses: {
-        201: {
-            description: 'Daily adherence record created successfully',
-            content: {
-                'application/json': {
-                    schema: z
-                        .object({
-                            id: z.number(),
-                            nutritionPlanId: z.number(),
-                            userId: z.string(),
-                            date: z.string(),
-                            weekday: z.enum([
-                                'sun',
-                                'mon',
-                                'tue',
-                                'wed',
-                                'thu',
-                                'fri',
-                                'sat',
-                            ]),
-                            totalMeals: z.number(),
-                            adherencePercentage: z.number().optional(),
-                            notes: z.string().optional(),
-                        })
-                        .openapi('NutritionAdherenceResponse'),
-                },
-            },
-        },
-        400: {
-            description: 'Invalid input data',
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-    },
-});
-
-registry.registerPath({
-    method: 'put',
-    path: '/api/users/nutrition/user-plans/{userNutritionPlanId}/adherence/{id}',
-    tags: ['Users'],
-    summary: 'Update daily adherence record',
-    description: 'Update an existing daily nutrition adherence record',
-    request: {
-        params: userNutritionPlanIdParamSchema.merge(idParamSchema),
-        body: {
-            description: 'Updated adherence data',
-            content: {
-                'application/json': {
-                    schema: nutritionAdherenceSchema,
-                },
-            },
-        },
-    },
-    responses: {
-        200: {
-            description: 'Daily adherence record updated successfully',
-            content: {
-                'application/json': {
-                    schema: z
-                        .object({
-                            id: z.number(),
-                            nutritionPlanId: z.number(),
-                            userId: z.string(),
-                            date: z.string(),
-                            weekday: z.enum([
-                                'sun',
-                                'mon',
-                                'tue',
-                                'wed',
-                                'thu',
-                                'fri',
-                                'sat',
-                            ]),
-                            totalMeals: z.number(),
-                            adherencePercentage: z.number().optional(),
-                            notes: z.string().optional(),
-                        })
-                        .openapi('UpdatedNutritionAdherenceResponse'),
-                },
-            },
-        },
-        400: {
-            description: 'Invalid input data',
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-        404: {
-            description: 'Adherence record not found',
-        },
-    },
-});
-
-registry.registerPath({
-    method: 'post',
-    path: '/api/users/nutrition/user-plans/{userNutritionPlanId}/adherence/{adherenceId}/meals/{mealId}/complete',
+    path: '/api/users/nutrition/user-plans/{userNutritionPlanId}/meals/{mealId}/complete',
     tags: ['Users'],
     summary: 'Complete a meal',
-    description: 'Mark a meal as completed with actual consumption data',
+    description:
+        'Mark a meal as completed with actual consumption data. Automatically creates or updates nutrition adherence record.',
     request: {
-        params: z
-            .object({
-                userNutritionPlanId: z
-                    .string()
-                    .regex(
-                        /^\d+$/,
-                        'User Nutrition Plan ID must be a valid number'
-                    )
-                    .transform(Number),
-                adherenceId: z
-                    .string()
-                    .regex(/^\d+$/, 'Adherence ID must be a valid number')
-                    .transform(Number),
-                mealId: z
-                    .string()
-                    .regex(/^\d+$/, 'Meal ID must be a valid number')
-                    .transform(Number),
-            })
-            .openapi('MealCompletionParams'),
+        params: userNutritionPlanIdParamSchema.merge(mealIdParamSchema),
         body: {
             description: 'Meal completion data',
             content: {
@@ -838,13 +712,16 @@ registry.registerPath({
                             nutritionAdherenceId: z.number(),
                             nutritionPlanMealId: z.number(),
                             userId: z.string(),
+                            isCompleted: z.boolean(),
+                            completedAt: z.string(),
                             caloriesConsumed: z.number().optional(),
                             proteinConsumed: z.number().optional(),
                             carbsConsumed: z.number().optional(),
                             fatConsumed: z.number().optional(),
                             fiberConsumed: z.number().optional(),
                             notes: z.string().optional(),
-                            completedAt: z.string(),
+                            createdAt: z.string(),
+                            updatedAt: z.string(),
                         })
                         .openapi('MealCompletionResponse'),
                 },
@@ -855,6 +732,9 @@ registry.registerPath({
         },
         401: {
             description: 'Unauthorized',
+        },
+        404: {
+            description: 'User nutrition plan or meal not found',
         },
     },
 });

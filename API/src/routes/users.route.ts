@@ -25,6 +25,7 @@ import {
     assignWorkoutPlanSchema,
     recordExerciseResultSchema,
     mealCompletionSchema,
+    mealIdParamSchema,
 } from '../validation/schemas.ts';
 import { UserService } from '@services/user.service.ts';
 import { WorkoutService } from '@services/workout.service.ts';
@@ -215,65 +216,22 @@ router.post(
     }
 );
 
-// Create daily adherence record
+// Complete a meal
 router.post(
-    '/nutrition/user-plans/:userNutritionPlanId/adherence',
+    '/nutrition/user-plans/:userNutritionPlanId/meals/:mealId/complete',
     requireAuthenticated,
-    validateParams(userNutritionPlanIdParamSchema),
-    validateBody(nutritionAdherenceSchema),
+    validateParams(userNutritionPlanIdParamSchema.merge(mealIdParamSchema)),
+    validateBody(mealCompletionSchema),
     async (req, res) => {
         const userNutritionPlanId = (req.params as any)
             .userNutritionPlanId as number;
-        const { date, weekday, totalMeals } = req.body;
-
-        const adherence = await NutritionService.createDailyAdherence({
-            userNutritionPlanId,
-            userId: req.session!.user.id,
-            date: new Date(date || new Date()),
-            weekday: weekday || getWeekdayEnum(new Date().getDay()),
-            totalMeals,
-        });
-
-        res.status(201).json(adherence);
-    }
-);
-
-// Update daily adherence record
-router.put(
-    '/nutrition/user-plans/:userNutritionPlanId/adherence/:id',
-    requireAuthenticated,
-    validateParams(userNutritionPlanIdParamSchema.merge(idParamSchema)),
-    validateBody(nutritionAdherenceSchema),
-    async (req, res) => {
-        const id = (req.params as any).id as number;
-        const updateData = req.body;
-        const adherence = await NutritionService.updateDailyAdherence(
-            id,
-            updateData
-        );
-        if (!adherence) {
-            return res
-                .status(404)
-                .json({ error: 'Adherence record not found' });
-        }
-        res.json(adherence);
-    }
-);
-
-// Complete a meal
-router.post(
-    '/nutrition/user-plans/:userNutritionPlanId/adherence/:adherenceId/meals/:mealId/complete',
-    requireAuthenticated,
-    validateBody(mealCompletionSchema),
-    async (req, res) => {
-        const userNutritionPlanId = parseInt(req.params.userNutritionPlanId);
-        const adherenceId = parseInt(req.params.adherenceId);
-        const mealId = parseInt(req.params.mealId);
+        const mealId = (req.params as any).mealId as number;
 
         const completion = await NutritionService.completeMeal({
-            nutritionAdherenceId: adherenceId,
+            userNutritionPlanId,
             nutritionPlanMealId: mealId,
             userId: req.session!.user.id,
+            date: req.body.date ? new Date(req.body.date) : undefined,
             ...req.body,
         });
 

@@ -2,6 +2,7 @@ import {
     pgTable,
     text,
     timestamp,
+    date,
     boolean,
     integer,
     real,
@@ -345,7 +346,7 @@ export const nutritionAdherence = pgTable('nutrition_adherence', {
         { onDelete: 'cascade' }
     ),
     userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
-    date: timestamp('date').notNull(), // Date for which adherence is tracked
+    date: date('date').notNull(), // Date for which adherence is tracked
     weekday: text('weekday', {
         enum: ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'],
     }).notNull(),

@@ -22,7 +22,7 @@ import java.math.BigDecimal
 /**
  * 
  *
- * @param nutritionPlanMealId ID of the nutrition plan meal
+ * @param date Date when the meal was completed (YYYY-MM-DD format, defaults to current date). Only the date part is used for adherence tracking.
  * @param caloriesConsumed Actual calories consumed
  * @param proteinConsumed Actual protein consumed
  * @param carbsConsumed Actual carbs consumed
@@ -34,9 +34,9 @@ import java.math.BigDecimal
 
 data class MealCompletion (
 
-    /* ID of the nutrition plan meal */
-    @Json(name = "nutritionPlanMealId")
-    val nutritionPlanMealId: BigDecimal,
+    /* Date when the meal was completed (YYYY-MM-DD format, defaults to current date). Only the date part is used for adherence tracking. */
+    @Json(name = "date")
+    val date: String? = null,
 
     /* Actual calories consumed */
     @Json(name = "caloriesConsumed")
