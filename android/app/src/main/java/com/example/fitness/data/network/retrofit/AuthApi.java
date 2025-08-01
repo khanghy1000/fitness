@@ -43,6 +43,6 @@ public interface AuthApi {
      * Retrieve current user session (requires JWT token)
      * @return Call&lt;SessionResponse&gt;
      */
-    @GET("/api/get-session")
+    @GET("/api/auth/get-session")
     Call<SessionResponse> getSession();
 }
