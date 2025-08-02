@@ -17,10 +17,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.fitness.R;
 import com.example.fitness.data.network.model.generated.DetailedNutritionPlan;
-import com.example.fitness.data.network.model.generated.NutritionPlan;
 import com.example.fitness.databinding.ActivityCoachNutritionPlanEditBinding;
 import com.example.fitness.ui.adapter.NutritionDayEditAdapter;
+import com.example.fitness.ui.dialog.EditDayInfoDialogFragment;
+import com.example.fitness.ui.dialog.EditFoodInfoDialogFragment;
+import com.example.fitness.ui.dialog.EditMealInfoDialogFragment;
+import com.example.fitness.ui.dialog.EditPlanInfoDialogFragment;
 import com.example.fitness.ui.viewmodel.NutritionPlanEditViewModel;
+
+import java.util.ArrayList;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -91,8 +96,18 @@ public class CoachNutritionPlanEditActivity extends AppCompatActivity {
     private void setupRecyclerView() {
         dayAdapter = new NutritionDayEditAdapter(new NutritionDayEditAdapter.OnDayActionListener() {
             @Override
+            public void onEditDay(int dayIndex) {
+                showEditDayDialog(dayIndex);
+            }
+
+            @Override
             public void onAddMeal(int dayIndex) {
                 viewModel.addMealToDay(dayIndex);
+            }
+
+            @Override
+            public void onEditMeal(int dayIndex, int mealIndex) {
+                showEditMealDialog(dayIndex, mealIndex);
             }
 
             @Override
@@ -106,6 +121,11 @@ public class CoachNutritionPlanEditActivity extends AppCompatActivity {
             }
 
             @Override
+            public void onEditFood(int dayIndex, int mealIndex, int foodIndex) {
+                showEditFoodDialog(dayIndex, mealIndex, foodIndex);
+            }
+
+            @Override
             public void onRemoveFood(int dayIndex, int mealIndex, int foodIndex) {
                 viewModel.removeFoodFromMeal(dayIndex, mealIndex, foodIndex);
             }
@@ -114,7 +134,7 @@ public class CoachNutritionPlanEditActivity extends AppCompatActivity {
             public void onRemoveDay(int dayIndex) {
                 viewModel.removeDay(dayIndex);
             }
-        });
+        }, viewModel);
         binding.recyclerViewEditDays.setLayoutManager(new LinearLayoutManager(this));
         binding.recyclerViewEditDays.setAdapter(dayAdapter);
     }
@@ -123,6 +143,69 @@ public class CoachNutritionPlanEditActivity extends AppCompatActivity {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
         
         binding.buttonAddDay.setOnClickListener(v -> viewModel.addNewDay());
+        
+        binding.buttonEditPlanInfo.setOnClickListener(v -> showEditPlanInfoDialog());
+    }
+
+    private void showEditPlanInfoDialog() {
+        String name = viewModel.getCurrentPlanName();
+        String description = viewModel.getCurrentPlanDescription();
+        boolean isActive = viewModel.getCurrentPlanIsActive();
+
+        EditPlanInfoDialogFragment dialog = EditPlanInfoDialogFragment.newInstance(name, description, isActive);
+        dialog.setOnPlanInfoEditListener((newName, newDescription, newIsActive) -> {
+            viewModel.updatePlanInfo(newName, newDescription, newIsActive);
+        });
+        dialog.show(getSupportFragmentManager(), "EditPlanInfoDialog");
+    }
+
+    private void showEditDayDialog(int dayIndex) {
+        NutritionPlanEditViewModel.EditablePlanDay day = viewModel.getDayAt(dayIndex);
+        if (day == null) return;
+
+        ArrayList<String> availableWeekdays = new ArrayList<>(viewModel.getAvailableWeekdays());
+        
+        EditDayInfoDialogFragment dialog = EditDayInfoDialogFragment.newInstance(
+                day.weekday, day.totalCalories, day.protein, day.carbs, day.fat, availableWeekdays);
+        dialog.setOnDayInfoEditListener((weekday, calories, protein, carbs, fat) -> {
+            viewModel.updateDayWeekday(dayIndex, weekday);
+            viewModel.updateDayCalories(dayIndex, calories);
+            viewModel.updateDayProtein(dayIndex, protein);
+            viewModel.updateDayCarbs(dayIndex, carbs);
+            viewModel.updateDayFat(dayIndex, fat);
+        });
+        dialog.show(getSupportFragmentManager(), "EditDayInfoDialog");
+    }
+
+    private void showEditMealDialog(int dayIndex, int mealIndex) {
+        NutritionPlanEditViewModel.EditablePlanMeal meal = viewModel.getMealAt(dayIndex, mealIndex);
+        if (meal == null) return;
+
+        EditMealInfoDialogFragment dialog = EditMealInfoDialogFragment.newInstance(
+                meal.name, meal.time, meal.calories, meal.protein, meal.carbs, meal.fat);
+        dialog.setOnMealInfoEditListener((name, time, calories, protein, carbs, fat) -> {
+            viewModel.updateMealName(dayIndex, mealIndex, name);
+            viewModel.updateMealTime(dayIndex, mealIndex, time);
+            viewModel.updateMealCalories(dayIndex, mealIndex, calories);
+            viewModel.updateMealProtein(dayIndex, mealIndex, protein);
+            viewModel.updateMealCarbs(dayIndex, mealIndex, carbs);
+            viewModel.updateMealFat(dayIndex, mealIndex, fat);
+        });
+        dialog.show(getSupportFragmentManager(), "EditMealInfoDialog");
+    }
+
+    private void showEditFoodDialog(int dayIndex, int mealIndex, int foodIndex) {
+        NutritionPlanEditViewModel.EditablePlanFood food = viewModel.getFoodAt(dayIndex, mealIndex, foodIndex);
+        if (food == null) return;
+
+        EditFoodInfoDialogFragment dialog = EditFoodInfoDialogFragment.newInstance(
+                food.name, food.quantity, food.calories);
+        dialog.setOnFoodInfoEditListener((name, quantity, calories) -> {
+            viewModel.updateFoodName(dayIndex, mealIndex, foodIndex, name);
+            viewModel.updateFoodQuantity(dayIndex, mealIndex, foodIndex, quantity);
+            viewModel.updateFoodCalories(dayIndex, mealIndex, foodIndex, calories);
+        });
+        dialog.show(getSupportFragmentManager(), "EditFoodInfoDialog");
     }
 
     private void observeViewModel() {
@@ -159,11 +242,17 @@ public class CoachNutritionPlanEditActivity extends AppCompatActivity {
     }
 
     private void displayNutritionPlan(DetailedNutritionPlan detailedNutritionPlan) {
-        if (detailedNutritionPlan == null) return;
+        if (detailedNutritionPlan == null) {
+            // For new plans, show the stored values
+            binding.textViewPlanName.setText(viewModel.getCurrentPlanName().isEmpty() ? "New Plan" : viewModel.getCurrentPlanName());
+            binding.textViewPlanDescription.setText(viewModel.getCurrentPlanDescription().isEmpty() ? "No description" : viewModel.getCurrentPlanDescription());
+            binding.textViewPlanStatus.setText(viewModel.getCurrentPlanIsActive() ? "Active" : "Inactive");
+            return;
+        }
         
-        binding.editTextPlanName.setText(detailedNutritionPlan.getName());
-        binding.editTextPlanDescription.setText(detailedNutritionPlan.getDescription());
-        binding.switchIsActive.setChecked(detailedNutritionPlan.isActive());
+        binding.textViewPlanName.setText(detailedNutritionPlan.getName() != null ? detailedNutritionPlan.getName() : "Unnamed Plan");
+        binding.textViewPlanDescription.setText(detailedNutritionPlan.getDescription() != null ? detailedNutritionPlan.getDescription() : "No description");
+        binding.textViewPlanStatus.setText(detailedNutritionPlan.isActive() ? "Active" : "Inactive");
     }
 
     @Override
@@ -182,18 +271,17 @@ public class CoachNutritionPlanEditActivity extends AppCompatActivity {
     }
 
     private void savePlan() {
-        String name = binding.editTextPlanName.getText() != null ? binding.editTextPlanName.getText().toString().trim() : "";
-        String description = binding.editTextPlanDescription.getText() != null ? binding.editTextPlanDescription.getText().toString().trim() : "";
-        boolean isActive = binding.switchIsActive.isChecked();
+        String name = viewModel.getCurrentPlanName();
+        String description = viewModel.getCurrentPlanDescription();
+        boolean isActive = viewModel.getCurrentPlanIsActive();
         
-        if (name.isEmpty()) {
-            binding.textInputLayoutPlanName.setError("Plan name is required");
+        if (name == null || name.trim().isEmpty()) {
+            Toast.makeText(this, "Please set a plan name before saving", Toast.LENGTH_SHORT).show();
+            showEditPlanInfoDialog();
             return;
         }
         
-        binding.textInputLayoutPlanName.setError(null);
-        
-        viewModel.savePlan(name, description.isEmpty() ? null : description, isActive);
+        viewModel.savePlan(name, description, isActive);
     }
 
     @Override

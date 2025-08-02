@@ -1,45 +1,43 @@
 package com.example.fitness.ui.adapter;
 
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.fitness.R;
-import com.example.fitness.databinding.ItemNutritionDayEditBinding;
+import com.example.fitness.databinding.ItemNutritionDayDisplayBinding;
 import com.example.fitness.ui.viewmodel.NutritionPlanEditViewModel;
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class NutritionDayEditAdapter extends RecyclerView.Adapter<NutritionDayEditAdapter.DayEditViewHolder> {
     private List<NutritionPlanEditViewModel.EditablePlanDay> days = new ArrayList<>();
     private final OnDayActionListener dayActionListener;
+    private final NutritionPlanEditViewModel viewModel;
 
     public interface OnDayActionListener {
+        void onEditDay(int dayIndex);
         void onAddMeal(int dayIndex);
+        void onEditMeal(int dayIndex, int mealIndex);
         void onRemoveMeal(int dayIndex, int mealIndex);
         void onAddFood(int dayIndex, int mealIndex);
+        void onEditFood(int dayIndex, int mealIndex, int foodIndex);
         void onRemoveFood(int dayIndex, int mealIndex, int foodIndex);
         void onRemoveDay(int dayIndex);
     }
 
-    public NutritionDayEditAdapter(OnDayActionListener dayActionListener) {
+    public NutritionDayEditAdapter(OnDayActionListener dayActionListener, NutritionPlanEditViewModel viewModel) {
         this.dayActionListener = dayActionListener;
+        this.viewModel = viewModel;
     }
 
     @NonNull
     @Override
     public DayEditViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        ItemNutritionDayEditBinding binding = ItemNutritionDayEditBinding.inflate(
+        ItemNutritionDayDisplayBinding binding = ItemNutritionDayDisplayBinding.inflate(
                 LayoutInflater.from(parent.getContext()), parent, false);
         return new DayEditViewHolder(binding);
     }
@@ -47,7 +45,7 @@ public class NutritionDayEditAdapter extends RecyclerView.Adapter<NutritionDayEd
     @Override
     public void onBindViewHolder(@NonNull DayEditViewHolder holder, int position) {
         NutritionPlanEditViewModel.EditablePlanDay day = days.get(position);
-        holder.bind(day, position, dayActionListener);
+        holder.bind(day, position, dayActionListener, viewModel);
     }
 
     @Override
@@ -62,35 +60,41 @@ public class NutritionDayEditAdapter extends RecyclerView.Adapter<NutritionDayEd
     }
 
     public static class DayEditViewHolder extends RecyclerView.ViewHolder {
-        private final ItemNutritionDayEditBinding binding;
+        private final ItemNutritionDayDisplayBinding binding;
         private NutritionMealEditAdapter mealAdapter;
 
-        public DayEditViewHolder(ItemNutritionDayEditBinding binding) {
+        public DayEditViewHolder(ItemNutritionDayDisplayBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
             
             binding.recyclerViewEditMeals.setLayoutManager(new LinearLayoutManager(binding.getRoot().getContext()));
         }
 
-        public void bind(NutritionPlanEditViewModel.EditablePlanDay day, int dayIndex, OnDayActionListener listener) {
-            // Setup weekday dropdown
-            String[] weekdays = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-            ArrayAdapter<String> weekdayAdapter = new ArrayAdapter<>(binding.getRoot().getContext(),
-                    android.R.layout.simple_dropdown_item_1line, weekdays);
-            binding.autoCompleteWeekday.setAdapter(weekdayAdapter);
-            binding.autoCompleteWeekday.setText(capitalizeWeekday(day.weekday), false);
+        public void bind(NutritionPlanEditViewModel.EditablePlanDay day, int dayIndex, OnDayActionListener listener, NutritionPlanEditViewModel viewModel) {
+            // Display weekday
+            binding.textViewWeekday.setText(capitalizeWeekday(day.weekday));
 
-            // Set macro values
-            binding.editTextCalories.setText(day.totalCalories);
-            binding.editTextProtein.setText(day.protein);
-            binding.editTextCarbs.setText(day.carbs);
-            binding.editTextFat.setText(day.fat);
+            // Display macro values
+            binding.textViewCalories.setText(formatMacro(day.totalCalories, "cal"));
+            binding.textViewProtein.setText(formatMacro(day.protein, "g protein"));
+            binding.textViewCarbs.setText(formatMacro(day.carbs, "g carbs"));
+            binding.textViewFat.setText(formatMacro(day.fat, "g fat"));
 
             // Setup meal adapter
             mealAdapter = new NutritionMealEditAdapter(dayIndex, new NutritionMealEditAdapter.OnMealActionListener() {
                 @Override
+                public void onEditMeal(int dayIndex, int mealIndex) {
+                    listener.onEditMeal(dayIndex, mealIndex);
+                }
+
+                @Override
                 public void onAddFood(int dayIndex, int mealIndex) {
                     listener.onAddFood(dayIndex, mealIndex);
+                }
+
+                @Override
+                public void onEditFood(int dayIndex, int mealIndex, int foodIndex) {
+                    listener.onEditFood(dayIndex, mealIndex, foodIndex);
                 }
 
                 @Override
@@ -102,29 +106,25 @@ public class NutritionDayEditAdapter extends RecyclerView.Adapter<NutritionDayEd
                 public void onRemoveMeal(int dayIndex, int mealIndex) {
                     listener.onRemoveMeal(dayIndex, mealIndex);
                 }
-            });
+            }, viewModel);
             binding.recyclerViewEditMeals.setAdapter(mealAdapter);
             mealAdapter.updateMeals(day.meals);
 
             // Set button listeners
+            binding.buttonEditDay.setOnClickListener(v -> listener.onEditDay(dayIndex));
             binding.buttonAddMeal.setOnClickListener(v -> listener.onAddMeal(dayIndex));
             binding.buttonDeleteDay.setOnClickListener(v -> listener.onRemoveDay(dayIndex));
-
-            // Setup text change listeners to update the model
-            setupTextChangeListeners(day);
         }
 
-        private void setupTextChangeListeners(NutritionPlanEditViewModel.EditablePlanDay day) {
-            binding.autoCompleteWeekday.setOnItemClickListener((parent, view, position, id) -> {
-                String[] weekdayValues = {"sun", "mon", "tue", "wed", "thu", "fri", "sat"};
-                if (position >= 0 && position < weekdayValues.length) {
-                    day.weekday = weekdayValues[position];
-                }
-            });
+        private String formatMacro(String value, String unit) {
+            if (value == null || value.isEmpty()) {
+                return "0 " + unit;
+            }
+            return value + " " + unit;
         }
 
         private String capitalizeWeekday(String weekday) {
-            if (weekday == null || weekday.isEmpty()) return "";
+            if (weekday == null || weekday.isEmpty()) return "Not Set";
             
             switch (weekday.toLowerCase()) {
                 case "sun": return "Sunday";

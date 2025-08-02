@@ -6,7 +6,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.fitness.databinding.ItemNutritionFoodEditBinding;
+import com.example.fitness.databinding.ItemNutritionFoodDisplayBinding;
 import com.example.fitness.ui.viewmodel.NutritionPlanEditViewModel;
 
 import java.util.ArrayList;
@@ -17,21 +17,24 @@ public class NutritionFoodEditAdapter extends RecyclerView.Adapter<NutritionFood
     private final int dayIndex;
     private final int mealIndex;
     private final OnFoodActionListener foodActionListener;
+    private final NutritionPlanEditViewModel viewModel;
 
     public interface OnFoodActionListener {
+        void onEditFood(int dayIndex, int mealIndex, int foodIndex);
         void onRemoveFood(int dayIndex, int mealIndex, int foodIndex);
     }
 
-    public NutritionFoodEditAdapter(int dayIndex, int mealIndex, OnFoodActionListener foodActionListener) {
+    public NutritionFoodEditAdapter(int dayIndex, int mealIndex, OnFoodActionListener foodActionListener, NutritionPlanEditViewModel viewModel) {
         this.dayIndex = dayIndex;
         this.mealIndex = mealIndex;
         this.foodActionListener = foodActionListener;
+        this.viewModel = viewModel;
     }
 
     @NonNull
     @Override
     public FoodEditViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        ItemNutritionFoodEditBinding binding = ItemNutritionFoodEditBinding.inflate(
+        ItemNutritionFoodDisplayBinding binding = ItemNutritionFoodDisplayBinding.inflate(
                 LayoutInflater.from(parent.getContext()), parent, false);
         return new FoodEditViewHolder(binding);
     }
@@ -39,7 +42,7 @@ public class NutritionFoodEditAdapter extends RecyclerView.Adapter<NutritionFood
     @Override
     public void onBindViewHolder(@NonNull FoodEditViewHolder holder, int position) {
         NutritionPlanEditViewModel.EditablePlanFood food = foods.get(position);
-        holder.bind(food, dayIndex, mealIndex, position, foodActionListener);
+        holder.bind(food, dayIndex, mealIndex, position, foodActionListener, viewModel);
     }
 
     @Override
@@ -54,29 +57,22 @@ public class NutritionFoodEditAdapter extends RecyclerView.Adapter<NutritionFood
     }
 
     public static class FoodEditViewHolder extends RecyclerView.ViewHolder {
-        private final ItemNutritionFoodEditBinding binding;
+        private final ItemNutritionFoodDisplayBinding binding;
 
-        public FoodEditViewHolder(ItemNutritionFoodEditBinding binding) {
+        public FoodEditViewHolder(ItemNutritionFoodDisplayBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }
 
-        public void bind(NutritionPlanEditViewModel.EditablePlanFood food, int dayIndex, int mealIndex, int foodIndex, OnFoodActionListener listener) {
-            // Set food data
-            binding.editTextFoodName.setText(food.name);
-            binding.editTextFoodQuantity.setText(food.quantity);
-            binding.editTextFoodCalories.setText(food.calories);
+        public void bind(NutritionPlanEditViewModel.EditablePlanFood food, int dayIndex, int mealIndex, int foodIndex, OnFoodActionListener listener, NutritionPlanEditViewModel viewModel) {
+            // Display food data
+            binding.textViewFoodName.setText(food.name != null && !food.name.isEmpty() ? food.name : "Food " + (foodIndex + 1));
+            binding.textViewFoodQuantity.setText(food.quantity != null && !food.quantity.isEmpty() ? food.quantity : "Not Set");
+            binding.textViewFoodCalories.setText(food.calories != null && !food.calories.isEmpty() ? food.calories : "0");
 
-            // Set button listener
+            // Set button listeners
+            binding.buttonEditFood.setOnClickListener(v -> listener.onEditFood(dayIndex, mealIndex, foodIndex));
             binding.buttonDeleteFood.setOnClickListener(v -> listener.onRemoveFood(dayIndex, mealIndex, foodIndex));
-
-            // Setup text change listeners to update the model
-            setupTextChangeListeners(food);
-        }
-
-        private void setupTextChangeListeners(NutritionPlanEditViewModel.EditablePlanFood food) {
-            // Add text watchers to update the food object when text changes
-            // This is a simplified version - in a production app you'd want to use proper text watchers
         }
     }
 }
