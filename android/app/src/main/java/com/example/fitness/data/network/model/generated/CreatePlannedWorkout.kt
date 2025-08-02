@@ -15,6 +15,8 @@
 
 package com.example.fitness.data.network.model.generated
 
+import com.example.fitness.data.network.model.generated.RecordExerciseResultUserWorkoutPlanId
+
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -35,15 +37,15 @@ data class CreatePlannedWorkout (
 
     /* Days of the week when workout is scheduled */
     @Json(name = "weekdays")
-    val weekdays: List<Weekdays>,
+    val weekdays: kotlin.collections.List<CreatePlannedWorkout.Weekdays>,
 
     /* Time when workout is scheduled */
     @Json(name = "time")
-    val time: String,
+    val time: kotlin.String,
 
     /* Whether the planned workout is active */
     @Json(name = "isActive")
-    val isActive: Boolean? = true
+    val isActive: kotlin.Boolean? = true
 
 ) {
 
@@ -53,7 +55,7 @@ data class CreatePlannedWorkout (
      * Values: sun,mon,tue,wed,thu,fri,sat
      */
     @JsonClass(generateAdapter = false)
-    enum class Weekdays(val value: String) {
+    enum class Weekdays(val value: kotlin.String) {
         @Json(name = "sun") sun("sun"),
         @Json(name = "mon") mon("mon"),
         @Json(name = "tue") tue("tue"),

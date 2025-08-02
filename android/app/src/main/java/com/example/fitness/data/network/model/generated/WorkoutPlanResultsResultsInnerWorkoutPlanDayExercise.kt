@@ -15,7 +15,11 @@
 
 package com.example.fitness.data.network.model.generated
 
+import com.example.fitness.data.network.model.generated.ExerciseType
+import com.example.fitness.data.network.model.generated.WorkoutPlanResultsResultsInnerWorkoutPlanDayExerciseWorkoutPlanDay
+
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 

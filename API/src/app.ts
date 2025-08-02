@@ -67,6 +67,7 @@ app.use(function (req, res, next) {
 // error handler
 const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
     res.status(err.status || 500);
+    console.error(err.stack || err.message);
     res.json({
         status: res.statusCode,
         message: err.message,

@@ -31,11 +31,11 @@ data class UserSearchQuery (
 
     /* Search term for finding users */
     @Json(name = "query")
-    val query: String,
+    val query: kotlin.String,
 
     /* Filter by user role */
     @Json(name = "role")
-    val role: Role? = null
+    val role: UserSearchQuery.Role? = null
 
 ) {
 
@@ -45,7 +45,7 @@ data class UserSearchQuery (
      * Values: coach,trainee
      */
     @JsonClass(generateAdapter = false)
-    enum class Role(val value: String) {
+    enum class Role(val value: kotlin.String) {
         @Json(name = "coach") coach("coach"),
         @Json(name = "trainee") trainee("trainee");
     }

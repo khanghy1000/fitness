@@ -17,6 +17,7 @@ package com.example.fitness.data.network.model.generated
 
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -30,11 +31,11 @@ data class CreateNutritionPlan (
 
     /* Name of the nutrition plan */
     @Json(name = "name")
-    val name: String,
+    val name: kotlin.String,
 
     /* Description of the nutrition plan */
     @Json(name = "description")
-    val description: String? = null
+    val description: kotlin.String? = null
 
 ) {
 

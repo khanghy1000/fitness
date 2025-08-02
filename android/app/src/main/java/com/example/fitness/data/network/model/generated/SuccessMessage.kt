@@ -17,6 +17,7 @@ package com.example.fitness.data.network.model.generated
 
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -29,7 +30,7 @@ data class SuccessMessage (
 
     /* Success message */
     @Json(name = "message")
-    val message: String
+    val message: kotlin.String
 
 ) {
 

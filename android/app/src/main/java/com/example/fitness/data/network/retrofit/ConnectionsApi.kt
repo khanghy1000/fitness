@@ -34,7 +34,7 @@ interface ConnectionsApi {
      * @return [Call]<[kotlin.collections.List<Connection>]>
      */
     @GET("api/connections/active")
-    fun apiConnectionsActiveGet(): Call<List<Connection>>
+    fun apiConnectionsActiveGet(): Call<kotlin.collections.List<Connection>>
 
     /**
      * GET api/connections/all
@@ -48,7 +48,7 @@ interface ConnectionsApi {
      * @return [Call]<[kotlin.collections.List<Connection>]>
      */
     @GET("api/connections/all")
-    fun apiConnectionsAllGet(): Call<List<Connection>>
+    fun apiConnectionsAllGet(): Call<kotlin.collections.List<Connection>>
 
     /**
      * POST api/connections/connect
@@ -101,7 +101,7 @@ interface ConnectionsApi {
     /**
     * enum for parameter type
     */
-    enum class TypeApiConnectionsRequestsTypeGet(val value: String) {
+    enum class TypeApiConnectionsRequestsTypeGet(val value: kotlin.String) {
         @Json(name = "sent") sent("sent"),
         @Json(name = "received") received("received")
     }
@@ -119,6 +119,6 @@ interface ConnectionsApi {
      * @return [Call]<[kotlin.collections.List<Connection>]>
      */
     @GET("api/connections/requests/{type}")
-    fun apiConnectionsRequestsTypeGet(@Path("type") type: String): Call<List<Connection>>
+    fun apiConnectionsRequestsTypeGet(@Path("type") type: kotlin.String): Call<kotlin.collections.List<Connection>>
 
 }

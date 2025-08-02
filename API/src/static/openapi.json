@@ -216,7 +216,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "number",
+            "type": "integer",
             "description": "Connection ID",
             "example": 1
           },
@@ -289,7 +289,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "number",
+            "type": "integer",
             "description": "Connection ID",
             "example": 1
           },
@@ -354,7 +354,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "number",
+            "type": "integer",
             "description": "Exercise type ID",
             "example": 1
           },
@@ -396,7 +396,7 @@
           "workoutPlanDayExerciseId": {
             "anyOf": [
               {
-                "type": "number",
+                "type": "integer",
                 "exclusiveMinimum": 0
               },
               {
@@ -409,7 +409,7 @@
           "userWorkoutPlanId": {
             "anyOf": [
               {
-                "type": "number",
+                "type": "integer",
                 "exclusiveMinimum": 0
               },
               {
@@ -420,19 +420,19 @@
             "example": 123
           },
           "reps": {
-            "type": "number",
+            "type": "integer",
             "exclusiveMinimum": 0,
             "description": "Number of repetitions completed",
             "example": 15
           },
           "duration": {
-            "type": "number",
+            "type": "integer",
             "exclusiveMinimum": 0,
             "description": "Duration of exercise in seconds",
             "example": 180
           },
           "calories": {
-            "type": "number",
+            "type": "integer",
             "exclusiveMinimum": 0,
             "description": "Calories burned during exercise",
             "example": 45
@@ -561,7 +561,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "number",
+            "type": "integer",
             "description": "Nutrition plan ID",
             "example": 1
           },
@@ -640,6 +640,49 @@
           }
         }
       },
+      "NutritionPlanDay": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "nutritionPlanId": {
+            "type": "integer"
+          },
+          "weekday": {
+            "type": "string",
+            "enum": [
+              "sun",
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat"
+            ]
+          },
+          "totalCalories": {
+            "type": "integer"
+          },
+          "protein": {
+            "type": "number"
+          },
+          "carbs": {
+            "type": "number"
+          },
+          "fat": {
+            "type": "number"
+          },
+          "fiber": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "nutritionPlanId",
+          "weekday"
+        ]
+      },
       "CreateNutritionPlanDay": {
         "type": "object",
         "properties": {
@@ -658,7 +701,7 @@
             "example": "mon"
           },
           "totalCalories": {
-            "type": "number",
+            "type": "integer",
             "minimum": 0,
             "description": "Total calories for the day",
             "example": 2000
@@ -710,7 +753,7 @@
             "example": "mon"
           },
           "totalCalories": {
-            "type": "number",
+            "type": "integer",
             "minimum": 0,
             "description": "Total calories for the day",
             "example": 2000
@@ -741,6 +784,44 @@
           }
         }
       },
+      "NutritionPlanMeal": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "nutritionPlanDayId": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "time": {
+            "type": "string"
+          },
+          "calories": {
+            "type": "integer"
+          },
+          "protein": {
+            "type": "number"
+          },
+          "carbs": {
+            "type": "number"
+          },
+          "fat": {
+            "type": "number"
+          },
+          "fiber": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "nutritionPlanDayId",
+          "name",
+          "time"
+        ]
+      },
       "CreateNutritionPlanMeal": {
         "type": "object",
         "properties": {
@@ -757,7 +838,7 @@
             "example": "08:00:00"
           },
           "calories": {
-            "type": "number",
+            "type": "integer",
             "minimum": 0,
             "description": "Total calories for the meal",
             "example": 450
@@ -808,7 +889,7 @@
             "example": "08:00:00"
           },
           "calories": {
-            "type": "number",
+            "type": "integer",
             "minimum": 0,
             "description": "Total calories for the meal",
             "example": 450
@@ -839,6 +920,45 @@
           }
         }
       },
+      "NutritionPlanFood": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "nutritionPlanMealId": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "string"
+          },
+          "calories": {
+            "type": "integer"
+          },
+          "protein": {
+            "type": "number"
+          },
+          "carbs": {
+            "type": "number"
+          },
+          "fat": {
+            "type": "number"
+          },
+          "fiber": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "nutritionPlanMealId",
+          "name",
+          "quantity",
+          "calories"
+        ]
+      },
       "CreateNutritionPlanFood": {
         "type": "object",
         "properties": {
@@ -855,7 +975,7 @@
             "example": "1 cup"
           },
           "calories": {
-            "type": "number",
+            "type": "integer",
             "minimum": 0,
             "description": "Calories in the food",
             "example": 130
@@ -907,7 +1027,7 @@
             "example": "1 cup"
           },
           "calories": {
-            "type": "number",
+            "type": "integer",
             "minimum": 0,
             "description": "Calories in the food",
             "example": 130
@@ -967,7 +1087,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "number",
+            "type": "integer",
             "description": "Workout plan ID",
             "example": 1
           },
@@ -989,7 +1109,7 @@
             ]
           },
           "estimatedCalories": {
-            "type": "number",
+            "type": "integer",
             "description": "Estimated calories per session"
           },
           "createdBy": {
@@ -1043,7 +1163,7 @@
             "example": "intermediate"
           },
           "estimatedCalories": {
-            "type": "number",
+            "type": "integer",
             "exclusiveMinimum": 0,
             "description": "Estimated calories burned per session",
             "example": 350
@@ -1075,7 +1195,7 @@
             "description": "Updated difficulty level"
           },
           "estimatedCalories": {
-            "type": "number",
+            "type": "integer",
             "exclusiveMinimum": 0,
             "description": "Updated estimated calories burned"
           },
@@ -1086,11 +1206,40 @@
           }
         }
       },
+      "WorkoutPlanDay": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "workoutPlanId": {
+            "type": "integer"
+          },
+          "day": {
+            "type": "integer"
+          },
+          "isRestDay": {
+            "type": "boolean"
+          },
+          "estimatedCalories": {
+            "type": "integer"
+          },
+          "duration": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "workoutPlanId",
+          "day",
+          "isRestDay"
+        ]
+      },
       "AddDayToWorkoutPlan": {
         "type": "object",
         "properties": {
           "day": {
-            "type": "number",
+            "type": "integer",
             "exclusiveMinimum": 0,
             "description": "Day number in the workout plan",
             "example": 1
@@ -1102,7 +1251,7 @@
             "example": false
           },
           "estimatedCalories": {
-            "type": "number",
+            "type": "integer",
             "exclusiveMinimum": 0,
             "description": "Estimated calories burned for this day",
             "example": 400
@@ -1122,7 +1271,7 @@
         "type": "object",
         "properties": {
           "day": {
-            "type": "number",
+            "type": "integer",
             "exclusiveMinimum": 0,
             "description": "Day number in the workout plan",
             "example": 1
@@ -1133,48 +1282,85 @@
             "example": false
           },
           "estimatedCalories": {
-            "type": "number",
+            "type": "integer",
             "exclusiveMinimum": 0,
             "description": "Estimated calories burned for this day",
             "example": 400
           },
           "duration": {
-            "type": "number",
+            "type": "integer",
             "exclusiveMinimum": 0,
             "description": "Estimated duration in minutes",
             "example": 60
           }
         }
       },
+      "WorkoutPlanDayExercise": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "workoutPlanDayId": {
+            "type": "integer"
+          },
+          "exerciseTypeId": {
+            "type": "integer"
+          },
+          "order": {
+            "type": "integer"
+          },
+          "targetReps": {
+            "type": "integer"
+          },
+          "targetDuration": {
+            "type": "integer"
+          },
+          "estimatedCalories": {
+            "type": "integer"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "exerciseType": {
+            "$ref": "#/components/schemas/ExerciseType"
+          }
+        },
+        "required": [
+          "id",
+          "workoutPlanDayId",
+          "exerciseTypeId"
+        ]
+      },
       "AddExerciseToPlanDay": {
         "type": "object",
         "properties": {
           "exerciseTypeId": {
-            "type": "number",
+            "type": "integer",
             "exclusiveMinimum": 0,
             "description": "ID of the exercise type",
             "example": 15
           },
           "order": {
-            "type": "number",
+            "type": "integer",
             "exclusiveMinimum": 0,
             "description": "Order of exercise in the workout",
             "example": 1
           },
           "targetReps": {
-            "type": "number",
+            "type": "integer",
             "exclusiveMinimum": 0,
             "description": "Target number of repetitions",
             "example": 12
           },
           "targetDuration": {
-            "type": "number",
+            "type": "integer",
             "exclusiveMinimum": 0,
             "description": "Target duration in seconds",
             "example": 300
           },
           "estimatedCalories": {
-            "type": "number",
+            "type": "integer",
             "exclusiveMinimum": 0,
             "description": "Estimated calories burned for this exercise",
             "example": 50
@@ -1193,31 +1379,31 @@
         "type": "object",
         "properties": {
           "exerciseTypeId": {
-            "type": "number",
+            "type": "integer",
             "exclusiveMinimum": 0,
             "description": "ID of the exercise type",
             "example": 15
           },
           "order": {
-            "type": "number",
+            "type": "integer",
             "exclusiveMinimum": 0,
             "description": "Order of exercise in the workout",
             "example": 1
           },
           "targetReps": {
-            "type": "number",
+            "type": "integer",
             "exclusiveMinimum": 0,
             "description": "Target number of repetitions",
             "example": 12
           },
           "targetDuration": {
-            "type": "number",
+            "type": "integer",
             "exclusiveMinimum": 0,
             "description": "Target duration in seconds",
             "example": 300
           },
           "estimatedCalories": {
-            "type": "number",
+            "type": "integer",
             "exclusiveMinimum": 0,
             "description": "Estimated calories burned for this exercise",
             "example": 50
@@ -1229,13 +1415,64 @@
           }
         }
       },
+      "PlannedWorkout": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "userWorkoutPlanId": {
+            "type": "integer"
+          },
+          "weekdays": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "sun",
+                "mon",
+                "tue",
+                "wed",
+                "thu",
+                "fri",
+                "sat"
+              ]
+            }
+          },
+          "time": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "userWorkoutPlanId",
+          "weekdays",
+          "time",
+          "isActive",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
       "CreatePlannedWorkout": {
         "type": "object",
         "properties": {
           "userWorkoutPlanId": {
             "anyOf": [
               {
-                "type": "number",
+                "type": "integer",
                 "exclusiveMinimum": 0
               },
               {
@@ -1457,7 +1694,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "number"
+            "type": "integer"
           },
           "userId": {
             "type": "string"
@@ -1510,7 +1747,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "number"
+            "type": "integer"
           },
           "userId": {
             "type": "string"
@@ -1563,7 +1800,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "number"
+            "type": "integer"
           },
           "userId": {
             "type": "string"
@@ -1616,7 +1853,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "number"
+            "type": "integer"
           },
           "userId": {
             "type": "string"
@@ -1653,7 +1890,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "number"
+            "type": "integer"
           },
           "userId": {
             "type": "string"
@@ -1693,7 +1930,7 @@
         ],
         "properties": {
           "id": {
-            "type": "number"
+            "type": "integer"
           },
           "userId": {
             "type": "string"
@@ -1730,13 +1967,13 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "number"
+            "type": "integer"
           },
           "userId": {
             "type": "string"
           },
           "nutritionPlanId": {
-            "type": "number"
+            "type": "integer"
           },
           "assignedBy": {
             "type": "string"
@@ -1768,13 +2005,13 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "number"
+            "type": "integer"
           },
           "nutritionAdherenceId": {
-            "type": "number"
+            "type": "integer"
           },
           "nutritionPlanMealId": {
-            "type": "number"
+            "type": "integer"
           },
           "userId": {
             "type": "string"
@@ -1825,10 +2062,10 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "number"
+            "type": "integer"
           },
           "nutritionPlanId": {
-            "type": "number"
+            "type": "integer"
           },
           "userId": {
             "type": "string"
@@ -1849,7 +2086,7 @@
             ]
           },
           "totalMeals": {
-            "type": "number"
+            "type": "integer"
           },
           "adherencePercentage": {
             "type": "number"
@@ -1858,8 +2095,7 @@
             "type": "string"
           },
           "mealsCompleted": {
-            "type": "array",
-            "items": {}
+            "type": "integer"
           }
         },
         "required": [
@@ -1875,25 +2111,25 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "number"
+            "type": "integer"
           },
           "workoutPlanDayExerciseId": {
-            "type": "number"
+            "type": "integer"
           },
           "userWorkoutPlanId": {
-            "type": "number"
+            "type": "integer"
           },
           "userId": {
             "type": "string"
           },
           "reps": {
-            "type": "number"
+            "type": "integer"
           },
           "duration": {
-            "type": "number"
+            "type": "integer"
           },
           "calories": {
-            "type": "number"
+            "type": "integer"
           },
           "recordedAt": {
             "type": "string"
@@ -1914,7 +2150,7 @@
         ],
         "properties": {
           "id": {
-            "type": "number"
+            "type": "integer"
           },
           "userId": {
             "type": "string"
@@ -1951,13 +2187,13 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "number"
+            "type": "integer"
           },
           "userId": {
             "type": "string"
           },
           "workoutPlanId": {
-            "type": "number"
+            "type": "integer"
           },
           "assignedBy": {
             "type": "string"
@@ -1995,7 +2231,7 @@
             "type": "object",
             "properties": {
               "id": {
-                "type": "number"
+                "type": "integer"
               },
               "userId": {
                 "type": "string"
@@ -2027,25 +2263,25 @@
               "type": "object",
               "properties": {
                 "id": {
-                  "type": "number"
+                  "type": "integer"
                 },
                 "workoutPlanDayExerciseId": {
-                  "type": "number"
+                  "type": "integer"
                 },
                 "userWorkoutPlanId": {
-                  "type": "number"
+                  "type": "integer"
                 },
                 "userId": {
                   "type": "string"
                 },
                 "reps": {
-                  "type": "number"
+                  "type": "integer"
                 },
                 "duration": {
-                  "type": "number"
+                  "type": "integer"
                 },
                 "calories": {
-                  "type": "number"
+                  "type": "integer"
                 },
                 "recordedAt": {
                   "type": "string"
@@ -2060,7 +2296,7 @@
                       "type": "object",
                       "properties": {
                         "day": {
-                          "type": "number"
+                          "type": "integer"
                         },
                         "isRestDay": {
                           "type": "boolean"
@@ -2093,243 +2329,6 @@
           "workoutPlan",
           "userWorkoutPlan",
           "results"
-        ]
-      },
-      "NutritionPlanDay": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number"
-          },
-          "nutritionPlanId": {
-            "type": "number"
-          },
-          "weekday": {
-            "type": "string",
-            "enum": [
-              "sun",
-              "mon",
-              "tue",
-              "wed",
-              "thu",
-              "fri",
-              "sat"
-            ]
-          },
-          "totalCalories": {
-            "type": "number"
-          },
-          "protein": {
-            "type": "number"
-          },
-          "carbs": {
-            "type": "number"
-          },
-          "fat": {
-            "type": "number"
-          },
-          "fiber": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "id",
-          "nutritionPlanId",
-          "weekday"
-        ]
-      },
-      "NutritionPlanMeal": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number"
-          },
-          "nutritionPlanDayId": {
-            "type": "number"
-          },
-          "name": {
-            "type": "string"
-          },
-          "time": {
-            "type": "string"
-          },
-          "calories": {
-            "type": "number"
-          },
-          "protein": {
-            "type": "number"
-          },
-          "carbs": {
-            "type": "number"
-          },
-          "fat": {
-            "type": "number"
-          },
-          "fiber": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "id",
-          "nutritionPlanDayId",
-          "name",
-          "time"
-        ]
-      },
-      "NutritionPlanFood": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number"
-          },
-          "nutritionPlanMealId": {
-            "type": "number"
-          },
-          "name": {
-            "type": "string"
-          },
-          "quantity": {
-            "type": "string"
-          },
-          "calories": {
-            "type": "number"
-          },
-          "protein": {
-            "type": "number"
-          },
-          "carbs": {
-            "type": "number"
-          },
-          "fat": {
-            "type": "number"
-          },
-          "fiber": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "id",
-          "nutritionPlanMealId",
-          "name",
-          "quantity",
-          "calories"
-        ]
-      },
-      "WorkoutPlanDay": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number"
-          },
-          "workoutPlanId": {
-            "type": "number"
-          },
-          "day": {
-            "type": "number"
-          },
-          "isRestDay": {
-            "type": "boolean"
-          },
-          "estimatedCalories": {
-            "type": "number"
-          },
-          "duration": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "id",
-          "workoutPlanId",
-          "day",
-          "isRestDay"
-        ]
-      },
-      "WorkoutPlanDayExercise": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number"
-          },
-          "workoutPlanDayId": {
-            "type": "number"
-          },
-          "exerciseTypeId": {
-            "type": "number"
-          },
-          "order": {
-            "type": "number"
-          },
-          "targetReps": {
-            "type": "number"
-          },
-          "targetDuration": {
-            "type": "number"
-          },
-          "estimatedCalories": {
-            "type": "number"
-          },
-          "notes": {
-            "type": "string"
-          },
-          "exerciseType": {
-            "$ref": "#/components/schemas/ExerciseType"
-          }
-        },
-        "required": [
-          "id",
-          "workoutPlanDayId",
-          "exerciseTypeId"
-        ]
-      },
-      "PlannedWorkout": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number"
-          },
-          "userId": {
-            "type": "string"
-          },
-          "userWorkoutPlanId": {
-            "type": "number"
-          },
-          "weekdays": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "enum": [
-                "sun",
-                "mon",
-                "tue",
-                "wed",
-                "thu",
-                "fri",
-                "sat"
-              ]
-            }
-          },
-          "time": {
-            "type": "string"
-          },
-          "isActive": {
-            "type": "boolean"
-          },
-          "createdAt": {
-            "type": "string"
-          },
-          "updatedAt": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "userId",
-          "userWorkoutPlanId",
-          "weekdays",
-          "time",
-          "isActive",
-          "createdAt",
-          "updatedAt"
         ]
       },
       "TogglePlannedWorkout": {
@@ -4735,39 +4734,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/WorkoutPlanDayExercise"
-                    },
-                    {
-                      "properties": {
-                        "id": {
-                          "type": "number"
-                        },
-                        "workoutPlanDayId": {
-                          "type": "number"
-                        },
-                        "exerciseTypeId": {
-                          "type": "number"
-                        },
-                        "order": {
-                          "type": "number"
-                        },
-                        "targetReps": {
-                          "type": "number"
-                        },
-                        "targetDuration": {
-                          "type": "number"
-                        },
-                        "estimatedCalories": {
-                          "type": "number"
-                        },
-                        "notes": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  ]
+                  "$ref": "#/components/schemas/WorkoutPlanDayExercise"
                 }
               }
             }
@@ -4857,39 +4824,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/WorkoutPlanDayExercise"
-                    },
-                    {
-                      "properties": {
-                        "id": {
-                          "type": "number"
-                        },
-                        "workoutPlanDayId": {
-                          "type": "number"
-                        },
-                        "exerciseTypeId": {
-                          "type": "number"
-                        },
-                        "order": {
-                          "type": "number"
-                        },
-                        "targetReps": {
-                          "type": "number"
-                        },
-                        "targetDuration": {
-                          "type": "number"
-                        },
-                        "estimatedCalories": {
-                          "type": "number"
-                        },
-                        "notes": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  ]
+                  "$ref": "#/components/schemas/WorkoutPlanDayExercise"
                 }
               }
             }

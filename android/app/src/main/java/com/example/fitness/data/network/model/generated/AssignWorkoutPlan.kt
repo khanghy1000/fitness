@@ -17,6 +17,7 @@ package com.example.fitness.data.network.model.generated
 
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -31,15 +32,15 @@ data class AssignWorkoutPlan (
 
     /* ID of the user to assign the plan to */
     @Json(name = "userId")
-    val userId: String,
+    val userId: kotlin.String,
 
     /* Start date for the workout plan */
     @Json(name = "startDate")
-    val startDate: String,
+    val startDate: kotlin.String,
 
     /* End date for the workout plan */
     @Json(name = "endDate")
-    val endDate: String? = null
+    val endDate: kotlin.String? = null
 
 ) {
 

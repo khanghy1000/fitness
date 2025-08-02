@@ -18,12 +18,11 @@ package com.example.fitness.data.network.model.generated
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import java.math.BigDecimal
 
 /**
  * 
  *
- * @param date Date of adherence record
+ * @param date Date of adherence record (YYYY-MM-DD format)
  * @param weekday Day of the week
  * @param totalMeals Total number of meals planned
  * @param adherencePercentage Percentage of plan followed
@@ -33,25 +32,25 @@ import java.math.BigDecimal
 
 data class NutritionAdherence (
 
-    /* Date of adherence record */
+    /* Date of adherence record (YYYY-MM-DD format) */
     @Json(name = "date")
-    val date: String? = null,
+    val date: kotlin.String? = null,
 
     /* Day of the week */
     @Json(name = "weekday")
-    val weekday: Weekday? = null,
+    val weekday: NutritionAdherence.Weekday? = null,
 
     /* Total number of meals planned */
     @Json(name = "totalMeals")
-    val totalMeals: BigDecimal? = null,
+    val totalMeals: java.math.BigDecimal? = null,
 
     /* Percentage of plan followed */
     @Json(name = "adherencePercentage")
-    val adherencePercentage: BigDecimal? = null,
+    val adherencePercentage: java.math.BigDecimal? = null,
 
     /* Notes about adherence */
     @Json(name = "notes")
-    val notes: String? = null
+    val notes: kotlin.String? = null
 
 ) {
 
@@ -61,7 +60,7 @@ data class NutritionAdherence (
      * Values: sun,mon,tue,wed,thu,fri,sat
      */
     @JsonClass(generateAdapter = false)
-    enum class Weekday(val value: String) {
+    enum class Weekday(val value: kotlin.String) {
         @Json(name = "sun") sun("sun"),
         @Json(name = "mon") mon("mon"),
         @Json(name = "tue") tue("tue"),

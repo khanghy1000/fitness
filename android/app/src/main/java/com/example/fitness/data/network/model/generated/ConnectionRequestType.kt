@@ -30,7 +30,7 @@ data class ConnectionRequestType (
 
     /* Type of connection requests to retrieve */
     @Json(name = "type")
-    val type: Type
+    val type: ConnectionRequestType.Type
 
 ) {
 
@@ -40,7 +40,7 @@ data class ConnectionRequestType (
      * Values: sent,received
      */
     @JsonClass(generateAdapter = false)
-    enum class Type(val value: String) {
+    enum class Type(val value: kotlin.String) {
         @Json(name = "sent") sent("sent"),
         @Json(name = "received") received("received");
     }

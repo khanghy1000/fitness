@@ -17,7 +17,7 @@ package com.example.fitness.data.network.model.generated
 
 
 import com.squareup.moshi.Json
-import java.math.BigDecimal
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -36,31 +36,31 @@ data class MealCompletion (
 
     /* Date when the meal was completed (YYYY-MM-DD format, defaults to current date). Only the date part is used for adherence tracking. */
     @Json(name = "date")
-    val date: String? = null,
+    val date: kotlin.String? = null,
 
     /* Actual calories consumed */
     @Json(name = "caloriesConsumed")
-    val caloriesConsumed: BigDecimal? = null,
+    val caloriesConsumed: java.math.BigDecimal? = null,
 
     /* Actual protein consumed */
     @Json(name = "proteinConsumed")
-    val proteinConsumed: BigDecimal? = null,
+    val proteinConsumed: java.math.BigDecimal? = null,
 
     /* Actual carbs consumed */
     @Json(name = "carbsConsumed")
-    val carbsConsumed: BigDecimal? = null,
+    val carbsConsumed: java.math.BigDecimal? = null,
 
     /* Actual fat consumed */
     @Json(name = "fatConsumed")
-    val fatConsumed: BigDecimal? = null,
+    val fatConsumed: java.math.BigDecimal? = null,
 
     /* Actual fiber consumed */
     @Json(name = "fiberConsumed")
-    val fiberConsumed: BigDecimal? = null,
+    val fiberConsumed: java.math.BigDecimal? = null,
 
     /* Notes about the meal completion */
     @Json(name = "notes")
-    val notes: String? = null
+    val notes: kotlin.String? = null
 
 ) {
 

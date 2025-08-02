@@ -18,7 +18,6 @@ package com.example.fitness.data.network.model.generated
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import java.math.BigDecimal
 
 /**
  * 
@@ -37,28 +36,28 @@ import java.math.BigDecimal
 data class PlannedWorkout (
 
     @Json(name = "id")
-    val id: BigDecimal,
+    val id: kotlin.Int,
 
     @Json(name = "userId")
-    val userId: String,
+    val userId: kotlin.String,
 
     @Json(name = "userWorkoutPlanId")
-    val userWorkoutPlanId: BigDecimal,
+    val userWorkoutPlanId: kotlin.Int,
 
     @Json(name = "weekdays")
-    val weekdays: List<Weekdays>,
+    val weekdays: kotlin.collections.List<PlannedWorkout.Weekdays>,
 
     @Json(name = "time")
-    val time: String,
+    val time: kotlin.String,
 
     @Json(name = "isActive")
-    val isActive: Boolean,
+    val isActive: kotlin.Boolean,
 
     @Json(name = "createdAt")
-    val createdAt: String,
+    val createdAt: kotlin.String,
 
     @Json(name = "updatedAt")
-    val updatedAt: String
+    val updatedAt: kotlin.String
 
 ) {
 
@@ -68,7 +67,7 @@ data class PlannedWorkout (
      * Values: sun,mon,tue,wed,thu,fri,sat
      */
     @JsonClass(generateAdapter = false)
-    enum class Weekdays(val value: String) {
+    enum class Weekdays(val value: kotlin.String) {
         @Json(name = "sun") sun("sun"),
         @Json(name = "mon") mon("mon"),
         @Json(name = "tue") tue("tue"),

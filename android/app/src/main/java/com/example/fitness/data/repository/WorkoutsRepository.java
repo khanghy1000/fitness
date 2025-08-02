@@ -224,10 +224,10 @@ public class WorkoutsRepository {
         });
     }
 
-    public void addExerciseToWorkoutPlanDay(String id, AddExerciseToPlanDay addExerciseToPlanDay, WorkoutsCallback<ApiWorkoutsDaysIdExercisesPost201Response> callback) {
-        workoutsApi.apiWorkoutsDaysIdExercisesPost(id, addExerciseToPlanDay).enqueue(new Callback<ApiWorkoutsDaysIdExercisesPost201Response>() {
+    public void addExerciseToWorkoutPlanDay(String id, AddExerciseToPlanDay addExerciseToPlanDay, WorkoutsCallback<WorkoutPlanDayExercise> callback) {
+        workoutsApi.apiWorkoutsDaysIdExercisesPost(id, addExerciseToPlanDay).enqueue(new Callback<WorkoutPlanDayExercise>() {
             @Override
-            public void onResponse(Call<ApiWorkoutsDaysIdExercisesPost201Response> call, Response<ApiWorkoutsDaysIdExercisesPost201Response> response) {
+            public void onResponse(Call<WorkoutPlanDayExercise> call, Response<WorkoutPlanDayExercise> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     callback.onSuccess(response.body());
                 } else {
@@ -236,7 +236,7 @@ public class WorkoutsRepository {
             }
 
             @Override
-            public void onFailure(Call<ApiWorkoutsDaysIdExercisesPost201Response> call, Throwable t) {
+            public void onFailure(Call<WorkoutPlanDayExercise> call, Throwable t) {
                 callback.onError(t.getMessage());
             }
         });
@@ -260,10 +260,10 @@ public class WorkoutsRepository {
         });
     }
 
-    public void updateWorkoutPlanExercise(String id, UpdateExerciseInPlanDay updateExerciseInPlanDay, WorkoutsCallback<ApiWorkoutsDaysIdExercisesPost201Response> callback) {
-        workoutsApi.apiWorkoutsExercisesIdPut(id, updateExerciseInPlanDay).enqueue(new Callback<ApiWorkoutsDaysIdExercisesPost201Response>() {
+    public void updateWorkoutPlanExercise(String id, UpdateExerciseInPlanDay updateExerciseInPlanDay, WorkoutsCallback<WorkoutPlanDayExercise> callback) {
+        workoutsApi.apiWorkoutsExercisesIdPut(id, updateExerciseInPlanDay).enqueue(new Callback<WorkoutPlanDayExercise>() {
             @Override
-            public void onResponse(Call<ApiWorkoutsDaysIdExercisesPost201Response> call, Response<ApiWorkoutsDaysIdExercisesPost201Response> response) {
+            public void onResponse(Call<WorkoutPlanDayExercise> call, Response<WorkoutPlanDayExercise> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     callback.onSuccess(response.body());
                 } else {
@@ -272,7 +272,7 @@ public class WorkoutsRepository {
             }
 
             @Override
-            public void onFailure(Call<ApiWorkoutsDaysIdExercisesPost201Response> call, Throwable t) {
+            public void onFailure(Call<WorkoutPlanDayExercise> call, Throwable t) {
                 callback.onError(t.getMessage());
             }
         });

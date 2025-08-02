@@ -19,7 +19,7 @@ interface NutritionApi {
      * @return [Call]<[SuccessMessage]>
      */
     @DELETE("api/nutrition/days/{id}")
-    fun apiNutritionDaysIdDelete(@Path("id") id: String): Call<SuccessMessage>
+    fun apiNutritionDaysIdDelete(@Path("id") id: kotlin.String): Call<SuccessMessage>
 
     /**
      * GET api/nutrition/days/{id}
@@ -34,7 +34,7 @@ interface NutritionApi {
      * @return [Call]<[NutritionPlanDay]>
      */
     @GET("api/nutrition/days/{id}")
-    fun apiNutritionDaysIdGet(@Path("id") id: String): Call<NutritionPlanDay>
+    fun apiNutritionDaysIdGet(@Path("id") id: kotlin.String): Call<NutritionPlanDay>
 
     /**
      * GET api/nutrition/days/{id}/meals
@@ -49,7 +49,7 @@ interface NutritionApi {
      * @return [Call]<[kotlin.collections.List<NutritionPlanMeal>]>
      */
     @GET("api/nutrition/days/{id}/meals")
-    fun apiNutritionDaysIdMealsGet(@Path("id") id: String): Call<List<NutritionPlanMeal>>
+    fun apiNutritionDaysIdMealsGet(@Path("id") id: kotlin.String): Call<kotlin.collections.List<NutritionPlanMeal>>
 
     /**
      * POST api/nutrition/days/{id}/meals
@@ -65,7 +65,7 @@ interface NutritionApi {
      * @return [Call]<[NutritionPlanMeal]>
      */
     @POST("api/nutrition/days/{id}/meals")
-    fun apiNutritionDaysIdMealsPost(@Path("id") id: String, @Body createNutritionPlanMeal: CreateNutritionPlanMeal? = null): Call<NutritionPlanMeal>
+    fun apiNutritionDaysIdMealsPost(@Path("id") id: kotlin.String, @Body createNutritionPlanMeal: CreateNutritionPlanMeal? = null): Call<NutritionPlanMeal>
 
     /**
      * PUT api/nutrition/days/{id}
@@ -82,7 +82,7 @@ interface NutritionApi {
      * @return [Call]<[NutritionPlanDay]>
      */
     @PUT("api/nutrition/days/{id}")
-    fun apiNutritionDaysIdPut(@Path("id") id: String, @Body updateNutritionPlanDay: UpdateNutritionPlanDay? = null): Call<NutritionPlanDay>
+    fun apiNutritionDaysIdPut(@Path("id") id: kotlin.String, @Body updateNutritionPlanDay: UpdateNutritionPlanDay? = null): Call<NutritionPlanDay>
 
     /**
      * DELETE api/nutrition/foods/{id}
@@ -97,7 +97,7 @@ interface NutritionApi {
      * @return [Call]<[SuccessMessage]>
      */
     @DELETE("api/nutrition/foods/{id}")
-    fun apiNutritionFoodsIdDelete(@Path("id") id: String): Call<SuccessMessage>
+    fun apiNutritionFoodsIdDelete(@Path("id") id: kotlin.String): Call<SuccessMessage>
 
     /**
      * GET api/nutrition/foods/{id}
@@ -112,7 +112,7 @@ interface NutritionApi {
      * @return [Call]<[NutritionPlanFood]>
      */
     @GET("api/nutrition/foods/{id}")
-    fun apiNutritionFoodsIdGet(@Path("id") id: String): Call<NutritionPlanFood>
+    fun apiNutritionFoodsIdGet(@Path("id") id: kotlin.String): Call<NutritionPlanFood>
 
     /**
      * PUT api/nutrition/foods/{id}
@@ -129,7 +129,7 @@ interface NutritionApi {
      * @return [Call]<[NutritionPlanFood]>
      */
     @PUT("api/nutrition/foods/{id}")
-    fun apiNutritionFoodsIdPut(@Path("id") id: String, @Body updateNutritionPlanFood: UpdateNutritionPlanFood? = null): Call<NutritionPlanFood>
+    fun apiNutritionFoodsIdPut(@Path("id") id: kotlin.String, @Body updateNutritionPlanFood: UpdateNutritionPlanFood? = null): Call<NutritionPlanFood>
 
     /**
      * GET api/nutrition
@@ -142,7 +142,7 @@ interface NutritionApi {
      * @return [Call]<[kotlin.collections.List<NutritionPlan>]>
      */
     @GET("api/nutrition")
-    fun apiNutritionGet(): Call<List<NutritionPlan>>
+    fun apiNutritionGet(): Call<kotlin.collections.List<NutritionPlan>>
 
     /**
      * GET api/nutrition/{id}/days
@@ -157,7 +157,7 @@ interface NutritionApi {
      * @return [Call]<[kotlin.collections.List<NutritionPlanDay>]>
      */
     @GET("api/nutrition/{id}/days")
-    fun apiNutritionIdDaysGet(@Path("id") id: String): Call<List<NutritionPlanDay>>
+    fun apiNutritionIdDaysGet(@Path("id") id: kotlin.String): Call<kotlin.collections.List<NutritionPlanDay>>
 
     /**
      * POST api/nutrition/{id}/days
@@ -173,7 +173,7 @@ interface NutritionApi {
      * @return [Call]<[NutritionPlanDay]>
      */
     @POST("api/nutrition/{id}/days")
-    fun apiNutritionIdDaysPost(@Path("id") id: String, @Body createNutritionPlanDay: CreateNutritionPlanDay? = null): Call<NutritionPlanDay>
+    fun apiNutritionIdDaysPost(@Path("id") id: kotlin.String, @Body createNutritionPlanDay: CreateNutritionPlanDay? = null): Call<NutritionPlanDay>
 
     /**
      * DELETE api/nutrition/{id}
@@ -188,7 +188,7 @@ interface NutritionApi {
      * @return [Call]<[SuccessMessage]>
      */
     @DELETE("api/nutrition/{id}")
-    fun apiNutritionIdDelete(@Path("id") id: String): Call<SuccessMessage>
+    fun apiNutritionIdDelete(@Path("id") id: kotlin.String): Call<SuccessMessage>
 
     /**
      * GET api/nutrition/{id}
@@ -203,7 +203,7 @@ interface NutritionApi {
      * @return [Call]<[NutritionPlan]>
      */
     @GET("api/nutrition/{id}")
-    fun apiNutritionIdGet(@Path("id") id: String): Call<NutritionPlan>
+    fun apiNutritionIdGet(@Path("id") id: kotlin.String): Call<NutritionPlan>
 
     /**
      * PUT api/nutrition/{id}
@@ -220,7 +220,7 @@ interface NutritionApi {
      * @return [Call]<[NutritionPlan]>
      */
     @PUT("api/nutrition/{id}")
-    fun apiNutritionIdPut(@Path("id") id: String, @Body updateNutritionPlan: UpdateNutritionPlan? = null): Call<NutritionPlan>
+    fun apiNutritionIdPut(@Path("id") id: kotlin.String, @Body updateNutritionPlan: UpdateNutritionPlan? = null): Call<NutritionPlan>
 
     /**
      * DELETE api/nutrition/meals/{id}
@@ -235,7 +235,7 @@ interface NutritionApi {
      * @return [Call]<[SuccessMessage]>
      */
     @DELETE("api/nutrition/meals/{id}")
-    fun apiNutritionMealsIdDelete(@Path("id") id: String): Call<SuccessMessage>
+    fun apiNutritionMealsIdDelete(@Path("id") id: kotlin.String): Call<SuccessMessage>
 
     /**
      * GET api/nutrition/meals/{id}/foods
@@ -250,7 +250,7 @@ interface NutritionApi {
      * @return [Call]<[kotlin.collections.List<NutritionPlanFood>]>
      */
     @GET("api/nutrition/meals/{id}/foods")
-    fun apiNutritionMealsIdFoodsGet(@Path("id") id: String): Call<List<NutritionPlanFood>>
+    fun apiNutritionMealsIdFoodsGet(@Path("id") id: kotlin.String): Call<kotlin.collections.List<NutritionPlanFood>>
 
     /**
      * POST api/nutrition/meals/{id}/foods
@@ -266,7 +266,7 @@ interface NutritionApi {
      * @return [Call]<[NutritionPlanFood]>
      */
     @POST("api/nutrition/meals/{id}/foods")
-    fun apiNutritionMealsIdFoodsPost(@Path("id") id: String, @Body createNutritionPlanFood: CreateNutritionPlanFood? = null): Call<NutritionPlanFood>
+    fun apiNutritionMealsIdFoodsPost(@Path("id") id: kotlin.String, @Body createNutritionPlanFood: CreateNutritionPlanFood? = null): Call<NutritionPlanFood>
 
     /**
      * GET api/nutrition/meals/{id}
@@ -281,7 +281,7 @@ interface NutritionApi {
      * @return [Call]<[NutritionPlanMeal]>
      */
     @GET("api/nutrition/meals/{id}")
-    fun apiNutritionMealsIdGet(@Path("id") id: String): Call<NutritionPlanMeal>
+    fun apiNutritionMealsIdGet(@Path("id") id: kotlin.String): Call<NutritionPlanMeal>
 
     /**
      * PUT api/nutrition/meals/{id}
@@ -298,7 +298,7 @@ interface NutritionApi {
      * @return [Call]<[NutritionPlanMeal]>
      */
     @PUT("api/nutrition/meals/{id}")
-    fun apiNutritionMealsIdPut(@Path("id") id: String, @Body updateNutritionPlanMeal: UpdateNutritionPlanMeal? = null): Call<NutritionPlanMeal>
+    fun apiNutritionMealsIdPut(@Path("id") id: kotlin.String, @Body updateNutritionPlanMeal: UpdateNutritionPlanMeal? = null): Call<NutritionPlanMeal>
 
     /**
      * POST api/nutrition

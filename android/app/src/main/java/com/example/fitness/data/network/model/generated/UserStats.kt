@@ -17,7 +17,7 @@ package com.example.fitness.data.network.model.generated
 
 
 import com.squareup.moshi.Json
-import java.math.BigDecimal
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -42,46 +42,46 @@ import java.math.BigDecimal
 data class UserStats (
 
     @Json(name = "id")
-    val id: BigDecimal,
+    val id: kotlin.Int,
 
     @Json(name = "userId")
-    val userId: String,
+    val userId: kotlin.String,
 
     @Json(name = "recordedAt")
-    val recordedAt: String,
+    val recordedAt: kotlin.String,
 
     @Json(name = "recordedBy")
-    val recordedBy: String,
+    val recordedBy: kotlin.String,
 
     @Json(name = "weight")
-    val weight: BigDecimal? = null,
+    val weight: java.math.BigDecimal? = null,
 
     @Json(name = "height")
-    val height: BigDecimal? = null,
+    val height: java.math.BigDecimal? = null,
 
     @Json(name = "bodyFat")
-    val bodyFat: BigDecimal? = null,
+    val bodyFat: java.math.BigDecimal? = null,
 
     @Json(name = "muscleMass")
-    val muscleMass: BigDecimal? = null,
+    val muscleMass: java.math.BigDecimal? = null,
 
     @Json(name = "chest")
-    val chest: BigDecimal? = null,
+    val chest: java.math.BigDecimal? = null,
 
     @Json(name = "waist")
-    val waist: BigDecimal? = null,
+    val waist: java.math.BigDecimal? = null,
 
     @Json(name = "hips")
-    val hips: BigDecimal? = null,
+    val hips: java.math.BigDecimal? = null,
 
     @Json(name = "arms")
-    val arms: BigDecimal? = null,
+    val arms: java.math.BigDecimal? = null,
 
     @Json(name = "thighs")
-    val thighs: BigDecimal? = null,
+    val thighs: java.math.BigDecimal? = null,
 
     @Json(name = "notes")
-    val notes: String? = null
+    val notes: kotlin.String? = null
 
 ) {
 

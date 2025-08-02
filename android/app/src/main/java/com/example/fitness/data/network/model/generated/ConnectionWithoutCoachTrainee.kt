@@ -15,9 +15,9 @@
 
 package com.example.fitness.data.network.model.generated
 
+
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import java.math.BigDecimal
 
 /**
  * 
@@ -28,8 +28,6 @@ import java.math.BigDecimal
  * @param status Connection status
  * @param createdAt Creation date
  * @param updatedAt Last update date
- * @param coach 
- * @param trainee 
  * @param startDate Connection start date
  * @param endDate Connection end date
  * @param notes Connection notes
@@ -40,39 +38,39 @@ data class ConnectionWithoutCoachTrainee (
 
     /* Connection ID */
     @Json(name = "id")
-    val id: BigDecimal,
+    val id: kotlin.Int,
 
     /* Coach user ID */
     @Json(name = "coachId")
-    val coachId: String,
+    val coachId: kotlin.String,
 
     /* Trainee user ID */
     @Json(name = "traineeId")
-    val traineeId: String,
+    val traineeId: kotlin.String,
 
     /* Connection status */
     @Json(name = "status")
-    val status: Status,
+    val status: ConnectionWithoutCoachTrainee.Status,
 
     /* Creation date */
     @Json(name = "createdAt")
-    val createdAt: String,
+    val createdAt: kotlin.String,
 
     /* Last update date */
     @Json(name = "updatedAt")
-    val updatedAt: String,
+    val updatedAt: kotlin.String,
 
     /* Connection start date */
     @Json(name = "startDate")
-    val startDate: String? = null,
+    val startDate: kotlin.String? = null,
 
     /* Connection end date */
     @Json(name = "endDate")
-    val endDate: String? = null,
+    val endDate: kotlin.String? = null,
 
     /* Connection notes */
     @Json(name = "notes")
-    val notes: String? = null
+    val notes: kotlin.String? = null
 
 ) {
 
@@ -82,7 +80,7 @@ data class ConnectionWithoutCoachTrainee (
      * Values: pending,active,inactive,blocked
      */
     @JsonClass(generateAdapter = false)
-    enum class Status(val value: String) {
+    enum class Status(val value: kotlin.String) {
         @Json(name = "pending") pending("pending"),
         @Json(name = "active") active("active"),
         @Json(name = "inactive") inactive("inactive"),

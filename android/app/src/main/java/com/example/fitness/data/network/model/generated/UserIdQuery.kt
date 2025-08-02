@@ -17,6 +17,7 @@ package com.example.fitness.data.network.model.generated
 
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -29,7 +30,7 @@ data class UserIdQuery (
 
     /* User ID for coach to specify which user */
     @Json(name = "userId")
-    val userId: String? = null
+    val userId: kotlin.String? = null
 
 ) {
 

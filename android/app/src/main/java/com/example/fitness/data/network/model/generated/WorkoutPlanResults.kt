@@ -15,7 +15,12 @@
 
 package com.example.fitness.data.network.model.generated
 
+import com.example.fitness.data.network.model.generated.WorkoutPlan
+import com.example.fitness.data.network.model.generated.WorkoutPlanResultsResultsInner
+import com.example.fitness.data.network.model.generated.WorkoutPlanResultsUserWorkoutPlan
+
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -35,7 +40,7 @@ data class WorkoutPlanResults (
     val userWorkoutPlan: WorkoutPlanResultsUserWorkoutPlan,
 
     @Json(name = "results")
-    val results: List<WorkoutPlanResultsResultsInner>
+    val results: kotlin.collections.List<WorkoutPlanResultsResultsInner>
 
 ) {
 

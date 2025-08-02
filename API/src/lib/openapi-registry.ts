@@ -13,6 +13,7 @@ import {
     userWorkoutPlanIdParamSchema,
     mealIdParamSchema,
     successMessageSchema,
+    userIdQuerySchema,
 
     // Connection schemas
     connectRequestSchema,
@@ -32,10 +33,13 @@ import {
     nutritionPlanSchema,
     createNutritionPlanSchema,
     updateNutritionPlanSchema,
+    nutritionPlanDaySchema,
     createNutritionPlanDaySchema,
     updateNutritionPlanDaySchema,
+    nutritionPlanMealSchema,
     createNutritionPlanMealSchema,
     updateNutritionPlanMealSchema,
+    nutritionPlanFoodSchema,
     createNutritionPlanFoodSchema,
     updateNutritionPlanFoodSchema,
 
@@ -44,12 +48,15 @@ import {
     workoutPlanSchema,
     createWorkoutPlanSchema,
     updateWorkoutPlanSchema,
+    workoutPlanDaySchema,
     addDayToWorkoutPlanSchema,
     updateWorkoutPlanDaySchema,
+    workoutPlanDayExerciseSchema,
     addExerciseToPlanDaySchema,
     updateExerciseInPlanDaySchema,
 
     // Planned workout schemas
+    plannedWorkoutSchema,
     createPlannedWorkoutSchema,
     updatePlannedWorkoutSchema,
 
@@ -61,15 +68,6 @@ import {
 } from '../validation/schemas.ts';
 
 const registry = new OpenAPIRegistry();
-
-const userIdQuerySchema = z
-    .object({
-        userId: z.string().optional().openapi({
-            description: 'User ID for coach to specify which user',
-            example: 'user123',
-        }),
-    })
-    .openapi('UserIdQuery');
 
 // Register schemas
 
@@ -88,7 +86,10 @@ registry.register('ConnectRequest', connectRequestSchema);
 registry.register('ConnectionRequestType', connectionRequestTypeSchema);
 registry.register('TraineeId', traineeIdSchema);
 registry.register('Connection', connectionSchema);
-registry.register('ConnectionWithoutCoachTrainee', connectionWithoutCoachTraineeSchema)
+registry.register(
+    'ConnectionWithoutCoachTrainee',
+    connectionWithoutCoachTraineeSchema
+);
 
 // Exercise schemas
 registry.register('ExerciseType', exerciseTypeSchema);
@@ -101,10 +102,13 @@ registry.register('NutritionAdherence', nutritionAdherenceSchema);
 registry.register('NutritionPlan', nutritionPlanSchema);
 registry.register('CreateNutritionPlan', createNutritionPlanSchema);
 registry.register('UpdateNutritionPlan', updateNutritionPlanSchema);
+registry.register('NutritionPlanDay', nutritionPlanDaySchema);
 registry.register('CreateNutritionPlanDay', createNutritionPlanDaySchema);
 registry.register('UpdateNutritionPlanDay', updateNutritionPlanDaySchema);
+registry.register('NutritionPlanMeal', nutritionPlanMealSchema);
 registry.register('CreateNutritionPlanMeal', createNutritionPlanMealSchema);
 registry.register('UpdateNutritionPlanMeal', updateNutritionPlanMealSchema);
+registry.register('NutritionPlanFood', nutritionPlanFoodSchema);
 registry.register('CreateNutritionPlanFood', createNutritionPlanFoodSchema);
 registry.register('UpdateNutritionPlanFood', updateNutritionPlanFoodSchema);
 
@@ -113,12 +117,15 @@ registry.register('AssignWorkoutPlan', assignWorkoutPlanSchema);
 registry.register('WorkoutPlan', workoutPlanSchema);
 registry.register('CreateWorkoutPlan', createWorkoutPlanSchema);
 registry.register('UpdateWorkoutPlan', updateWorkoutPlanSchema);
+registry.register('WorkoutPlanDay', workoutPlanDaySchema);
 registry.register('AddDayToWorkoutPlan', addDayToWorkoutPlanSchema);
 registry.register('UpdateWorkoutPlanDay', updateWorkoutPlanDaySchema);
+registry.register('WorkoutPlanDayExercise', workoutPlanDayExerciseSchema);
 registry.register('AddExerciseToPlanDay', addExerciseToPlanDaySchema);
 registry.register('UpdateExerciseInPlanDay', updateExerciseInPlanDaySchema);
 
 // Planned workout schemas
+registry.register('PlannedWorkout', plannedWorkoutSchema);
 registry.register('CreatePlannedWorkout', createPlannedWorkoutSchema);
 registry.register('UpdatePlannedWorkout', updatePlannedWorkoutSchema);
 
@@ -390,7 +397,7 @@ registry.registerPath({
                     schema: z.array(
                         z
                             .object({
-                                id: z.number(),
+                                id: z.int(),
                                 userId: z.string(),
                                 weight: z.number().optional(),
                                 height: z.number().optional(),
@@ -430,7 +437,7 @@ registry.registerPath({
                 'application/json': {
                     schema: z
                         .object({
-                            id: z.number(),
+                            id: z.int(),
                             userId: z.string(),
                             weight: z.number().optional(),
                             height: z.number().optional(),
@@ -478,7 +485,7 @@ registry.registerPath({
                 'application/json': {
                     schema: z
                         .object({
-                            id: z.number(),
+                            id: z.int(),
                             userId: z.string(),
                             weight: z.number().optional(),
                             height: z.number().optional(),
@@ -520,7 +527,7 @@ registry.registerPath({
                     schema: z.array(
                         z
                             .object({
-                                id: z.number(),
+                                id: z.int(),
                                 userId: z.string(),
                                 workoutPlan: workoutPlanSchema.optional(),
                                 assignedBy: z.string(),
@@ -554,7 +561,7 @@ registry.registerPath({
                     schema: z.array(
                         z
                             .object({
-                                id: z.number(),
+                                id: z.int(),
                                 userId: z.string(),
                                 nutritionPlan: nutritionPlanSchema.optional(),
                                 assignedBy: z.string(),
@@ -619,7 +626,7 @@ registry.registerPath({
                 'application/json': {
                     schema: z
                         .object({
-                            id: z.number(),
+                            id: z.int(),
                             userId: z.string(),
                             nutritionPlan: nutritionPlanSchema.optional(),
                             assignedBy: z.string(),
@@ -669,9 +676,9 @@ registry.registerPath({
                 'application/json': {
                     schema: z
                         .object({
-                            id: z.number(),
+                            id: z.int(),
                             userId: z.string(),
-                            nutritionPlanId: z.number(),
+                            nutritionPlanId: z.int(),
                             assignedBy: z.string(),
                             startDate: z.string(),
                             endDate: z.string().optional(),
@@ -716,9 +723,9 @@ registry.registerPath({
                 'application/json': {
                     schema: z
                         .object({
-                            id: z.number(),
-                            nutritionAdherenceId: z.number(),
-                            nutritionPlanMealId: z.number(),
+                            id: z.int(),
+                            nutritionAdherenceId: z.int(),
+                            nutritionPlanMealId: z.int(),
                             userId: z.string(),
                             isCompleted: z.boolean(),
                             completedAt: z.string(),
@@ -765,8 +772,8 @@ registry.registerPath({
                     schema: z.array(
                         z
                             .object({
-                                id: z.number(),
-                                nutritionPlanId: z.number(),
+                                id: z.int(),
+                                nutritionPlanId: z.int(),
                                 userId: z.string(),
                                 date: z.string(),
                                 weekday: z.enum([
@@ -778,10 +785,10 @@ registry.registerPath({
                                     'fri',
                                     'sat',
                                 ]),
-                                totalMeals: z.number(),
+                                totalMeals: z.int(),
                                 adherencePercentage: z.number().optional(),
                                 notes: z.string().optional(),
-                                mealsCompleted: z.array(z.any()).optional(),
+                                mealsCompleted: z.int().optional(),
                             })
                             .openapi('NutritionAdherenceHistory')
                     ),
@@ -823,13 +830,13 @@ registry.registerPath({
                 'application/json': {
                     schema: z
                         .object({
-                            id: z.number(),
-                            workoutPlanDayExerciseId: z.number(),
-                            userWorkoutPlanId: z.number(),
+                            id: z.int(),
+                            workoutPlanDayExerciseId: z.int(),
+                            userWorkoutPlanId: z.int(),
                             userId: z.string(),
-                            reps: z.number().optional(),
-                            duration: z.number().optional(),
-                            calories: z.number().optional(),
+                            reps: z.int().optional(),
+                            duration: z.int().optional(),
+                            calories: z.int().optional(),
                             recordedAt: z.string(),
                         })
                         .openapi('ExerciseResult'),
@@ -862,7 +869,7 @@ registry.registerPath({
                 'application/json': {
                     schema: z
                         .object({
-                            id: z.number(),
+                            id: z.int(),
                             userId: z.string(),
                             workoutPlan: workoutPlanSchema.optional(),
                             assignedBy: z.string(),
@@ -912,9 +919,9 @@ registry.registerPath({
                 'application/json': {
                     schema: z
                         .object({
-                            id: z.number(),
+                            id: z.int(),
                             userId: z.string(),
-                            workoutPlanId: z.number(),
+                            workoutPlanId: z.int(),
                             assignedBy: z.string(),
                             startDate: z.string(),
                             endDate: z.string().optional(),
@@ -953,7 +960,7 @@ registry.registerPath({
                         .object({
                             workoutPlan: workoutPlanSchema,
                             userWorkoutPlan: z.object({
-                                id: z.number(),
+                                id: z.int(),
                                 userId: z.string(),
                                 assignedBy: z.string(),
                                 startDate: z.string(),
@@ -962,18 +969,18 @@ registry.registerPath({
                             }),
                             results: z.array(
                                 z.object({
-                                    id: z.number(),
-                                    workoutPlanDayExerciseId: z.number(),
-                                    userWorkoutPlanId: z.number(),
+                                    id: z.int(),
+                                    workoutPlanDayExerciseId: z.int(),
+                                    userWorkoutPlanId: z.int(),
                                     userId: z.string(),
-                                    reps: z.number().optional(),
-                                    duration: z.number().optional(),
-                                    calories: z.number().optional(),
+                                    reps: z.int().optional(),
+                                    duration: z.int().optional(),
+                                    calories: z.int().optional(),
                                     recordedAt: z.string(),
                                     workoutPlanDayExercise: z.object({
                                         exerciseType: exerciseTypeSchema,
                                         workoutPlanDay: z.object({
-                                            day: z.number(),
+                                            day: z.int(),
                                             isRestDay: z.boolean(),
                                         }),
                                     }),
@@ -1245,26 +1252,7 @@ registry.registerPath({
             content: {
                 'application/json': {
                     schema: z.array(
-                        z
-                            .object({
-                                id: z.number(),
-                                nutritionPlanId: z.number(),
-                                weekday: z.enum([
-                                    'sun',
-                                    'mon',
-                                    'tue',
-                                    'wed',
-                                    'thu',
-                                    'fri',
-                                    'sat',
-                                ]),
-                                totalCalories: z.number().optional(),
-                                protein: z.number().optional(),
-                                carbs: z.number().optional(),
-                                fat: z.number().optional(),
-                                fiber: z.number().optional(),
-                            })
-                            .openapi('NutritionPlanDay')
+                        nutritionPlanDaySchema,
                     ),
                 },
             },
@@ -1300,26 +1288,7 @@ registry.registerPath({
             description: 'Nutrition plan day created successfully',
             content: {
                 'application/json': {
-                    schema: z
-                        .object({
-                            id: z.number(),
-                            nutritionPlanId: z.number(),
-                            weekday: z.enum([
-                                'sun',
-                                'mon',
-                                'tue',
-                                'wed',
-                                'thu',
-                                'fri',
-                                'sat',
-                            ]),
-                            totalCalories: z.number().optional(),
-                            protein: z.number().optional(),
-                            carbs: z.number().optional(),
-                            fat: z.number().optional(),
-                            fiber: z.number().optional(),
-                        })
-                        .openapi('NutritionPlanDay'),
+                    schema: nutritionPlanDaySchema,
                 },
             },
         },
@@ -1346,26 +1315,7 @@ registry.registerPath({
             description: 'Nutrition plan day details',
             content: {
                 'application/json': {
-                    schema: z
-                        .object({
-                            id: z.number(),
-                            nutritionPlanId: z.number(),
-                            weekday: z.enum([
-                                'sun',
-                                'mon',
-                                'tue',
-                                'wed',
-                                'thu',
-                                'fri',
-                                'sat',
-                            ]),
-                            totalCalories: z.number().optional(),
-                            protein: z.number().optional(),
-                            carbs: z.number().optional(),
-                            fat: z.number().optional(),
-                            fiber: z.number().optional(),
-                        })
-                        .openapi('NutritionPlanDay'),
+                    schema: nutritionPlanDaySchema,
                 },
             },
         },
@@ -1400,26 +1350,7 @@ registry.registerPath({
             description: 'Nutrition plan day updated successfully',
             content: {
                 'application/json': {
-                    schema: z
-                        .object({
-                            id: z.number(),
-                            nutritionPlanId: z.number(),
-                            weekday: z.enum([
-                                'sun',
-                                'mon',
-                                'tue',
-                                'wed',
-                                'thu',
-                                'fri',
-                                'sat',
-                            ]),
-                            totalCalories: z.number().optional(),
-                            protein: z.number().optional(),
-                            carbs: z.number().optional(),
-                            fat: z.number().optional(),
-                            fiber: z.number().optional(),
-                        })
-                        .openapi('NutritionPlanDay'),
+                    schema: nutritionPlanDaySchema,
                 },
             },
         },
@@ -1477,19 +1408,7 @@ registry.registerPath({
             content: {
                 'application/json': {
                     schema: z.array(
-                        z
-                            .object({
-                                id: z.number(),
-                                nutritionPlanDayId: z.number(),
-                                name: z.string(),
-                                time: z.string(),
-                                calories: z.number().optional(),
-                                protein: z.number().optional(),
-                                carbs: z.number().optional(),
-                                fat: z.number().optional(),
-                                fiber: z.number().optional(),
-                            })
-                            .openapi('NutritionPlanMeal')
+                        nutritionPlanMealSchema
                     ),
                 },
             },
@@ -1525,19 +1444,7 @@ registry.registerPath({
             description: 'Nutrition plan meal created successfully',
             content: {
                 'application/json': {
-                    schema: z
-                        .object({
-                            id: z.number(),
-                            nutritionPlanDayId: z.number(),
-                            name: z.string(),
-                            time: z.string(),
-                            calories: z.number().optional(),
-                            protein: z.number().optional(),
-                            carbs: z.number().optional(),
-                            fat: z.number().optional(),
-                            fiber: z.number().optional(),
-                        })
-                        .openapi('NutritionPlanMeal'),
+                    schema: nutritionPlanMealSchema,
                 },
             },
         },
@@ -1564,19 +1471,7 @@ registry.registerPath({
             description: 'Nutrition plan meal details',
             content: {
                 'application/json': {
-                    schema: z
-                        .object({
-                            id: z.number(),
-                            nutritionPlanDayId: z.number(),
-                            name: z.string(),
-                            time: z.string(),
-                            calories: z.number().optional(),
-                            protein: z.number().optional(),
-                            carbs: z.number().optional(),
-                            fat: z.number().optional(),
-                            fiber: z.number().optional(),
-                        })
-                        .openapi('NutritionPlanMeal'),
+                    schema: nutritionPlanMealSchema,
                 },
             },
         },
@@ -1611,19 +1506,7 @@ registry.registerPath({
             description: 'Nutrition plan meal updated successfully',
             content: {
                 'application/json': {
-                    schema: z
-                        .object({
-                            id: z.number(),
-                            nutritionPlanDayId: z.number(),
-                            name: z.string(),
-                            time: z.string(),
-                            calories: z.number().optional(),
-                            protein: z.number().optional(),
-                            carbs: z.number().optional(),
-                            fat: z.number().optional(),
-                            fiber: z.number().optional(),
-                        })
-                        .openapi('NutritionPlanMeal'),
+                    schema: nutritionPlanMealSchema,
                 },
             },
         },
@@ -1681,19 +1564,7 @@ registry.registerPath({
             content: {
                 'application/json': {
                     schema: z.array(
-                        z
-                            .object({
-                                id: z.number(),
-                                nutritionPlanMealId: z.number(),
-                                name: z.string(),
-                                quantity: z.string(),
-                                calories: z.number(),
-                                protein: z.number().optional(),
-                                carbs: z.number().optional(),
-                                fat: z.number().optional(),
-                                fiber: z.number().optional(),
-                            })
-                            .openapi('NutritionPlanFood')
+                        nutritionPlanFoodSchema
                     ),
                 },
             },
@@ -1729,19 +1600,7 @@ registry.registerPath({
             description: 'Nutrition plan food created successfully',
             content: {
                 'application/json': {
-                    schema: z
-                        .object({
-                            id: z.number(),
-                            nutritionPlanMealId: z.number(),
-                            name: z.string(),
-                            quantity: z.string(),
-                            calories: z.number(),
-                            protein: z.number().optional(),
-                            carbs: z.number().optional(),
-                            fat: z.number().optional(),
-                            fiber: z.number().optional(),
-                        })
-                        .openapi('NutritionPlanFood'),
+                    schema: nutritionPlanFoodSchema,
                 },
             },
         },
@@ -1768,19 +1627,7 @@ registry.registerPath({
             description: 'Nutrition plan food details',
             content: {
                 'application/json': {
-                    schema: z
-                        .object({
-                            id: z.number(),
-                            nutritionPlanMealId: z.number(),
-                            name: z.string(),
-                            quantity: z.string(),
-                            calories: z.number(),
-                            protein: z.number().optional(),
-                            carbs: z.number().optional(),
-                            fat: z.number().optional(),
-                            fiber: z.number().optional(),
-                        })
-                        .openapi('NutritionPlanFood'),
+                    schema: nutritionPlanFoodSchema,
                 },
             },
         },
@@ -1815,19 +1662,7 @@ registry.registerPath({
             description: 'Nutrition plan food updated successfully',
             content: {
                 'application/json': {
-                    schema: z
-                        .object({
-                            id: z.number(),
-                            nutritionPlanMealId: z.number(),
-                            name: z.string(),
-                            quantity: z.string(),
-                            calories: z.number(),
-                            protein: z.number().optional(),
-                            carbs: z.number().optional(),
-                            fat: z.number().optional(),
-                            fiber: z.number().optional(),
-                        })
-                        .openapi('NutritionPlanFood'),
+                    schema: nutritionPlanFoodSchema,
                 },
             },
         },
@@ -2033,16 +1868,7 @@ registry.registerPath({
             content: {
                 'application/json': {
                     schema: z.array(
-                        z
-                            .object({
-                                id: z.number(),
-                                workoutPlanId: z.number(),
-                                day: z.number(),
-                                isRestDay: z.boolean(),
-                                estimatedCalories: z.number().optional(),
-                                duration: z.number().optional(),
-                            })
-                            .openapi('WorkoutPlanDay')
+                        workoutPlanDaySchema
                     ),
                 },
             },
@@ -2078,16 +1904,7 @@ registry.registerPath({
             description: 'Workout plan day created successfully',
             content: {
                 'application/json': {
-                    schema: z
-                        .object({
-                            id: z.number(),
-                            workoutPlanId: z.number(),
-                            day: z.number(),
-                            isRestDay: z.boolean(),
-                            estimatedCalories: z.number().optional(),
-                            duration: z.number().optional(),
-                        })
-                        .openapi('WorkoutPlanDay'),
+                    schema:workoutPlanDaySchema,
                 },
             },
         },
@@ -2114,16 +1931,7 @@ registry.registerPath({
             description: 'Workout plan day details',
             content: {
                 'application/json': {
-                    schema: z
-                        .object({
-                            id: z.number(),
-                            workoutPlanId: z.number(),
-                            day: z.number(),
-                            isRestDay: z.boolean(),
-                            estimatedCalories: z.number().optional(),
-                            duration: z.number().optional(),
-                        })
-                        .openapi('WorkoutPlanDay'),
+                    schema: workoutPlanDaySchema,
                 },
             },
         },
@@ -2158,16 +1966,7 @@ registry.registerPath({
             description: 'Workout plan day updated successfully',
             content: {
                 'application/json': {
-                    schema: z
-                        .object({
-                            id: z.number(),
-                            workoutPlanId: z.number(),
-                            day: z.number(),
-                            isRestDay: z.boolean(),
-                            estimatedCalories: z.number().optional(),
-                            duration: z.number().optional(),
-                        })
-                        .openapi('WorkoutPlanDay'),
+                    schema: workoutPlanDaySchema,
                 },
             },
         },
@@ -2225,19 +2024,7 @@ registry.registerPath({
             content: {
                 'application/json': {
                     schema: z.array(
-                        z
-                            .object({
-                                id: z.number(),
-                                workoutPlanDayId: z.number(),
-                                exerciseTypeId: z.number(),
-                                order: z.number().optional(),
-                                targetReps: z.number().optional(),
-                                targetDuration: z.number().optional(),
-                                estimatedCalories: z.number().optional(),
-                                notes: z.string().optional(),
-                                exerciseType: exerciseTypeSchema.optional(),
-                            })
-                            .openapi('WorkoutPlanDayExercise')
+                        workoutPlanDayExerciseSchema
                     ),
                 },
             },
@@ -2273,18 +2060,7 @@ registry.registerPath({
             description: 'Exercise added to workout plan day successfully',
             content: {
                 'application/json': {
-                    schema: z
-                        .object({
-                            id: z.number(),
-                            workoutPlanDayId: z.number(),
-                            exerciseTypeId: z.number(),
-                            order: z.number().optional(),
-                            targetReps: z.number().optional(),
-                            targetDuration: z.number().optional(),
-                            estimatedCalories: z.number().optional(),
-                            notes: z.string().optional(),
-                        })
-                        .openapi('WorkoutPlanDayExercise'),
+                    schema: workoutPlanDayExerciseSchema
                 },
             },
         },
@@ -2311,19 +2087,7 @@ registry.registerPath({
             description: 'Workout plan exercise details',
             content: {
                 'application/json': {
-                    schema: z
-                        .object({
-                            id: z.number(),
-                            workoutPlanDayId: z.number(),
-                            exerciseTypeId: z.number(),
-                            order: z.number().optional(),
-                            targetReps: z.number().optional(),
-                            targetDuration: z.number().optional(),
-                            estimatedCalories: z.number().optional(),
-                            notes: z.string().optional(),
-                            exerciseType: exerciseTypeSchema.optional(),
-                        })
-                        .openapi('WorkoutPlanDayExercise'),
+                    schema: workoutPlanDayExerciseSchema,
                 },
             },
         },
@@ -2358,18 +2122,7 @@ registry.registerPath({
             description: 'Workout plan exercise updated successfully',
             content: {
                 'application/json': {
-                    schema: z
-                        .object({
-                            id: z.number(),
-                            workoutPlanDayId: z.number(),
-                            exerciseTypeId: z.number(),
-                            order: z.number().optional(),
-                            targetReps: z.number().optional(),
-                            targetDuration: z.number().optional(),
-                            estimatedCalories: z.number().optional(),
-                            notes: z.string().optional(),
-                        })
-                        .openapi('WorkoutPlanDayExercise'),
+                    schema: workoutPlanDayExerciseSchema,
                 },
             },
         },
@@ -2425,28 +2178,7 @@ registry.registerPath({
             content: {
                 'application/json': {
                     schema: z.array(
-                        z
-                            .object({
-                                id: z.number(),
-                                userId: z.string(),
-                                userWorkoutPlanId: z.number(),
-                                weekdays: z.array(
-                                    z.enum([
-                                        'sun',
-                                        'mon',
-                                        'tue',
-                                        'wed',
-                                        'thu',
-                                        'fri',
-                                        'sat',
-                                    ])
-                                ),
-                                time: z.string(),
-                                isActive: z.boolean(),
-                                createdAt: z.string(),
-                                updatedAt: z.string(),
-                            })
-                            .openapi('PlannedWorkout')
+                        plannedWorkoutSchema
                     ),
                 },
             },
@@ -2478,28 +2210,7 @@ registry.registerPath({
             description: 'Planned workout created successfully',
             content: {
                 'application/json': {
-                    schema: z
-                        .object({
-                            id: z.number(),
-                            userId: z.string(),
-                            userWorkoutPlanId: z.number(),
-                            weekdays: z.array(
-                                z.enum([
-                                    'sun',
-                                    'mon',
-                                    'tue',
-                                    'wed',
-                                    'thu',
-                                    'fri',
-                                    'sat',
-                                ])
-                            ),
-                            time: z.string(),
-                            isActive: z.boolean(),
-                            createdAt: z.string(),
-                            updatedAt: z.string(),
-                        })
-                        .openapi('PlannedWorkout'),
+                    schema: plannedWorkoutSchema,
                 },
             },
         },
@@ -2523,30 +2234,7 @@ registry.registerPath({
             description: "List of today's planned workouts",
             content: {
                 'application/json': {
-                    schema: z.array(
-                        z
-                            .object({
-                                id: z.number(),
-                                userId: z.string(),
-                                userWorkoutPlanId: z.number(),
-                                weekdays: z.array(
-                                    z.enum([
-                                        'sun',
-                                        'mon',
-                                        'tue',
-                                        'wed',
-                                        'thu',
-                                        'fri',
-                                        'sat',
-                                    ])
-                                ),
-                                time: z.string(),
-                                isActive: z.boolean(),
-                                createdAt: z.string(),
-                                updatedAt: z.string(),
-                            })
-                            .openapi('PlannedWorkout')
-                    ),
+                    schema: z.array(plannedWorkoutSchema),
                 },
             },
         },
@@ -2580,28 +2268,7 @@ registry.registerPath({
             content: {
                 'application/json': {
                     schema: z.array(
-                        z
-                            .object({
-                                id: z.number(),
-                                userId: z.string(),
-                                userWorkoutPlanId: z.number(),
-                                weekdays: z.array(
-                                    z.enum([
-                                        'sun',
-                                        'mon',
-                                        'tue',
-                                        'wed',
-                                        'thu',
-                                        'fri',
-                                        'sat',
-                                    ])
-                                ),
-                                time: z.string(),
-                                isActive: z.boolean(),
-                                createdAt: z.string(),
-                                updatedAt: z.string(),
-                            })
-                            .openapi('PlannedWorkout')
+                        plannedWorkoutSchema
                     ),
                 },
             },
@@ -2629,28 +2296,7 @@ registry.registerPath({
             description: 'Planned workout details',
             content: {
                 'application/json': {
-                    schema: z
-                        .object({
-                            id: z.number(),
-                            userId: z.string(),
-                            userWorkoutPlanId: z.number(),
-                            weekdays: z.array(
-                                z.enum([
-                                    'sun',
-                                    'mon',
-                                    'tue',
-                                    'wed',
-                                    'thu',
-                                    'fri',
-                                    'sat',
-                                ])
-                            ),
-                            time: z.string(),
-                            isActive: z.boolean(),
-                            createdAt: z.string(),
-                            updatedAt: z.string(),
-                        })
-                        .openapi('PlannedWorkout'),
+                    schema: plannedWorkoutSchema,
                 },
             },
         },
@@ -2688,28 +2334,7 @@ registry.registerPath({
             description: 'Planned workout updated successfully',
             content: {
                 'application/json': {
-                    schema: z
-                        .object({
-                            id: z.number(),
-                            userId: z.string(),
-                            userWorkoutPlanId: z.number(),
-                            weekdays: z.array(
-                                z.enum([
-                                    'sun',
-                                    'mon',
-                                    'tue',
-                                    'wed',
-                                    'thu',
-                                    'fri',
-                                    'sat',
-                                ])
-                            ),
-                            time: z.string(),
-                            isActive: z.boolean(),
-                            createdAt: z.string(),
-                            updatedAt: z.string(),
-                        })
-                        .openapi('PlannedWorkout'),
+                    schema: plannedWorkoutSchema,
                 },
             },
         },
@@ -2787,28 +2412,7 @@ registry.registerPath({
             description: 'Planned workout status toggled successfully',
             content: {
                 'application/json': {
-                    schema: z
-                        .object({
-                            id: z.number(),
-                            userId: z.string(),
-                            userWorkoutPlanId: z.number(),
-                            weekdays: z.array(
-                                z.enum([
-                                    'sun',
-                                    'mon',
-                                    'tue',
-                                    'wed',
-                                    'thu',
-                                    'fri',
-                                    'sat',
-                                ])
-                            ),
-                            time: z.string(),
-                            isActive: z.boolean(),
-                            createdAt: z.string(),
-                            updatedAt: z.string(),
-                        })
-                        .openapi('PlannedWorkout'),
+                    schema:plannedWorkoutSchema,
                 },
             },
         },

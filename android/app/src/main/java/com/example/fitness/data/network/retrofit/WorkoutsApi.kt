@@ -19,7 +19,7 @@ interface WorkoutsApi {
      * @return [Call]<[SuccessMessage]>
      */
     @DELETE("api/workouts/days/{id}")
-    fun apiWorkoutsDaysIdDelete(@Path("id") id: String): Call<SuccessMessage>
+    fun apiWorkoutsDaysIdDelete(@Path("id") id: kotlin.String): Call<SuccessMessage>
 
     /**
      * GET api/workouts/days/{id}/exercises
@@ -34,7 +34,7 @@ interface WorkoutsApi {
      * @return [Call]<[kotlin.collections.List<WorkoutPlanDayExercise>]>
      */
     @GET("api/workouts/days/{id}/exercises")
-    fun apiWorkoutsDaysIdExercisesGet(@Path("id") id: String): Call<List<WorkoutPlanDayExercise>>
+    fun apiWorkoutsDaysIdExercisesGet(@Path("id") id: kotlin.String): Call<kotlin.collections.List<WorkoutPlanDayExercise>>
 
     /**
      * POST api/workouts/days/{id}/exercises
@@ -47,10 +47,10 @@ interface WorkoutsApi {
      *
      * @param id Unique identifier
      * @param addExerciseToPlanDay Exercise data (optional)
-     * @return [Call]<[ApiWorkoutsDaysIdExercisesPost201Response]>
+     * @return [Call]<[WorkoutPlanDayExercise]>
      */
     @POST("api/workouts/days/{id}/exercises")
-    fun apiWorkoutsDaysIdExercisesPost(@Path("id") id: String, @Body addExerciseToPlanDay: AddExerciseToPlanDay? = null): Call<ApiWorkoutsDaysIdExercisesPost201Response>
+    fun apiWorkoutsDaysIdExercisesPost(@Path("id") id: kotlin.String, @Body addExerciseToPlanDay: AddExerciseToPlanDay? = null): Call<WorkoutPlanDayExercise>
 
     /**
      * GET api/workouts/days/{id}
@@ -65,7 +65,7 @@ interface WorkoutsApi {
      * @return [Call]<[WorkoutPlanDay]>
      */
     @GET("api/workouts/days/{id}")
-    fun apiWorkoutsDaysIdGet(@Path("id") id: String): Call<WorkoutPlanDay>
+    fun apiWorkoutsDaysIdGet(@Path("id") id: kotlin.String): Call<WorkoutPlanDay>
 
     /**
      * PUT api/workouts/days/{id}
@@ -82,7 +82,7 @@ interface WorkoutsApi {
      * @return [Call]<[WorkoutPlanDay]>
      */
     @PUT("api/workouts/days/{id}")
-    fun apiWorkoutsDaysIdPut(@Path("id") id: String, @Body updateWorkoutPlanDay: UpdateWorkoutPlanDay? = null): Call<WorkoutPlanDay>
+    fun apiWorkoutsDaysIdPut(@Path("id") id: kotlin.String, @Body updateWorkoutPlanDay: UpdateWorkoutPlanDay? = null): Call<WorkoutPlanDay>
 
     /**
      * DELETE api/workouts/exercises/{id}
@@ -97,7 +97,7 @@ interface WorkoutsApi {
      * @return [Call]<[SuccessMessage]>
      */
     @DELETE("api/workouts/exercises/{id}")
-    fun apiWorkoutsExercisesIdDelete(@Path("id") id: String): Call<SuccessMessage>
+    fun apiWorkoutsExercisesIdDelete(@Path("id") id: kotlin.String): Call<SuccessMessage>
 
     /**
      * GET api/workouts/exercises/{id}
@@ -112,7 +112,7 @@ interface WorkoutsApi {
      * @return [Call]<[WorkoutPlanDayExercise]>
      */
     @GET("api/workouts/exercises/{id}")
-    fun apiWorkoutsExercisesIdGet(@Path("id") id: String): Call<WorkoutPlanDayExercise>
+    fun apiWorkoutsExercisesIdGet(@Path("id") id: kotlin.String): Call<WorkoutPlanDayExercise>
 
     /**
      * PUT api/workouts/exercises/{id}
@@ -126,10 +126,10 @@ interface WorkoutsApi {
      *
      * @param id Unique identifier
      * @param updateExerciseInPlanDay Updated exercise data (optional)
-     * @return [Call]<[ApiWorkoutsDaysIdExercisesPost201Response]>
+     * @return [Call]<[WorkoutPlanDayExercise]>
      */
     @PUT("api/workouts/exercises/{id}")
-    fun apiWorkoutsExercisesIdPut(@Path("id") id: String, @Body updateExerciseInPlanDay: UpdateExerciseInPlanDay? = null): Call<ApiWorkoutsDaysIdExercisesPost201Response>
+    fun apiWorkoutsExercisesIdPut(@Path("id") id: kotlin.String, @Body updateExerciseInPlanDay: UpdateExerciseInPlanDay? = null): Call<WorkoutPlanDayExercise>
 
     /**
      * GET api/workouts
@@ -142,7 +142,7 @@ interface WorkoutsApi {
      * @return [Call]<[kotlin.collections.List<WorkoutPlan>]>
      */
     @GET("api/workouts")
-    fun apiWorkoutsGet(): Call<List<WorkoutPlan>>
+    fun apiWorkoutsGet(): Call<kotlin.collections.List<WorkoutPlan>>
 
     /**
      * GET api/workouts/{id}/days
@@ -157,7 +157,7 @@ interface WorkoutsApi {
      * @return [Call]<[kotlin.collections.List<WorkoutPlanDay>]>
      */
     @GET("api/workouts/{id}/days")
-    fun apiWorkoutsIdDaysGet(@Path("id") id: String): Call<List<WorkoutPlanDay>>
+    fun apiWorkoutsIdDaysGet(@Path("id") id: kotlin.String): Call<kotlin.collections.List<WorkoutPlanDay>>
 
     /**
      * POST api/workouts/{id}/days
@@ -173,7 +173,7 @@ interface WorkoutsApi {
      * @return [Call]<[WorkoutPlanDay]>
      */
     @POST("api/workouts/{id}/days")
-    fun apiWorkoutsIdDaysPost(@Path("id") id: String, @Body addDayToWorkoutPlan: AddDayToWorkoutPlan? = null): Call<WorkoutPlanDay>
+    fun apiWorkoutsIdDaysPost(@Path("id") id: kotlin.String, @Body addDayToWorkoutPlan: AddDayToWorkoutPlan? = null): Call<WorkoutPlanDay>
 
     /**
      * DELETE api/workouts/{id}
@@ -188,7 +188,7 @@ interface WorkoutsApi {
      * @return [Call]<[SuccessMessage]>
      */
     @DELETE("api/workouts/{id}")
-    fun apiWorkoutsIdDelete(@Path("id") id: String): Call<SuccessMessage>
+    fun apiWorkoutsIdDelete(@Path("id") id: kotlin.String): Call<SuccessMessage>
 
     /**
      * GET api/workouts/{id}
@@ -203,7 +203,7 @@ interface WorkoutsApi {
      * @return [Call]<[WorkoutPlan]>
      */
     @GET("api/workouts/{id}")
-    fun apiWorkoutsIdGet(@Path("id") id: String): Call<WorkoutPlan>
+    fun apiWorkoutsIdGet(@Path("id") id: kotlin.String): Call<WorkoutPlan>
 
     /**
      * PUT api/workouts/{id}
@@ -220,7 +220,7 @@ interface WorkoutsApi {
      * @return [Call]<[WorkoutPlan]>
      */
     @PUT("api/workouts/{id}")
-    fun apiWorkoutsIdPut(@Path("id") id: String, @Body updateWorkoutPlan: UpdateWorkoutPlan? = null): Call<WorkoutPlan>
+    fun apiWorkoutsIdPut(@Path("id") id: kotlin.String, @Body updateWorkoutPlan: UpdateWorkoutPlan? = null): Call<WorkoutPlan>
 
     /**
      * POST api/workouts

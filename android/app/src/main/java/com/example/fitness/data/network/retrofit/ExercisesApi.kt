@@ -17,7 +17,7 @@ interface ExercisesApi {
      * @return [Call]<[kotlin.collections.List<ExerciseType>]>
      */
     @GET("api/exercises")
-    fun apiExercisesGet(): Call<List<ExerciseType>>
+    fun apiExercisesGet(): Call<kotlin.collections.List<ExerciseType>>
 
     /**
      * GET api/exercises/{id}
@@ -32,7 +32,7 @@ interface ExercisesApi {
      * @return [Call]<[ExerciseType]>
      */
     @GET("api/exercises/{id}")
-    fun apiExercisesIdGet(@Path("id") id: String): Call<ExerciseType>
+    fun apiExercisesIdGet(@Path("id") id: kotlin.String): Call<ExerciseType>
 
     /**
      * GET api/exercises/name/{name}
@@ -47,6 +47,6 @@ interface ExercisesApi {
      * @return [Call]<[ExerciseType]>
      */
     @GET("api/exercises/name/{name}")
-    fun apiExercisesNameNameGet(@Path("name") name: String): Call<ExerciseType>
+    fun apiExercisesNameNameGet(@Path("name") name: kotlin.String): Call<ExerciseType>
 
 }

@@ -26,7 +26,6 @@ import com.squareup.moshi.JsonClass
  * @param email User email
  * @param name User full name
  * @param role User role
- * @param createdAt Account creation date
  */
 
 
@@ -34,19 +33,19 @@ data class User (
 
     /* User ID */
     @Json(name = "id")
-    val id: String,
+    val id: kotlin.String,
 
     /* User email */
     @Json(name = "email")
-    val email: String,
+    val email: kotlin.String,
 
     /* User full name */
     @Json(name = "name")
-    val name: String,
+    val name: kotlin.String,
 
     /* User role */
     @Json(name = "role")
-    val role: Role,
+    val role: User.Role
 
 ) {
 
@@ -56,7 +55,7 @@ data class User (
      * Values: coach,trainee
      */
     @JsonClass(generateAdapter = false)
-    enum class Role(val value: String) {
+    enum class Role(val value: kotlin.String) {
         @Json(name = "coach") coach("coach"),
         @Json(name = "trainee") trainee("trainee");
     }

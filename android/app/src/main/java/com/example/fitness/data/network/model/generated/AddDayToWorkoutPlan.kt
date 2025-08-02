@@ -17,7 +17,7 @@ package com.example.fitness.data.network.model.generated
 
 
 import com.squareup.moshi.Json
-import java.math.BigDecimal
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -33,19 +33,19 @@ data class AddDayToWorkoutPlan (
 
     /* Day number in the workout plan */
     @Json(name = "day")
-    val day: BigDecimal,
+    val day: kotlin.Int,
 
     /* Whether this is a rest day */
     @Json(name = "isRestDay")
-    val isRestDay: Boolean? = false,
+    val isRestDay: kotlin.Boolean? = false,
 
     /* Estimated calories burned for this day */
     @Json(name = "estimatedCalories")
-    val estimatedCalories: BigDecimal? = null,
+    val estimatedCalories: kotlin.Int? = null,
 
     /* Estimated duration in minutes */
     @Json(name = "duration")
-    val duration: BigDecimal? = null
+    val duration: java.math.BigDecimal? = null
 
 ) {
 

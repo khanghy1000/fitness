@@ -18,7 +18,6 @@ package com.example.fitness.data.network.model.generated
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import java.math.BigDecimal
 
 /**
  * 
@@ -35,23 +34,23 @@ data class UpdateWorkoutPlan (
 
     /* Updated name of the workout plan */
     @Json(name = "name")
-    val name: String? = null,
+    val name: kotlin.String? = null,
 
     /* Updated description of the workout plan */
     @Json(name = "description")
-    val description: String? = null,
+    val description: kotlin.String? = null,
 
     /* Updated difficulty level */
     @Json(name = "difficulty")
-    val difficulty: Difficulty? = null,
+    val difficulty: UpdateWorkoutPlan.Difficulty? = null,
 
     /* Updated estimated calories burned */
     @Json(name = "estimatedCalories")
-    val estimatedCalories: BigDecimal? = null,
+    val estimatedCalories: kotlin.Int? = null,
 
     /* Whether the workout plan is active */
     @Json(name = "isActive")
-    val isActive: Boolean? = null
+    val isActive: kotlin.Boolean? = null
 
 ) {
 
@@ -61,7 +60,7 @@ data class UpdateWorkoutPlan (
      * Values: beginner,intermediate,advanced
      */
     @JsonClass(generateAdapter = false)
-    enum class Difficulty(val value: String) {
+    enum class Difficulty(val value: kotlin.String) {
         @Json(name = "beginner") beginner("beginner"),
         @Json(name = "intermediate") intermediate("intermediate"),
         @Json(name = "advanced") advanced("advanced");

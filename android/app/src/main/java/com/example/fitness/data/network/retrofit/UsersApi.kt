@@ -21,7 +21,7 @@ interface UsersApi {
      * @return [Call]<[NutritionPlanAssignment]>
      */
     @GET("api/users/nutrition/{nutritionPlanId}/assign")
-    fun apiUsersNutritionNutritionPlanIdAssignGet(@Path("nutritionPlanId") nutritionPlanId: String, @Query("userId") userId: String? = null): Call<NutritionPlanAssignment>
+    fun apiUsersNutritionNutritionPlanIdAssignGet(@Path("nutritionPlanId") nutritionPlanId: kotlin.String, @Query("userId") userId: kotlin.String? = null): Call<NutritionPlanAssignment>
 
     /**
      * POST api/users/nutrition/{nutritionPlanId}/assign
@@ -37,7 +37,7 @@ interface UsersApi {
      * @return [Call]<[NutritionPlanAssignmentResponse]>
      */
     @POST("api/users/nutrition/{nutritionPlanId}/assign")
-    fun apiUsersNutritionNutritionPlanIdAssignPost(@Path("nutritionPlanId") nutritionPlanId: String, @Body assignNutritionPlan: AssignNutritionPlan? = null): Call<NutritionPlanAssignmentResponse>
+    fun apiUsersNutritionNutritionPlanIdAssignPost(@Path("nutritionPlanId") nutritionPlanId: kotlin.String, @Body assignNutritionPlan: AssignNutritionPlan? = null): Call<NutritionPlanAssignmentResponse>
 
     /**
      * GET api/users/nutrition-plans
@@ -50,7 +50,7 @@ interface UsersApi {
      * @return [Call]<[kotlin.collections.List<UserNutritionPlan>]>
      */
     @GET("api/users/nutrition-plans")
-    fun apiUsersNutritionPlansGet(): Call<List<UserNutritionPlan>>
+    fun apiUsersNutritionPlansGet(): Call<kotlin.collections.List<UserNutritionPlan>>
 
     /**
      * GET api/users/nutrition/user-plans/{userNutritionPlanId}/adherence
@@ -67,7 +67,7 @@ interface UsersApi {
      * @return [Call]<[kotlin.collections.List<NutritionAdherenceHistory>]>
      */
     @GET("api/users/nutrition/user-plans/{userNutritionPlanId}/adherence")
-    fun apiUsersNutritionUserPlansUserNutritionPlanIdAdherenceGet(@Path("userNutritionPlanId") userNutritionPlanId: String, @Query("userId") userId: String? = null): Call<List<NutritionAdherenceHistory>>
+    fun apiUsersNutritionUserPlansUserNutritionPlanIdAdherenceGet(@Path("userNutritionPlanId") userNutritionPlanId: kotlin.String, @Query("userId") userId: kotlin.String? = null): Call<kotlin.collections.List<NutritionAdherenceHistory>>
 
     /**
      * POST api/users/nutrition/user-plans/{userNutritionPlanId}/meals/{mealId}/complete
@@ -85,13 +85,13 @@ interface UsersApi {
      * @return [Call]<[MealCompletionResponse]>
      */
     @POST("api/users/nutrition/user-plans/{userNutritionPlanId}/meals/{mealId}/complete")
-    fun apiUsersNutritionUserPlansUserNutritionPlanIdMealsMealIdCompletePost(@Path("userNutritionPlanId") userNutritionPlanId: String, @Path("mealId") mealId: String, @Body mealCompletion: MealCompletion? = null): Call<MealCompletionResponse>
+    fun apiUsersNutritionUserPlansUserNutritionPlanIdMealsMealIdCompletePost(@Path("userNutritionPlanId") userNutritionPlanId: kotlin.String, @Path("mealId") mealId: kotlin.String, @Body mealCompletion: MealCompletion? = null): Call<MealCompletionResponse>
 
 
     /**
     * enum for parameter role
     */
-    enum class RoleApiUsersSearchGet(val value: String) {
+    enum class RoleApiUsersSearchGet(val value: kotlin.String) {
         @Json(name = "coach") coach("coach"),
         @Json(name = "trainee") trainee("trainee")
     }
@@ -110,7 +110,7 @@ interface UsersApi {
      * @return [Call]<[kotlin.collections.List<User>]>
      */
     @GET("api/users/search")
-    fun apiUsersSearchGet(@Query("query") query: String, @Query("role") role: RoleApiUsersSearchGet? = null): Call<List<User>>
+    fun apiUsersSearchGet(@Query("query") query: kotlin.String, @Query("role") role: RoleApiUsersSearchGet? = null): Call<kotlin.collections.List<User>>
 
     /**
      * GET api/users/stats
@@ -123,7 +123,7 @@ interface UsersApi {
      * @return [Call]<[kotlin.collections.List<UserStats>]>
      */
     @GET("api/users/stats")
-    fun apiUsersStatsGet(): Call<List<UserStats>>
+    fun apiUsersStatsGet(): Call<kotlin.collections.List<UserStats>>
 
     /**
      * GET api/users/stats/latest
@@ -179,7 +179,7 @@ interface UsersApi {
      * @return [Call]<[kotlin.collections.List<UserWorkoutPlan>]>
      */
     @GET("api/users/workout-plans")
-    fun apiUsersWorkoutPlansGet(): Call<List<UserWorkoutPlan>>
+    fun apiUsersWorkoutPlansGet(): Call<kotlin.collections.List<UserWorkoutPlan>>
 
     /**
      * GET api/users/workout/user-plans/{userWorkoutPlanId}/results
@@ -197,7 +197,7 @@ interface UsersApi {
      * @return [Call]<[WorkoutPlanResults]>
      */
     @GET("api/users/workout/user-plans/{userWorkoutPlanId}/results")
-    fun apiUsersWorkoutUserPlansUserWorkoutPlanIdResultsGet(@Path("userWorkoutPlanId") userWorkoutPlanId: String, @Query("userId") userId: String? = null): Call<WorkoutPlanResults>
+    fun apiUsersWorkoutUserPlansUserWorkoutPlanIdResultsGet(@Path("userWorkoutPlanId") userWorkoutPlanId: kotlin.String, @Query("userId") userId: kotlin.String? = null): Call<WorkoutPlanResults>
 
     /**
      * GET api/users/workout/{workoutPlanId}/assign
@@ -214,7 +214,7 @@ interface UsersApi {
      * @return [Call]<[WorkoutPlanAssignment]>
      */
     @GET("api/users/workout/{workoutPlanId}/assign")
-    fun apiUsersWorkoutWorkoutPlanIdAssignGet(@Path("workoutPlanId") workoutPlanId: String, @Query("userId") userId: String? = null): Call<WorkoutPlanAssignment>
+    fun apiUsersWorkoutWorkoutPlanIdAssignGet(@Path("workoutPlanId") workoutPlanId: kotlin.String, @Query("userId") userId: kotlin.String? = null): Call<WorkoutPlanAssignment>
 
     /**
      * POST api/users/workout/{workoutPlanId}/assign
@@ -230,6 +230,6 @@ interface UsersApi {
      * @return [Call]<[WorkoutPlanAssignmentResponse]>
      */
     @POST("api/users/workout/{workoutPlanId}/assign")
-    fun apiUsersWorkoutWorkoutPlanIdAssignPost(@Path("workoutPlanId") workoutPlanId: String, @Body assignWorkoutPlan: AssignWorkoutPlan? = null): Call<WorkoutPlanAssignmentResponse>
+    fun apiUsersWorkoutWorkoutPlanIdAssignPost(@Path("workoutPlanId") workoutPlanId: kotlin.String, @Body assignWorkoutPlan: AssignWorkoutPlan? = null): Call<WorkoutPlanAssignmentResponse>
 
 }

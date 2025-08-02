@@ -17,7 +17,7 @@ interface PlannedWorkoutsApi {
      * @return [Call]<[kotlin.collections.List<PlannedWorkout>]>
      */
     @GET("api/planned-workouts")
-    fun apiPlannedWorkoutsGet(): Call<List<PlannedWorkout>>
+    fun apiPlannedWorkoutsGet(): Call<kotlin.collections.List<PlannedWorkout>>
 
     /**
      * DELETE api/planned-workouts/{id}
@@ -33,7 +33,7 @@ interface PlannedWorkoutsApi {
      * @return [Call]<[SuccessMessage]>
      */
     @DELETE("api/planned-workouts/{id}")
-    fun apiPlannedWorkoutsIdDelete(@Path("id") id: String): Call<SuccessMessage>
+    fun apiPlannedWorkoutsIdDelete(@Path("id") id: kotlin.String): Call<SuccessMessage>
 
     /**
      * GET api/planned-workouts/{id}
@@ -49,7 +49,7 @@ interface PlannedWorkoutsApi {
      * @return [Call]<[PlannedWorkout]>
      */
     @GET("api/planned-workouts/{id}")
-    fun apiPlannedWorkoutsIdGet(@Path("id") id: String): Call<PlannedWorkout>
+    fun apiPlannedWorkoutsIdGet(@Path("id") id: kotlin.String): Call<PlannedWorkout>
 
     /**
      * PUT api/planned-workouts/{id}
@@ -67,7 +67,7 @@ interface PlannedWorkoutsApi {
      * @return [Call]<[PlannedWorkout]>
      */
     @PUT("api/planned-workouts/{id}")
-    fun apiPlannedWorkoutsIdPut(@Path("id") id: String, @Body updatePlannedWorkout: UpdatePlannedWorkout? = null): Call<PlannedWorkout>
+    fun apiPlannedWorkoutsIdPut(@Path("id") id: kotlin.String, @Body updatePlannedWorkout: UpdatePlannedWorkout? = null): Call<PlannedWorkout>
 
     /**
      * POST api/planned-workouts/{id}/toggle
@@ -85,7 +85,7 @@ interface PlannedWorkoutsApi {
      * @return [Call]<[PlannedWorkout]>
      */
     @POST("api/planned-workouts/{id}/toggle")
-    fun apiPlannedWorkoutsIdTogglePost(@Path("id") id: String, @Body togglePlannedWorkout: TogglePlannedWorkout? = null): Call<PlannedWorkout>
+    fun apiPlannedWorkoutsIdTogglePost(@Path("id") id: kotlin.String, @Body togglePlannedWorkout: TogglePlannedWorkout? = null): Call<PlannedWorkout>
 
     /**
      * POST api/planned-workouts
@@ -113,13 +113,13 @@ interface PlannedWorkoutsApi {
      * @return [Call]<[kotlin.collections.List<PlannedWorkout>]>
      */
     @GET("api/planned-workouts/today")
-    fun apiPlannedWorkoutsTodayGet(): Call<List<PlannedWorkout>>
+    fun apiPlannedWorkoutsTodayGet(): Call<kotlin.collections.List<PlannedWorkout>>
 
 
     /**
     * enum for parameter weekday
     */
-    enum class WeekdayApiPlannedWorkoutsWeekdayWeekdayGet(val value: String) {
+    enum class WeekdayApiPlannedWorkoutsWeekdayWeekdayGet(val value: kotlin.String) {
         @Json(name = "sun") sun("sun"),
         @Json(name = "mon") mon("mon"),
         @Json(name = "tue") tue("tue"),
@@ -142,6 +142,6 @@ interface PlannedWorkoutsApi {
      * @return [Call]<[kotlin.collections.List<PlannedWorkout>]>
      */
     @GET("api/planned-workouts/weekday/{weekday}")
-    fun apiPlannedWorkoutsWeekdayWeekdayGet(@Path("weekday") weekday: String): Call<List<PlannedWorkout>>
+    fun apiPlannedWorkoutsWeekdayWeekdayGet(@Path("weekday") weekday: kotlin.String): Call<kotlin.collections.List<PlannedWorkout>>
 
 }

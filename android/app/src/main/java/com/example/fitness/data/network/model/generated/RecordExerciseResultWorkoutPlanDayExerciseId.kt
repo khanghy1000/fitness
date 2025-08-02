@@ -16,6 +16,9 @@
 package com.example.fitness.data.network.model.generated
 
 
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
+
 /**
  * ID of the workout plan day exercise
  *

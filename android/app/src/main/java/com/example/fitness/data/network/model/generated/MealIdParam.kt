@@ -17,6 +17,7 @@ package com.example.fitness.data.network.model.generated
 
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -29,7 +30,7 @@ data class MealIdParam (
 
     /* Nutrition plan meal identifier */
     @Json(name = "mealId")
-    val mealId: String
+    val mealId: kotlin.String
 
 ) {
 

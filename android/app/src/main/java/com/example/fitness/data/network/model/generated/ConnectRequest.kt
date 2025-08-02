@@ -17,6 +17,7 @@ package com.example.fitness.data.network.model.generated
 
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -30,11 +31,11 @@ data class ConnectRequest (
 
     /* ID of the coach to connect with */
     @Json(name = "coachId")
-    val coachId: String,
+    val coachId: kotlin.String,
 
     /* Optional notes for connection request */
     @Json(name = "notes")
-    val notes: String? = null
+    val notes: kotlin.String? = null
 
 ) {
 

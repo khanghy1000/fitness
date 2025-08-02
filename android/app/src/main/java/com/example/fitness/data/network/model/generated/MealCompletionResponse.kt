@@ -17,7 +17,7 @@ package com.example.fitness.data.network.model.generated
 
 
 import com.squareup.moshi.Json
-import java.math.BigDecimal
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -26,7 +26,10 @@ import java.math.BigDecimal
  * @param nutritionAdherenceId 
  * @param nutritionPlanMealId 
  * @param userId 
+ * @param isCompleted 
  * @param completedAt 
+ * @param createdAt 
+ * @param updatedAt 
  * @param caloriesConsumed 
  * @param proteinConsumed 
  * @param carbsConsumed 
@@ -39,37 +42,46 @@ import java.math.BigDecimal
 data class MealCompletionResponse (
 
     @Json(name = "id")
-    val id: BigDecimal,
+    val id: kotlin.Int,
 
     @Json(name = "nutritionAdherenceId")
-    val nutritionAdherenceId: BigDecimal,
+    val nutritionAdherenceId: kotlin.Int,
 
     @Json(name = "nutritionPlanMealId")
-    val nutritionPlanMealId: BigDecimal,
+    val nutritionPlanMealId: kotlin.Int,
 
     @Json(name = "userId")
-    val userId: String,
+    val userId: kotlin.String,
+
+    @Json(name = "isCompleted")
+    val isCompleted: kotlin.Boolean,
 
     @Json(name = "completedAt")
-    val completedAt: String,
+    val completedAt: kotlin.String,
+
+    @Json(name = "createdAt")
+    val createdAt: kotlin.String,
+
+    @Json(name = "updatedAt")
+    val updatedAt: kotlin.String,
 
     @Json(name = "caloriesConsumed")
-    val caloriesConsumed: BigDecimal? = null,
+    val caloriesConsumed: java.math.BigDecimal? = null,
 
     @Json(name = "proteinConsumed")
-    val proteinConsumed: BigDecimal? = null,
+    val proteinConsumed: java.math.BigDecimal? = null,
 
     @Json(name = "carbsConsumed")
-    val carbsConsumed: BigDecimal? = null,
+    val carbsConsumed: java.math.BigDecimal? = null,
 
     @Json(name = "fatConsumed")
-    val fatConsumed: BigDecimal? = null,
+    val fatConsumed: java.math.BigDecimal? = null,
 
     @Json(name = "fiberConsumed")
-    val fiberConsumed: BigDecimal? = null,
+    val fiberConsumed: java.math.BigDecimal? = null,
 
     @Json(name = "notes")
-    val notes: String? = null
+    val notes: kotlin.String? = null
 
 ) {
 

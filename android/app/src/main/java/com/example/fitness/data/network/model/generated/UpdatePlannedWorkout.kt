@@ -32,15 +32,15 @@ data class UpdatePlannedWorkout (
 
     /* Updated days of the week */
     @Json(name = "weekdays")
-    val weekdays: List<Weekdays>? = null,
+    val weekdays: kotlin.collections.List<UpdatePlannedWorkout.Weekdays>? = null,
 
     /* Updated time for the workout */
     @Json(name = "time")
-    val time: String? = null,
+    val time: kotlin.String? = null,
 
     /* Updated active status */
     @Json(name = "isActive")
-    val isActive: Boolean? = null
+    val isActive: kotlin.Boolean? = null
 
 ) {
 
@@ -50,7 +50,7 @@ data class UpdatePlannedWorkout (
      * Values: sun,mon,tue,wed,thu,fri,sat
      */
     @JsonClass(generateAdapter = false)
-    enum class Weekdays(val value: String) {
+    enum class Weekdays(val value: kotlin.String) {
         @Json(name = "sun") sun("sun"),
         @Json(name = "mon") mon("mon"),
         @Json(name = "tue") tue("tue"),

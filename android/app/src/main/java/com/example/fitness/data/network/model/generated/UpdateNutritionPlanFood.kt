@@ -17,7 +17,7 @@ package com.example.fitness.data.network.model.generated
 
 
 import com.squareup.moshi.Json
-import java.math.BigDecimal
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -36,31 +36,31 @@ data class UpdateNutritionPlanFood (
 
     /* Name of the food */
     @Json(name = "name")
-    val name: String? = null,
+    val name: kotlin.String? = null,
 
     /* Quantity of the food */
     @Json(name = "quantity")
-    val quantity: String? = null,
+    val quantity: kotlin.String? = null,
 
     /* Calories in the food */
     @Json(name = "calories")
-    val calories: BigDecimal? = null,
+    val calories: kotlin.Int? = null,
 
     /* Protein content */
     @Json(name = "protein")
-    val protein: BigDecimal? = null,
+    val protein: java.math.BigDecimal? = null,
 
     /* Carbs content */
     @Json(name = "carbs")
-    val carbs: BigDecimal? = null,
+    val carbs: java.math.BigDecimal? = null,
 
     /* Fat content */
     @Json(name = "fat")
-    val fat: BigDecimal? = null,
+    val fat: java.math.BigDecimal? = null,
 
     /* Fiber content */
     @Json(name = "fiber")
-    val fiber: BigDecimal? = null
+    val fiber: java.math.BigDecimal? = null
 
 ) {
 

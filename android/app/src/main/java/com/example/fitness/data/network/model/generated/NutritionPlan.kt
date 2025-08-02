@@ -17,7 +17,7 @@ package com.example.fitness.data.network.model.generated
 
 
 import com.squareup.moshi.Json
-import java.math.BigDecimal
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -36,31 +36,31 @@ data class NutritionPlan (
 
     /* Nutrition plan ID */
     @Json(name = "id")
-    val id: BigDecimal,
+    val id: kotlin.Int,
 
     /* Plan name */
     @Json(name = "name")
-    val name: String,
+    val name: kotlin.String,
 
     /* Creator user ID */
     @Json(name = "createdBy")
-    val createdBy: String,
+    val createdBy: kotlin.String,
 
     /* Whether plan is active */
     @Json(name = "isActive")
-    val isActive: Boolean,
+    val isActive: kotlin.Boolean,
 
     /* Creation date */
     @Json(name = "createdAt")
-    val createdAt: String,
+    val createdAt: kotlin.String,
 
     /* Last update date */
     @Json(name = "updatedAt")
-    val updatedAt: String,
+    val updatedAt: kotlin.String,
 
     /* Plan description */
     @Json(name = "description")
-    val description: String? = null
+    val description: kotlin.String? = null
 
 ) {
 

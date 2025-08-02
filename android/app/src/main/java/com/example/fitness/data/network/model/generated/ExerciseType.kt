@@ -18,7 +18,6 @@ package com.example.fitness.data.network.model.generated
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import java.math.BigDecimal
 
 /**
  * 
@@ -34,19 +33,19 @@ data class ExerciseType (
 
     /* Exercise type ID */
     @Json(name = "id")
-    val id: BigDecimal,
+    val id: kotlin.Int,
 
     /* Exercise name */
     @Json(name = "name")
-    val name: String,
+    val name: kotlin.String,
 
     /* Device position for tracking */
     @Json(name = "devicePosition")
-    val devicePosition: DevicePosition,
+    val devicePosition: ExerciseType.DevicePosition,
 
     /* Type of logging for this exercise */
     @Json(name = "logType")
-    val logType: LogType
+    val logType: ExerciseType.LogType
 
 ) {
 
@@ -56,7 +55,7 @@ data class ExerciseType (
      * Values: thigh,arm,none
      */
     @JsonClass(generateAdapter = false)
-    enum class DevicePosition(val value: String) {
+    enum class DevicePosition(val value: kotlin.String) {
         @Json(name = "thigh") thigh("thigh"),
         @Json(name = "arm") arm("arm"),
         @Json(name = "none") none("none");
@@ -67,7 +66,7 @@ data class ExerciseType (
      * Values: reps,duration
      */
     @JsonClass(generateAdapter = false)
-    enum class LogType(val value: String) {
+    enum class LogType(val value: kotlin.String) {
         @Json(name = "reps") reps("reps"),
         @Json(name = "duration") duration("duration");
     }
