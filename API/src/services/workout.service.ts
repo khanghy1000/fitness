@@ -467,4 +467,182 @@ export class WorkoutService {
             userWorkoutPlan: userPlan,
         };
     }
+
+    static async bulkUpdateWorkoutPlan(
+        id: number,
+        data: {
+            name?: string;
+            description?: string;
+            difficulty?: 'beginner' | 'intermediate' | 'advanced';
+            estimatedCalories?: number;
+            isActive?: boolean;
+            days?: Array<{
+                id?: number;
+                day: number;
+                isRestDay?: boolean;
+                estimatedCalories?: number;
+                duration?: number;
+                exercises?: Array<{
+                    id?: number;
+                    exerciseTypeId: number;
+                    order?: number;
+                    targetReps?: number;
+                    targetDuration?: number;
+                    estimatedCalories?: number;
+                    notes?: string;
+                }>;
+            }>;
+        }
+    ) {
+        return await db.transaction(async (tx) => {
+            // Update workout plan basic info
+            const { days, ...planData } = data;
+
+            const updatedPlan = await tx
+                .update(workoutPlan)
+                .set({ ...planData, updatedAt: new Date() })
+                .where(eq(workoutPlan.id, id))
+                .returning();
+
+            if (!updatedPlan[0]) {
+                throw new Error('Workout plan not found');
+            }
+
+            if (days) {
+                // Get existing days and exercises
+                const existingDays = await tx.query.workoutPlanDay.findMany({
+                    where: eq(workoutPlanDay.workoutPlanId, id),
+                    with: {
+                        exercises: true,
+                    },
+                });
+                const existingDayIds = new Set(existingDays.map((d) => d.id));
+                const existingExerciseIds = new Set(
+                    existingDays.flatMap((d) => d.exercises.map((e) => e.id))
+                );
+
+                const providedDayIds = new Set(
+                    days.filter((d) => d.id).map((d) => d.id!)
+                );
+                const providedExerciseIds = new Set(
+                    days.flatMap(
+                        (d) =>
+                            d.exercises
+                                ?.filter((e) => e.id)
+                                .map((e) => e.id!) || []
+                    )
+                );
+
+                // Delete days that are not in the provided list
+                const daysToDelete = existingDays.filter(
+                    (d) => !providedDayIds.has(d.id)
+                );
+                for (const dayToDelete of daysToDelete) {
+                    await tx
+                        .delete(workoutPlanDay)
+                        .where(eq(workoutPlanDay.id, dayToDelete.id));
+                }
+
+                // Delete exercises that are not in the provided list for existing days
+                for (const existingDay of existingDays) {
+                    if (providedDayIds.has(existingDay.id)) {
+                        const exercisesToDelete = existingDay.exercises.filter(
+                            (e) => !providedExerciseIds.has(e.id)
+                        );
+                        for (const exerciseToDelete of exercisesToDelete) {
+                            await tx
+                                .delete(workoutPlanDayExercise)
+                                .where(
+                                    eq(
+                                        workoutPlanDayExercise.id,
+                                        exerciseToDelete.id
+                                    )
+                                );
+                        }
+                    }
+                }
+
+                // Process each day
+                for (const dayData of days) {
+                    const { exercises, ...dayInfoRaw } = dayData;
+                    // Remove id from update data
+                    const { id: dayIdForUpdate, ...dayInfo } = dayInfoRaw;
+
+                    let dayId: number;
+
+                    if (dayData.id) {
+                        // Only update if the day exists
+                        if (existingDayIds.has(dayData.id)) {
+                            const updatedDay = await tx
+                                .update(workoutPlanDay)
+                                .set(dayInfo)
+                                .where(eq(workoutPlanDay.id, dayData.id))
+                                .returning();
+                            dayId = updatedDay[0].id;
+                        } else {
+                            // Skip update for non-existent day
+                            continue;
+                        }
+                    } else {
+                        // Create new day
+                        const newDay = await tx
+                            .insert(workoutPlanDay)
+                            .values({ ...dayInfo, workoutPlanId: id })
+                            .returning();
+                        dayId = newDay[0].id;
+                    }
+
+                    // Process exercises for this day
+                    if (exercises) {
+                        for (const exerciseData of exercises) {
+                            const { id: exerciseIdForUpdate, ...exerciseInfo } =
+                                exerciseData;
+                            if (exerciseData.id) {
+                                // Only update if the exercise exists
+                                if (existingExerciseIds.has(exerciseData.id)) {
+                                    await tx
+                                        .update(workoutPlanDayExercise)
+                                        .set({
+                                            ...exerciseInfo,
+                                            updatedAt: new Date(),
+                                        })
+                                        .where(
+                                            eq(
+                                                workoutPlanDayExercise.id,
+                                                exerciseData.id
+                                            )
+                                        );
+                                } else {
+                                    // Skip update for non-existent exercise
+                                    continue;
+                                }
+                            } else {
+                                // Create new exercise
+                                await tx.insert(workoutPlanDayExercise).values({
+                                    ...exerciseInfo,
+                                    workoutPlanDayId: dayId,
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Return the updated plan with full details
+            return await tx.query.workoutPlan.findFirst({
+                where: eq(workoutPlan.id, id),
+                with: {
+                    workoutPlanDays: {
+                        with: {
+                            exercises: {
+                                with: {
+                                    exerciseType: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            });
+        });
+    }
 }

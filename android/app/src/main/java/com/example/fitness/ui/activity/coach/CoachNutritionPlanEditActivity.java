@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.fitness.R;
+import com.example.fitness.data.network.model.generated.DetailedNutritionPlan;
 import com.example.fitness.data.network.model.generated.NutritionPlan;
 import com.example.fitness.databinding.ActivityCoachNutritionPlanEditBinding;
 import com.example.fitness.ui.adapter.NutritionDayEditAdapter;
@@ -125,7 +126,7 @@ public class CoachNutritionPlanEditActivity extends AppCompatActivity {
     }
 
     private void observeViewModel() {
-        viewModel.nutritionPlan.observe(this, this::displayNutritionPlan);
+        viewModel.detailedNutritionPlan.observe(this, this::displayNutritionPlan);
 
         viewModel.editableDays.observe(this, editableDays -> {
             if (editableDays != null) {
@@ -157,12 +158,12 @@ public class CoachNutritionPlanEditActivity extends AppCompatActivity {
         });
     }
 
-    private void displayNutritionPlan(NutritionPlan nutritionPlan) {
-        if (nutritionPlan == null) return;
+    private void displayNutritionPlan(DetailedNutritionPlan detailedNutritionPlan) {
+        if (detailedNutritionPlan == null) return;
         
-        binding.editTextPlanName.setText(nutritionPlan.getName());
-        binding.editTextPlanDescription.setText(nutritionPlan.getDescription());
-        binding.switchIsActive.setChecked(nutritionPlan.isActive());
+        binding.editTextPlanName.setText(detailedNutritionPlan.getName());
+        binding.editTextPlanDescription.setText(detailedNutritionPlan.getDescription());
+        binding.switchIsActive.setChecked(detailedNutritionPlan.isActive());
     }
 
     @Override

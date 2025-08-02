@@ -145,6 +145,24 @@ interface NutritionApi {
     fun apiNutritionGet(): Call<kotlin.collections.List<NutritionPlan>>
 
     /**
+     * PUT api/nutrition/{id}/bulk
+     * Bulk update nutrition plan
+     * Update a nutrition plan with all its days, meals, foods in one request. Items not included will be deleted.
+     * Responses:
+     *  - 200: Nutrition plan updated successfully
+     *  - 400: Invalid input data
+     *  - 401: Unauthorized
+     *  - 404: Nutrition plan not found
+     *  - 500: Internal server error
+     *
+     * @param id Unique identifier
+     * @param bulkUpdateNutritionPlan Complete nutrition plan data (optional)
+     * @return [Call]<[DetailedNutritionPlan]>
+     */
+    @PUT("api/nutrition/{id}/bulk")
+    fun apiNutritionIdBulkPut(@Path("id") id: kotlin.String, @Body bulkUpdateNutritionPlan: BulkUpdateNutritionPlan? = null): Call<DetailedNutritionPlan>
+
+    /**
      * GET api/nutrition/{id}/days
      * Get nutrition plan days
      * Get all days for a nutrition plan
@@ -200,10 +218,10 @@ interface NutritionApi {
      *  - 404: Nutrition plan not found
      *
      * @param id Unique identifier
-     * @return [Call]<[NutritionPlan]>
+     * @return [Call]<[DetailedNutritionPlan]>
      */
     @GET("api/nutrition/{id}")
-    fun apiNutritionIdGet(@Path("id") id: kotlin.String): Call<NutritionPlan>
+    fun apiNutritionIdGet(@Path("id") id: kotlin.String): Call<DetailedNutritionPlan>
 
     /**
      * PUT api/nutrition/{id}

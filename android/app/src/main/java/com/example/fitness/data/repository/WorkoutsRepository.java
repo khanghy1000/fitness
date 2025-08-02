@@ -62,10 +62,10 @@ public class WorkoutsRepository {
         });
     }
 
-    public void getWorkoutPlanById(String id, WorkoutsCallback<WorkoutPlan> callback) {
-        workoutsApi.apiWorkoutsIdGet(id).enqueue(new Callback<WorkoutPlan>() {
+    public void getWorkoutPlanById(String id, WorkoutsCallback<DetailedWorkoutPlan> callback) {
+        workoutsApi.apiWorkoutsIdGet(id).enqueue(new Callback<DetailedWorkoutPlan>() {
             @Override
-            public void onResponse(Call<WorkoutPlan> call, Response<WorkoutPlan> response) {
+            public void onResponse(Call<DetailedWorkoutPlan> call, Response<DetailedWorkoutPlan> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     callback.onSuccess(response.body());
                 } else {
@@ -74,7 +74,7 @@ public class WorkoutsRepository {
             }
 
             @Override
-            public void onFailure(Call<WorkoutPlan> call, Throwable t) {
+            public void onFailure(Call<DetailedWorkoutPlan> call, Throwable t) {
                 callback.onError(t.getMessage());
             }
         });
@@ -291,6 +291,24 @@ public class WorkoutsRepository {
 
             @Override
             public void onFailure(Call<SuccessMessage> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
+    }
+
+    public void bulkUpdateWorkoutPlan(String id, BulkUpdateWorkoutPlan bulkUpdateWorkoutPlan, WorkoutsCallback<DetailedWorkoutPlan> callback) {
+        workoutsApi.apiWorkoutsIdBulkPut(id, bulkUpdateWorkoutPlan).enqueue(new Callback<DetailedWorkoutPlan>() {
+            @Override
+            public void onResponse(Call<DetailedWorkoutPlan> call, Response<DetailedWorkoutPlan> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to bulk update workout plan: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<DetailedWorkoutPlan> call, Throwable t) {
                 callback.onError(t.getMessage());
             }
         });

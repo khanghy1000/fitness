@@ -60,10 +60,10 @@ public class NutritionRepository {
         });
     }
 
-    public void getNutritionPlanById(String id, NutritionCallback<NutritionPlan> callback) {
-        nutritionApi.apiNutritionIdGet(id).enqueue(new Callback<NutritionPlan>() {
+    public void getNutritionPlanById(String id, NutritionCallback<DetailedNutritionPlan> callback) {
+        nutritionApi.apiNutritionIdGet(id).enqueue(new Callback<DetailedNutritionPlan>() {
             @Override
-            public void onResponse(Call<NutritionPlan> call, Response<NutritionPlan> response) {
+            public void onResponse(Call<DetailedNutritionPlan> call, Response<DetailedNutritionPlan> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     callback.onSuccess(response.body());
                 } else {
@@ -72,7 +72,7 @@ public class NutritionRepository {
             }
 
             @Override
-            public void onFailure(Call<NutritionPlan> call, Throwable t) {
+            public void onFailure(Call<DetailedNutritionPlan> call, Throwable t) {
                 callback.onError(t.getMessage());
             }
         });
@@ -381,6 +381,24 @@ public class NutritionRepository {
 
             @Override
             public void onFailure(Call<SuccessMessage> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
+    }
+
+    public void bulkUpdateNutritionPlan(String id, BulkUpdateNutritionPlan bulkUpdateNutritionPlan, NutritionCallback<DetailedNutritionPlan> callback) {
+        nutritionApi.apiNutritionIdBulkPut(id, bulkUpdateNutritionPlan).enqueue(new Callback<DetailedNutritionPlan>() {
+            @Override
+            public void onResponse(Call<DetailedNutritionPlan> call, Response<DetailedNutritionPlan> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to bulk update nutrition plan: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<DetailedNutritionPlan> call, Throwable t) {
                 callback.onError(t.getMessage());
             }
         });

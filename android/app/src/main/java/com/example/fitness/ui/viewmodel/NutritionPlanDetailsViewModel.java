@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.fitness.data.network.model.generated.NutritionPlan;
+import com.example.fitness.data.network.model.generated.DetailedNutritionPlan;
 import com.example.fitness.data.network.model.generated.NutritionPlanDay;
 import com.example.fitness.data.repository.NutritionRepository;
 
@@ -18,8 +18,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class NutritionPlanDetailsViewModel extends ViewModel {
     private final NutritionRepository nutritionRepository;
 
-    private final MutableLiveData<NutritionPlan> _nutritionPlan = new MutableLiveData<>();
-    public final LiveData<NutritionPlan> nutritionPlan = _nutritionPlan;
+    private final MutableLiveData<DetailedNutritionPlan> _detailedNutritionPlan = new MutableLiveData<>();
+    public final LiveData<DetailedNutritionPlan> detailedNutritionPlan = _detailedNutritionPlan;
 
     private final MutableLiveData<List<NutritionPlanDay>> _nutritionPlanDays = new MutableLiveData<>();
     public final LiveData<List<NutritionPlanDay>> nutritionPlanDays = _nutritionPlanDays;
@@ -39,10 +39,10 @@ public class NutritionPlanDetailsViewModel extends ViewModel {
         _isLoading.setValue(true);
         
         // Load nutrition plan details
-        nutritionRepository.getNutritionPlanById(planId, new NutritionRepository.NutritionCallback<NutritionPlan>() {
+        nutritionRepository.getNutritionPlanById(planId, new NutritionRepository.NutritionCallback<DetailedNutritionPlan>() {
             @Override
-            public void onSuccess(NutritionPlan result) {
-                _nutritionPlan.setValue(result);
+            public void onSuccess(DetailedNutritionPlan result) {
+                _detailedNutritionPlan.setValue(result);
                 _error.setValue(null);
                 
                 // Load nutrition plan days

@@ -145,6 +145,24 @@ interface WorkoutsApi {
     fun apiWorkoutsGet(): Call<kotlin.collections.List<WorkoutPlan>>
 
     /**
+     * PUT api/workouts/{id}/bulk
+     * Bulk update workout plan
+     * Update a workout plan with all its days, exercises in one request. Items not included will be deleted.
+     * Responses:
+     *  - 200: Workout plan updated successfully
+     *  - 400: Invalid input data
+     *  - 401: Unauthorized
+     *  - 404: Workout plan not found
+     *  - 500: Internal server error
+     *
+     * @param id Unique identifier
+     * @param bulkUpdateWorkoutPlan Complete workout plan data (optional)
+     * @return [Call]<[DetailedWorkoutPlan]>
+     */
+    @PUT("api/workouts/{id}/bulk")
+    fun apiWorkoutsIdBulkPut(@Path("id") id: kotlin.String, @Body bulkUpdateWorkoutPlan: BulkUpdateWorkoutPlan? = null): Call<DetailedWorkoutPlan>
+
+    /**
      * GET api/workouts/{id}/days
      * Get workout plan days
      * Get all days for a workout plan
@@ -200,10 +218,10 @@ interface WorkoutsApi {
      *  - 404: Workout plan not found
      *
      * @param id Unique identifier
-     * @return [Call]<[WorkoutPlan]>
+     * @return [Call]<[DetailedWorkoutPlan]>
      */
     @GET("api/workouts/{id}")
-    fun apiWorkoutsIdGet(@Path("id") id: kotlin.String): Call<WorkoutPlan>
+    fun apiWorkoutsIdGet(@Path("id") id: kotlin.String): Call<DetailedWorkoutPlan>
 
     /**
      * PUT api/workouts/{id}

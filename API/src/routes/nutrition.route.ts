@@ -19,6 +19,7 @@ import {
     updateNutritionPlanMealSchema,
     createNutritionPlanFoodSchema,
     updateNutritionPlanFoodSchema,
+    bulkUpdateNutritionPlanSchema,
 } from '../validation/schemas.ts';
 import { NutritionService } from '@services/nutrition.service.ts';
 
@@ -313,10 +314,10 @@ router.get(
     }
 );
 
-// Update nutrition plan (coach only)
+// Update nutrition plan
 router.put(
     '/:id',
-    requireCoach,
+    requireAuthenticated,
     validateParams(idParamSchema),
     validateBody(updateNutritionPlanSchema),
     async (req, res) => {
@@ -332,10 +333,10 @@ router.put(
     }
 );
 
-// Delete nutrition plan (coach only)
+// Delete nutrition plan
 router.delete(
     '/:id',
-    requireCoach,
+    requireAuthenticated,
     validateParams(idParamSchema),
     async (req, res) => {
         const id = (req.params as any).id as number;
@@ -374,6 +375,35 @@ router.post(
 
         const day = await NutritionService.createNutritionPlanDay(dayData);
         res.status(201).json(day);
+    }
+);
+
+// Bulk update nutrition plan
+router.put(
+    '/:id/bulk',
+    requireAuthenticated,
+    validateParams(idParamSchema),
+    validateBody(bulkUpdateNutritionPlanSchema),
+    async (req, res) => {
+        try {
+            const id = (req.params as any).id as number;
+            const updateData = req.body;
+
+            const plan = await NutritionService.bulkUpdateNutritionPlan(
+                id,
+                updateData
+            );
+            if (!plan) {
+                return res
+                    .status(404)
+                    .json({ error: 'Nutrition plan not found' });
+            }
+
+            res.json(plan);
+        } catch (error) {
+            console.error('Bulk update nutrition plan error:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
     }
 );
 

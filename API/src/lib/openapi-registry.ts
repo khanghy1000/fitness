@@ -42,6 +42,7 @@ import {
     nutritionPlanFoodSchema,
     createNutritionPlanFoodSchema,
     updateNutritionPlanFoodSchema,
+    detailedNutritionPlanSchema,
 
     // Workout schemas
     assignWorkoutPlanSchema,
@@ -54,6 +55,9 @@ import {
     workoutPlanDayExerciseSchema,
     addExerciseToPlanDaySchema,
     updateExerciseInPlanDaySchema,
+    bulkUpdateWorkoutPlanSchema,
+    bulkUpdateNutritionPlanSchema,
+    detailedWorkoutPlanSchema,
 
     // Planned workout schemas
     plannedWorkoutSchema,
@@ -80,6 +84,10 @@ registry.register('WorkoutPlanIdParam', workoutPlanIdParamSchema);
 registry.register('UserWorkoutPlanIdParam', userWorkoutPlanIdParamSchema);
 registry.register('MealIdParam', mealIdParamSchema);
 registry.register('SuccessMessage', successMessageSchema);
+
+// Bulk update schemas
+registry.register('BulkUpdateWorkoutPlan', bulkUpdateWorkoutPlanSchema);
+registry.register('BulkUpdateNutritionPlan', bulkUpdateNutritionPlanSchema);
 
 // Connection schemas
 registry.register('ConnectRequest', connectRequestSchema);
@@ -111,6 +119,7 @@ registry.register('UpdateNutritionPlanMeal', updateNutritionPlanMealSchema);
 registry.register('NutritionPlanFood', nutritionPlanFoodSchema);
 registry.register('CreateNutritionPlanFood', createNutritionPlanFoodSchema);
 registry.register('UpdateNutritionPlanFood', updateNutritionPlanFoodSchema);
+registry.register('DetailedNutritionPlan', detailedNutritionPlanSchema);
 
 // Workout schemas
 registry.register('AssignWorkoutPlan', assignWorkoutPlanSchema);
@@ -123,6 +132,7 @@ registry.register('UpdateWorkoutPlanDay', updateWorkoutPlanDaySchema);
 registry.register('WorkoutPlanDayExercise', workoutPlanDayExerciseSchema);
 registry.register('AddExerciseToPlanDay', addExerciseToPlanDaySchema);
 registry.register('UpdateExerciseInPlanDay', updateExerciseInPlanDaySchema);
+registry.register('DetailedWorkoutPlan', detailedWorkoutPlanSchema);
 
 // Planned workout schemas
 registry.register('PlannedWorkout', plannedWorkoutSchema);
@@ -1159,7 +1169,7 @@ registry.registerPath({
             description: 'Nutrition plan details',
             content: {
                 'application/json': {
-                    schema: nutritionPlanSchema,
+                    schema: detailedNutritionPlanSchema,
                 },
             },
         },
@@ -1251,9 +1261,7 @@ registry.registerPath({
             description: 'List of nutrition plan days',
             content: {
                 'application/json': {
-                    schema: z.array(
-                        nutritionPlanDaySchema,
-                    ),
+                    schema: z.array(nutritionPlanDaySchema),
                 },
             },
         },
@@ -1407,9 +1415,7 @@ registry.registerPath({
             description: 'List of nutrition plan meals',
             content: {
                 'application/json': {
-                    schema: z.array(
-                        nutritionPlanMealSchema
-                    ),
+                    schema: z.array(nutritionPlanMealSchema),
                 },
             },
         },
@@ -1563,9 +1569,7 @@ registry.registerPath({
             description: 'List of nutrition plan foods',
             content: {
                 'application/json': {
-                    schema: z.array(
-                        nutritionPlanFoodSchema
-                    ),
+                    schema: z.array(nutritionPlanFoodSchema),
                 },
             },
         },
@@ -1775,7 +1779,7 @@ registry.registerPath({
             description: 'Workout plan details',
             content: {
                 'application/json': {
-                    schema: workoutPlanSchema,
+                    schema: detailedWorkoutPlanSchema,
                 },
             },
         },
@@ -1867,9 +1871,7 @@ registry.registerPath({
             description: 'List of workout plan days',
             content: {
                 'application/json': {
-                    schema: z.array(
-                        workoutPlanDaySchema
-                    ),
+                    schema: z.array(workoutPlanDaySchema),
                 },
             },
         },
@@ -1904,7 +1906,7 @@ registry.registerPath({
             description: 'Workout plan day created successfully',
             content: {
                 'application/json': {
-                    schema:workoutPlanDaySchema,
+                    schema: workoutPlanDaySchema,
                 },
             },
         },
@@ -2023,9 +2025,7 @@ registry.registerPath({
             description: 'List of workout plan exercises',
             content: {
                 'application/json': {
-                    schema: z.array(
-                        workoutPlanDayExerciseSchema
-                    ),
+                    schema: z.array(workoutPlanDayExerciseSchema),
                 },
             },
         },
@@ -2060,7 +2060,7 @@ registry.registerPath({
             description: 'Exercise added to workout plan day successfully',
             content: {
                 'application/json': {
-                    schema: workoutPlanDayExerciseSchema
+                    schema: workoutPlanDayExerciseSchema,
                 },
             },
         },
@@ -2165,6 +2165,94 @@ registry.registerPath({
     },
 });
 
+// Bulk Update Endpoints
+
+// Bulk update workout plan
+registry.registerPath({
+    method: 'put',
+    path: '/api/workouts/{id}/bulk',
+    tags: ['Workouts'],
+    summary: 'Bulk update workout plan',
+    description:
+        'Update a workout plan with all its days, exercises in one request. Items not included will be deleted.',
+    request: {
+        params: idParamSchema,
+        body: {
+            description: 'Complete workout plan data',
+            content: {
+                'application/json': {
+                    schema: bulkUpdateWorkoutPlanSchema,
+                },
+            },
+        },
+    },
+    responses: {
+        200: {
+            description: 'Workout plan updated successfully',
+            content: {
+                'application/json': {
+                    schema: detailedWorkoutPlanSchema,
+                },
+            },
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'Workout plan not found',
+        },
+        500: {
+            description: 'Internal server error',
+        },
+    },
+});
+
+// Bulk update nutrition plan
+registry.registerPath({
+    method: 'put',
+    path: '/api/nutrition/{id}/bulk',
+    tags: ['Nutrition'],
+    summary: 'Bulk update nutrition plan',
+    description:
+        'Update a nutrition plan with all its days, meals, foods in one request. Items not included will be deleted.',
+    request: {
+        params: idParamSchema,
+        body: {
+            description: 'Complete nutrition plan data',
+            content: {
+                'application/json': {
+                    schema: bulkUpdateNutritionPlanSchema,
+                },
+            },
+        },
+    },
+    responses: {
+        200: {
+            description: 'Nutrition plan updated successfully',
+            content: {
+                'application/json': {
+                    schema: detailedNutritionPlanSchema,
+                },
+            },
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'Nutrition plan not found',
+        },
+        500: {
+            description: 'Internal server error',
+        },
+    },
+});
+
 // Planned Workouts routes
 registry.registerPath({
     method: 'get',
@@ -2177,9 +2265,7 @@ registry.registerPath({
             description: 'List of planned workouts',
             content: {
                 'application/json': {
-                    schema: z.array(
-                        plannedWorkoutSchema
-                    ),
+                    schema: z.array(plannedWorkoutSchema),
                 },
             },
         },
@@ -2267,9 +2353,7 @@ registry.registerPath({
             description: 'List of planned workouts for the weekday',
             content: {
                 'application/json': {
-                    schema: z.array(
-                        plannedWorkoutSchema
-                    ),
+                    schema: z.array(plannedWorkoutSchema),
                 },
             },
         },
@@ -2412,7 +2496,7 @@ registry.registerPath({
             description: 'Planned workout status toggled successfully',
             content: {
                 'application/json': {
-                    schema:plannedWorkoutSchema,
+                    schema: plannedWorkoutSchema,
                 },
             },
         },

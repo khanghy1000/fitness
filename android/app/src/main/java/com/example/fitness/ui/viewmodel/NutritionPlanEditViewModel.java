@@ -5,9 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.fitness.data.network.model.generated.CreateNutritionPlan;
-import com.example.fitness.data.network.model.generated.CreateNutritionPlanDay;
-import com.example.fitness.data.network.model.generated.CreateNutritionPlanFood;
-import com.example.fitness.data.network.model.generated.CreateNutritionPlanMeal;
+import com.example.fitness.data.network.model.generated.DetailedNutritionPlan;
 import com.example.fitness.data.network.model.generated.NutritionPlan;
 import com.example.fitness.data.network.model.generated.NutritionPlanDay;
 import com.example.fitness.data.network.model.generated.NutritionPlanFood;
@@ -15,7 +13,6 @@ import com.example.fitness.data.network.model.generated.NutritionPlanMeal;
 import com.example.fitness.data.network.model.generated.UpdateNutritionPlan;
 import com.example.fitness.data.repository.NutritionRepository;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,8 +24,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class NutritionPlanEditViewModel extends ViewModel {
     private final NutritionRepository nutritionRepository;
 
-    private final MutableLiveData<NutritionPlan> _nutritionPlan = new MutableLiveData<>();
-    public final LiveData<NutritionPlan> nutritionPlan = _nutritionPlan;
+    private final MutableLiveData<DetailedNutritionPlan> _detailedNutritionPlan = new MutableLiveData<>();
+    public final LiveData<DetailedNutritionPlan> detailedNutritionPlan = _detailedNutritionPlan;
 
     private final MutableLiveData<List<EditablePlanDay>> _editableDays = new MutableLiveData<>();
     public final LiveData<List<EditablePlanDay>> editableDays = _editableDays;
@@ -57,7 +54,7 @@ public class NutritionPlanEditViewModel extends ViewModel {
     public void initializeForNewPlan() {
         isNewPlan = true;
         currentPlanId = null;
-        _nutritionPlan.setValue(null);
+        _detailedNutritionPlan.setValue(null);
         _editableDays.setValue(new ArrayList<>());
     }
 
@@ -70,10 +67,10 @@ public class NutritionPlanEditViewModel extends ViewModel {
     private void loadNutritionPlanForEdit(String planId) {
         _isLoading.setValue(true);
         
-        nutritionRepository.getNutritionPlanById(planId, new NutritionRepository.NutritionCallback<NutritionPlan>() {
+        nutritionRepository.getNutritionPlanById(planId, new NutritionRepository.NutritionCallback<DetailedNutritionPlan>() {
             @Override
-            public void onSuccess(NutritionPlan result) {
-                _nutritionPlan.setValue(result);
+            public void onSuccess(DetailedNutritionPlan result) {
+                _detailedNutritionPlan.setValue(result);
                 loadNutritionPlanDays(planId);
             }
 
@@ -253,7 +250,6 @@ public class NutritionPlanEditViewModel extends ViewModel {
             @Override
             public void onSuccess(NutritionPlan result) {
                 currentPlanId = String.valueOf(result.getId());
-                _nutritionPlan.setValue(result);
                 saveDays();
             }
 
@@ -271,7 +267,6 @@ public class NutritionPlanEditViewModel extends ViewModel {
         nutritionRepository.updateNutritionPlan(currentPlanId, updateRequest, new NutritionRepository.NutritionCallback<NutritionPlan>() {
             @Override
             public void onSuccess(NutritionPlan result) {
-                _nutritionPlan.setValue(result);
                 saveDays();
             }
 

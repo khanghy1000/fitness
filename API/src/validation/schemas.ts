@@ -473,7 +473,7 @@ export const addDayToWorkoutPlanSchema = z
             example: 400,
         }),
         duration: z.number().positive().optional().openapi({
-            description: 'Estimated duration in minutes',
+            description: 'Estimated duration in seconds',
             example: 60,
         }),
     })
@@ -1284,7 +1284,7 @@ export const updateWorkoutPlanDaySchema = z
             example: 400,
         }),
         duration: z.int().positive().optional().openapi({
-            description: 'Estimated duration in minutes',
+            description: 'Estimated duration in seconds',
             example: 60,
         }),
     })
@@ -1375,25 +1375,497 @@ export const mealIdParamSchema = z
     })
     .openapi('MealIdParam');
 
+// Bulk Update Schemas
+
+// Bulk Update Workout Plan
+const bulkWorkoutPlanDayExerciseSchema = z
+    .object({
+        id: z.int().optional().openapi({
+            description: 'Exercise ID (omit for new exercises)',
+            example: 123,
+        }),
+        exerciseTypeId: z
+            .int()
+            .positive('Exercise type ID is required')
+            .openapi({ description: 'ID of the exercise type', example: 15 }),
+        order: z.int().positive().optional().openapi({
+            description: 'Order of exercise in the workout',
+            example: 1,
+        }),
+        targetReps: z.int().positive().optional().openapi({
+            description: 'Target number of repetitions',
+            example: 12,
+        }),
+        targetDuration: z.int().positive().optional().openapi({
+            description: 'Target duration in seconds',
+            example: 300,
+        }),
+        estimatedCalories: z.int().positive().optional().openapi({
+            description: 'Estimated calories burned for this exercise',
+            example: 50,
+        }),
+        notes: z.string().optional().openapi({
+            description: 'Additional notes for the exercise',
+            example: 'Focus on form over speed',
+        }),
+    })
+    .openapi('BulkWorkoutPlanDayExercise');
+
+const bulkWorkoutPlanDaySchema = z
+    .object({
+        id: z.int().optional().openapi({
+            description: 'Day ID (omit for new days)',
+            example: 456,
+        }),
+        day: z.int().positive('Day must be a positive number').openapi({
+            description: 'Day number in the workout plan',
+            example: 1,
+        }),
+        isRestDay: z.boolean().default(false).openapi({
+            description: 'Whether this is a rest day',
+            example: false,
+        }),
+        estimatedCalories: z.int().positive().optional().openapi({
+            description: 'Estimated calories burned for this day',
+            example: 400,
+        }),
+        duration: z.int().positive().optional().openapi({
+            description: 'Estimated duration in seconds',
+            example: 60,
+        }),
+        exercises: z
+            .array(bulkWorkoutPlanDayExerciseSchema)
+            .optional()
+            .openapi({
+                description: 'List of exercises for this day',
+            }),
+    })
+    .openapi('BulkWorkoutPlanDay');
+
+export const bulkUpdateWorkoutPlanSchema = z
+    .object({
+        name: z
+            .string()
+            .min(1, 'Invalid plan name')
+            .trim()
+            .optional()
+            .openapi({ description: 'Updated name of the workout plan' }),
+        description: z.string().optional().openapi({
+            description: 'Updated description of the workout plan',
+        }),
+        difficulty: z
+            .enum(['beginner', 'intermediate', 'advanced'], {
+                message: 'Invalid difficulty level',
+            })
+            .optional()
+            .openapi({ description: 'Updated difficulty level' }),
+        estimatedCalories: z
+            .int()
+            .positive()
+            .optional()
+            .openapi({ description: 'Updated estimated calories burned' }),
+        isActive: z.boolean().optional().openapi({
+            description: 'Whether the workout plan is active',
+            example: true,
+        }),
+        days: z.array(bulkWorkoutPlanDaySchema).optional().openapi({
+            description: 'List of workout plan days',
+        }),
+    })
+    .openapi('BulkUpdateWorkoutPlan');
+
+// Bulk Update Nutrition Plan
+const bulkNutritionPlanFoodSchema = z
+    .object({
+        id: z.int().optional().openapi({
+            description: 'Food ID (omit for new foods)',
+            example: 789,
+        }),
+        name: z.string().min(1, 'Food name is required').openapi({
+            description: 'Name of the food',
+            example: 'Greek Yogurt',
+        }),
+        quantity: z.string().min(1, 'Quantity is required').openapi({
+            description: 'Quantity of the food',
+            example: '1 cup',
+        }),
+        calories: z.int().min(0, 'Calories cannot be negative').openapi({
+            description: 'Calories in the food',
+            example: 130,
+        }),
+        protein: z.number().min(0).optional().openapi({
+            description: 'Protein content',
+            example: 20.0,
+        }),
+        carbs: z.number().min(0).optional().openapi({
+            description: 'Carbs content',
+            example: 9.0,
+        }),
+        fat: z.number().min(0).optional().openapi({
+            description: 'Fat content',
+            example: 0.7,
+        }),
+        fiber: z.number().min(0).optional().openapi({
+            description: 'Fiber content',
+            example: 0.0,
+        }),
+    })
+    .openapi('BulkNutritionPlanFood');
+
+const bulkNutritionPlanMealSchema = z
+    .object({
+        id: z.int().optional().openapi({
+            description: 'Meal ID (omit for new meals)',
+            example: 456,
+        }),
+        name: z.string().min(1, 'Meal name is required').openapi({
+            description: 'Name of the meal',
+            example: 'Breakfast',
+        }),
+        time: z
+            .string()
+            .regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/, {
+                message: 'Time must be in HH:MM:SS format',
+            })
+            .openapi({
+                description: 'Time when meal should be consumed',
+                example: '08:00:00',
+            }),
+        calories: z.int().min(0).optional().openapi({
+            description: 'Total calories for the meal',
+            example: 450,
+        }),
+        protein: z.number().min(0).optional().openapi({
+            description: 'Total protein for the meal',
+            example: 25.5,
+        }),
+        carbs: z.number().min(0).optional().openapi({
+            description: 'Total carbs for the meal',
+            example: 45.0,
+        }),
+        fat: z.number().min(0).optional().openapi({
+            description: 'Total fat for the meal',
+            example: 12.0,
+        }),
+        fiber: z.number().min(0).optional().openapi({
+            description: 'Total fiber for the meal',
+            example: 8.0,
+        }),
+        foods: z.array(bulkNutritionPlanFoodSchema).optional().openapi({
+            description: 'List of foods in this meal',
+        }),
+    })
+    .openapi('BulkNutritionPlanMeal');
+
+const bulkNutritionPlanDaySchema = z
+    .object({
+        id: z.int().optional().openapi({
+            description: 'Day ID (omit for new days)',
+            example: 123,
+        }),
+        weekday: z
+            .enum(['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'], {
+                message:
+                    'Weekday must be one of: sun, mon, tue, wed, thu, fri, sat',
+            })
+            .openapi({ description: 'Day of the week', example: 'mon' }),
+        totalCalories: z.int().min(0).optional().openapi({
+            description: 'Total calories for the day',
+            example: 2000,
+        }),
+        protein: z.number().min(0).optional().openapi({
+            description: 'Total protein for the day',
+            example: 150,
+        }),
+        carbs: z.number().min(0).optional().openapi({
+            description: 'Total carbs for the day',
+            example: 200,
+        }),
+        fat: z.number().min(0).optional().openapi({
+            description: 'Total fat for the day',
+            example: 66,
+        }),
+        fiber: z.number().min(0).optional().openapi({
+            description: 'Total fiber for the day',
+            example: 25,
+        }),
+        meals: z.array(bulkNutritionPlanMealSchema).optional().openapi({
+            description: 'List of meals for this day',
+        }),
+    })
+    .openapi('BulkNutritionPlanDay');
+
+export const bulkUpdateNutritionPlanSchema = z
+    .object({
+        name: z
+            .string()
+            .min(1, 'Name is required')
+            .max(255)
+            .optional()
+            .openapi({ description: 'Updated name of the nutrition plan' }),
+        description: z.string().optional().openapi({
+            description: 'Updated description of the nutrition plan',
+        }),
+        isActive: z.boolean().optional().openapi({
+            description: 'Whether the nutrition plan is active',
+            example: true,
+        }),
+        days: z.array(bulkNutritionPlanDaySchema).optional().openapi({
+            description: 'List of nutrition plan days',
+        }),
+    })
+    .openapi('BulkUpdateNutritionPlan');
+
 export const plannedWorkoutSchema = z
-.object({
-    id: z.int(),
-    userId: z.string(),
-    userWorkoutPlanId: z.int(),
-    weekdays: z.array(
-        z.enum([
-            'sun',
-            'mon',
-            'tue',
-            'wed',
-            'thu',
-            'fri',
-            'sat',
-        ])
-    ),
-    time: z.string(),
-    isActive: z.boolean(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
-})
-.openapi('PlannedWorkout')
+    .object({
+        id: z.int(),
+        userId: z.string(),
+        userWorkoutPlanId: z.int(),
+        weekdays: z.array(
+            z.enum(['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'])
+        ),
+        time: z.string(),
+        isActive: z.boolean(),
+        createdAt: z.string(),
+        updatedAt: z.string(),
+    })
+    .openapi('PlannedWorkout');
+
+// Detailed schemas for endpoints that return nested data
+
+export const detailedNutritionPlanFoodSchema = z
+    .object({
+        id: z.int().openapi({ description: 'Food ID', example: 1 }),
+        nutritionPlanMealId: z.int().openapi({ description: 'Meal ID' }),
+        name: z
+            .string()
+            .openapi({ description: 'Food name', example: 'Greek Yogurt' }),
+        quantity: z
+            .string()
+            .openapi({ description: 'Food quantity', example: '1 cup' }),
+        calories: z.int().openapi({ description: 'Calories', example: 130 }),
+        protein: z
+            .number()
+            .optional()
+            .openapi({ description: 'Protein in grams', example: 20.0 }),
+        carbs: z
+            .number()
+            .optional()
+            .openapi({ description: 'Carbs in grams', example: 9.0 }),
+        fat: z
+            .number()
+            .optional()
+            .openapi({ description: 'Fat in grams', example: 0.7 }),
+        fiber: z
+            .number()
+            .optional()
+            .openapi({ description: 'Fiber in grams', example: 0.0 }),
+        createdAt: z.string().openapi({ description: 'Creation date' }),
+        updatedAt: z.string().openapi({ description: 'Last update date' }),
+    })
+    .openapi('DetailedNutritionPlanFood');
+
+export const detailedNutritionPlanMealSchema = z
+    .object({
+        id: z.int().openapi({ description: 'Meal ID', example: 1 }),
+        nutritionPlanDayId: z.int().openapi({ description: 'Day ID' }),
+        name: z
+            .string()
+            .openapi({ description: 'Meal name', example: 'Breakfast' }),
+        time: z
+            .string()
+            .openapi({ description: 'Meal time', example: '08:00:00' }),
+        calories: z
+            .int()
+            .optional()
+            .openapi({ description: 'Total calories', example: 450 }),
+        protein: z
+            .number()
+            .optional()
+            .openapi({ description: 'Total protein', example: 25.5 }),
+        carbs: z
+            .number()
+            .optional()
+            .openapi({ description: 'Total carbs', example: 45.0 }),
+        fat: z
+            .number()
+            .optional()
+            .openapi({ description: 'Total fat', example: 12.0 }),
+        fiber: z
+            .number()
+            .optional()
+            .openapi({ description: 'Total fiber', example: 8.0 }),
+        createdAt: z.string().openapi({ description: 'Creation date' }),
+        updatedAt: z.string().openapi({ description: 'Last update date' }),
+        foods: z
+            .array(detailedNutritionPlanFoodSchema)
+            .openapi({ description: 'Foods in this meal' }),
+    })
+    .openapi('DetailedNutritionPlanMeal');
+
+export const detailedNutritionPlanDaySchema = z
+    .object({
+        id: z.int().openapi({ description: 'Day ID', example: 1 }),
+        nutritionPlanId: z.int().openapi({ description: 'Nutrition plan ID' }),
+        weekday: z
+            .enum(['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'])
+            .openapi({
+                description: 'Day of the week',
+                example: 'mon',
+            }),
+        totalCalories: z
+            .int()
+            .optional()
+            .openapi({
+                description: 'Total calories for the day',
+                example: 2000,
+            }),
+        protein: z
+            .number()
+            .optional()
+            .openapi({
+                description: 'Total protein for the day',
+                example: 150,
+            }),
+        carbs: z
+            .number()
+            .optional()
+            .openapi({ description: 'Total carbs for the day', example: 200 }),
+        fat: z
+            .number()
+            .optional()
+            .openapi({ description: 'Total fat for the day', example: 66 }),
+        fiber: z
+            .number()
+            .optional()
+            .openapi({ description: 'Total fiber for the day', example: 25 }),
+        createdAt: z.string().openapi({ description: 'Creation date' }),
+        updatedAt: z.string().openapi({ description: 'Last update date' }),
+        meals: z
+            .array(detailedNutritionPlanMealSchema)
+            .openapi({ description: 'Meals for this day' }),
+    })
+    .openapi('DetailedNutritionPlanDay');
+
+export const detailedNutritionPlanSchema = z
+    .object({
+        id: z.int().openapi({ description: 'Nutrition plan ID', example: 1 }),
+        name: z
+            .string()
+            .openapi({
+                description: 'Plan name',
+                example: 'High Protein Diet',
+            }),
+        description: z
+            .string()
+            .optional()
+            .openapi({ description: 'Plan description' }),
+        createdBy: z.string().openapi({ description: 'Creator user ID' }),
+        isActive: z
+            .boolean()
+            .openapi({ description: 'Whether plan is active' }),
+        createdAt: z.string().openapi({ description: 'Creation date' }),
+        updatedAt: z.string().openapi({ description: 'Last update date' }),
+        days: z
+            .array(detailedNutritionPlanDaySchema)
+            .openapi({ description: 'Nutrition plan days' }),
+    })
+    .openapi('DetailedNutritionPlan');
+
+export const detailedWorkoutPlanDayExerciseSchema = z
+    .object({
+        id: z.int().openapi({ description: 'Exercise ID', example: 1 }),
+        workoutPlanDayId: z
+            .int()
+            .openapi({ description: 'Workout plan day ID' }),
+        exerciseTypeId: z.int().openapi({ description: 'Exercise type ID' }),
+        order: z
+            .int()
+            .optional()
+            .openapi({ description: 'Exercise order', example: 1 }),
+        targetReps: z
+            .int()
+            .optional()
+            .openapi({ description: 'Target repetitions', example: 12 }),
+        targetDuration: z
+            .int()
+            .optional()
+            .openapi({
+                description: 'Target duration in seconds',
+                example: 300,
+            }),
+        estimatedCalories: z
+            .int()
+            .optional()
+            .openapi({ description: 'Estimated calories burned', example: 50 }),
+        notes: z.string().optional().openapi({ description: 'Exercise notes' }),
+        createdAt: z.string().openapi({ description: 'Creation date' }),
+        updatedAt: z.string().openapi({ description: 'Last update date' }),
+        exerciseType: exerciseTypeSchema.openapi({
+            description: 'Exercise type details',
+        }),
+    })
+    .openapi('DetailedWorkoutPlanDayExercise');
+
+export const detailedWorkoutPlanDaySchema = z
+    .object({
+        id: z.int().openapi({ description: 'Day ID', example: 1 }),
+        workoutPlanId: z.int().openapi({ description: 'Workout plan ID' }),
+        day: z.int().openapi({ description: 'Day number', example: 1 }),
+        isRestDay: z
+            .boolean()
+            .openapi({
+                description: 'Whether this is a rest day',
+                example: false,
+            }),
+        estimatedCalories: z
+            .int()
+            .optional()
+            .openapi({
+                description: 'Estimated calories burned',
+                example: 400,
+            }),
+        duration: z
+            .int()
+            .optional()
+            .openapi({ description: 'Duration in seconds', example: 60 }),
+        createdAt: z.string().openapi({ description: 'Creation date' }),
+        updatedAt: z.string().openapi({ description: 'Last update date' }),
+        exercises: z
+            .array(detailedWorkoutPlanDayExerciseSchema)
+            .openapi({ description: 'Exercises for this day' }),
+    })
+    .openapi('DetailedWorkoutPlanDay');
+
+export const detailedWorkoutPlanSchema = z
+    .object({
+        id: z.int().openapi({ description: 'Workout plan ID', example: 1 }),
+        name: z
+            .string()
+            .openapi({ description: 'Plan name', example: 'Push Pull Legs' }),
+        description: z
+            .string()
+            .optional()
+            .openapi({ description: 'Plan description' }),
+        difficulty: z
+            .enum(['beginner', 'intermediate', 'advanced'])
+            .optional()
+            .openapi({
+                description: 'Difficulty level',
+                example: 'intermediate',
+            }),
+        estimatedCalories: z
+            .int()
+            .optional()
+            .openapi({ description: 'Estimated calories per session' }),
+        createdBy: z.string().openapi({ description: 'Creator user ID' }),
+        isActive: z
+            .boolean()
+            .openapi({ description: 'Whether plan is active' }),
+        createdAt: z.string().openapi({ description: 'Creation date' }),
+        updatedAt: z.string().openapi({ description: 'Last update date' }),
+        workoutPlanDays: z
+            .array(detailedWorkoutPlanDaySchema)
+            .openapi({ description: 'Workout plan days' }),
+    })
+    .openapi('DetailedWorkoutPlan');

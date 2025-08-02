@@ -137,6 +137,349 @@
           "message"
         ]
       },
+      "BulkWorkoutPlanDayExercise": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Exercise ID (omit for new exercises)",
+            "example": 123
+          },
+          "exerciseTypeId": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "description": "ID of the exercise type",
+            "example": 15
+          },
+          "order": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "description": "Order of exercise in the workout",
+            "example": 1
+          },
+          "targetReps": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "description": "Target number of repetitions",
+            "example": 12
+          },
+          "targetDuration": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "description": "Target duration in seconds",
+            "example": 300
+          },
+          "estimatedCalories": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "description": "Estimated calories burned for this exercise",
+            "example": 50
+          },
+          "notes": {
+            "type": "string",
+            "description": "Additional notes for the exercise",
+            "example": "Focus on form over speed"
+          }
+        },
+        "required": [
+          "exerciseTypeId"
+        ]
+      },
+      "BulkWorkoutPlanDay": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Day ID (omit for new days)",
+            "example": 456
+          },
+          "day": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "description": "Day number in the workout plan",
+            "example": 1
+          },
+          "isRestDay": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether this is a rest day",
+            "example": false
+          },
+          "estimatedCalories": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "description": "Estimated calories burned for this day",
+            "example": 400
+          },
+          "duration": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "description": "Estimated duration in seconds",
+            "example": 60
+          },
+          "exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BulkWorkoutPlanDayExercise"
+            },
+            "description": "List of exercises for this day"
+          }
+        },
+        "required": [
+          "day"
+        ]
+      },
+      "BulkUpdateWorkoutPlan": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Updated name of the workout plan"
+          },
+          "description": {
+            "type": "string",
+            "description": "Updated description of the workout plan"
+          },
+          "difficulty": {
+            "type": "string",
+            "enum": [
+              "beginner",
+              "intermediate",
+              "advanced"
+            ],
+            "description": "Updated difficulty level"
+          },
+          "estimatedCalories": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "description": "Updated estimated calories burned"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Whether the workout plan is active",
+            "example": true
+          },
+          "days": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BulkWorkoutPlanDay"
+            },
+            "description": "List of workout plan days"
+          }
+        }
+      },
+      "BulkNutritionPlanFood": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Food ID (omit for new foods)",
+            "example": 789
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Name of the food",
+            "example": "Greek Yogurt"
+          },
+          "quantity": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Quantity of the food",
+            "example": "1 cup"
+          },
+          "calories": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Calories in the food",
+            "example": 130
+          },
+          "protein": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Protein content",
+            "example": 20
+          },
+          "carbs": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Carbs content",
+            "example": 9
+          },
+          "fat": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Fat content",
+            "example": 0.7
+          },
+          "fiber": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Fiber content",
+            "example": 0
+          }
+        },
+        "required": [
+          "name",
+          "quantity",
+          "calories"
+        ]
+      },
+      "BulkNutritionPlanMeal": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Meal ID (omit for new meals)",
+            "example": 456
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Name of the meal",
+            "example": "Breakfast"
+          },
+          "time": {
+            "type": "string",
+            "pattern": "^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$",
+            "description": "Time when meal should be consumed",
+            "example": "08:00:00"
+          },
+          "calories": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Total calories for the meal",
+            "example": 450
+          },
+          "protein": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Total protein for the meal",
+            "example": 25.5
+          },
+          "carbs": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Total carbs for the meal",
+            "example": 45
+          },
+          "fat": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Total fat for the meal",
+            "example": 12
+          },
+          "fiber": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Total fiber for the meal",
+            "example": 8
+          },
+          "foods": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BulkNutritionPlanFood"
+            },
+            "description": "List of foods in this meal"
+          }
+        },
+        "required": [
+          "name",
+          "time"
+        ]
+      },
+      "BulkNutritionPlanDay": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Day ID (omit for new days)",
+            "example": 123
+          },
+          "weekday": {
+            "type": "string",
+            "enum": [
+              "sun",
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat"
+            ],
+            "description": "Day of the week",
+            "example": "mon"
+          },
+          "totalCalories": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Total calories for the day",
+            "example": 2000
+          },
+          "protein": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Total protein for the day",
+            "example": 150
+          },
+          "carbs": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Total carbs for the day",
+            "example": 200
+          },
+          "fat": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Total fat for the day",
+            "example": 66
+          },
+          "fiber": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Total fiber for the day",
+            "example": 25
+          },
+          "meals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BulkNutritionPlanMeal"
+            },
+            "description": "List of meals for this day"
+          }
+        },
+        "required": [
+          "weekday"
+        ]
+      },
+      "BulkUpdateNutritionPlan": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Updated name of the nutrition plan"
+          },
+          "description": {
+            "type": "string",
+            "description": "Updated description of the nutrition plan"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Whether the nutrition plan is active",
+            "example": true
+          },
+          "days": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BulkNutritionPlanDay"
+            },
+            "description": "List of nutrition plan days"
+          }
+        }
+      },
       "ConnectRequest": {
         "type": "object",
         "properties": {
@@ -1058,6 +1401,272 @@
           }
         }
       },
+      "DetailedNutritionPlanFood": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Food ID",
+            "example": 1
+          },
+          "nutritionPlanMealId": {
+            "type": "integer",
+            "description": "Meal ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Food name",
+            "example": "Greek Yogurt"
+          },
+          "quantity": {
+            "type": "string",
+            "description": "Food quantity",
+            "example": "1 cup"
+          },
+          "calories": {
+            "type": "integer",
+            "description": "Calories",
+            "example": 130
+          },
+          "protein": {
+            "type": "number",
+            "description": "Protein in grams",
+            "example": 20
+          },
+          "carbs": {
+            "type": "number",
+            "description": "Carbs in grams",
+            "example": 9
+          },
+          "fat": {
+            "type": "number",
+            "description": "Fat in grams",
+            "example": 0.7
+          },
+          "fiber": {
+            "type": "number",
+            "description": "Fiber in grams",
+            "example": 0
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Creation date"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Last update date"
+          }
+        },
+        "required": [
+          "id",
+          "nutritionPlanMealId",
+          "name",
+          "quantity",
+          "calories",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "DetailedNutritionPlanMeal": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Meal ID",
+            "example": 1
+          },
+          "nutritionPlanDayId": {
+            "type": "integer",
+            "description": "Day ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Meal name",
+            "example": "Breakfast"
+          },
+          "time": {
+            "type": "string",
+            "description": "Meal time",
+            "example": "08:00:00"
+          },
+          "calories": {
+            "type": "integer",
+            "description": "Total calories",
+            "example": 450
+          },
+          "protein": {
+            "type": "number",
+            "description": "Total protein",
+            "example": 25.5
+          },
+          "carbs": {
+            "type": "number",
+            "description": "Total carbs",
+            "example": 45
+          },
+          "fat": {
+            "type": "number",
+            "description": "Total fat",
+            "example": 12
+          },
+          "fiber": {
+            "type": "number",
+            "description": "Total fiber",
+            "example": 8
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Creation date"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Last update date"
+          },
+          "foods": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DetailedNutritionPlanFood"
+            },
+            "description": "Foods in this meal"
+          }
+        },
+        "required": [
+          "id",
+          "nutritionPlanDayId",
+          "name",
+          "time",
+          "createdAt",
+          "updatedAt",
+          "foods"
+        ]
+      },
+      "DetailedNutritionPlanDay": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Day ID",
+            "example": 1
+          },
+          "nutritionPlanId": {
+            "type": "integer",
+            "description": "Nutrition plan ID"
+          },
+          "weekday": {
+            "type": "string",
+            "enum": [
+              "sun",
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat"
+            ],
+            "description": "Day of the week",
+            "example": "mon"
+          },
+          "totalCalories": {
+            "type": "integer",
+            "description": "Total calories for the day",
+            "example": 2000
+          },
+          "protein": {
+            "type": "number",
+            "description": "Total protein for the day",
+            "example": 150
+          },
+          "carbs": {
+            "type": "number",
+            "description": "Total carbs for the day",
+            "example": 200
+          },
+          "fat": {
+            "type": "number",
+            "description": "Total fat for the day",
+            "example": 66
+          },
+          "fiber": {
+            "type": "number",
+            "description": "Total fiber for the day",
+            "example": 25
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Creation date"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Last update date"
+          },
+          "meals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DetailedNutritionPlanMeal"
+            },
+            "description": "Meals for this day"
+          }
+        },
+        "required": [
+          "id",
+          "nutritionPlanId",
+          "weekday",
+          "createdAt",
+          "updatedAt",
+          "meals"
+        ]
+      },
+      "DetailedNutritionPlan": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Nutrition plan ID",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "Plan name",
+            "example": "High Protein Diet"
+          },
+          "description": {
+            "type": "string",
+            "description": "Plan description"
+          },
+          "createdBy": {
+            "type": "string",
+            "description": "Creator user ID"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Whether plan is active"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Creation date"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Last update date"
+          },
+          "days": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DetailedNutritionPlanDay"
+            },
+            "description": "Nutrition plan days"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "createdBy",
+          "isActive",
+          "createdAt",
+          "updatedAt",
+          "days"
+        ]
+      },
       "AssignWorkoutPlan": {
         "type": "object",
         "properties": {
@@ -1259,7 +1868,7 @@
           "duration": {
             "type": "number",
             "exclusiveMinimum": 0,
-            "description": "Estimated duration in minutes",
+            "description": "Estimated duration in seconds",
             "example": 60
           }
         },
@@ -1290,7 +1899,7 @@
           "duration": {
             "type": "integer",
             "exclusiveMinimum": 0,
-            "description": "Estimated duration in minutes",
+            "description": "Estimated duration in seconds",
             "example": 60
           }
         }
@@ -1414,6 +2023,197 @@
             "example": "Focus on form over speed"
           }
         }
+      },
+      "DetailedWorkoutPlanDayExercise": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Exercise ID",
+            "example": 1
+          },
+          "workoutPlanDayId": {
+            "type": "integer",
+            "description": "Workout plan day ID"
+          },
+          "exerciseTypeId": {
+            "type": "integer",
+            "description": "Exercise type ID"
+          },
+          "order": {
+            "type": "integer",
+            "description": "Exercise order",
+            "example": 1
+          },
+          "targetReps": {
+            "type": "integer",
+            "description": "Target repetitions",
+            "example": 12
+          },
+          "targetDuration": {
+            "type": "integer",
+            "description": "Target duration in seconds",
+            "example": 300
+          },
+          "estimatedCalories": {
+            "type": "integer",
+            "description": "Estimated calories burned",
+            "example": 50
+          },
+          "notes": {
+            "type": "string",
+            "description": "Exercise notes"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Creation date"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Last update date"
+          },
+          "exerciseType": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ExerciseType"
+              },
+              {
+                "description": "Exercise type details"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "workoutPlanDayId",
+          "exerciseTypeId",
+          "createdAt",
+          "updatedAt",
+          "exerciseType"
+        ]
+      },
+      "DetailedWorkoutPlanDay": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Day ID",
+            "example": 1
+          },
+          "workoutPlanId": {
+            "type": "integer",
+            "description": "Workout plan ID"
+          },
+          "day": {
+            "type": "integer",
+            "description": "Day number",
+            "example": 1
+          },
+          "isRestDay": {
+            "type": "boolean",
+            "description": "Whether this is a rest day",
+            "example": false
+          },
+          "estimatedCalories": {
+            "type": "integer",
+            "description": "Estimated calories burned",
+            "example": 400
+          },
+          "duration": {
+            "type": "integer",
+            "description": "Duration in seconds",
+            "example": 60
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Creation date"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Last update date"
+          },
+          "exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DetailedWorkoutPlanDayExercise"
+            },
+            "description": "Exercises for this day"
+          }
+        },
+        "required": [
+          "id",
+          "workoutPlanId",
+          "day",
+          "isRestDay",
+          "createdAt",
+          "updatedAt",
+          "exercises"
+        ]
+      },
+      "DetailedWorkoutPlan": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Workout plan ID",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "Plan name",
+            "example": "Push Pull Legs"
+          },
+          "description": {
+            "type": "string",
+            "description": "Plan description"
+          },
+          "difficulty": {
+            "type": "string",
+            "enum": [
+              "beginner",
+              "intermediate",
+              "advanced"
+            ],
+            "description": "Difficulty level",
+            "example": "intermediate"
+          },
+          "estimatedCalories": {
+            "type": "integer",
+            "description": "Estimated calories per session"
+          },
+          "createdBy": {
+            "type": "string",
+            "description": "Creator user ID"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Whether plan is active"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Creation date"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Last update date"
+          },
+          "workoutPlanDays": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DetailedWorkoutPlanDay"
+            },
+            "description": "Workout plan days"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "createdBy",
+          "isActive",
+          "createdAt",
+          "updatedAt",
+          "workoutPlanDays"
+        ]
       },
       "PlannedWorkout": {
         "type": "object",
@@ -3456,7 +4256,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/NutritionPlan"
+                  "$ref": "#/components/schemas/DetailedNutritionPlan"
                 }
               }
             }
@@ -4325,7 +5125,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WorkoutPlan"
+                  "$ref": "#/components/schemas/DetailedWorkoutPlan"
                 }
               }
             }
@@ -4876,6 +5676,120 @@
           },
           "404": {
             "description": "Workout plan exercise not found"
+          }
+        }
+      }
+    },
+    "/api/workouts/{id}/bulk": {
+      "put": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Bulk update workout plan",
+        "description": "Update a workout plan with all its days, exercises in one request. Items not included will be deleted.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+$",
+              "description": "Unique identifier",
+              "example": "123"
+            },
+            "required": true,
+            "description": "Unique identifier",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "description": "Complete workout plan data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkUpdateWorkoutPlan"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Workout plan updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailedWorkoutPlan"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Workout plan not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/nutrition/{id}/bulk": {
+      "put": {
+        "tags": [
+          "Nutrition"
+        ],
+        "summary": "Bulk update nutrition plan",
+        "description": "Update a nutrition plan with all its days, meals, foods in one request. Items not included will be deleted.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+$",
+              "description": "Unique identifier",
+              "example": "123"
+            },
+            "required": true,
+            "description": "Unique identifier",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "description": "Complete nutrition plan data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkUpdateNutritionPlan"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Nutrition plan updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailedNutritionPlan"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Nutrition plan not found"
+          },
+          "500": {
+            "description": "Internal server error"
           }
         }
       }

@@ -17,6 +17,7 @@ import {
     updateWorkoutPlanDaySchema,
     addExerciseToPlanDaySchema,
     updateExerciseInPlanDaySchema,
+    bulkUpdateWorkoutPlanSchema,
 } from '../validation/schemas.ts';
 import { WorkoutService } from '@services/workout.service.ts';
 
@@ -219,10 +220,10 @@ router.post(
     }
 );
 
-// Update workout plan (coach only)
+// Update workout plan
 router.put(
     '/:id',
-    requireCoach,
+    requireAuthenticated,
     validateParams(idParamSchema),
     validateBody(updateWorkoutPlanSchema),
     async (req, res) => {
@@ -244,10 +245,10 @@ router.put(
     }
 );
 
-// Delete workout plan (coach only)
+// Delete workout plan
 router.delete(
     '/:id',
-    requireCoach,
+    requireAuthenticated,
     validateParams(idParamSchema),
     async (req, res) => {
         const id = (req.params as any).id as number;
@@ -289,6 +290,35 @@ router.post(
         );
 
         res.status(201).json(planDay);
+    }
+);
+
+// Bulk update workout plan
+router.put(
+    '/:id/bulk',
+    requireAuthenticated,
+    validateParams(idParamSchema),
+    validateBody(bulkUpdateWorkoutPlanSchema),
+    async (req, res) => {
+        try {
+            const id = (req.params as any).id as number;
+            const updateData = req.body;
+
+            const plan = await WorkoutService.bulkUpdateWorkoutPlan(
+                id,
+                updateData
+            );
+            if (!plan) {
+                return res
+                    .status(404)
+                    .json({ error: 'Workout plan not found' });
+            }
+
+            res.json(plan);
+        } catch (error) {
+            console.error('Bulk update workout plan error:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
     }
 );
 

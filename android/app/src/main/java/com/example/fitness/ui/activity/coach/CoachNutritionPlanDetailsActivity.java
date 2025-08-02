@@ -14,6 +14,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.fitness.R;
+import com.example.fitness.data.network.model.generated.DetailedNutritionPlan;
 import com.example.fitness.data.network.model.generated.NutritionPlan;
 import com.example.fitness.data.network.model.generated.NutritionPlanDay;
 import com.example.fitness.databinding.ActivityCoachNutritionPlanDetailsBinding;
@@ -103,7 +104,7 @@ public class CoachNutritionPlanDetailsActivity extends AppCompatActivity impleme
     }
 
     private void observeViewModel() {
-        viewModel.nutritionPlan.observe(this, this::displayNutritionPlan);
+        viewModel.detailedNutritionPlan.observe(this, this::displayNutritionPlan);
 
         viewModel.nutritionPlanDays.observe(this, nutritionPlanDays -> {
             if (nutritionPlanDays != null) {
@@ -123,30 +124,30 @@ public class CoachNutritionPlanDetailsActivity extends AppCompatActivity impleme
         });
     }
 
-    private void displayNutritionPlan(NutritionPlan nutritionPlan) {
-        if (nutritionPlan == null) return;
+    private void displayNutritionPlan(DetailedNutritionPlan detailedNutritionPlan) {
+        if (detailedNutritionPlan == null) return;
         
-        binding.textViewPlanName.setText(nutritionPlan.getName());
+        binding.textViewPlanName.setText(detailedNutritionPlan.getName());
         
-        if (nutritionPlan.getDescription() != null && !nutritionPlan.getDescription().isEmpty()) {
-            binding.textViewPlanDescription.setText(nutritionPlan.getDescription());
+        if (detailedNutritionPlan.getDescription() != null && !detailedNutritionPlan.getDescription().isEmpty()) {
+            binding.textViewPlanDescription.setText(detailedNutritionPlan.getDescription());
             binding.textViewPlanDescription.setVisibility(View.VISIBLE);
         } else {
             binding.textViewPlanDescription.setVisibility(View.GONE);
         }
 
         // Set status chip
-        binding.chipPlanStatus.setText(nutritionPlan.isActive() ? "Active" : "Inactive");
-        binding.chipPlanStatus.setChecked(nutritionPlan.isActive());
+        binding.chipPlanStatus.setText(detailedNutritionPlan.isActive() ? "Active" : "Inactive");
+        binding.chipPlanStatus.setChecked(detailedNutritionPlan.isActive());
 
         // Format and display created date
         try {
             SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
             SimpleDateFormat outputFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
-            Date date = inputFormat.parse(nutritionPlan.getCreatedAt());
+            Date date = inputFormat.parse(detailedNutritionPlan.getCreatedAt());
             binding.textViewCreatedDate.setText("Created: " + outputFormat.format(date));
         } catch (Exception e) {
-            binding.textViewCreatedDate.setText("Created: " + nutritionPlan.getCreatedAt());
+            binding.textViewCreatedDate.setText("Created: " + detailedNutritionPlan.getCreatedAt());
         }
     }
 

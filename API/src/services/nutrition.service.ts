@@ -749,4 +749,273 @@ export class NutritionService {
             .returning();
         return result[0] || null;
     }
+
+    static async bulkUpdateNutritionPlan(
+        id: number,
+        data: {
+            name?: string;
+            description?: string;
+            isActive?: boolean;
+            days?: Array<{
+                id?: number;
+                weekday: 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
+                totalCalories?: number;
+                protein?: number;
+                carbs?: number;
+                fat?: number;
+                fiber?: number;
+                meals?: Array<{
+                    id?: number;
+                    name: string;
+                    time: string;
+                    calories?: number;
+                    protein?: number;
+                    carbs?: number;
+                    fat?: number;
+                    fiber?: number;
+                    foods?: Array<{
+                        id?: number;
+                        name: string;
+                        quantity: string;
+                        calories: number;
+                        protein?: number;
+                        carbs?: number;
+                        fat?: number;
+                        fiber?: number;
+                    }>;
+                }>;
+            }>;
+        }
+    ) {
+        return await db.transaction(async (tx) => {
+            // Update nutrition plan basic info
+            const { days, ...planData } = data;
+
+            const updatedPlan = await tx
+                .update(nutritionPlan)
+                .set({ ...planData, updatedAt: new Date() })
+                .where(eq(nutritionPlan.id, id))
+                .returning();
+
+            if (!updatedPlan[0]) {
+                throw new Error('Nutrition plan not found');
+            }
+
+            if (days) {
+                // Get existing days, meals, and foods
+                const existingDays = await tx.query.nutritionPlanDay.findMany({
+                    where: eq(nutritionPlanDay.nutritionPlanId, id),
+                    with: {
+                        meals: {
+                            with: {
+                                foods: true,
+                            },
+                        },
+                    },
+                });
+                const existingDayIds = new Set(existingDays.map((d) => d.id));
+                const existingMealIds = new Set(
+                    existingDays.flatMap((d) => d.meals.map((m) => m.id))
+                );
+                const existingFoodIds = new Set(
+                    existingDays.flatMap((d) =>
+                        d.meals.flatMap((m) => m.foods.map((f) => f.id))
+                    )
+                );
+
+                const providedDayIds = new Set(
+                    days.filter((d) => d.id).map((d) => d.id!)
+                );
+                const providedMealIds = new Set(
+                    days.flatMap(
+                        (d) =>
+                            d.meals?.filter((m) => m.id).map((m) => m.id!) || []
+                    )
+                );
+                const providedFoodIds = new Set(
+                    days.flatMap(
+                        (d) =>
+                            d.meals?.flatMap(
+                                (m) =>
+                                    m.foods
+                                        ?.filter((f) => f.id)
+                                        .map((f) => f.id!) || []
+                            ) || []
+                    )
+                );
+
+                // Delete days that are not in the provided list
+                const daysToDelete = existingDays.filter(
+                    (d) => !providedDayIds.has(d.id)
+                );
+                for (const dayToDelete of daysToDelete) {
+                    await tx
+                        .delete(nutritionPlanDay)
+                        .where(eq(nutritionPlanDay.id, dayToDelete.id));
+                }
+
+                // Delete meals and foods that are not in the provided list for existing days
+                for (const existingDay of existingDays) {
+                    if (providedDayIds.has(existingDay.id)) {
+                        const mealsToDelete = existingDay.meals.filter(
+                            (m) => !providedMealIds.has(m.id)
+                        );
+                        for (const mealToDelete of mealsToDelete) {
+                            await tx
+                                .delete(nutritionPlanMeal)
+                                .where(
+                                    eq(nutritionPlanMeal.id, mealToDelete.id)
+                                );
+                        }
+
+                        // Delete foods that are not in the provided list for existing meals
+                        for (const existingMeal of existingDay.meals) {
+                            if (providedMealIds.has(existingMeal.id)) {
+                                const foodsToDelete = existingMeal.foods.filter(
+                                    (f) => !providedFoodIds.has(f.id)
+                                );
+                                for (const foodToDelete of foodsToDelete) {
+                                    await tx
+                                        .delete(nutritionPlanFood)
+                                        .where(
+                                            eq(
+                                                nutritionPlanFood.id,
+                                                foodToDelete.id
+                                            )
+                                        );
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Process each day
+                for (const dayData of days) {
+                    const { meals, ...dayInfoRaw } = dayData;
+                    // Remove id from update data
+                    const { id: dayIdForUpdate, ...dayInfo } = dayInfoRaw;
+
+                    let dayId: number;
+
+                    if (dayData.id) {
+                        // Only update if the day exists
+                        if (existingDayIds.has(dayData.id)) {
+                            const updatedDay = await tx
+                                .update(nutritionPlanDay)
+                                .set({ ...dayInfo, updatedAt: new Date() })
+                                .where(eq(nutritionPlanDay.id, dayData.id))
+                                .returning();
+                            dayId = updatedDay[0].id;
+                        } else {
+                            // Skip update for non-existent day
+                            continue;
+                        }
+                    } else {
+                        // Create new day
+                        const newDay = await tx
+                            .insert(nutritionPlanDay)
+                            .values({ ...dayInfo, nutritionPlanId: id })
+                            .returning();
+                        dayId = newDay[0].id;
+                    }
+
+                    // Process meals for this day
+                    if (meals) {
+                        for (const mealData of meals) {
+                            const { foods, ...mealInfoRaw } = mealData;
+                            const { id: mealIdForUpdate, ...mealInfo } =
+                                mealInfoRaw;
+
+                            let mealId: number;
+
+                            if (mealData.id) {
+                                // Only update if the meal exists
+                                if (existingMealIds.has(mealData.id)) {
+                                    const updatedMeal = await tx
+                                        .update(nutritionPlanMeal)
+                                        .set({
+                                            ...mealInfo,
+                                            updatedAt: new Date(),
+                                        })
+                                        .where(
+                                            eq(
+                                                nutritionPlanMeal.id,
+                                                mealData.id
+                                            )
+                                        )
+                                        .returning();
+                                    mealId = updatedMeal[0].id;
+                                } else {
+                                    // Skip update for non-existent meal
+                                    continue;
+                                }
+                            } else {
+                                // Create new meal
+                                const newMeal = await tx
+                                    .insert(nutritionPlanMeal)
+                                    .values({
+                                        ...mealInfo,
+                                        nutritionPlanDayId: dayId,
+                                    })
+                                    .returning();
+                                mealId = newMeal[0].id;
+                            }
+
+                            // Process foods for this meal
+                            if (foods) {
+                                for (const foodData of foods) {
+                                    const { id: foodIdForUpdate, ...foodInfo } =
+                                        foodData;
+                                    if (foodData.id) {
+                                        // Only update if the food exists
+                                        if (existingFoodIds.has(foodData.id)) {
+                                            await tx
+                                                .update(nutritionPlanFood)
+                                                .set({
+                                                    ...foodInfo,
+                                                    updatedAt: new Date(),
+                                                })
+                                                .where(
+                                                    eq(
+                                                        nutritionPlanFood.id,
+                                                        foodData.id
+                                                    )
+                                                );
+                                        } else {
+                                            // Skip update for non-existent food
+                                            continue;
+                                        }
+                                    } else {
+                                        // Create new food
+                                        await tx
+                                            .insert(nutritionPlanFood)
+                                            .values({
+                                                ...foodInfo,
+                                                nutritionPlanMealId: mealId,
+                                            });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Return the updated plan with full details
+            return await tx.query.nutritionPlan.findFirst({
+                where: eq(nutritionPlan.id, id),
+                with: {
+                    days: {
+                        with: {
+                            meals: {
+                                with: {
+                                    foods: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            });
+        });
+    }
 }
