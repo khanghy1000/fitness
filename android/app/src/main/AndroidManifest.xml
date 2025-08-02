@@ -16,16 +16,28 @@
         android:theme="@style/Theme.Fitness"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".ui.activity.trainee.TraineeNutritionPlanActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.activity.coach.CoachNutritionPlanActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activity.trainee.TraineeNutritionPlanDetailsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activity.trainee.TraineeNutritionPlanEditActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activity.coach.CoachNutritionPlanEditActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activity.coach.CoachNutritionPlanDetailsActivity"
             android:exported="false" />
         <activity
             android:name=".ui.activity.coach.CoachExercisePlanActivity"
             android:exported="false" />
         <activity
             android:name=".ui.activity.coach.CoachTraineeActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.activity.trainee.TraineeNutritionPlanActivity"
             android:exported="false" />
         <activity
             android:name=".ui.activity.trainee.TraineeExercisePlanActivity"
