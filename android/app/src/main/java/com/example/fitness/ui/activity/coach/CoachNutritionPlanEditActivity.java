@@ -166,13 +166,9 @@ public class CoachNutritionPlanEditActivity extends AppCompatActivity {
         ArrayList<String> availableWeekdays = new ArrayList<>(viewModel.getAvailableWeekdays());
         
         EditDayInfoDialogFragment dialog = EditDayInfoDialogFragment.newInstance(
-                day.weekday, day.totalCalories, day.protein, day.carbs, day.fat, availableWeekdays);
-        dialog.setOnDayInfoEditListener((weekday, calories, protein, carbs, fat) -> {
+                day.weekday, availableWeekdays);
+        dialog.setOnDayInfoEditListener((weekday) -> {
             viewModel.updateDayWeekday(dayIndex, weekday);
-            viewModel.updateDayCalories(dayIndex, calories);
-            viewModel.updateDayProtein(dayIndex, protein);
-            viewModel.updateDayCarbs(dayIndex, carbs);
-            viewModel.updateDayFat(dayIndex, fat);
         });
         dialog.show(getSupportFragmentManager(), "EditDayInfoDialog");
     }
@@ -182,14 +178,10 @@ public class CoachNutritionPlanEditActivity extends AppCompatActivity {
         if (meal == null) return;
 
         EditMealInfoDialogFragment dialog = EditMealInfoDialogFragment.newInstance(
-                meal.name, meal.time, meal.calories, meal.protein, meal.carbs, meal.fat);
-        dialog.setOnMealInfoEditListener((name, time, calories, protein, carbs, fat) -> {
+                meal.name, meal.time);
+        dialog.setOnMealInfoEditListener((name, time) -> {
             viewModel.updateMealName(dayIndex, mealIndex, name);
             viewModel.updateMealTime(dayIndex, mealIndex, time);
-            viewModel.updateMealCalories(dayIndex, mealIndex, calories);
-            viewModel.updateMealProtein(dayIndex, mealIndex, protein);
-            viewModel.updateMealCarbs(dayIndex, mealIndex, carbs);
-            viewModel.updateMealFat(dayIndex, mealIndex, fat);
         });
         dialog.show(getSupportFragmentManager(), "EditMealInfoDialog");
     }
@@ -199,11 +191,15 @@ public class CoachNutritionPlanEditActivity extends AppCompatActivity {
         if (food == null) return;
 
         EditFoodInfoDialogFragment dialog = EditFoodInfoDialogFragment.newInstance(
-                food.name, food.quantity, food.calories);
-        dialog.setOnFoodInfoEditListener((name, quantity, calories) -> {
+                food.name, food.quantity, food.calories, food.protein, food.carbs, food.fat, food.fiber);
+        dialog.setOnFoodInfoEditListener((name, quantity, calories, protein, carbs, fat, fiber) -> {
             viewModel.updateFoodName(dayIndex, mealIndex, foodIndex, name);
             viewModel.updateFoodQuantity(dayIndex, mealIndex, foodIndex, quantity);
             viewModel.updateFoodCalories(dayIndex, mealIndex, foodIndex, calories);
+            viewModel.updateFoodProtein(dayIndex, mealIndex, foodIndex, protein);
+            viewModel.updateFoodCarbs(dayIndex, mealIndex, foodIndex, carbs);
+            viewModel.updateFoodFat(dayIndex, mealIndex, foodIndex, fat);
+            viewModel.updateFoodFiber(dayIndex, mealIndex, foodIndex, fiber);
         });
         dialog.show(getSupportFragmentManager(), "EditFoodInfoDialog");
     }

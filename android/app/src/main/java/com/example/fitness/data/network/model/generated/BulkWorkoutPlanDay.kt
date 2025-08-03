@@ -26,8 +26,6 @@ import com.squareup.moshi.JsonClass
  * @param day Day number in the workout plan
  * @param id Day ID (omit for new days)
  * @param isRestDay Whether this is a rest day
- * @param estimatedCalories Estimated calories burned for this day
- * @param duration Estimated duration in seconds
  * @param exercises List of exercises for this day
  */
 
@@ -45,14 +43,6 @@ data class BulkWorkoutPlanDay (
     /* Whether this is a rest day */
     @Json(name = "isRestDay")
     val isRestDay: kotlin.Boolean? = false,
-
-    /* Estimated calories burned for this day */
-    @Json(name = "estimatedCalories")
-    val estimatedCalories: kotlin.Int? = null,
-
-    /* Estimated duration in seconds */
-    @Json(name = "duration")
-    val duration: kotlin.Int? = null,
 
     /* List of exercises for this day */
     @Json(name = "exercises")

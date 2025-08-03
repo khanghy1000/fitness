@@ -474,33 +474,77 @@ export class WorkoutService {
             name?: string;
             description?: string;
             difficulty?: 'beginner' | 'intermediate' | 'advanced';
-            estimatedCalories?: number;
             isActive?: boolean;
             days?: Array<{
                 id?: number;
                 day: number;
                 isRestDay?: boolean;
-                estimatedCalories?: number;
-                duration?: number;
                 exercises?: Array<{
                     id?: number;
                     exerciseTypeId: number;
                     order?: number;
                     targetReps?: number;
                     targetDuration?: number;
-                    estimatedCalories?: number;
                     notes?: string;
                 }>;
             }>;
         }
     ) {
         return await db.transaction(async (tx) => {
-            // Update workout plan basic info
+            // Helper function to calculate exercise estimated calories (base formula)
+            const calculateExerciseCalories = (
+                targetReps?: number,
+                targetDuration?: number
+            ): number => {
+                // Base calories per rep (3 seconds per rep) or per second
+                const caloriesPerSecond = 0.1; // Rough estimate
+                if (targetDuration) {
+                    return Math.round(targetDuration * caloriesPerSecond);
+                } else if (targetReps) {
+                    return Math.round(targetReps * 3 * caloriesPerSecond); // 3 seconds per rep
+                }
+                return 0;
+            };
+
+            // Helper function to calculate exercise duration
+            const calculateExerciseDuration = (
+                targetReps?: number,
+                targetDuration?: number
+            ): number => {
+                if (targetDuration) {
+                    return targetDuration;
+                } else if (targetReps) {
+                    return targetReps * 3; // 3 seconds per rep
+                }
+                return 0;
+            };
+
+            // Calculate total plan estimated calories if days are provided
+            let totalPlanCalories = 0;
+            if (data.days) {
+                for (const dayData of data.days) {
+                    if (!dayData.isRestDay && dayData.exercises) {
+                        for (const exercise of dayData.exercises) {
+                            totalPlanCalories += calculateExerciseCalories(
+                                exercise.targetReps,
+                                exercise.targetDuration
+                            );
+                        }
+                    }
+                }
+            }
+
+            // Update workout plan basic info with auto-calculated calories
             const { days, ...planData } = data;
+            const planUpdateData = {
+                ...planData,
+                ...(data.days && { estimatedCalories: totalPlanCalories }),
+                updatedAt: new Date(),
+            };
 
             const updatedPlan = await tx
                 .update(workoutPlan)
-                .set({ ...planData, updatedAt: new Date() })
+                .set(planUpdateData)
                 .where(eq(workoutPlan.id, id))
                 .returning();
 
@@ -565,8 +609,31 @@ export class WorkoutService {
                 // Process each day
                 for (const dayData of days) {
                     const { exercises, ...dayInfoRaw } = dayData;
-                    // Remove id from update data
+
+                    // Calculate day-level totals
+                    let dayCalories = 0;
+                    let dayDuration = 0;
+
+                    if (!dayData.isRestDay && exercises) {
+                        for (const exercise of exercises) {
+                            dayCalories += calculateExerciseCalories(
+                                exercise.targetReps,
+                                exercise.targetDuration
+                            );
+                            dayDuration += calculateExerciseDuration(
+                                exercise.targetReps,
+                                exercise.targetDuration
+                            );
+                        }
+                    }
+
+                    // Remove id from update data and add calculated values
                     const { id: dayIdForUpdate, ...dayInfo } = dayInfoRaw;
+                    const dayInfoWithCalculated = {
+                        ...dayInfo,
+                        estimatedCalories: dayCalories,
+                        duration: dayDuration,
+                    };
 
                     let dayId: number;
 
@@ -575,7 +642,7 @@ export class WorkoutService {
                         if (existingDayIds.has(dayData.id)) {
                             const updatedDay = await tx
                                 .update(workoutPlanDay)
-                                .set(dayInfo)
+                                .set(dayInfoWithCalculated)
                                 .where(eq(workoutPlanDay.id, dayData.id))
                                 .returning();
                             dayId = updatedDay[0].id;
@@ -587,7 +654,10 @@ export class WorkoutService {
                         // Create new day
                         const newDay = await tx
                             .insert(workoutPlanDay)
-                            .values({ ...dayInfo, workoutPlanId: id })
+                            .values({
+                                ...dayInfoWithCalculated,
+                                workoutPlanId: id,
+                            })
                             .returning();
                         dayId = newDay[0].id;
                     }
@@ -595,8 +665,22 @@ export class WorkoutService {
                     // Process exercises for this day
                     if (exercises) {
                         for (const exerciseData of exercises) {
-                            const { id: exerciseIdForUpdate, ...exerciseInfo } =
-                                exerciseData;
+                            const {
+                                id: exerciseIdForUpdate,
+                                ...exerciseInfoRaw
+                            } = exerciseData;
+
+                            // Calculate exercise estimated calories
+                            const exerciseCalories = calculateExerciseCalories(
+                                exerciseData.targetReps,
+                                exerciseData.targetDuration
+                            );
+
+                            const exerciseInfo = {
+                                ...exerciseInfoRaw,
+                                estimatedCalories: exerciseCalories,
+                            };
+
                             if (exerciseData.id) {
                                 // Only update if the exercise exists
                                 if (existingExerciseIds.has(exerciseData.id)) {

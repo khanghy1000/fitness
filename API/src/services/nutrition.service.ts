@@ -759,20 +759,10 @@ export class NutritionService {
             days?: Array<{
                 id?: number;
                 weekday: 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
-                totalCalories?: number;
-                protein?: number;
-                carbs?: number;
-                fat?: number;
-                fiber?: number;
                 meals?: Array<{
                     id?: number;
                     name: string;
                     time: string;
-                    calories?: number;
-                    protein?: number;
-                    carbs?: number;
-                    fat?: number;
-                    fiber?: number;
                     foods?: Array<{
                         id?: number;
                         name: string;
@@ -788,6 +778,65 @@ export class NutritionService {
         }
     ) {
         return await db.transaction(async (tx) => {
+            // Helper function to calculate meal totals from foods
+            const calculateMealTotals = (
+                foods: Array<{
+                    calories: number;
+                    protein?: number;
+                    carbs?: number;
+                    fat?: number;
+                    fiber?: number;
+                }>
+            ) => {
+                return foods.reduce(
+                    (totals, food) => ({
+                        calories: totals.calories + food.calories,
+                        protein: (totals.protein || 0) + (food.protein || 0),
+                        carbs: (totals.carbs || 0) + (food.carbs || 0),
+                        fat: (totals.fat || 0) + (food.fat || 0),
+                        fiber: (totals.fiber || 0) + (food.fiber || 0),
+                    }),
+                    { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 }
+                );
+            };
+
+            // Helper function to calculate day totals from meals
+            const calculateDayTotals = (
+                meals: Array<{
+                    foods?: Array<{
+                        calories: number;
+                        protein?: number;
+                        carbs?: number;
+                        fat?: number;
+                        fiber?: number;
+                    }>;
+                }>
+            ) => {
+                return meals.reduce(
+                    (totals, meal) => {
+                        if (meal.foods) {
+                            const mealTotals = calculateMealTotals(meal.foods);
+                            return {
+                                totalCalories:
+                                    totals.totalCalories + mealTotals.calories,
+                                protein:
+                                    (totals.protein || 0) +
+                                    (mealTotals.protein || 0),
+                                carbs:
+                                    (totals.carbs || 0) +
+                                    (mealTotals.carbs || 0),
+                                fat: (totals.fat || 0) + (mealTotals.fat || 0),
+                                fiber:
+                                    (totals.fiber || 0) +
+                                    (mealTotals.fiber || 0),
+                            };
+                        }
+                        return totals;
+                    },
+                    { totalCalories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 }
+                );
+            };
+
             // Update nutrition plan basic info
             const { days, ...planData } = data;
 
@@ -892,8 +941,25 @@ export class NutritionService {
                 // Process each day
                 for (const dayData of days) {
                     const { meals, ...dayInfoRaw } = dayData;
-                    // Remove id from update data
+
+                    // Calculate day totals from meals
+                    const dayTotals = meals
+                        ? calculateDayTotals(meals)
+                        : {
+                              totalCalories: 0,
+                              protein: 0,
+                              carbs: 0,
+                              fat: 0,
+                              fiber: 0,
+                          };
+
+                    // Remove id from update data and add calculated values
                     const { id: dayIdForUpdate, ...dayInfo } = dayInfoRaw;
+                    const dayInfoWithCalculated = {
+                        ...dayInfo,
+                        ...dayTotals,
+                        updatedAt: new Date(),
+                    };
 
                     let dayId: number;
 
@@ -902,7 +968,7 @@ export class NutritionService {
                         if (existingDayIds.has(dayData.id)) {
                             const updatedDay = await tx
                                 .update(nutritionPlanDay)
-                                .set({ ...dayInfo, updatedAt: new Date() })
+                                .set(dayInfoWithCalculated)
                                 .where(eq(nutritionPlanDay.id, dayData.id))
                                 .returning();
                             dayId = updatedDay[0].id;
@@ -914,7 +980,10 @@ export class NutritionService {
                         // Create new day
                         const newDay = await tx
                             .insert(nutritionPlanDay)
-                            .values({ ...dayInfo, nutritionPlanId: id })
+                            .values({
+                                ...dayInfoWithCalculated,
+                                nutritionPlanId: id,
+                            })
                             .returning();
                         dayId = newDay[0].id;
                     }
@@ -923,8 +992,29 @@ export class NutritionService {
                     if (meals) {
                         for (const mealData of meals) {
                             const { foods, ...mealInfoRaw } = mealData;
+
+                            // Calculate meal totals from foods
+                            const mealTotals = foods
+                                ? calculateMealTotals(foods)
+                                : {
+                                      calories: 0,
+                                      protein: 0,
+                                      carbs: 0,
+                                      fat: 0,
+                                      fiber: 0,
+                                  };
+
                             const { id: mealIdForUpdate, ...mealInfo } =
                                 mealInfoRaw;
+                            const mealInfoWithCalculated = {
+                                ...mealInfo,
+                                calories: mealTotals.calories,
+                                protein: mealTotals.protein,
+                                carbs: mealTotals.carbs,
+                                fat: mealTotals.fat,
+                                fiber: mealTotals.fiber,
+                                updatedAt: new Date(),
+                            };
 
                             let mealId: number;
 
@@ -933,10 +1023,7 @@ export class NutritionService {
                                 if (existingMealIds.has(mealData.id)) {
                                     const updatedMeal = await tx
                                         .update(nutritionPlanMeal)
-                                        .set({
-                                            ...mealInfo,
-                                            updatedAt: new Date(),
-                                        })
+                                        .set(mealInfoWithCalculated)
                                         .where(
                                             eq(
                                                 nutritionPlanMeal.id,
@@ -954,7 +1041,7 @@ export class NutritionService {
                                 const newMeal = await tx
                                     .insert(nutritionPlanMeal)
                                     .values({
-                                        ...mealInfo,
+                                        ...mealInfoWithCalculated,
                                         nutritionPlanDayId: dayId,
                                     })
                                     .returning();

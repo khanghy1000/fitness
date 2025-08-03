@@ -17,29 +17,20 @@ import java.util.Calendar;
 public class EditMealInfoDialogFragment extends DialogFragment {
     
     public interface OnMealInfoEditListener {
-        void onMealInfoEdited(String name, String time, String calories, String protein, String carbs, String fat);
+        void onMealInfoEdited(String name, String time);
     }
     
     private static final String ARG_NAME = "name";
     private static final String ARG_TIME = "time";
-    private static final String ARG_CALORIES = "calories";
-    private static final String ARG_PROTEIN = "protein";
-    private static final String ARG_CARBS = "carbs";
-    private static final String ARG_FAT = "fat";
     
     private DialogEditMealInfoBinding binding;
     private OnMealInfoEditListener listener;
     
-    public static EditMealInfoDialogFragment newInstance(String name, String time, String calories, 
-                                                        String protein, String carbs, String fat) {
+    public static EditMealInfoDialogFragment newInstance(String name, String time) {
         EditMealInfoDialogFragment fragment = new EditMealInfoDialogFragment();
         Bundle args = new Bundle();
         args.putString(ARG_NAME, name);
         args.putString(ARG_TIME, time);
-        args.putString(ARG_CALORIES, calories);
-        args.putString(ARG_PROTEIN, protein);
-        args.putString(ARG_CARBS, carbs);
-        args.putString(ARG_FAT, fat);
         fragment.setArguments(args);
         return fragment;
     }
@@ -58,10 +49,6 @@ public class EditMealInfoDialogFragment extends DialogFragment {
         if (args != null) {
             binding.editTextMealName.setText(args.getString(ARG_NAME));
             binding.editTextMealTime.setText(args.getString(ARG_TIME));
-            binding.editTextMealCalories.setText(args.getString(ARG_CALORIES));
-            binding.editTextMealProtein.setText(args.getString(ARG_PROTEIN));
-            binding.editTextMealCarbs.setText(args.getString(ARG_CARBS));
-            binding.editTextMealFat.setText(args.getString(ARG_FAT));
         }
         
         // Setup time picker for meal time
@@ -110,14 +97,6 @@ public class EditMealInfoDialogFragment extends DialogFragment {
             binding.editTextMealName.getText().toString().trim() : "";
         String time = binding.editTextMealTime.getText() != null ? 
             binding.editTextMealTime.getText().toString().trim() : "";
-        String calories = binding.editTextMealCalories.getText() != null ? 
-            binding.editTextMealCalories.getText().toString().trim() : "";
-        String protein = binding.editTextMealProtein.getText() != null ? 
-            binding.editTextMealProtein.getText().toString().trim() : "";
-        String carbs = binding.editTextMealCarbs.getText() != null ? 
-            binding.editTextMealCarbs.getText().toString().trim() : "";
-        String fat = binding.editTextMealFat.getText() != null ? 
-            binding.editTextMealFat.getText().toString().trim() : "";
         
         // Validate required fields
         boolean hasErrors = false;
@@ -141,7 +120,7 @@ public class EditMealInfoDialogFragment extends DialogFragment {
         }
         
         if (listener != null) {
-            listener.onMealInfoEdited(name, time, calories, protein, carbs, fat);
+            listener.onMealInfoEdited(name, time);
         }
         
         return true;

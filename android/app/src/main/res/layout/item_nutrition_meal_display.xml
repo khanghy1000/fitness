@@ -115,59 +115,7 @@
 
         </LinearLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Macronutrients:"
-            android:textStyle="bold"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="12sp"
-            android:layout_marginBottom="4dp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@drawable/bg_rounded_stroke"
-            android:padding="6dp">
-
-            <TextView
-                android:id="@+id/textViewMealCalories"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="0 cal"
-                android:textAlignment="center"
-                android:textSize="12sp" />
-
-            <TextView
-                android:id="@+id/textViewMealProtein"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="0g P"
-                android:textAlignment="center"
-                android:textSize="12sp" />
-
-            <TextView
-                android:id="@+id/textViewMealCarbs"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="0g C"
-                android:textAlignment="center"
-                android:textSize="12sp" />
-
-            <TextView
-                android:id="@+id/textViewMealFat"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="0g F"
-                android:textAlignment="center"
-                android:textSize="12sp" />
-
-        </LinearLayout>
+        <!-- Note: Macronutrients section removed as values are auto-calculated -->
 
     </LinearLayout>
 

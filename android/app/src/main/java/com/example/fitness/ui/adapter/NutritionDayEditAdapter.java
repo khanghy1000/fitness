@@ -74,11 +74,7 @@ public class NutritionDayEditAdapter extends RecyclerView.Adapter<NutritionDayEd
             // Display weekday
             binding.textViewWeekday.setText(capitalizeWeekday(day.weekday));
 
-            // Display macro values
-            binding.textViewCalories.setText(formatMacro(day.totalCalories, "cal"));
-            binding.textViewProtein.setText(formatMacro(day.protein, "g protein"));
-            binding.textViewCarbs.setText(formatMacro(day.carbs, "g carbs"));
-            binding.textViewFat.setText(formatMacro(day.fat, "g fat"));
+            // Note: Nutrition values are auto-calculated by the API, so we don't display them in edit mode
 
             // Setup meal adapter
             mealAdapter = new NutritionMealEditAdapter(dayIndex, new NutritionMealEditAdapter.OnMealActionListener() {
@@ -114,13 +110,6 @@ public class NutritionDayEditAdapter extends RecyclerView.Adapter<NutritionDayEd
             binding.buttonEditDay.setOnClickListener(v -> listener.onEditDay(dayIndex));
             binding.buttonAddMeal.setOnClickListener(v -> listener.onAddMeal(dayIndex));
             binding.buttonDeleteDay.setOnClickListener(v -> listener.onRemoveDay(dayIndex));
-        }
-
-        private String formatMacro(String value, String unit) {
-            if (value == null || value.isEmpty()) {
-                return "0 " + unit;
-            }
-            return value + " " + unit;
         }
 
         private String capitalizeWeekday(String weekday) {

@@ -102,11 +102,8 @@ public class NutritionPlanEditViewModel extends ViewModel {
             EditablePlanDay editableDay = new EditablePlanDay();
             editableDay.id = day.getId();
             editableDay.weekday = day.getWeekday().getValue();
-            editableDay.totalCalories = day.getTotalCalories() != null ? day.getTotalCalories().toString() : "";
-            editableDay.protein = day.getProtein() != null ? day.getProtein().toString() : "";
-            editableDay.carbs = day.getCarbs() != null ? day.getCarbs().toString() : "";
-            editableDay.fat = day.getFat() != null ? day.getFat().toString() : "";
-            editableDay.fiber = day.getFiber() != null ? day.getFiber().toString() : "";
+            // Note: Day nutrition values are auto-calculated, so we don't set them for editing
+            // but we display them as read-only in the UI
             editableDay.meals = new ArrayList<>();
             
             // Convert meals
@@ -115,11 +112,8 @@ public class NutritionPlanEditViewModel extends ViewModel {
                 editableMeal.id = meal.getId();
                 editableMeal.name = meal.getName();
                 editableMeal.time = meal.getTime();
-                editableMeal.calories = meal.getCalories() != null ? meal.getCalories().toString() : "";
-                editableMeal.protein = meal.getProtein() != null ? meal.getProtein().toString() : "";
-                editableMeal.carbs = meal.getCarbs() != null ? meal.getCarbs().toString() : "";
-                editableMeal.fat = meal.getFat() != null ? meal.getFat().toString() : "";
-                editableMeal.fiber = meal.getFiber() != null ? meal.getFiber().toString() : "";
+                // Note: Meal nutrition values are auto-calculated, so we don't set them for editing
+                // but we display them as read-only in the UI
                 editableMeal.foods = new ArrayList<>();
                 
                 // Convert foods
@@ -381,63 +375,26 @@ public class NutritionPlanEditViewModel extends ViewModel {
                     }
                 }
                 
-                try {
-                    Integer calories = parseNullableInteger(editableMeal.calories);
-                    BigDecimal protein = parseNullableBigDecimal(editableMeal.protein);
-                    BigDecimal carbs = parseNullableBigDecimal(editableMeal.carbs);
-                    BigDecimal fat = parseNullableBigDecimal(editableMeal.fat);
-                    BigDecimal fiber = parseNullableBigDecimal(editableMeal.fiber);
-                    
-                    BulkNutritionPlanMeal bulkMeal = new BulkNutritionPlanMeal(
-                        editableMeal.name.trim(),
-                        editableMeal.time.trim(),
-                        editableMeal.id,
-                        calories,
-                        protein,
-                        carbs,
-                        fat,
-                        fiber,
-                        bulkFoods.isEmpty() ? null : bulkFoods
-                    );
-                    bulkMeals.add(bulkMeal);
-                } catch (NumberFormatException e) {
-                    // Skip meals with invalid numeric values
-                    continue;
-                }
+                // Create BulkNutritionPlanMeal without nutrition values (they're auto-calculated)
+                BulkNutritionPlanMeal bulkMeal = new BulkNutritionPlanMeal(
+                    editableMeal.name.trim(),
+                    editableMeal.time.trim(),
+                    editableMeal.id,
+                    bulkFoods.isEmpty() ? null : bulkFoods
+                );
+                bulkMeals.add(bulkMeal);
             }
             
-            try {
-                Integer totalCalories = parseNullableInteger(editableDay.totalCalories);
-                BigDecimal protein = parseNullableBigDecimal(editableDay.protein);
-                BigDecimal carbs = parseNullableBigDecimal(editableDay.carbs);
-                BigDecimal fat = parseNullableBigDecimal(editableDay.fat);
-                BigDecimal fiber = parseNullableBigDecimal(editableDay.fiber);
-                
-                BulkNutritionPlanDay bulkDay = new BulkNutritionPlanDay(
-                    weekday,
-                    editableDay.id,
-                    totalCalories,
-                    protein,
-                    carbs,
-                    fat,
-                    fiber,
-                    bulkMeals.isEmpty() ? null : bulkMeals
-                );
-                bulkDays.add(bulkDay);
-            } catch (NumberFormatException e) {
-                // Skip days with invalid numeric values
-                continue;
-            }
+            // Create BulkNutritionPlanDay without nutrition values (they're auto-calculated)
+            BulkNutritionPlanDay bulkDay = new BulkNutritionPlanDay(
+                weekday,
+                editableDay.id,
+                bulkMeals.isEmpty() ? null : bulkMeals
+            );
+            bulkDays.add(bulkDay);
         }
         
         return bulkDays;
-    }
-    
-    private Integer parseNullableInteger(String value) {
-        if (value == null || value.trim().isEmpty()) {
-            return null;
-        }
-        return Integer.parseInt(value.trim());
     }
     
     private BigDecimal parseNullableBigDecimal(String value) {
@@ -459,11 +416,7 @@ public class NutritionPlanEditViewModel extends ViewModel {
     public static class EditablePlanDay {
         public Integer id;
         public String weekday = "";
-        public String totalCalories = "";
-        public String protein = "";
-        public String carbs = "";
-        public String fat = "";
-        public String fiber = "";
+        // Note: totalCalories, protein, carbs, fat, fiber are auto-calculated for days
         public List<EditablePlanMeal> meals = new ArrayList<>();
     }
 
@@ -471,11 +424,7 @@ public class NutritionPlanEditViewModel extends ViewModel {
         public Integer id;
         public String name = "";
         public String time = "";
-        public String calories = "";
-        public String protein = "";
-        public String carbs = "";
-        public String fat = "";
-        public String fiber = "";
+        // Note: calories, protein, carbs, fat, fiber are auto-calculated for meals
         public List<EditablePlanFood> foods = new ArrayList<>();
     }
 
@@ -505,47 +454,6 @@ public class NutritionPlanEditViewModel extends ViewModel {
         }
     }
     
-    // Day update methods
-    public void updateDayCalories(int dayIndex, String calories) {
-        List<EditablePlanDay> currentDays = _editableDays.getValue();
-        if (currentDays != null && dayIndex >= 0 && dayIndex < currentDays.size()) {
-            currentDays.get(dayIndex).totalCalories = calories;
-            _editableDays.postValue(currentDays);
-        }
-    }
-    
-    public void updateDayProtein(int dayIndex, String protein) {
-        List<EditablePlanDay> currentDays = _editableDays.getValue();
-        if (currentDays != null && dayIndex >= 0 && dayIndex < currentDays.size()) {
-            currentDays.get(dayIndex).protein = protein;
-            _editableDays.postValue(currentDays);
-        }
-    }
-    
-    public void updateDayCarbs(int dayIndex, String carbs) {
-        List<EditablePlanDay> currentDays = _editableDays.getValue();
-        if (currentDays != null && dayIndex >= 0 && dayIndex < currentDays.size()) {
-            currentDays.get(dayIndex).carbs = carbs;
-            _editableDays.postValue(currentDays);
-        }
-    }
-    
-    public void updateDayFat(int dayIndex, String fat) {
-        List<EditablePlanDay> currentDays = _editableDays.getValue();
-        if (currentDays != null && dayIndex >= 0 && dayIndex < currentDays.size()) {
-            currentDays.get(dayIndex).fat = fat;
-            _editableDays.postValue(currentDays);
-        }
-    }
-    
-    public void updateDayFiber(int dayIndex, String fiber) {
-        List<EditablePlanDay> currentDays = _editableDays.getValue();
-        if (currentDays != null && dayIndex >= 0 && dayIndex < currentDays.size()) {
-            currentDays.get(dayIndex).fiber = fiber;
-            _editableDays.postValue(currentDays);
-        }
-    }
-    
     // Meal update methods
     public void updateMealName(int dayIndex, int mealIndex, String name) {
         List<EditablePlanDay> currentDays = _editableDays.getValue();
@@ -564,61 +472,6 @@ public class NutritionPlanEditViewModel extends ViewModel {
             List<EditablePlanMeal> meals = currentDays.get(dayIndex).meals;
             if (mealIndex >= 0 && mealIndex < meals.size()) {
                 meals.get(mealIndex).time = time;
-                _editableDays.postValue(currentDays);
-            }
-        }
-    }
-    
-    public void updateMealCalories(int dayIndex, int mealIndex, String calories) {
-        List<EditablePlanDay> currentDays = _editableDays.getValue();
-        if (currentDays != null && dayIndex >= 0 && dayIndex < currentDays.size()) {
-            List<EditablePlanMeal> meals = currentDays.get(dayIndex).meals;
-            if (mealIndex >= 0 && mealIndex < meals.size()) {
-                meals.get(mealIndex).calories = calories;
-                _editableDays.postValue(currentDays);
-            }
-        }
-    }
-    
-    public void updateMealProtein(int dayIndex, int mealIndex, String protein) {
-        List<EditablePlanDay> currentDays = _editableDays.getValue();
-        if (currentDays != null && dayIndex >= 0 && dayIndex < currentDays.size()) {
-            List<EditablePlanMeal> meals = currentDays.get(dayIndex).meals;
-            if (mealIndex >= 0 && mealIndex < meals.size()) {
-                meals.get(mealIndex).protein = protein;
-                _editableDays.postValue(currentDays);
-            }
-        }
-    }
-    
-    public void updateMealCarbs(int dayIndex, int mealIndex, String carbs) {
-        List<EditablePlanDay> currentDays = _editableDays.getValue();
-        if (currentDays != null && dayIndex >= 0 && dayIndex < currentDays.size()) {
-            List<EditablePlanMeal> meals = currentDays.get(dayIndex).meals;
-            if (mealIndex >= 0 && mealIndex < meals.size()) {
-                meals.get(mealIndex).carbs = carbs;
-                _editableDays.postValue(currentDays);
-            }
-        }
-    }
-    
-    public void updateMealFat(int dayIndex, int mealIndex, String fat) {
-        List<EditablePlanDay> currentDays = _editableDays.getValue();
-        if (currentDays != null && dayIndex >= 0 && dayIndex < currentDays.size()) {
-            List<EditablePlanMeal> meals = currentDays.get(dayIndex).meals;
-            if (mealIndex >= 0 && mealIndex < meals.size()) {
-                meals.get(mealIndex).fat = fat;
-                _editableDays.postValue(currentDays);
-            }
-        }
-    }
-    
-    public void updateMealFiber(int dayIndex, int mealIndex, String fiber) {
-        List<EditablePlanDay> currentDays = _editableDays.getValue();
-        if (currentDays != null && dayIndex >= 0 && dayIndex < currentDays.size()) {
-            List<EditablePlanMeal> meals = currentDays.get(dayIndex).meals;
-            if (mealIndex >= 0 && mealIndex < meals.size()) {
-                meals.get(mealIndex).fiber = fiber;
                 _editableDays.postValue(currentDays);
             }
         }

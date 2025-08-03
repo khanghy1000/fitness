@@ -73,10 +73,8 @@ public class NutritionMealEditAdapter extends RecyclerView.Adapter<NutritionMeal
             // Display meal data
             binding.textViewMealName.setText(meal.name != null && !meal.name.isEmpty() ? meal.name : "Meal " + (mealIndex + 1));
             binding.textViewMealTime.setText(meal.time != null && !meal.time.isEmpty() ? meal.time : "Not Set");
-            binding.textViewMealCalories.setText(formatMacro(meal.calories, "cal"));
-            binding.textViewMealProtein.setText(formatMacro(meal.protein, "g P"));
-            binding.textViewMealCarbs.setText(formatMacro(meal.carbs, "g C"));
-            binding.textViewMealFat.setText(formatMacro(meal.fat, "g F"));
+            
+            // Note: Nutrition values are auto-calculated by the API, so we don't display them in edit mode
 
             // Setup food adapter
             foodAdapter = new NutritionFoodEditAdapter(dayIndex, mealIndex, new NutritionFoodEditAdapter.OnFoodActionListener() {
@@ -97,13 +95,6 @@ public class NutritionMealEditAdapter extends RecyclerView.Adapter<NutritionMeal
             binding.buttonEditMeal.setOnClickListener(v -> listener.onEditMeal(dayIndex, mealIndex));
             binding.buttonAddFood.setOnClickListener(v -> listener.onAddFood(dayIndex, mealIndex));
             binding.buttonDeleteMeal.setOnClickListener(v -> listener.onRemoveMeal(dayIndex, mealIndex));
-        }
-
-        private String formatMacro(String value, String unit) {
-            if (value == null || value.isEmpty()) {
-                return "0 " + unit;
-            }
-            return value + " " + unit;
         }
     }
 }

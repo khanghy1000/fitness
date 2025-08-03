@@ -8,6 +8,7 @@ import com.example.fitness.data.network.model.generated.DetailedNutritionPlan;
 import com.example.fitness.data.network.model.generated.NutritionPlanDay;
 import com.example.fitness.data.repository.NutritionRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -38,15 +39,26 @@ public class NutritionPlanDetailsViewModel extends ViewModel {
     public void loadNutritionPlanDetails(String planId) {
         _isLoading.setValue(true);
         
-        // Load nutrition plan details
+        // Load nutrition plan details (includes days)
         nutritionRepository.getNutritionPlanById(planId, new NutritionRepository.NutritionCallback<DetailedNutritionPlan>() {
             @Override
             public void onSuccess(DetailedNutritionPlan result) {
                 _detailedNutritionPlan.setValue(result);
                 _error.setValue(null);
                 
-                // Load nutrition plan days
-                loadNutritionPlanDays(planId);
+                // Extract days from the detailed nutrition plan
+                if (result.getDays() != null) {
+                    // Convert DetailedNutritionPlanDay to NutritionPlanDay
+                    List<NutritionPlanDay> nutritionPlanDays = new ArrayList<>();
+                    for (com.example.fitness.data.network.model.generated.DetailedNutritionPlanDay detailedDay : result.getDays()) {
+                        // Create a basic NutritionPlanDay from DetailedNutritionPlanDay
+                        // Note: You might need to adjust this based on actual NutritionPlanDay structure
+                        nutritionPlanDays.add(convertToNutritionPlanDay(detailedDay));
+                    }
+                    _nutritionPlanDays.setValue(nutritionPlanDays);
+                }
+                
+                _isLoading.setValue(false);
             }
 
             @Override
@@ -57,21 +69,21 @@ public class NutritionPlanDetailsViewModel extends ViewModel {
         });
     }
 
-    private void loadNutritionPlanDays(String planId) {
-        nutritionRepository.getNutritionPlanDays(planId, new NutritionRepository.NutritionCallback<List<NutritionPlanDay>>() {
-            @Override
-            public void onSuccess(List<NutritionPlanDay> result) {
-                _isLoading.setValue(false);
-                _nutritionPlanDays.setValue(result);
-                _error.setValue(null);
-            }
-
-            @Override
-            public void onError(String error) {
-                _isLoading.setValue(false);
-                _error.setValue(error);
-            }
-        });
+    private NutritionPlanDay convertToNutritionPlanDay(com.example.fitness.data.network.model.generated.DetailedNutritionPlanDay detailedDay) {
+        // Convert DetailedNutritionPlanDay to NutritionPlanDay
+        // Convert the weekday enum from DetailedNutritionPlanDay.Weekday to NutritionPlanDay.Weekday
+        NutritionPlanDay.Weekday weekday = NutritionPlanDay.Weekday.valueOf(detailedDay.getWeekday().getValue());
+        
+        return new NutritionPlanDay(
+            detailedDay.getId(),
+            detailedDay.getNutritionPlanId(),
+            weekday,
+            detailedDay.getTotalCalories(),
+            detailedDay.getProtein(),
+            detailedDay.getCarbs(),
+            detailedDay.getFat(),
+            detailedDay.getFiber()
+        );
     }
 
     public void refreshPlanDetails(String planId) {

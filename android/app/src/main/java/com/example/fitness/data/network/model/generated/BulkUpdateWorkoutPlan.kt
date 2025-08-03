@@ -26,7 +26,6 @@ import com.squareup.moshi.JsonClass
  * @param name Updated name of the workout plan
  * @param description Updated description of the workout plan
  * @param difficulty Updated difficulty level
- * @param estimatedCalories Updated estimated calories burned
  * @param isActive Whether the workout plan is active
  * @param days List of workout plan days
  */
@@ -45,10 +44,6 @@ data class BulkUpdateWorkoutPlan (
     /* Updated difficulty level */
     @Json(name = "difficulty")
     val difficulty: BulkUpdateWorkoutPlan.Difficulty? = null,
-
-    /* Updated estimated calories burned */
-    @Json(name = "estimatedCalories")
-    val estimatedCalories: kotlin.Int? = null,
 
     /* Whether the workout plan is active */
     @Json(name = "isActive")

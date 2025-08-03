@@ -56,246 +56,246 @@ router.post(
 );
 
 // Get specific day by ID
-router.get(
-    '/days/:id',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    async (req, res) => {
-        const id = (req.params as any).id as number;
-        const day = await NutritionService.getNutritionPlanDayById(id);
+// router.get(
+//     '/days/:id',
+//     requireAuthenticated,
+//     validateParams(idParamSchema),
+//     async (req, res) => {
+//         const id = (req.params as any).id as number;
+//         const day = await NutritionService.getNutritionPlanDayById(id);
 
-        if (!day) {
-            return res
-                .status(404)
-                .json({ error: 'Nutrition plan day not found' });
-        }
+//         if (!day) {
+//             return res
+//                 .status(404)
+//                 .json({ error: 'Nutrition plan day not found' });
+//         }
 
-        res.json(day);
-    }
-);
+//         res.json(day);
+//     }
+// );
 
-// Update nutrition plan day
-router.put(
-    '/days/:id',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    validateBody(updateNutritionPlanDaySchema),
-    async (req, res) => {
-        const id = (req.params as any).id as number;
-        const updateData = req.body;
+// // Update nutrition plan day
+// router.put(
+//     '/days/:id',
+//     requireAuthenticated,
+//     validateParams(idParamSchema),
+//     validateBody(updateNutritionPlanDaySchema),
+//     async (req, res) => {
+//         const id = (req.params as any).id as number;
+//         const updateData = req.body;
 
-        const day = await NutritionService.updateNutritionPlanDay(
-            id,
-            updateData
-        );
-        if (!day) {
-            return res
-                .status(404)
-                .json({ error: 'Nutrition plan day not found' });
-        }
+//         const day = await NutritionService.updateNutritionPlanDay(
+//             id,
+//             updateData
+//         );
+//         if (!day) {
+//             return res
+//                 .status(404)
+//                 .json({ error: 'Nutrition plan day not found' });
+//         }
 
-        res.json(day);
-    }
-);
+//         res.json(day);
+//     }
+// );
 
-// Delete nutrition plan day
-router.delete(
-    '/days/:id',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    async (req, res) => {
-        const id = (req.params as any).id as number;
+// // Delete nutrition plan day
+// router.delete(
+//     '/days/:id',
+//     requireAuthenticated,
+//     validateParams(idParamSchema),
+//     async (req, res) => {
+//         const id = (req.params as any).id as number;
 
-        const day = await NutritionService.deleteNutritionPlanDay(id);
-        if (!day) {
-            return res
-                .status(404)
-                .json({ error: 'Nutrition plan day not found' });
-        }
+//         const day = await NutritionService.deleteNutritionPlanDay(id);
+//         if (!day) {
+//             return res
+//                 .status(404)
+//                 .json({ error: 'Nutrition plan day not found' });
+//         }
 
-        res.json({ message: 'Nutrition plan day deleted successfully' });
-    }
-);
+//         res.json({ message: 'Nutrition plan day deleted successfully' });
+//     }
+// );
 
-// Get all meals for a nutrition plan day
-router.get(
-    '/days/:id/meals',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    async (req, res) => {
-        const nutritionPlanDayId = (req.params as any).id as number;
-        const meals =
-            await NutritionService.getNutritionPlanMeals(nutritionPlanDayId);
-        res.json(meals);
-    }
-);
+// // Get all meals for a nutrition plan day
+// router.get(
+//     '/days/:id/meals',
+//     requireAuthenticated,
+//     validateParams(idParamSchema),
+//     async (req, res) => {
+//         const nutritionPlanDayId = (req.params as any).id as number;
+//         const meals =
+//             await NutritionService.getNutritionPlanMeals(nutritionPlanDayId);
+//         res.json(meals);
+//     }
+// );
 
-// Get specific meal by ID
-router.get(
-    '/meals/:id',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    async (req, res) => {
-        const id = (req.params as any).id as number;
-        const meal = await NutritionService.getNutritionPlanMealById(id);
+// // Get specific meal by ID
+// router.get(
+//     '/meals/:id',
+//     requireAuthenticated,
+//     validateParams(idParamSchema),
+//     async (req, res) => {
+//         const id = (req.params as any).id as number;
+//         const meal = await NutritionService.getNutritionPlanMealById(id);
 
-        if (!meal) {
-            return res
-                .status(404)
-                .json({ error: 'Nutrition plan meal not found' });
-        }
+//         if (!meal) {
+//             return res
+//                 .status(404)
+//                 .json({ error: 'Nutrition plan meal not found' });
+//         }
 
-        res.json(meal);
-    }
-);
+//         res.json(meal);
+//     }
+// );
 
-// Create new meal for nutrition plan day
-router.post(
-    '/days/:id/meals',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    validateBody(createNutritionPlanMealSchema),
-    async (req, res) => {
-        const nutritionPlanDayId = (req.params as any).id as number;
-        const mealData = { ...req.body, nutritionPlanDayId };
+// // Create new meal for nutrition plan day
+// router.post(
+//     '/days/:id/meals',
+//     requireAuthenticated,
+//     validateParams(idParamSchema),
+//     validateBody(createNutritionPlanMealSchema),
+//     async (req, res) => {
+//         const nutritionPlanDayId = (req.params as any).id as number;
+//         const mealData = { ...req.body, nutritionPlanDayId };
 
-        const meal = await NutritionService.createNutritionPlanMeal(mealData);
-        res.status(201).json(meal);
-    }
-);
+//         const meal = await NutritionService.createNutritionPlanMeal(mealData);
+//         res.status(201).json(meal);
+//     }
+// );
 
-// Update nutrition plan meal
-router.put(
-    '/meals/:id',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    validateBody(updateNutritionPlanMealSchema),
-    async (req, res) => {
-        const id = (req.params as any).id as number;
-        const updateData = req.body;
+// // Update nutrition plan meal
+// router.put(
+//     '/meals/:id',
+//     requireAuthenticated,
+//     validateParams(idParamSchema),
+//     validateBody(updateNutritionPlanMealSchema),
+//     async (req, res) => {
+//         const id = (req.params as any).id as number;
+//         const updateData = req.body;
 
-        const meal = await NutritionService.updateNutritionPlanMeal(
-            id,
-            updateData
-        );
-        if (!meal) {
-            return res
-                .status(404)
-                .json({ error: 'Nutrition plan meal not found' });
-        }
+//         const meal = await NutritionService.updateNutritionPlanMeal(
+//             id,
+//             updateData
+//         );
+//         if (!meal) {
+//             return res
+//                 .status(404)
+//                 .json({ error: 'Nutrition plan meal not found' });
+//         }
 
-        res.json(meal);
-    }
-);
+//         res.json(meal);
+//     }
+// );
 
-// Delete nutrition plan meal
-router.delete(
-    '/meals/:id',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    async (req, res) => {
-        const id = (req.params as any).id as number;
+// // Delete nutrition plan meal
+// router.delete(
+//     '/meals/:id',
+//     requireAuthenticated,
+//     validateParams(idParamSchema),
+//     async (req, res) => {
+//         const id = (req.params as any).id as number;
 
-        const meal = await NutritionService.deleteNutritionPlanMeal(id);
-        if (!meal) {
-            return res
-                .status(404)
-                .json({ error: 'Nutrition plan meal not found' });
-        }
+//         const meal = await NutritionService.deleteNutritionPlanMeal(id);
+//         if (!meal) {
+//             return res
+//                 .status(404)
+//                 .json({ error: 'Nutrition plan meal not found' });
+//         }
 
-        res.json({ message: 'Nutrition plan meal deleted successfully' });
-    }
-);
+//         res.json({ message: 'Nutrition plan meal deleted successfully' });
+//     }
+// );
 
-// Get all foods for a nutrition plan meal
-router.get(
-    '/meals/:id/foods',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    async (req, res) => {
-        const nutritionPlanMealId = (req.params as any).id as number;
-        const foods =
-            await NutritionService.getNutritionPlanFoods(nutritionPlanMealId);
-        res.json(foods);
-    }
-);
+// // Get all foods for a nutrition plan meal
+// router.get(
+//     '/meals/:id/foods',
+//     requireAuthenticated,
+//     validateParams(idParamSchema),
+//     async (req, res) => {
+//         const nutritionPlanMealId = (req.params as any).id as number;
+//         const foods =
+//             await NutritionService.getNutritionPlanFoods(nutritionPlanMealId);
+//         res.json(foods);
+//     }
+// );
 
-// Get specific food by ID
-router.get(
-    '/foods/:id',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    async (req, res) => {
-        const id = (req.params as any).id as number;
-        const food = await NutritionService.getNutritionPlanFoodById(id);
+// // Get specific food by ID
+// router.get(
+//     '/foods/:id',
+//     requireAuthenticated,
+//     validateParams(idParamSchema),
+//     async (req, res) => {
+//         const id = (req.params as any).id as number;
+//         const food = await NutritionService.getNutritionPlanFoodById(id);
 
-        if (!food) {
-            return res
-                .status(404)
-                .json({ error: 'Nutrition plan food not found' });
-        }
+//         if (!food) {
+//             return res
+//                 .status(404)
+//                 .json({ error: 'Nutrition plan food not found' });
+//         }
 
-        res.json(food);
-    }
-);
+//         res.json(food);
+//     }
+// );
 
-// Create new food for nutrition plan meal
-router.post(
-    '/meals/:id/foods',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    validateBody(createNutritionPlanFoodSchema),
-    async (req, res) => {
-        const nutritionPlanMealId = (req.params as any).id as number;
-        const foodData = { ...req.body, nutritionPlanMealId };
+// // Create new food for nutrition plan meal
+// router.post(
+//     '/meals/:id/foods',
+//     requireAuthenticated,
+//     validateParams(idParamSchema),
+//     validateBody(createNutritionPlanFoodSchema),
+//     async (req, res) => {
+//         const nutritionPlanMealId = (req.params as any).id as number;
+//         const foodData = { ...req.body, nutritionPlanMealId };
 
-        const food = await NutritionService.createNutritionPlanFood(foodData);
-        res.status(201).json(food);
-    }
-);
+//         const food = await NutritionService.createNutritionPlanFood(foodData);
+//         res.status(201).json(food);
+//     }
+// );
 
-// Update nutrition plan food
-router.put(
-    '/foods/:id',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    validateBody(updateNutritionPlanFoodSchema),
-    async (req, res) => {
-        const id = (req.params as any).id as number;
-        const updateData = req.body;
+// // Update nutrition plan food
+// router.put(
+//     '/foods/:id',
+//     requireAuthenticated,
+//     validateParams(idParamSchema),
+//     validateBody(updateNutritionPlanFoodSchema),
+//     async (req, res) => {
+//         const id = (req.params as any).id as number;
+//         const updateData = req.body;
 
-        const food = await NutritionService.updateNutritionPlanFood(
-            id,
-            updateData
-        );
-        if (!food) {
-            return res
-                .status(404)
-                .json({ error: 'Nutrition plan food not found' });
-        }
+//         const food = await NutritionService.updateNutritionPlanFood(
+//             id,
+//             updateData
+//         );
+//         if (!food) {
+//             return res
+//                 .status(404)
+//                 .json({ error: 'Nutrition plan food not found' });
+//         }
 
-        res.json(food);
-    }
-);
+//         res.json(food);
+//     }
+// );
 
-// Delete nutrition plan food
-router.delete(
-    '/foods/:id',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    async (req, res) => {
-        const id = (req.params as any).id as number;
+// // Delete nutrition plan food
+// router.delete(
+//     '/foods/:id',
+//     requireAuthenticated,
+//     validateParams(idParamSchema),
+//     async (req, res) => {
+//         const id = (req.params as any).id as number;
 
-        const food = await NutritionService.deleteNutritionPlanFood(id);
-        if (!food) {
-            return res
-                .status(404)
-                .json({ error: 'Nutrition plan food not found' });
-        }
+//         const food = await NutritionService.deleteNutritionPlanFood(id);
+//         if (!food) {
+//             return res
+//                 .status(404)
+//                 .json({ error: 'Nutrition plan food not found' });
+//         }
 
-        res.json({ message: 'Nutrition plan food deleted successfully' });
-    }
-);
+//         res.json({ message: 'Nutrition plan food deleted successfully' });
+//     }
+// );
 
 // Get nutrition plan by ID with full details
 router.get(
@@ -315,23 +315,23 @@ router.get(
 );
 
 // Update nutrition plan
-router.put(
-    '/:id',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    validateBody(updateNutritionPlanSchema),
-    async (req, res) => {
-        const id = (req.params as any).id as number;
-        const updateData = req.body;
+// router.put(
+//     '/:id',
+//     requireAuthenticated,
+//     validateParams(idParamSchema),
+//     validateBody(updateNutritionPlanSchema),
+//     async (req, res) => {
+//         const id = (req.params as any).id as number;
+//         const updateData = req.body;
 
-        const plan = await NutritionService.updateNutritionPlan(id, updateData);
-        if (!plan) {
-            return res.status(404).json({ error: 'Nutrition plan not found' });
-        }
+//         const plan = await NutritionService.updateNutritionPlan(id, updateData);
+//         if (!plan) {
+//             return res.status(404).json({ error: 'Nutrition plan not found' });
+//         }
 
-        res.json(plan);
-    }
-);
+//         res.json(plan);
+//     }
+// );
 
 // Delete nutrition plan
 router.delete(
@@ -351,32 +351,32 @@ router.delete(
 );
 
 // Get all days for a nutrition plan
-router.get(
-    '/:id/days',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    async (req, res) => {
-        const nutritionPlanId = (req.params as any).id as number;
-        const days =
-            await NutritionService.getNutritionPlanDays(nutritionPlanId);
-        res.json(days);
-    }
-);
+// router.get(
+//     '/:id/days',
+//     requireAuthenticated,
+//     validateParams(idParamSchema),
+//     async (req, res) => {
+//         const nutritionPlanId = (req.params as any).id as number;
+//         const days =
+//             await NutritionService.getNutritionPlanDays(nutritionPlanId);
+//         res.json(days);
+//     }
+// );
 
 // Create new day for nutrition plan
-router.post(
-    '/:id/days',
-    requireAuthenticated,
-    validateParams(idParamSchema),
-    validateBody(createNutritionPlanDaySchema),
-    async (req, res) => {
-        const nutritionPlanId = (req.params as any).id as number;
-        const dayData = { ...req.body, nutritionPlanId };
+// router.post(
+//     '/:id/days',
+//     requireAuthenticated,
+//     validateParams(idParamSchema),
+//     validateBody(createNutritionPlanDaySchema),
+//     async (req, res) => {
+//         const nutritionPlanId = (req.params as any).id as number;
+//         const dayData = { ...req.body, nutritionPlanId };
 
-        const day = await NutritionService.createNutritionPlanDay(dayData);
-        res.status(201).json(day);
-    }
-);
+//         const day = await NutritionService.createNutritionPlanDay(dayData);
+//         res.status(201).json(day);
+//     }
+// );
 
 // Bulk update nutrition plan
 router.put(

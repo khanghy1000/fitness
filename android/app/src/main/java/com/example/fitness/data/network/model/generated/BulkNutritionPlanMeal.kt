@@ -26,11 +26,6 @@ import com.squareup.moshi.JsonClass
  * @param name Name of the meal
  * @param time Time when meal should be consumed
  * @param id Meal ID (omit for new meals)
- * @param calories Total calories for the meal
- * @param protein Total protein for the meal
- * @param carbs Total carbs for the meal
- * @param fat Total fat for the meal
- * @param fiber Total fiber for the meal
  * @param foods List of foods in this meal
  */
 
@@ -48,26 +43,6 @@ data class BulkNutritionPlanMeal (
     /* Meal ID (omit for new meals) */
     @Json(name = "id")
     val id: kotlin.Int? = null,
-
-    /* Total calories for the meal */
-    @Json(name = "calories")
-    val calories: kotlin.Int? = null,
-
-    /* Total protein for the meal */
-    @Json(name = "protein")
-    val protein: java.math.BigDecimal? = null,
-
-    /* Total carbs for the meal */
-    @Json(name = "carbs")
-    val carbs: java.math.BigDecimal? = null,
-
-    /* Total fat for the meal */
-    @Json(name = "fat")
-    val fat: java.math.BigDecimal? = null,
-
-    /* Total fiber for the meal */
-    @Json(name = "fiber")
-    val fiber: java.math.BigDecimal? = null,
 
     /* List of foods in this meal */
     @Json(name = "foods")

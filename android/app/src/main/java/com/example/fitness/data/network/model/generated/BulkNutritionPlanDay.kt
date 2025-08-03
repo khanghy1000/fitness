@@ -25,11 +25,6 @@ import com.squareup.moshi.JsonClass
  *
  * @param weekday Day of the week
  * @param id Day ID (omit for new days)
- * @param totalCalories Total calories for the day
- * @param protein Total protein for the day
- * @param carbs Total carbs for the day
- * @param fat Total fat for the day
- * @param fiber Total fiber for the day
  * @param meals List of meals for this day
  */
 
@@ -43,26 +38,6 @@ data class BulkNutritionPlanDay (
     /* Day ID (omit for new days) */
     @Json(name = "id")
     val id: kotlin.Int? = null,
-
-    /* Total calories for the day */
-    @Json(name = "totalCalories")
-    val totalCalories: kotlin.Int? = null,
-
-    /* Total protein for the day */
-    @Json(name = "protein")
-    val protein: java.math.BigDecimal? = null,
-
-    /* Total carbs for the day */
-    @Json(name = "carbs")
-    val carbs: java.math.BigDecimal? = null,
-
-    /* Total fat for the day */
-    @Json(name = "fat")
-    val fat: java.math.BigDecimal? = null,
-
-    /* Total fiber for the day */
-    @Json(name = "fiber")
-    val fiber: java.math.BigDecimal? = null,
 
     /* List of meals for this day */
     @Json(name = "meals")

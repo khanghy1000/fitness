@@ -27,7 +27,6 @@ import com.squareup.moshi.JsonClass
  * @param order Order of exercise in the workout
  * @param targetReps Target number of repetitions
  * @param targetDuration Target duration in seconds
- * @param estimatedCalories Estimated calories burned for this exercise
  * @param notes Additional notes for the exercise
  */
 
@@ -53,10 +52,6 @@ data class BulkWorkoutPlanDayExercise (
     /* Target duration in seconds */
     @Json(name = "targetDuration")
     val targetDuration: kotlin.Int? = null,
-
-    /* Estimated calories burned for this exercise */
-    @Json(name = "estimatedCalories")
-    val estimatedCalories: kotlin.Int? = null,
 
     /* Additional notes for the exercise */
     @Json(name = "notes")

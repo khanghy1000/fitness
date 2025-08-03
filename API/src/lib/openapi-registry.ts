@@ -1182,43 +1182,43 @@ registry.registerPath({
     },
 });
 
-registry.registerPath({
-    method: 'put',
-    path: '/api/nutrition/{id}',
-    tags: ['Nutrition'],
-    summary: 'Update nutrition plan',
-    description: 'Update a nutrition plan (coach only)',
-    request: {
-        params: idParamSchema,
-        body: {
-            description: 'Updated nutrition plan data',
-            content: {
-                'application/json': {
-                    schema: updateNutritionPlanSchema,
-                },
-            },
-        },
-    },
-    responses: {
-        200: {
-            description: 'Nutrition plan updated successfully',
-            content: {
-                'application/json': {
-                    schema: nutritionPlanSchema,
-                },
-            },
-        },
-        400: {
-            description: 'Invalid input data',
-        },
-        401: {
-            description: 'Unauthorized - Coach role required',
-        },
-        404: {
-            description: 'Nutrition plan not found',
-        },
-    },
-});
+// registry.registerPath({
+//     method: 'put',
+//     path: '/api/nutrition/{id}',
+//     tags: ['Nutrition'],
+//     summary: 'Update nutrition plan',
+//     description: 'Update a nutrition plan (coach only)',
+//     request: {
+//         params: idParamSchema,
+//         body: {
+//             description: 'Updated nutrition plan data',
+//             content: {
+//                 'application/json': {
+//                     schema: updateNutritionPlanSchema,
+//                 },
+//             },
+//         },
+//     },
+//     responses: {
+//         200: {
+//             description: 'Nutrition plan updated successfully',
+//             content: {
+//                 'application/json': {
+//                     schema: nutritionPlanSchema,
+//                 },
+//             },
+//         },
+//         400: {
+//             description: 'Invalid input data',
+//         },
+//         401: {
+//             description: 'Unauthorized - Coach role required',
+//         },
+//         404: {
+//             description: 'Nutrition plan not found',
+//         },
+//     },
+// });
 
 registry.registerPath({
     method: 'delete',
@@ -1247,467 +1247,467 @@ registry.registerPath({
     },
 });
 
-registry.registerPath({
-    method: 'get',
-    path: '/api/nutrition/{id}/days',
-    tags: ['Nutrition'],
-    summary: 'Get nutrition plan days',
-    description: 'Get all days for a nutrition plan',
-    request: {
-        params: idParamSchema,
-    },
-    responses: {
-        200: {
-            description: 'List of nutrition plan days',
-            content: {
-                'application/json': {
-                    schema: z.array(nutritionPlanDaySchema),
-                },
-            },
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-        404: {
-            description: 'Nutrition plan not found',
-        },
-    },
-});
+// registry.registerPath({
+//     method: 'get',
+//     path: '/api/nutrition/{id}/days',
+//     tags: ['Nutrition'],
+//     summary: 'Get nutrition plan days',
+//     description: 'Get all days for a nutrition plan',
+//     request: {
+//         params: idParamSchema,
+//     },
+//     responses: {
+//         200: {
+//             description: 'List of nutrition plan days',
+//             content: {
+//                 'application/json': {
+//                     schema: z.array(nutritionPlanDaySchema),
+//                 },
+//             },
+//         },
+//         401: {
+//             description: 'Unauthorized',
+//         },
+//         404: {
+//             description: 'Nutrition plan not found',
+//         },
+//     },
+// });
 
-registry.registerPath({
-    method: 'post',
-    path: '/api/nutrition/{id}/days',
-    tags: ['Nutrition'],
-    summary: 'Create nutrition plan day',
-    description: 'Create a new day for a nutrition plan',
-    request: {
-        params: idParamSchema,
-        body: {
-            description: 'Nutrition plan day data',
-            content: {
-                'application/json': {
-                    schema: createNutritionPlanDaySchema,
-                },
-            },
-        },
-    },
-    responses: {
-        201: {
-            description: 'Nutrition plan day created successfully',
-            content: {
-                'application/json': {
-                    schema: nutritionPlanDaySchema,
-                },
-            },
-        },
-        400: {
-            description: 'Invalid input data',
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-    },
-});
+// registry.registerPath({
+//     method: 'post',
+//     path: '/api/nutrition/{id}/days',
+//     tags: ['Nutrition'],
+//     summary: 'Create nutrition plan day',
+//     description: 'Create a new day for a nutrition plan',
+//     request: {
+//         params: idParamSchema,
+//         body: {
+//             description: 'Nutrition plan day data',
+//             content: {
+//                 'application/json': {
+//                     schema: createNutritionPlanDaySchema,
+//                 },
+//             },
+//         },
+//     },
+//     responses: {
+//         201: {
+//             description: 'Nutrition plan day created successfully',
+//             content: {
+//                 'application/json': {
+//                     schema: nutritionPlanDaySchema,
+//                 },
+//             },
+//         },
+//         400: {
+//             description: 'Invalid input data',
+//         },
+//         401: {
+//             description: 'Unauthorized',
+//         },
+//     },
+// });
 
-registry.registerPath({
-    method: 'get',
-    path: '/api/nutrition/days/{id}',
-    tags: ['Nutrition'],
-    summary: 'Get nutrition plan day',
-    description: 'Get a specific nutrition plan day by ID',
-    request: {
-        params: idParamSchema,
-    },
-    responses: {
-        200: {
-            description: 'Nutrition plan day details',
-            content: {
-                'application/json': {
-                    schema: nutritionPlanDaySchema,
-                },
-            },
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-        404: {
-            description: 'Nutrition plan day not found',
-        },
-    },
-});
+// registry.registerPath({
+//     method: 'get',
+//     path: '/api/nutrition/days/{id}',
+//     tags: ['Nutrition'],
+//     summary: 'Get nutrition plan day',
+//     description: 'Get a specific nutrition plan day by ID',
+//     request: {
+//         params: idParamSchema,
+//     },
+//     responses: {
+//         200: {
+//             description: 'Nutrition plan day details',
+//             content: {
+//                 'application/json': {
+//                     schema: nutritionPlanDaySchema,
+//                 },
+//             },
+//         },
+//         401: {
+//             description: 'Unauthorized',
+//         },
+//         404: {
+//             description: 'Nutrition plan day not found',
+//         },
+//     },
+// });
 
-registry.registerPath({
-    method: 'put',
-    path: '/api/nutrition/days/{id}',
-    tags: ['Nutrition'],
-    summary: 'Update nutrition plan day',
-    description: 'Update a nutrition plan day',
-    request: {
-        params: idParamSchema,
-        body: {
-            description: 'Updated nutrition plan day data',
-            content: {
-                'application/json': {
-                    schema: updateNutritionPlanDaySchema,
-                },
-            },
-        },
-    },
-    responses: {
-        200: {
-            description: 'Nutrition plan day updated successfully',
-            content: {
-                'application/json': {
-                    schema: nutritionPlanDaySchema,
-                },
-            },
-        },
-        400: {
-            description: 'Invalid input data',
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-        404: {
-            description: 'Nutrition plan day not found',
-        },
-    },
-});
+// registry.registerPath({
+//     method: 'put',
+//     path: '/api/nutrition/days/{id}',
+//     tags: ['Nutrition'],
+//     summary: 'Update nutrition plan day',
+//     description: 'Update a nutrition plan day',
+//     request: {
+//         params: idParamSchema,
+//         body: {
+//             description: 'Updated nutrition plan day data',
+//             content: {
+//                 'application/json': {
+//                     schema: updateNutritionPlanDaySchema,
+//                 },
+//             },
+//         },
+//     },
+//     responses: {
+//         200: {
+//             description: 'Nutrition plan day updated successfully',
+//             content: {
+//                 'application/json': {
+//                     schema: nutritionPlanDaySchema,
+//                 },
+//             },
+//         },
+//         400: {
+//             description: 'Invalid input data',
+//         },
+//         401: {
+//             description: 'Unauthorized',
+//         },
+//         404: {
+//             description: 'Nutrition plan day not found',
+//         },
+//     },
+// });
 
-registry.registerPath({
-    method: 'delete',
-    path: '/api/nutrition/days/{id}',
-    tags: ['Nutrition'],
-    summary: 'Delete nutrition plan day',
-    description: 'Delete a nutrition plan day',
-    request: {
-        params: idParamSchema,
-    },
-    responses: {
-        200: {
-            description: 'Nutrition plan day deleted successfully',
-            content: {
-                'application/json': {
-                    schema: successMessageSchema,
-                },
-            },
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-        404: {
-            description: 'Nutrition plan day not found',
-        },
-    },
-});
+// registry.registerPath({
+//     method: 'delete',
+//     path: '/api/nutrition/days/{id}',
+//     tags: ['Nutrition'],
+//     summary: 'Delete nutrition plan day',
+//     description: 'Delete a nutrition plan day',
+//     request: {
+//         params: idParamSchema,
+//     },
+//     responses: {
+//         200: {
+//             description: 'Nutrition plan day deleted successfully',
+//             content: {
+//                 'application/json': {
+//                     schema: successMessageSchema,
+//                 },
+//             },
+//         },
+//         401: {
+//             description: 'Unauthorized',
+//         },
+//         404: {
+//             description: 'Nutrition plan day not found',
+//         },
+//     },
+// });
 
-registry.registerPath({
-    method: 'get',
-    path: '/api/nutrition/days/{id}/meals',
-    tags: ['Nutrition'],
-    summary: 'Get nutrition plan day meals',
-    description: 'Get all meals for a nutrition plan day',
-    request: {
-        params: idParamSchema,
-    },
-    responses: {
-        200: {
-            description: 'List of nutrition plan meals',
-            content: {
-                'application/json': {
-                    schema: z.array(nutritionPlanMealSchema),
-                },
-            },
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-        404: {
-            description: 'Nutrition plan day not found',
-        },
-    },
-});
+// registry.registerPath({
+//     method: 'get',
+//     path: '/api/nutrition/days/{id}/meals',
+//     tags: ['Nutrition'],
+//     summary: 'Get nutrition plan day meals',
+//     description: 'Get all meals for a nutrition plan day',
+//     request: {
+//         params: idParamSchema,
+//     },
+//     responses: {
+//         200: {
+//             description: 'List of nutrition plan meals',
+//             content: {
+//                 'application/json': {
+//                     schema: z.array(nutritionPlanMealSchema),
+//                 },
+//             },
+//         },
+//         401: {
+//             description: 'Unauthorized',
+//         },
+//         404: {
+//             description: 'Nutrition plan day not found',
+//         },
+//     },
+// });
 
-registry.registerPath({
-    method: 'post',
-    path: '/api/nutrition/days/{id}/meals',
-    tags: ['Nutrition'],
-    summary: 'Create nutrition plan meal',
-    description: 'Create a new meal for a nutrition plan day',
-    request: {
-        params: idParamSchema,
-        body: {
-            description: 'Nutrition plan meal data',
-            content: {
-                'application/json': {
-                    schema: createNutritionPlanMealSchema,
-                },
-            },
-        },
-    },
-    responses: {
-        201: {
-            description: 'Nutrition plan meal created successfully',
-            content: {
-                'application/json': {
-                    schema: nutritionPlanMealSchema,
-                },
-            },
-        },
-        400: {
-            description: 'Invalid input data',
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-    },
-});
+// registry.registerPath({
+//     method: 'post',
+//     path: '/api/nutrition/days/{id}/meals',
+//     tags: ['Nutrition'],
+//     summary: 'Create nutrition plan meal',
+//     description: 'Create a new meal for a nutrition plan day',
+//     request: {
+//         params: idParamSchema,
+//         body: {
+//             description: 'Nutrition plan meal data',
+//             content: {
+//                 'application/json': {
+//                     schema: createNutritionPlanMealSchema,
+//                 },
+//             },
+//         },
+//     },
+//     responses: {
+//         201: {
+//             description: 'Nutrition plan meal created successfully',
+//             content: {
+//                 'application/json': {
+//                     schema: nutritionPlanMealSchema,
+//                 },
+//             },
+//         },
+//         400: {
+//             description: 'Invalid input data',
+//         },
+//         401: {
+//             description: 'Unauthorized',
+//         },
+//     },
+// });
 
-registry.registerPath({
-    method: 'get',
-    path: '/api/nutrition/meals/{id}',
-    tags: ['Nutrition'],
-    summary: 'Get nutrition plan meal',
-    description: 'Get a specific nutrition plan meal by ID',
-    request: {
-        params: idParamSchema,
-    },
-    responses: {
-        200: {
-            description: 'Nutrition plan meal details',
-            content: {
-                'application/json': {
-                    schema: nutritionPlanMealSchema,
-                },
-            },
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-        404: {
-            description: 'Nutrition plan meal not found',
-        },
-    },
-});
+// registry.registerPath({
+//     method: 'get',
+//     path: '/api/nutrition/meals/{id}',
+//     tags: ['Nutrition'],
+//     summary: 'Get nutrition plan meal',
+//     description: 'Get a specific nutrition plan meal by ID',
+//     request: {
+//         params: idParamSchema,
+//     },
+//     responses: {
+//         200: {
+//             description: 'Nutrition plan meal details',
+//             content: {
+//                 'application/json': {
+//                     schema: nutritionPlanMealSchema,
+//                 },
+//             },
+//         },
+//         401: {
+//             description: 'Unauthorized',
+//         },
+//         404: {
+//             description: 'Nutrition plan meal not found',
+//         },
+//     },
+// });
 
-registry.registerPath({
-    method: 'put',
-    path: '/api/nutrition/meals/{id}',
-    tags: ['Nutrition'],
-    summary: 'Update nutrition plan meal',
-    description: 'Update a nutrition plan meal',
-    request: {
-        params: idParamSchema,
-        body: {
-            description: 'Updated nutrition plan meal data',
-            content: {
-                'application/json': {
-                    schema: updateNutritionPlanMealSchema,
-                },
-            },
-        },
-    },
-    responses: {
-        200: {
-            description: 'Nutrition plan meal updated successfully',
-            content: {
-                'application/json': {
-                    schema: nutritionPlanMealSchema,
-                },
-            },
-        },
-        400: {
-            description: 'Invalid input data',
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-        404: {
-            description: 'Nutrition plan meal not found',
-        },
-    },
-});
+// registry.registerPath({
+//     method: 'put',
+//     path: '/api/nutrition/meals/{id}',
+//     tags: ['Nutrition'],
+//     summary: 'Update nutrition plan meal',
+//     description: 'Update a nutrition plan meal',
+//     request: {
+//         params: idParamSchema,
+//         body: {
+//             description: 'Updated nutrition plan meal data',
+//             content: {
+//                 'application/json': {
+//                     schema: updateNutritionPlanMealSchema,
+//                 },
+//             },
+//         },
+//     },
+//     responses: {
+//         200: {
+//             description: 'Nutrition plan meal updated successfully',
+//             content: {
+//                 'application/json': {
+//                     schema: nutritionPlanMealSchema,
+//                 },
+//             },
+//         },
+//         400: {
+//             description: 'Invalid input data',
+//         },
+//         401: {
+//             description: 'Unauthorized',
+//         },
+//         404: {
+//             description: 'Nutrition plan meal not found',
+//         },
+//     },
+// });
 
-registry.registerPath({
-    method: 'delete',
-    path: '/api/nutrition/meals/{id}',
-    tags: ['Nutrition'],
-    summary: 'Delete nutrition plan meal',
-    description: 'Delete a nutrition plan meal',
-    request: {
-        params: idParamSchema,
-    },
-    responses: {
-        200: {
-            description: 'Nutrition plan meal deleted successfully',
-            content: {
-                'application/json': {
-                    schema: successMessageSchema,
-                },
-            },
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-        404: {
-            description: 'Nutrition plan meal not found',
-        },
-    },
-});
+// registry.registerPath({
+//     method: 'delete',
+//     path: '/api/nutrition/meals/{id}',
+//     tags: ['Nutrition'],
+//     summary: 'Delete nutrition plan meal',
+//     description: 'Delete a nutrition plan meal',
+//     request: {
+//         params: idParamSchema,
+//     },
+//     responses: {
+//         200: {
+//             description: 'Nutrition plan meal deleted successfully',
+//             content: {
+//                 'application/json': {
+//                     schema: successMessageSchema,
+//                 },
+//             },
+//         },
+//         401: {
+//             description: 'Unauthorized',
+//         },
+//         404: {
+//             description: 'Nutrition plan meal not found',
+//         },
+//     },
+// });
 
-registry.registerPath({
-    method: 'get',
-    path: '/api/nutrition/meals/{id}/foods',
-    tags: ['Nutrition'],
-    summary: 'Get nutrition plan meal foods',
-    description: 'Get all foods for a nutrition plan meal',
-    request: {
-        params: idParamSchema,
-    },
-    responses: {
-        200: {
-            description: 'List of nutrition plan foods',
-            content: {
-                'application/json': {
-                    schema: z.array(nutritionPlanFoodSchema),
-                },
-            },
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-        404: {
-            description: 'Nutrition plan meal not found',
-        },
-    },
-});
+// registry.registerPath({
+//     method: 'get',
+//     path: '/api/nutrition/meals/{id}/foods',
+//     tags: ['Nutrition'],
+//     summary: 'Get nutrition plan meal foods',
+//     description: 'Get all foods for a nutrition plan meal',
+//     request: {
+//         params: idParamSchema,
+//     },
+//     responses: {
+//         200: {
+//             description: 'List of nutrition plan foods',
+//             content: {
+//                 'application/json': {
+//                     schema: z.array(nutritionPlanFoodSchema),
+//                 },
+//             },
+//         },
+//         401: {
+//             description: 'Unauthorized',
+//         },
+//         404: {
+//             description: 'Nutrition plan meal not found',
+//         },
+//     },
+// });
 
-registry.registerPath({
-    method: 'post',
-    path: '/api/nutrition/meals/{id}/foods',
-    tags: ['Nutrition'],
-    summary: 'Create nutrition plan food',
-    description: 'Create a new food for a nutrition plan meal',
-    request: {
-        params: idParamSchema,
-        body: {
-            description: 'Nutrition plan food data',
-            content: {
-                'application/json': {
-                    schema: createNutritionPlanFoodSchema,
-                },
-            },
-        },
-    },
-    responses: {
-        201: {
-            description: 'Nutrition plan food created successfully',
-            content: {
-                'application/json': {
-                    schema: nutritionPlanFoodSchema,
-                },
-            },
-        },
-        400: {
-            description: 'Invalid input data',
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-    },
-});
+// registry.registerPath({
+//     method: 'post',
+//     path: '/api/nutrition/meals/{id}/foods',
+//     tags: ['Nutrition'],
+//     summary: 'Create nutrition plan food',
+//     description: 'Create a new food for a nutrition plan meal',
+//     request: {
+//         params: idParamSchema,
+//         body: {
+//             description: 'Nutrition plan food data',
+//             content: {
+//                 'application/json': {
+//                     schema: createNutritionPlanFoodSchema,
+//                 },
+//             },
+//         },
+//     },
+//     responses: {
+//         201: {
+//             description: 'Nutrition plan food created successfully',
+//             content: {
+//                 'application/json': {
+//                     schema: nutritionPlanFoodSchema,
+//                 },
+//             },
+//         },
+//         400: {
+//             description: 'Invalid input data',
+//         },
+//         401: {
+//             description: 'Unauthorized',
+//         },
+//     },
+// });
 
-registry.registerPath({
-    method: 'get',
-    path: '/api/nutrition/foods/{id}',
-    tags: ['Nutrition'],
-    summary: 'Get nutrition plan food',
-    description: 'Get a specific nutrition plan food by ID',
-    request: {
-        params: idParamSchema,
-    },
-    responses: {
-        200: {
-            description: 'Nutrition plan food details',
-            content: {
-                'application/json': {
-                    schema: nutritionPlanFoodSchema,
-                },
-            },
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-        404: {
-            description: 'Nutrition plan food not found',
-        },
-    },
-});
+// registry.registerPath({
+//     method: 'get',
+//     path: '/api/nutrition/foods/{id}',
+//     tags: ['Nutrition'],
+//     summary: 'Get nutrition plan food',
+//     description: 'Get a specific nutrition plan food by ID',
+//     request: {
+//         params: idParamSchema,
+//     },
+//     responses: {
+//         200: {
+//             description: 'Nutrition plan food details',
+//             content: {
+//                 'application/json': {
+//                     schema: nutritionPlanFoodSchema,
+//                 },
+//             },
+//         },
+//         401: {
+//             description: 'Unauthorized',
+//         },
+//         404: {
+//             description: 'Nutrition plan food not found',
+//         },
+//     },
+// });
 
-registry.registerPath({
-    method: 'put',
-    path: '/api/nutrition/foods/{id}',
-    tags: ['Nutrition'],
-    summary: 'Update nutrition plan food',
-    description: 'Update a nutrition plan food',
-    request: {
-        params: idParamSchema,
-        body: {
-            description: 'Updated nutrition plan food data',
-            content: {
-                'application/json': {
-                    schema: updateNutritionPlanFoodSchema,
-                },
-            },
-        },
-    },
-    responses: {
-        200: {
-            description: 'Nutrition plan food updated successfully',
-            content: {
-                'application/json': {
-                    schema: nutritionPlanFoodSchema,
-                },
-            },
-        },
-        400: {
-            description: 'Invalid input data',
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-        404: {
-            description: 'Nutrition plan food not found',
-        },
-    },
-});
+// registry.registerPath({
+//     method: 'put',
+//     path: '/api/nutrition/foods/{id}',
+//     tags: ['Nutrition'],
+//     summary: 'Update nutrition plan food',
+//     description: 'Update a nutrition plan food',
+//     request: {
+//         params: idParamSchema,
+//         body: {
+//             description: 'Updated nutrition plan food data',
+//             content: {
+//                 'application/json': {
+//                     schema: updateNutritionPlanFoodSchema,
+//                 },
+//             },
+//         },
+//     },
+//     responses: {
+//         200: {
+//             description: 'Nutrition plan food updated successfully',
+//             content: {
+//                 'application/json': {
+//                     schema: nutritionPlanFoodSchema,
+//                 },
+//             },
+//         },
+//         400: {
+//             description: 'Invalid input data',
+//         },
+//         401: {
+//             description: 'Unauthorized',
+//         },
+//         404: {
+//             description: 'Nutrition plan food not found',
+//         },
+//     },
+// });
 
-registry.registerPath({
-    method: 'delete',
-    path: '/api/nutrition/foods/{id}',
-    tags: ['Nutrition'],
-    summary: 'Delete nutrition plan food',
-    description: 'Delete a nutrition plan food',
-    request: {
-        params: idParamSchema,
-    },
-    responses: {
-        200: {
-            description: 'Nutrition plan food deleted successfully',
-            content: {
-                'application/json': {
-                    schema: successMessageSchema,
-                },
-            },
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-        404: {
-            description: 'Nutrition plan food not found',
-        },
-    },
-});
+// registry.registerPath({
+//     method: 'delete',
+//     path: '/api/nutrition/foods/{id}',
+//     tags: ['Nutrition'],
+//     summary: 'Delete nutrition plan food',
+//     description: 'Delete a nutrition plan food',
+//     request: {
+//         params: idParamSchema,
+//     },
+//     responses: {
+//         200: {
+//             description: 'Nutrition plan food deleted successfully',
+//             content: {
+//                 'application/json': {
+//                     schema: successMessageSchema,
+//                 },
+//             },
+//         },
+//         401: {
+//             description: 'Unauthorized',
+//         },
+//         404: {
+//             description: 'Nutrition plan food not found',
+//         },
+//     },
+// });
 
 // Workouts routes
 registry.registerPath({
@@ -1792,43 +1792,43 @@ registry.registerPath({
     },
 });
 
-registry.registerPath({
-    method: 'put',
-    path: '/api/workouts/{id}',
-    tags: ['Workouts'],
-    summary: 'Update workout plan',
-    description: 'Update a workout plan (coach only)',
-    request: {
-        params: idParamSchema,
-        body: {
-            description: 'Updated workout plan data',
-            content: {
-                'application/json': {
-                    schema: updateWorkoutPlanSchema,
-                },
-            },
-        },
-    },
-    responses: {
-        200: {
-            description: 'Workout plan updated successfully',
-            content: {
-                'application/json': {
-                    schema: workoutPlanSchema,
-                },
-            },
-        },
-        400: {
-            description: 'Invalid input data',
-        },
-        401: {
-            description: 'Unauthorized - Coach role required',
-        },
-        404: {
-            description: 'Workout plan not found',
-        },
-    },
-});
+// registry.registerPath({
+//     method: 'put',
+//     path: '/api/workouts/{id}',
+//     tags: ['Workouts'],
+//     summary: 'Update workout plan',
+//     description: 'Update a workout plan (coach only)',
+//     request: {
+//         params: idParamSchema,
+//         body: {
+//             description: 'Updated workout plan data',
+//             content: {
+//                 'application/json': {
+//                     schema: updateWorkoutPlanSchema,
+//                 },
+//             },
+//         },
+//     },
+//     responses: {
+//         200: {
+//             description: 'Workout plan updated successfully',
+//             content: {
+//                 'application/json': {
+//                     schema: workoutPlanSchema,
+//                 },
+//             },
+//         },
+//         400: {
+//             description: 'Invalid input data',
+//         },
+//         401: {
+//             description: 'Unauthorized - Coach role required',
+//         },
+//         404: {
+//             description: 'Workout plan not found',
+//         },
+//     },
+// });
 
 registry.registerPath({
     method: 'delete',
@@ -1857,313 +1857,313 @@ registry.registerPath({
     },
 });
 
-registry.registerPath({
-    method: 'get',
-    path: '/api/workouts/{id}/days',
-    tags: ['Workouts'],
-    summary: 'Get workout plan days',
-    description: 'Get all days for a workout plan',
-    request: {
-        params: idParamSchema,
-    },
-    responses: {
-        200: {
-            description: 'List of workout plan days',
-            content: {
-                'application/json': {
-                    schema: z.array(workoutPlanDaySchema),
-                },
-            },
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-        404: {
-            description: 'Workout plan not found',
-        },
-    },
-});
+// registry.registerPath({
+//     method: 'get',
+//     path: '/api/workouts/{id}/days',
+//     tags: ['Workouts'],
+//     summary: 'Get workout plan days',
+//     description: 'Get all days for a workout plan',
+//     request: {
+//         params: idParamSchema,
+//     },
+//     responses: {
+//         200: {
+//             description: 'List of workout plan days',
+//             content: {
+//                 'application/json': {
+//                     schema: z.array(workoutPlanDaySchema),
+//                 },
+//             },
+//         },
+//         401: {
+//             description: 'Unauthorized',
+//         },
+//         404: {
+//             description: 'Workout plan not found',
+//         },
+//     },
+// });
 
-registry.registerPath({
-    method: 'post',
-    path: '/api/workouts/{id}/days',
-    tags: ['Workouts'],
-    summary: 'Create workout plan day',
-    description: 'Create a new day for a workout plan',
-    request: {
-        params: idParamSchema,
-        body: {
-            description: 'Workout plan day data',
-            content: {
-                'application/json': {
-                    schema: addDayToWorkoutPlanSchema,
-                },
-            },
-        },
-    },
-    responses: {
-        201: {
-            description: 'Workout plan day created successfully',
-            content: {
-                'application/json': {
-                    schema: workoutPlanDaySchema,
-                },
-            },
-        },
-        400: {
-            description: 'Invalid input data',
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-    },
-});
+// registry.registerPath({
+//     method: 'post',
+//     path: '/api/workouts/{id}/days',
+//     tags: ['Workouts'],
+//     summary: 'Create workout plan day',
+//     description: 'Create a new day for a workout plan',
+//     request: {
+//         params: idParamSchema,
+//         body: {
+//             description: 'Workout plan day data',
+//             content: {
+//                 'application/json': {
+//                     schema: addDayToWorkoutPlanSchema,
+//                 },
+//             },
+//         },
+//     },
+//     responses: {
+//         201: {
+//             description: 'Workout plan day created successfully',
+//             content: {
+//                 'application/json': {
+//                     schema: workoutPlanDaySchema,
+//                 },
+//             },
+//         },
+//         400: {
+//             description: 'Invalid input data',
+//         },
+//         401: {
+//             description: 'Unauthorized',
+//         },
+//     },
+// });
 
-registry.registerPath({
-    method: 'get',
-    path: '/api/workouts/days/{id}',
-    tags: ['Workouts'],
-    summary: 'Get workout plan day',
-    description: 'Get a specific workout plan day by ID',
-    request: {
-        params: idParamSchema,
-    },
-    responses: {
-        200: {
-            description: 'Workout plan day details',
-            content: {
-                'application/json': {
-                    schema: workoutPlanDaySchema,
-                },
-            },
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-        404: {
-            description: 'Workout plan day not found',
-        },
-    },
-});
+// registry.registerPath({
+//     method: 'get',
+//     path: '/api/workouts/days/{id}',
+//     tags: ['Workouts'],
+//     summary: 'Get workout plan day',
+//     description: 'Get a specific workout plan day by ID',
+//     request: {
+//         params: idParamSchema,
+//     },
+//     responses: {
+//         200: {
+//             description: 'Workout plan day details',
+//             content: {
+//                 'application/json': {
+//                     schema: workoutPlanDaySchema,
+//                 },
+//             },
+//         },
+//         401: {
+//             description: 'Unauthorized',
+//         },
+//         404: {
+//             description: 'Workout plan day not found',
+//         },
+//     },
+// });
 
-registry.registerPath({
-    method: 'put',
-    path: '/api/workouts/days/{id}',
-    tags: ['Workouts'],
-    summary: 'Update workout plan day',
-    description: 'Update a workout plan day',
-    request: {
-        params: idParamSchema,
-        body: {
-            description: 'Updated workout plan day data',
-            content: {
-                'application/json': {
-                    schema: updateWorkoutPlanDaySchema,
-                },
-            },
-        },
-    },
-    responses: {
-        200: {
-            description: 'Workout plan day updated successfully',
-            content: {
-                'application/json': {
-                    schema: workoutPlanDaySchema,
-                },
-            },
-        },
-        400: {
-            description: 'Invalid input data',
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-        404: {
-            description: 'Workout plan day not found',
-        },
-    },
-});
+// registry.registerPath({
+//     method: 'put',
+//     path: '/api/workouts/days/{id}',
+//     tags: ['Workouts'],
+//     summary: 'Update workout plan day',
+//     description: 'Update a workout plan day',
+//     request: {
+//         params: idParamSchema,
+//         body: {
+//             description: 'Updated workout plan day data',
+//             content: {
+//                 'application/json': {
+//                     schema: updateWorkoutPlanDaySchema,
+//                 },
+//             },
+//         },
+//     },
+//     responses: {
+//         200: {
+//             description: 'Workout plan day updated successfully',
+//             content: {
+//                 'application/json': {
+//                     schema: workoutPlanDaySchema,
+//                 },
+//             },
+//         },
+//         400: {
+//             description: 'Invalid input data',
+//         },
+//         401: {
+//             description: 'Unauthorized',
+//         },
+//         404: {
+//             description: 'Workout plan day not found',
+//         },
+//     },
+// });
 
-registry.registerPath({
-    method: 'delete',
-    path: '/api/workouts/days/{id}',
-    tags: ['Workouts'],
-    summary: 'Delete workout plan day',
-    description: 'Delete a workout plan day',
-    request: {
-        params: idParamSchema,
-    },
-    responses: {
-        200: {
-            description: 'Workout plan day deleted successfully',
-            content: {
-                'application/json': {
-                    schema: successMessageSchema,
-                },
-            },
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-        404: {
-            description: 'Workout plan day not found',
-        },
-    },
-});
+// registry.registerPath({
+//     method: 'delete',
+//     path: '/api/workouts/days/{id}',
+//     tags: ['Workouts'],
+//     summary: 'Delete workout plan day',
+//     description: 'Delete a workout plan day',
+//     request: {
+//         params: idParamSchema,
+//     },
+//     responses: {
+//         200: {
+//             description: 'Workout plan day deleted successfully',
+//             content: {
+//                 'application/json': {
+//                     schema: successMessageSchema,
+//                 },
+//             },
+//         },
+//         401: {
+//             description: 'Unauthorized',
+//         },
+//         404: {
+//             description: 'Workout plan day not found',
+//         },
+//     },
+// });
 
-registry.registerPath({
-    method: 'get',
-    path: '/api/workouts/days/{id}/exercises',
-    tags: ['Workouts'],
-    summary: 'Get workout plan day exercises',
-    description: 'Get all exercises for a workout plan day',
-    request: {
-        params: idParamSchema,
-    },
-    responses: {
-        200: {
-            description: 'List of workout plan exercises',
-            content: {
-                'application/json': {
-                    schema: z.array(workoutPlanDayExerciseSchema),
-                },
-            },
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-        404: {
-            description: 'Workout plan day not found',
-        },
-    },
-});
+// registry.registerPath({
+//     method: 'get',
+//     path: '/api/workouts/days/{id}/exercises',
+//     tags: ['Workouts'],
+//     summary: 'Get workout plan day exercises',
+//     description: 'Get all exercises for a workout plan day',
+//     request: {
+//         params: idParamSchema,
+//     },
+//     responses: {
+//         200: {
+//             description: 'List of workout plan exercises',
+//             content: {
+//                 'application/json': {
+//                     schema: z.array(workoutPlanDayExerciseSchema),
+//                 },
+//             },
+//         },
+//         401: {
+//             description: 'Unauthorized',
+//         },
+//         404: {
+//             description: 'Workout plan day not found',
+//         },
+//     },
+// });
 
-registry.registerPath({
-    method: 'post',
-    path: '/api/workouts/days/{id}/exercises',
-    tags: ['Workouts'],
-    summary: 'Add exercise to workout plan day',
-    description: 'Add a new exercise to a workout plan day',
-    request: {
-        params: idParamSchema,
-        body: {
-            description: 'Exercise data',
-            content: {
-                'application/json': {
-                    schema: addExerciseToPlanDaySchema,
-                },
-            },
-        },
-    },
-    responses: {
-        201: {
-            description: 'Exercise added to workout plan day successfully',
-            content: {
-                'application/json': {
-                    schema: workoutPlanDayExerciseSchema,
-                },
-            },
-        },
-        400: {
-            description: 'Invalid input data',
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-    },
-});
+// registry.registerPath({
+//     method: 'post',
+//     path: '/api/workouts/days/{id}/exercises',
+//     tags: ['Workouts'],
+//     summary: 'Add exercise to workout plan day',
+//     description: 'Add a new exercise to a workout plan day',
+//     request: {
+//         params: idParamSchema,
+//         body: {
+//             description: 'Exercise data',
+//             content: {
+//                 'application/json': {
+//                     schema: addExerciseToPlanDaySchema,
+//                 },
+//             },
+//         },
+//     },
+//     responses: {
+//         201: {
+//             description: 'Exercise added to workout plan day successfully',
+//             content: {
+//                 'application/json': {
+//                     schema: workoutPlanDayExerciseSchema,
+//                 },
+//             },
+//         },
+//         400: {
+//             description: 'Invalid input data',
+//         },
+//         401: {
+//             description: 'Unauthorized',
+//         },
+//     },
+// });
 
-registry.registerPath({
-    method: 'get',
-    path: '/api/workouts/exercises/{id}',
-    tags: ['Workouts'],
-    summary: 'Get workout plan exercise',
-    description: 'Get a specific workout plan exercise by ID',
-    request: {
-        params: idParamSchema,
-    },
-    responses: {
-        200: {
-            description: 'Workout plan exercise details',
-            content: {
-                'application/json': {
-                    schema: workoutPlanDayExerciseSchema,
-                },
-            },
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-        404: {
-            description: 'Workout plan exercise not found',
-        },
-    },
-});
+// registry.registerPath({
+//     method: 'get',
+//     path: '/api/workouts/exercises/{id}',
+//     tags: ['Workouts'],
+//     summary: 'Get workout plan exercise',
+//     description: 'Get a specific workout plan exercise by ID',
+//     request: {
+//         params: idParamSchema,
+//     },
+//     responses: {
+//         200: {
+//             description: 'Workout plan exercise details',
+//             content: {
+//                 'application/json': {
+//                     schema: workoutPlanDayExerciseSchema,
+//                 },
+//             },
+//         },
+//         401: {
+//             description: 'Unauthorized',
+//         },
+//         404: {
+//             description: 'Workout plan exercise not found',
+//         },
+//     },
+// });
 
-registry.registerPath({
-    method: 'put',
-    path: '/api/workouts/exercises/{id}',
-    tags: ['Workouts'],
-    summary: 'Update workout plan exercise',
-    description: 'Update a workout plan exercise',
-    request: {
-        params: idParamSchema,
-        body: {
-            description: 'Updated exercise data',
-            content: {
-                'application/json': {
-                    schema: updateExerciseInPlanDaySchema,
-                },
-            },
-        },
-    },
-    responses: {
-        200: {
-            description: 'Workout plan exercise updated successfully',
-            content: {
-                'application/json': {
-                    schema: workoutPlanDayExerciseSchema,
-                },
-            },
-        },
-        400: {
-            description: 'Invalid input data',
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-        404: {
-            description: 'Workout plan exercise not found',
-        },
-    },
-});
+// registry.registerPath({
+//     method: 'put',
+//     path: '/api/workouts/exercises/{id}',
+//     tags: ['Workouts'],
+//     summary: 'Update workout plan exercise',
+//     description: 'Update a workout plan exercise',
+//     request: {
+//         params: idParamSchema,
+//         body: {
+//             description: 'Updated exercise data',
+//             content: {
+//                 'application/json': {
+//                     schema: updateExerciseInPlanDaySchema,
+//                 },
+//             },
+//         },
+//     },
+//     responses: {
+//         200: {
+//             description: 'Workout plan exercise updated successfully',
+//             content: {
+//                 'application/json': {
+//                     schema: workoutPlanDayExerciseSchema,
+//                 },
+//             },
+//         },
+//         400: {
+//             description: 'Invalid input data',
+//         },
+//         401: {
+//             description: 'Unauthorized',
+//         },
+//         404: {
+//             description: 'Workout plan exercise not found',
+//         },
+//     },
+// });
 
-registry.registerPath({
-    method: 'delete',
-    path: '/api/workouts/exercises/{id}',
-    tags: ['Workouts'],
-    summary: 'Delete workout plan exercise',
-    description: 'Delete a workout plan exercise',
-    request: {
-        params: idParamSchema,
-    },
-    responses: {
-        200: {
-            description: 'Workout plan exercise deleted successfully',
-            content: {
-                'application/json': {
-                    schema: successMessageSchema,
-                },
-            },
-        },
-        401: {
-            description: 'Unauthorized',
-        },
-        404: {
-            description: 'Workout plan exercise not found',
-        },
-    },
-});
+// registry.registerPath({
+//     method: 'delete',
+//     path: '/api/workouts/exercises/{id}',
+//     tags: ['Workouts'],
+//     summary: 'Delete workout plan exercise',
+//     description: 'Delete a workout plan exercise',
+//     request: {
+//         params: idParamSchema,
+//     },
+//     responses: {
+//         200: {
+//             description: 'Workout plan exercise deleted successfully',
+//             content: {
+//                 'application/json': {
+//                     schema: successMessageSchema,
+//                 },
+//             },
+//         },
+//         401: {
+//             description: 'Unauthorized',
+//         },
+//         404: {
+//             description: 'Workout plan exercise not found',
+//         },
+//     },
+// });
 
 // Bulk Update Endpoints
 

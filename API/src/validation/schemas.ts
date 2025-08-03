@@ -1400,10 +1400,6 @@ const bulkWorkoutPlanDayExerciseSchema = z
             description: 'Target duration in seconds',
             example: 300,
         }),
-        estimatedCalories: z.int().positive().optional().openapi({
-            description: 'Estimated calories burned for this exercise',
-            example: 50,
-        }),
         notes: z.string().optional().openapi({
             description: 'Additional notes for the exercise',
             example: 'Focus on form over speed',
@@ -1424,14 +1420,6 @@ const bulkWorkoutPlanDaySchema = z
         isRestDay: z.boolean().default(false).openapi({
             description: 'Whether this is a rest day',
             example: false,
-        }),
-        estimatedCalories: z.int().positive().optional().openapi({
-            description: 'Estimated calories burned for this day',
-            example: 400,
-        }),
-        duration: z.int().positive().optional().openapi({
-            description: 'Estimated duration in seconds',
-            example: 60,
         }),
         exercises: z
             .array(bulkWorkoutPlanDayExerciseSchema)
@@ -1459,11 +1447,6 @@ export const bulkUpdateWorkoutPlanSchema = z
             })
             .optional()
             .openapi({ description: 'Updated difficulty level' }),
-        estimatedCalories: z
-            .int()
-            .positive()
-            .optional()
-            .openapi({ description: 'Updated estimated calories burned' }),
         isActive: z.boolean().optional().openapi({
             description: 'Whether the workout plan is active',
             example: true,
@@ -1531,26 +1514,6 @@ const bulkNutritionPlanMealSchema = z
                 description: 'Time when meal should be consumed',
                 example: '08:00:00',
             }),
-        calories: z.int().min(0).optional().openapi({
-            description: 'Total calories for the meal',
-            example: 450,
-        }),
-        protein: z.number().min(0).optional().openapi({
-            description: 'Total protein for the meal',
-            example: 25.5,
-        }),
-        carbs: z.number().min(0).optional().openapi({
-            description: 'Total carbs for the meal',
-            example: 45.0,
-        }),
-        fat: z.number().min(0).optional().openapi({
-            description: 'Total fat for the meal',
-            example: 12.0,
-        }),
-        fiber: z.number().min(0).optional().openapi({
-            description: 'Total fiber for the meal',
-            example: 8.0,
-        }),
         foods: z.array(bulkNutritionPlanFoodSchema).optional().openapi({
             description: 'List of foods in this meal',
         }),
@@ -1569,26 +1532,6 @@ const bulkNutritionPlanDaySchema = z
                     'Weekday must be one of: sun, mon, tue, wed, thu, fri, sat',
             })
             .openapi({ description: 'Day of the week', example: 'mon' }),
-        totalCalories: z.int().min(0).optional().openapi({
-            description: 'Total calories for the day',
-            example: 2000,
-        }),
-        protein: z.number().min(0).optional().openapi({
-            description: 'Total protein for the day',
-            example: 150,
-        }),
-        carbs: z.number().min(0).optional().openapi({
-            description: 'Total carbs for the day',
-            example: 200,
-        }),
-        fat: z.number().min(0).optional().openapi({
-            description: 'Total fat for the day',
-            example: 66,
-        }),
-        fiber: z.number().min(0).optional().openapi({
-            description: 'Total fiber for the day',
-            example: 25,
-        }),
         meals: z.array(bulkNutritionPlanMealSchema).optional().openapi({
             description: 'List of meals for this day',
         }),
@@ -1713,20 +1656,14 @@ export const detailedNutritionPlanDaySchema = z
                 description: 'Day of the week',
                 example: 'mon',
             }),
-        totalCalories: z
-            .int()
-            .optional()
-            .openapi({
-                description: 'Total calories for the day',
-                example: 2000,
-            }),
-        protein: z
-            .number()
-            .optional()
-            .openapi({
-                description: 'Total protein for the day',
-                example: 150,
-            }),
+        totalCalories: z.int().optional().openapi({
+            description: 'Total calories for the day',
+            example: 2000,
+        }),
+        protein: z.number().optional().openapi({
+            description: 'Total protein for the day',
+            example: 150,
+        }),
         carbs: z
             .number()
             .optional()
@@ -1750,12 +1687,10 @@ export const detailedNutritionPlanDaySchema = z
 export const detailedNutritionPlanSchema = z
     .object({
         id: z.int().openapi({ description: 'Nutrition plan ID', example: 1 }),
-        name: z
-            .string()
-            .openapi({
-                description: 'Plan name',
-                example: 'High Protein Diet',
-            }),
+        name: z.string().openapi({
+            description: 'Plan name',
+            example: 'High Protein Diet',
+        }),
         description: z
             .string()
             .optional()
@@ -1787,13 +1722,10 @@ export const detailedWorkoutPlanDayExerciseSchema = z
             .int()
             .optional()
             .openapi({ description: 'Target repetitions', example: 12 }),
-        targetDuration: z
-            .int()
-            .optional()
-            .openapi({
-                description: 'Target duration in seconds',
-                example: 300,
-            }),
+        targetDuration: z.int().optional().openapi({
+            description: 'Target duration in seconds',
+            example: 300,
+        }),
         estimatedCalories: z
             .int()
             .optional()
@@ -1812,19 +1744,14 @@ export const detailedWorkoutPlanDaySchema = z
         id: z.int().openapi({ description: 'Day ID', example: 1 }),
         workoutPlanId: z.int().openapi({ description: 'Workout plan ID' }),
         day: z.int().openapi({ description: 'Day number', example: 1 }),
-        isRestDay: z
-            .boolean()
-            .openapi({
-                description: 'Whether this is a rest day',
-                example: false,
-            }),
-        estimatedCalories: z
-            .int()
-            .optional()
-            .openapi({
-                description: 'Estimated calories burned',
-                example: 400,
-            }),
+        isRestDay: z.boolean().openapi({
+            description: 'Whether this is a rest day',
+            example: false,
+        }),
+        estimatedCalories: z.int().optional().openapi({
+            description: 'Estimated calories burned',
+            example: 400,
+        }),
         duration: z
             .int()
             .optional()

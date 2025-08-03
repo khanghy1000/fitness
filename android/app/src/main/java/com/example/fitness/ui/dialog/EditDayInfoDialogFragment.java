@@ -18,28 +18,19 @@ import java.util.List;
 public class EditDayInfoDialogFragment extends DialogFragment {
     
     public interface OnDayInfoEditListener {
-        void onDayInfoEdited(String weekday, String calories, String protein, String carbs, String fat);
+        void onDayInfoEdited(String weekday);
     }
     
     private static final String ARG_WEEKDAY = "weekday";
-    private static final String ARG_CALORIES = "calories";
-    private static final String ARG_PROTEIN = "protein";
-    private static final String ARG_CARBS = "carbs";
-    private static final String ARG_FAT = "fat";
     private static final String ARG_AVAILABLE_WEEKDAYS = "available_weekdays";
     
     private DialogEditDayInfoBinding binding;
     private OnDayInfoEditListener listener;
     
-    public static EditDayInfoDialogFragment newInstance(String weekday, String calories, String protein, 
-                                                       String carbs, String fat, ArrayList<String> availableWeekdays) {
+    public static EditDayInfoDialogFragment newInstance(String weekday, ArrayList<String> availableWeekdays) {
         EditDayInfoDialogFragment fragment = new EditDayInfoDialogFragment();
         Bundle args = new Bundle();
         args.putString(ARG_WEEKDAY, weekday);
-        args.putString(ARG_CALORIES, calories);
-        args.putString(ARG_PROTEIN, protein);
-        args.putString(ARG_CARBS, carbs);
-        args.putString(ARG_FAT, fat);
         args.putStringArrayList(ARG_AVAILABLE_WEEKDAYS, availableWeekdays);
         fragment.setArguments(args);
         return fragment;
@@ -78,11 +69,6 @@ public class EditDayInfoDialogFragment extends DialogFragment {
                 binding.autoCompleteWeekday.setAdapter(weekdayAdapter);
                 binding.autoCompleteWeekday.setText(capitalizeWeekday(currentWeekday), false);
             }
-            
-            binding.editTextCalories.setText(args.getString(ARG_CALORIES));
-            binding.editTextProtein.setText(args.getString(ARG_PROTEIN));
-            binding.editTextCarbs.setText(args.getString(ARG_CARBS));
-            binding.editTextFat.setText(args.getString(ARG_FAT));
         }
         
         AlertDialog dialog = new AlertDialog.Builder(requireContext())
@@ -107,14 +93,6 @@ public class EditDayInfoDialogFragment extends DialogFragment {
     private boolean validateAndSave() {
         String selectedDisplayName = binding.autoCompleteWeekday.getText() != null ? 
             binding.autoCompleteWeekday.getText().toString().trim() : "";
-        String calories = binding.editTextCalories.getText() != null ? 
-            binding.editTextCalories.getText().toString().trim() : "";
-        String protein = binding.editTextProtein.getText() != null ? 
-            binding.editTextProtein.getText().toString().trim() : "";
-        String carbs = binding.editTextCarbs.getText() != null ? 
-            binding.editTextCarbs.getText().toString().trim() : "";
-        String fat = binding.editTextFat.getText() != null ? 
-            binding.editTextFat.getText().toString().trim() : "";
         
         // Validate weekday selection
         if (selectedDisplayName.isEmpty()) {
@@ -127,7 +105,7 @@ public class EditDayInfoDialogFragment extends DialogFragment {
         String weekdayCode = convertDisplayNameToCode(selectedDisplayName);
         
         if (listener != null) {
-            listener.onDayInfoEdited(weekdayCode, calories, protein, carbs, fat);
+            listener.onDayInfoEdited(weekdayCode);
         }
         
         return true;
