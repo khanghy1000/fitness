@@ -12,7 +12,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.fitness.databinding.ActivityMainBinding;
-import com.example.fitness.ui.activity.coach.CoachExercisePlanActivity;
+import com.example.fitness.ui.activity.coach.CoachWorkoutPlanActivity;
 import com.example.fitness.ui.activity.coach.CoachNutritionPlanActivity;
 import com.example.fitness.ui.activity.coach.CoachTraineeActivity;
 import com.example.fitness.ui.activity.trainee.TraineeCoachActivity;
@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         });
         
         binding.btnCoachExercisePlan.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, CoachExercisePlanActivity.class);
+            Intent intent = new Intent(MainActivity.this, CoachWorkoutPlanActivity.class);
             startActivity(intent);
         });
         

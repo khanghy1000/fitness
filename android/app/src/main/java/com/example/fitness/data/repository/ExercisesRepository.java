@@ -100,4 +100,37 @@ public class ExercisesRepository {
         }
         return "placeholder.gif"; // Default image if not found
     }
+
+    public int getExerciseImageResourceByName(String name) {
+        for (ExerciseImage image : exerciseImages) {
+            if (image.getName().equalsIgnoreCase(name)) {
+                String fileName = image.getImageFileName();
+                // Convert filename to resource name (remove .gif extension)
+                String resourceName = fileName.replace(".gif", "");
+                
+                // Map resource names to drawable resource IDs
+                switch (resourceName) {
+                    case "exercise_bicep_curl":
+                        return com.example.fitness.R.drawable.exercise_bicep_curl;
+                    case "exercise_crunch":
+                        return com.example.fitness.R.drawable.exercise_crunch;
+                    case "exercise_squat":
+                        return com.example.fitness.R.drawable.exercise_squat;
+                    case "exercise_lunge":
+                        return com.example.fitness.R.drawable.exercise_lunge;
+                    case "exercise_heel_touch":
+                        return com.example.fitness.R.drawable.exercise_heel_touch;
+                    case "exercise_plank":
+                        return com.example.fitness.R.drawable.exercise_plank;
+                    case "exercise_cobra":
+                        return com.example.fitness.R.drawable.exercise_cobra;
+                    case "placeholder":
+                        return com.example.fitness.R.drawable.placeholder;
+                    default:
+                        return com.example.fitness.R.drawable.placeholder_exercise;
+                }
+            }
+        }
+        return com.example.fitness.R.drawable.placeholder_exercise; // Default image if not found
+    }
 }
