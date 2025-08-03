@@ -11,8 +11,8 @@
 
     <ImageView
         android:id="@+id/imageViewExercise"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
         android:layout_marginEnd="12dp"
         android:scaleType="centerCrop"
         android:background="@drawable/rounded_background"
