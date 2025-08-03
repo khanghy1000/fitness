@@ -35,14 +35,30 @@ public class MainViewModel extends ViewModel {
     }
 
     private void loadUserData() {
-        // Load user name for welcome message
+        // Load user name and role for welcome message
         compositeDisposable.add(
             authRepository.getCurrentUserName()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     name -> {
-                        _welcomeMessage.setValue("Welcome, " + name + "!");
+                        // Load role after getting name
+                        compositeDisposable.add(
+                            authRepository.getCurrentUserRole()
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(
+                                    role -> {
+                                        String welcomeMessage = "Welcome, " + role.toUpperCase() + " " + name + "!";
+                                        _welcomeMessage.setValue(welcomeMessage);
+                                        _userRole.setValue(role);
+                                    },
+                                    throwable -> {
+                                        _welcomeMessage.setValue("Welcome, " + name + "!");
+                                        _userRole.setValue(null);
+                                    }
+                                )
+                        );
                     },
                     throwable -> _welcomeMessage.setValue("Welcome!")
                 )
@@ -55,20 +71,31 @@ public class MainViewModel extends ViewModel {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     email -> {
-                        // Load role after getting email
+                        // Load other user details
                         compositeDisposable.add(
-                            authRepository.getCurrentUserRole()
+                            authRepository.getCurrentUserName()
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(
-                                    role -> {
-                                        String userInfo = "Email: " + email + "\nRole: " + role.toUpperCase();
-                                        _userInfo.setValue(userInfo);
-                                        _userRole.setValue(role);
+                                    name -> {
+                                        compositeDisposable.add(
+                                            authRepository.getCurrentUserRole()
+                                                .subscribeOn(Schedulers.io())
+                                                .observeOn(AndroidSchedulers.mainThread())
+                                                .subscribe(
+                                                    role -> {
+                                                        String userInfo = "Email: " + email + "\nRole: " + role.toUpperCase() + "\nName: " + name;
+                                                        _userInfo.setValue(userInfo);
+                                                    },
+                                                    throwable -> {
+                                                        String userInfo = "Email: " + email + "\nName: " + name;
+                                                        _userInfo.setValue(userInfo);
+                                                    }
+                                                )
+                                        );
                                     },
                                     throwable -> {
                                         _userInfo.setValue("Email: " + email);
-                                        _userRole.setValue(null);
                                     }
                                 )
                         );

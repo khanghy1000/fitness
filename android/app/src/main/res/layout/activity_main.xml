@@ -6,205 +6,27 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp"
     tools:context=".ui.activity.MainActivity">
 
-    <!-- App Title -->
-    <TextView
-        android:id="@+id/tvAppTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="FITNESS APP"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/black"
-        app:layout_constraintEnd_toEndOf="parent"
+    <!-- ViewPager2 for fragments -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Welcome Message -->
-    <TextView
-        android:id="@+id/tvWelcome"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="Welcome!"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/black"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvAppTitle" />
-
-    <!-- User Info Card -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardUserInfo"
+    <!-- Bottom Navigation -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:background="?android:attr/windowBackground"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvWelcome">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="User Information"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/black"
-                android:layout_marginBottom="12dp" />
-
-            <TextView
-                android:id="@+id/tvUserInfo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Loading user information..."
-                android:textSize="16sp"
-                android:textColor="@android:color/darker_gray"
-                android:lineSpacingExtra="4dp"
-                tools:text="Email: john@example.com\nRole: TRAINEE" />
-
-        </LinearLayout>
-
-    </androidx.cardview.widget.CardView>
-
-    <!-- Logout Button -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnLogout"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="0dp"
-        android:layout_height="56dp"
-        android:layout_marginTop="32dp"
-        android:text="LOGOUT"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/holo_red_dark"
-        app:strokeColor="@android:color/holo_red_dark"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cardUserInfo" />
-
-    <!-- Role-specific Activities Section -->
-    <LinearLayout
-        android:id="@+id/layoutRoleSpecificButtons"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:orientation="vertical"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnLogout">
-
-        <!-- Coach Activities -->
-        <LinearLayout
-            android:id="@+id/layoutCoachActivities"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:text="Coach Dashboard"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/black" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnCoachTrainee"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginBottom="8dp"
-                android:text="Manage Trainees"
-                android:textSize="16sp"
-                app:icon="@android:drawable/ic_menu_manage" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnCoachExercisePlan"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginBottom="8dp"
-                android:text="Exercise Plans"
-                android:textSize="16sp"
-                app:icon="@android:drawable/ic_menu_agenda" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnCoachNutritionPlan"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:text="Nutrition Plans"
-                android:textSize="16sp"
-                app:icon="@android:drawable/ic_menu_info_details" />
-
-        </LinearLayout>
-
-        <!-- Trainee Activities -->
-        <LinearLayout
-            android:id="@+id/layoutTraineeActivities"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:text="Trainee Dashboard"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/black" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnTraineeCoach"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginBottom="8dp"
-                android:text="My Coach"
-                android:textSize="16sp"
-                app:icon="@android:drawable/ic_menu_manage" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnTraineeExercisePlan"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginBottom="8dp"
-                android:text="My Exercise Plans"
-                android:textSize="16sp"
-                app:icon="@android:drawable/ic_menu_agenda" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnTraineeNutritionPlan"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginBottom="8dp"
-                android:text="My Nutrition Plans"
-                android:textSize="16sp"
-                app:icon="@android:drawable/ic_menu_info_details" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnTraineeStats"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:text="My Statistics"
-                android:textSize="16sp"
-                app:icon="@android:drawable/ic_menu_report_image" />
-
-        </LinearLayout>
-
-    </LinearLayout>
+        app:menu="@menu/bottom_navigation_menu" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

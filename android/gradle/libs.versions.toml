@@ -22,6 +22,7 @@ rxjava3 = "3.1.11"
 rxandroid = "3.0.2"
 mpandroidchart = "3.1.0"
 swiperefreshlayout = "1.1.0"
+viewpager2 = "1.1.0"
 
 [libraries]
 converter-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "retrofit" }
@@ -54,6 +55,7 @@ rxjava3 = { group = "io.reactivex.rxjava3", name = "rxjava", version.ref = "rxja
 rxandroid = { group = "io.reactivex.rxjava3", name = "rxandroid", version.ref = "rxandroid" }
 mpandroidchart = { group = "com.github.PhilJay", name = "MPAndroidChart", version.ref = "mpandroidchart" }
 swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
+viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", version.ref = "viewpager2" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

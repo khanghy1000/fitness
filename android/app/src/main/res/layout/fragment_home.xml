@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Welcome Message -->
+        <TextView
+            android:id="@+id/tvWelcome"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="32dp"
+            android:text="Welcome!"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary"
+            tools:text="Welcome, Coach John!" />
+
+        <!-- Role-specific Activities Section -->
+        <LinearLayout
+            android:id="@+id/layoutRoleSpecificButtons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <!-- Coach Activities -->
+            <LinearLayout
+                android:id="@+id/layoutCoachActivities"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="visible">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="Coach Dashboard"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="?android:attr/textColorPrimary" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCoachTrainee"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="Manage Trainees"
+                    android:textSize="16sp"
+                    app:icon="@android:drawable/ic_menu_manage"
+                    style="@style/Widget.Material3.Button.TonalButton.Icon"
+                    app:cornerRadius="10dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCoachExercisePlan"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="Exercise Plans"
+                    android:textSize="16sp"
+                    app:icon="@android:drawable/ic_menu_agenda"
+                    app:iconGravity="start"
+                    style="@style/Widget.Material3.Button.TonalButton.Icon"
+                    app:cornerRadius="10dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCoachNutritionPlan"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="Nutrition Plans"
+                    android:textSize="16sp"
+                    app:icon="@android:drawable/ic_menu_info_details"
+                    app:iconGravity="start"
+                    style="@style/Widget.Material3.Button.TonalButton.Icon"
+                    app:cornerRadius="10dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCoachMessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="Messages"
+                    android:textSize="16sp"
+                    app:icon="@drawable/ic_chat_bubble_24"
+                    app:iconGravity="start"
+                    style="@style/Widget.Material3.Button.TonalButton.Icon"
+                    app:cornerRadius="10dp" />
+
+            </LinearLayout>
+
+            <!-- Trainee Activities -->
+            <LinearLayout
+                android:id="@+id/layoutTraineeActivities"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="Trainee Dashboard"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="?android:attr/textColorPrimary" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTraineeCoach"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="My Coach"
+                    android:textSize="16sp"
+                    app:icon="@android:drawable/ic_menu_manage"
+                    app:iconGravity="start"
+                    style="@style/Widget.Material3.Button.TonalButton.Icon"
+                    app:cornerRadius="10dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTraineeExercisePlan"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="My Exercise Plans"
+                    android:textSize="16sp"
+                    app:icon="@android:drawable/ic_menu_agenda"
+                    app:iconGravity="start"
+                    style="@style/Widget.Material3.Button.TonalButton.Icon"
+                    app:cornerRadius="10dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTraineeNutritionPlan"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="My Nutrition Plans"
+                    android:textSize="16sp"
+                    app:icon="@android:drawable/ic_menu_info_details"
+                    app:iconGravity="start"
+                    style="@style/Widget.Material3.Button.TonalButton.Icon"
+                    app:cornerRadius="10dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTraineeStats"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="My Statistics"
+                    android:textSize="16sp"
+                    app:icon="@android:drawable/ic_menu_report_image"
+                    app:iconGravity="start"
+                    style="@style/Widget.Material3.Button.TonalButton.Icon"
+                    app:cornerRadius="10dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTraineeMessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="Messages"
+                    android:textSize="16sp"
+                    app:icon="@drawable/ic_chat_bubble_24"
+                    app:iconGravity="start"
+                    style="@style/Widget.Material3.Button.TonalButton.Icon"
+                    app:cornerRadius="10dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

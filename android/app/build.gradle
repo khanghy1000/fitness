@@ -98,6 +98,9 @@ dependencies {
     implementation libs.mpandroidchart
 
     implementation libs.swiperefreshlayout
+    
+    // ViewPager2 for tabs
+    implementation libs.viewpager2
 
 }
 

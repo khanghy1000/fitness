@@ -22,8 +22,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:title="Nutrition Plans"
-                app:navigationIcon="@drawable/ic_arrow_back"
-                style="@style/Widget.MaterialComponents.Toolbar.Primary" />
+                app:navigationIcon="@drawable/ic_arrow_back" />
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -50,8 +49,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:src="@drawable/ic_add"
-        app:tint="@android:color/white" />
+        android:src="@drawable/ic_add" />
 
     <ProgressBar
         android:id="@+id/progressBar"

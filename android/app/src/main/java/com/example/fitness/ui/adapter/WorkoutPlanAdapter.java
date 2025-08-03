@@ -116,8 +116,7 @@ public class WorkoutPlanAdapter extends RecyclerView.Adapter<WorkoutPlanAdapter.
 
             // Status
             chipStatus.setText(workoutPlan.isActive() ? "Active" : "Inactive");
-            chipStatus.setChipBackgroundColorResource(workoutPlan.isActive() ? 
-                R.color.chip_active_background : R.color.chip_inactive_background);
+            chipStatus.setChecked(workoutPlan.isActive());
 
             // Click listeners
             itemView.setOnClickListener(v -> {

@@ -12,22 +12,18 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.fitness.R;
+import com.example.fitness.data.network.model.auth.SessionResponse;
 import com.example.fitness.data.repository.AuthRepository;
 
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.disposables.CompositeDisposable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 
 @AndroidEntryPoint
 public class SplashActivity extends AppCompatActivity {
 
     @Inject
     AuthRepository authRepository;
-    
-    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,36 +42,24 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void checkLoginStatus() {
-        compositeDisposable.add(
-            authRepository.isLoggedInSync()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    isLoggedIn -> {
-                        Intent intent;
-                        if (isLoggedIn) {
-                            intent = new Intent(SplashActivity.this, MainActivity.class);
-                        } else {
-                            intent = new Intent(SplashActivity.this, LoginActivity.class);
-                        }
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
-                        finish();
-                    },
-                    throwable -> {
-                        // On error, redirect to login
-                        Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
-                        finish();
-                    }
-                )
-        );
-    }
+        authRepository.getSession(new AuthRepository.AuthCallback<SessionResponse>() {
+            @Override
+            public void onSuccess(SessionResponse result) {
+                // Session is valid, user is logged in
+                Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
+            }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        compositeDisposable.clear();
+            @Override
+            public void onError(String error) {
+                // Session is null or invalid, user is not logged in
+                Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 }

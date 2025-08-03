@@ -143,8 +143,7 @@ public class CoachWorkoutPlanDetailsActivity extends AppCompatActivity {
 
         // Status
         binding.chipStatus.setText(detailedWorkoutPlan.isActive() ? "Active" : "Inactive");
-        binding.chipStatus.setChipBackgroundColorResource(detailedWorkoutPlan.isActive() ? 
-            R.color.chip_active_background : R.color.chip_inactive_background);
+        binding.chipStatus.setChecked(detailedWorkoutPlan.isActive());
 
         // Calories
         if (detailedWorkoutPlan.getEstimatedCalories() != null) {
