@@ -3,23 +3,13 @@ import { db } from '../src/lib/db.js';
 import { exerciseType as exerciseTypeTable } from '../src/db/schema/tables.js';
 
 const exerciseTypes = [
-    { name: 'High Stepping', devicePosition: 'thigh', logType: 'reps' },
-    { name: 'Push Up', devicePosition: 'thigh', logType: 'reps' },
-    { name: 'Squat', devicePosition: 'thigh', logType: 'reps' },
-    { name: 'Jumping Jack', devicePosition: 'thigh', logType: 'reps' },
-    { name: 'Skipping', devicePosition: 'thigh', logType: 'duration' },
-    { name: 'Mountain Climber', devicePosition: 'thigh', logType: 'reps' },
-    { name: 'Plank Jack', devicePosition: 'thigh', logType: 'reps' },
-    { name: 'Sit Up', devicePosition: 'thigh', logType: 'reps' },
-    { name: 'Lunge', devicePosition: 'thigh', logType: 'reps' },
-    { name: 'Abdominal Crunch', devicePosition: 'thigh', logType: 'reps' },
-    { name: 'Bicycle Crunch', devicePosition: 'thigh', logType: 'reps' },
-    { name: 'Leg Raise', devicePosition: 'thigh', logType: 'reps' },
-    { name: 'Heel Touch', devicePosition: 'thigh', logType: 'reps' },
-    { name: 'Flutter Kick', devicePosition: 'thigh', logType: 'reps' },
+    { name: 'Bicep Curl', devicePosition: 'arm', logType: 'reps' },
+    { name: 'Crunch', devicePosition: 'arm', logType: 'reps' },
+    { name: 'Squat', devicePosition: 'arm', logType: 'reps' },
+    { name: 'Lunge', devicePosition: 'arm', logType: 'reps' },
+    { name: 'Heel Touch', devicePosition: 'arm', logType: 'reps' },
     { name: 'Plank', devicePosition: 'none', logType: 'duration' },
-    { name: 'Cobra Stretch', devicePosition: 'none', logType: 'duration' },
-    // { name: 'Custom', devicePosition: 'none', logType: 'duration' },
+    { name: 'Cobra', devicePosition: 'none', logType: 'duration' },
 ];
 
 async function seedExerciseTypes() {

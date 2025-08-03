@@ -2,6 +2,10 @@ package com.example.fitness.data.repository;
 
 import com.example.fitness.data.network.retrofit.ExercisesApi;
 import com.example.fitness.data.network.model.generated.*;
+import com.example.fitness.model.ExerciseImage;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -13,10 +17,20 @@ import retrofit2.Response;
 @Singleton
 public class ExercisesRepository {
     private final ExercisesApi exercisesApi;
+    private List<ExerciseImage> exerciseImages;
 
     @Inject
     public ExercisesRepository(ExercisesApi exercisesApi) {
         this.exercisesApi = exercisesApi;
+
+        this.exerciseImages = new ArrayList<>();
+        exerciseImages.add(new ExerciseImage("Bicep Curl", "exercise_bicep_curl.gif"));
+        exerciseImages.add(new ExerciseImage("Crunch", "exercise_crunch.gif"));
+        exerciseImages.add(new ExerciseImage("Squat", "exercise_squat.gif"));
+        exerciseImages.add(new ExerciseImage("Lunge", "exercise_lunge.gif"));
+        exerciseImages.add(new ExerciseImage("Heel Touch", "exercise_heel_touch.gif"));
+        exerciseImages.add(new ExerciseImage("Plank", "exercise_plank.gif"));
+        exerciseImages.add(new ExerciseImage("Cobra", "exercise_cobra.gif"));
     }
 
     public interface ExercisesCallback<T> {
@@ -76,5 +90,14 @@ public class ExercisesRepository {
                 callback.onError(t.getMessage());
             }
         });
+    }
+
+    public String getExerciseImageByName(String name) {
+        for (ExerciseImage image : exerciseImages) {
+            if (image.getName().equalsIgnoreCase(name)) {
+                return image.getImageFileName();
+            }
+        }
+        return "placeholder.gif"; // Default image if not found
     }
 }

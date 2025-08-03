@@ -16,6 +16,12 @@
         android:theme="@style/Theme.Fitness"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".ui.activity.coach.CoachWorkoutPlanEditActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activity.coach.CoachWorkoutPlanDetailsActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.activity.trainee.TraineeNutritionPlanActivity"
             android:exported="false" />
         <activity
