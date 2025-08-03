@@ -2041,14 +2041,6 @@
             "description": "Duration in seconds",
             "example": 60
           },
-          "createdAt": {
-            "type": "string",
-            "description": "Creation date"
-          },
-          "updatedAt": {
-            "type": "string",
-            "description": "Last update date"
-          },
           "exercises": {
             "type": "array",
             "items": {
@@ -2062,8 +2054,6 @@
           "workoutPlanId",
           "day",
           "isRestDay",
-          "createdAt",
-          "updatedAt",
           "exercises"
         ]
       },

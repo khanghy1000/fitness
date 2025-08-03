@@ -53,14 +53,6 @@ data class DetailedWorkoutPlanDay (
     @Json(name = "isRestDay")
     val isRestDay: kotlin.Boolean,
 
-    /* Creation date */
-    @Json(name = "createdAt")
-    val createdAt: kotlin.String,
-
-    /* Last update date */
-    @Json(name = "updatedAt")
-    val updatedAt: kotlin.String,
-
     /* Exercises for this day */
     @Json(name = "exercises")
     val exercises: kotlin.collections.List<DetailedWorkoutPlanDayExercise>,

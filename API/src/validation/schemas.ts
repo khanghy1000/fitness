@@ -1756,8 +1756,6 @@ export const detailedWorkoutPlanDaySchema = z
             .int()
             .optional()
             .openapi({ description: 'Duration in seconds', example: 60 }),
-        createdAt: z.string().openapi({ description: 'Creation date' }),
-        updatedAt: z.string().openapi({ description: 'Last update date' }),
         exercises: z
             .array(detailedWorkoutPlanDayExerciseSchema)
             .openapi({ description: 'Exercises for this day' }),
