@@ -16,6 +16,9 @@
         android:theme="@style/Theme.Fitness"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".ui.activity.trainee.TraineeWorkoutActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.activity.MessageActivity"
             android:exported="false" />
         <activity
