@@ -120,7 +120,7 @@ public class TraineeWorkoutPlanActivity extends AppCompatActivity implements Tra
 
     @Override
     public void onWorkoutPlanClick(WorkoutPlan workoutPlan) {
-        Intent intent = new Intent(this, TraineeWorkoutActivity.class);
+        Intent intent = new Intent(this, TraineeWorkoutPlanDetailsActivity.class);
         intent.putExtra("PLAN_ID", workoutPlan.getId());
         intent.putExtra("PLAN_NAME", workoutPlan.getName());
         startActivity(intent);

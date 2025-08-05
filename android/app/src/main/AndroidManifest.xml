@@ -19,6 +19,12 @@
             android:name=".ui.activity.trainee.TraineeWorkoutActivity"
             android:exported="false" />
         <activity
+            android:name=".ui.activity.trainee.TraineeWorkoutPlanDayDetailsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activity.trainee.TraineeWorkoutPlanDetailsActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.activity.MessageActivity"
             android:exported="false" />
         <activity
@@ -69,7 +75,8 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- Login Activity -->
+        </activity> <!--
+        Login Activity -->
         <activity
             android:name=".ui.activity.LoginActivity"
             android:exported="false"
