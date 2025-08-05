@@ -27,9 +27,11 @@ import com.squareup.moshi.JsonClass
  * @param nutritionPlanId 
  * @param assignedBy 
  * @param startDate 
- * @param isActive 
- * @param assignedAt 
+ * @param status 
+ * @param createdAt 
+ * @param updatedAt 
  * @param endDate 
+ * @param notes 
  */
 
 
@@ -50,17 +52,35 @@ data class NutritionPlanAssignmentResponse (
     @Json(name = "startDate")
     val startDate: kotlin.String,
 
-    @Json(name = "isActive")
-    val isActive: kotlin.Boolean,
+    @Json(name = "status")
+    val status: NutritionPlanAssignmentResponse.Status,
 
-    @Json(name = "assignedAt")
-    val assignedAt: kotlin.String,
+    @Json(name = "createdAt")
+    val createdAt: kotlin.String,
+
+    @Json(name = "updatedAt")
+    val updatedAt: kotlin.String,
 
     @Json(name = "endDate")
-    val endDate: kotlin.String? = null
+    val endDate: kotlin.String? = null,
+
+    @Json(name = "notes")
+    val notes: kotlin.String? = null
 
 ) {
 
+    /**
+     * 
+     *
+     * Values: active,completed,paused,cancelled
+     */
+    @JsonClass(generateAdapter = false)
+    enum class Status(val value: kotlin.String) {
+        @Json(name = "active") active("active"),
+        @Json(name = "completed") completed("completed"),
+        @Json(name = "paused") paused("paused"),
+        @Json(name = "cancelled") cancelled("cancelled");
+    }
 
 }
 

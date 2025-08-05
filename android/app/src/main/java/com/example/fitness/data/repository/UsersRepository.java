@@ -3,6 +3,8 @@ package com.example.fitness.data.repository;
 import com.example.fitness.data.network.retrofit.UsersApi;
 import com.example.fitness.data.network.model.generated.*;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -25,10 +27,10 @@ public class UsersRepository {
     }
 
     // Nutrition Plan Assignment methods
-    public void getNutritionPlanAssignment(String nutritionPlanId, String userId, UsersCallback<NutritionPlanAssignment> callback) {
-        usersApi.apiUsersNutritionNutritionPlanIdAssignGet(nutritionPlanId, userId).enqueue(new Callback<NutritionPlanAssignment>() {
+    public void getNutritionPlanAssignment(String nutritionPlanId, String userId, UsersCallback<List<NutritionPlanAssignment>> callback) {
+        usersApi.apiUsersNutritionNutritionPlanIdAssignGet(nutritionPlanId, userId).enqueue(new Callback<List<NutritionPlanAssignment>>() {
             @Override
-            public void onResponse(Call<NutritionPlanAssignment> call, Response<NutritionPlanAssignment> response) {
+            public void onResponse(Call<List<NutritionPlanAssignment>> call, Response<List<NutritionPlanAssignment>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     callback.onSuccess(response.body());
                 } else {
@@ -37,7 +39,7 @@ public class UsersRepository {
             }
 
             @Override
-            public void onFailure(Call<NutritionPlanAssignment> call, Throwable t) {
+            public void onFailure(Call<List<NutritionPlanAssignment>> call, Throwable t) {
                 callback.onError(t.getMessage());
             }
         });
@@ -61,10 +63,10 @@ public class UsersRepository {
         });
     }
 
-    public void getUserNutritionPlans(UsersCallback<java.util.List<UserNutritionPlan>> callback) {
-        usersApi.apiUsersNutritionPlansGet().enqueue(new Callback<java.util.List<UserNutritionPlan>>() {
+    public void getUserNutritionPlans(UsersCallback<java.util.List<NutritionPlanAssignment>> callback) {
+        usersApi.apiUsersNutritionPlansGet().enqueue(new Callback<java.util.List<NutritionPlanAssignment>>() {
             @Override
-            public void onResponse(Call<java.util.List<UserNutritionPlan>> call, Response<java.util.List<UserNutritionPlan>> response) {
+            public void onResponse(Call<java.util.List<NutritionPlanAssignment>> call, Response<java.util.List<NutritionPlanAssignment>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     callback.onSuccess(response.body());
                 } else {
@@ -73,7 +75,7 @@ public class UsersRepository {
             }
 
             @Override
-            public void onFailure(Call<java.util.List<UserNutritionPlan>> call, Throwable t) {
+            public void onFailure(Call<java.util.List<NutritionPlanAssignment>> call, Throwable t) {
                 callback.onError(t.getMessage());
             }
         });
@@ -208,10 +210,10 @@ public class UsersRepository {
         });
     }
 
-    public void getUserWorkoutPlans(UsersCallback<java.util.List<UserWorkoutPlan>> callback) {
-        usersApi.apiUsersWorkoutPlansGet().enqueue(new Callback<java.util.List<UserWorkoutPlan>>() {
+    public void getUserWorkoutPlans(UsersCallback<java.util.List<WorkoutPlanAssignment>> callback) {
+        usersApi.apiUsersWorkoutPlansGet().enqueue(new Callback<java.util.List<WorkoutPlanAssignment>>() {
             @Override
-            public void onResponse(Call<java.util.List<UserWorkoutPlan>> call, Response<java.util.List<UserWorkoutPlan>> response) {
+            public void onResponse(Call<java.util.List<WorkoutPlanAssignment>> call, Response<java.util.List<WorkoutPlanAssignment>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     callback.onSuccess(response.body());
                 } else {
@@ -220,7 +222,7 @@ public class UsersRepository {
             }
 
             @Override
-            public void onFailure(Call<java.util.List<UserWorkoutPlan>> call, Throwable t) {
+            public void onFailure(Call<java.util.List<WorkoutPlanAssignment>> call, Throwable t) {
                 callback.onError(t.getMessage());
             }
         });
@@ -244,10 +246,10 @@ public class UsersRepository {
         });
     }
 
-    public void getWorkoutPlanAssignment(String workoutPlanId, String userId, UsersCallback<WorkoutPlanAssignment> callback) {
-        usersApi.apiUsersWorkoutWorkoutPlanIdAssignGet(workoutPlanId, userId).enqueue(new Callback<WorkoutPlanAssignment>() {
+    public void getWorkoutPlanAssignment(String workoutPlanId, String userId, UsersCallback<List<WorkoutPlanAssignment>> callback) {
+        usersApi.apiUsersWorkoutWorkoutPlanIdAssignGet(workoutPlanId, userId).enqueue(new Callback<List<WorkoutPlanAssignment>>() {
             @Override
-            public void onResponse(Call<WorkoutPlanAssignment> call, Response<WorkoutPlanAssignment> response) {
+            public void onResponse(Call<List<WorkoutPlanAssignment>> call, Response<List<WorkoutPlanAssignment>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     callback.onSuccess(response.body());
                 } else {
@@ -256,7 +258,7 @@ public class UsersRepository {
             }
 
             @Override
-            public void onFailure(Call<WorkoutPlanAssignment> call, Throwable t) {
+            public void onFailure(Call<List<WorkoutPlanAssignment>> call, Throwable t) {
                 callback.onError(t.getMessage());
             }
         });

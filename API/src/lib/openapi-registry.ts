@@ -70,6 +70,7 @@ import {
     userSchema,
     userIdNameEmailSchema,
 } from '../validation/schemas.ts';
+import { create } from 'domain';
 
 const registry = new OpenAPIRegistry();
 
@@ -539,14 +540,23 @@ registry.registerPath({
                             .object({
                                 id: z.int(),
                                 userId: z.string(),
-                                workoutPlan: workoutPlanSchema.optional(),
+                                workoutPlanId: z.int(),
                                 assignedBy: z.string(),
                                 startDate: z.string(),
                                 endDate: z.string().optional(),
-                                isActive: z.boolean(),
-                                assignedAt: z.string(),
+                                status: z.enum([
+                                    'active',
+                                    'completed',
+                                    'paused',
+                                    'cancelled',
+                                ]),
+                                progress: z.number(),
+                                notes: z.string().optional(),
+                                createdAt: z.string(),
+                                updatedAt: z.string(),
+                                workoutPlan: workoutPlanSchema,
                             })
-                            .openapi('UserWorkoutPlan')
+                            .openapi('WorkoutPlanAssignment')
                     ),
                 },
             },
@@ -573,14 +583,25 @@ registry.registerPath({
                             .object({
                                 id: z.int(),
                                 userId: z.string(),
-                                nutritionPlan: nutritionPlanSchema.optional(),
+                                nutritionPlanId: z.int(),
                                 assignedBy: z.string(),
                                 startDate: z.string(),
                                 endDate: z.string().optional(),
-                                isActive: z.boolean(),
-                                assignedAt: z.string(),
+                                status: z.enum([
+                                    'active',
+                                    'completed',
+                                    'paused',
+                                    'cancelled',
+                                ]),
+                                notes: z.string().optional(),
+                                createdAt: z.string(),
+                                updatedAt: z.string(),
+                                nutritionPlan: nutritionPlanSchema.optional(),
+                                nutritionAdherences: z.array(
+                                    nutritionAdherenceSchema
+                                ),
                             })
-                            .openapi('UserNutritionPlan')
+                            .openapi('NutritionPlanAssignment')
                     ),
                 },
             },
@@ -623,30 +644,43 @@ registry.registerPath({
     method: 'get',
     path: '/api/users/nutrition/{nutritionPlanId}/assign',
     tags: ['Users'],
-    summary: 'Get nutrition plan assignment',
-    description: 'Get nutrition plan assignment details for a specific plan',
+    summary: 'Get nutrition plan assignments',
+    description:
+        'Get all nutrition plan assignment details for a specific plan',
     request: {
         params: nutritionPlanIdParamSchema,
         query: userIdQuerySchema,
     },
     responses: {
         200: {
-            description: 'Nutrition plan assignment details',
+            description: 'List of nutrition plan assignments',
             content: {
                 'application/json': {
-                    schema: z
-                        .object({
-                            id: z.int(),
-                            userId: z.string(),
-                            nutritionPlan: nutritionPlanSchema.optional(),
-                            assignedBy: z.string(),
-                            startDate: z.string(),
-                            endDate: z.string().optional(),
-                            isActive: z.boolean(),
-                            assignedAt: z.string(),
-                        })
-                        .openapi('NutritionPlanAssignment')
-                        .nullable(),
+                    schema: z.array(
+                        z
+                            .object({
+                                id: z.int(),
+                                userId: z.string(),
+                                nutritionPlanId: z.int(),
+                                assignedBy: z.string(),
+                                startDate: z.string(),
+                                endDate: z.string().optional(),
+                                status: z.enum([
+                                    'active',
+                                    'completed',
+                                    'paused',
+                                    'cancelled',
+                                ]),
+                                notes: z.string().optional(),
+                                createdAt: z.string(),
+                                updatedAt: z.string(),
+                                nutritionPlan: nutritionPlanSchema.optional(),
+                                nutritionAdherences: z.array(
+                                    nutritionAdherenceSchema
+                                ),
+                            })
+                            .openapi('NutritionPlanAssignment')
+                    ),
                 },
             },
         },
@@ -692,8 +726,15 @@ registry.registerPath({
                             assignedBy: z.string(),
                             startDate: z.string(),
                             endDate: z.string().optional(),
-                            isActive: z.boolean(),
-                            assignedAt: z.string(),
+                            status: z.enum([
+                                'active',
+                                'completed',
+                                'paused',
+                                'cancelled',
+                            ]),
+                            notes: z.string().optional(),
+                            createdAt: z.string(),
+                            updatedAt: z.string(),
                         })
                         .openapi('NutritionPlanAssignmentResponse'),
                 },
@@ -739,7 +780,7 @@ registry.registerPath({
                             userId: z.string(),
                             isCompleted: z.boolean(),
                             completedAt: z.string(),
-                            caloriesConsumed: z.number().optional(),
+                            caloriesConsumed: z.int().optional(),
                             proteinConsumed: z.number().optional(),
                             carbsConsumed: z.number().optional(),
                             fatConsumed: z.number().optional(),
@@ -795,10 +836,12 @@ registry.registerPath({
                                     'fri',
                                     'sat',
                                 ]),
-                                totalMeals: z.int(),
-                                adherencePercentage: z.number().optional(),
-                                notes: z.string().optional(),
                                 mealsCompleted: z.int().optional(),
+                                totalMeals: z.int().optional(),
+                                adherencePercentage: z.number().optional(),
+                                totalCaloriesConsumed: z.int().optional(),
+                                totalCaloriesPlanned: z.int().optional(),
+                                notes: z.string().optional(),
                             })
                             .openapi('NutritionAdherenceHistory')
                     ),
@@ -847,7 +890,8 @@ registry.registerPath({
                             reps: z.int().optional(),
                             duration: z.int().optional(),
                             calories: z.int().optional(),
-                            recordedAt: z.string(),
+                            completedAt: z.string(),
+                            createdAt: z.string(),
                         })
                         .openapi('ExerciseResult'),
                 },
@@ -866,30 +910,40 @@ registry.registerPath({
     method: 'get',
     path: '/api/users/workout/{workoutPlanId}/assign',
     tags: ['Users'],
-    summary: 'Get workout plan assignment',
-    description: 'Get workout plan assignment details for a specific plan',
+    summary: 'Get workout plan assignments',
+    description: 'Get all workout plan assignment details for a specific plan',
     request: {
         params: workoutPlanIdParamSchema,
         query: userIdQuerySchema,
     },
     responses: {
         200: {
-            description: 'Workout plan assignment details',
+            description: 'List of workout plan assignments',
             content: {
                 'application/json': {
-                    schema: z
-                        .object({
-                            id: z.int(),
-                            userId: z.string(),
-                            workoutPlan: workoutPlanSchema.optional(),
-                            assignedBy: z.string(),
-                            startDate: z.string(),
-                            endDate: z.string().optional(),
-                            isActive: z.boolean(),
-                            assignedAt: z.string(),
-                        })
-                        .openapi('WorkoutPlanAssignment')
-                        .nullable(),
+                    schema: z.array(
+                        z
+                            .object({
+                                id: z.int(),
+                                userId: z.string(),
+                                workoutPlanId: z.int(),
+                                assignedBy: z.string(),
+                                startDate: z.string(),
+                                endDate: z.string().optional(),
+                                status: z.enum([
+                                    'active',
+                                    'completed',
+                                    'paused',
+                                    'cancelled',
+                                ]),
+                                progress: z.number(),
+                                notes: z.string().optional(),
+                                createdAt: z.string(),
+                                updatedAt: z.string(),
+                                workoutPlan: workoutPlanSchema,
+                            })
+                            .openapi('WorkoutPlanAssignment')
+                    ),
                 },
             },
         },
@@ -935,8 +989,16 @@ registry.registerPath({
                             assignedBy: z.string(),
                             startDate: z.string(),
                             endDate: z.string().optional(),
-                            isActive: z.boolean(),
-                            assignedAt: z.string(),
+                            status: z.enum([
+                                'active',
+                                'completed',
+                                'paused',
+                                'cancelled',
+                            ]),
+                            progress: z.number(),
+                            notes: z.string().optional(),
+                            createdAt: z.string(),
+                            updatedAt: z.string(),
                         })
                         .openapi('WorkoutPlanAssignmentResponse'),
                 },
@@ -968,34 +1030,298 @@ registry.registerPath({
                 'application/json': {
                     schema: z
                         .object({
-                            workoutPlan: workoutPlanSchema,
-                            userWorkoutPlan: z.object({
-                                id: z.int(),
-                                userId: z.string(),
-                                assignedBy: z.string(),
-                                startDate: z.string(),
-                                endDate: z.string().optional(),
-                                isActive: z.boolean(),
-                            }),
-                            results: z.array(
-                                z.object({
-                                    id: z.int(),
-                                    workoutPlanDayExerciseId: z.int(),
-                                    userWorkoutPlanId: z.int(),
-                                    userId: z.string(),
-                                    reps: z.int().optional(),
-                                    duration: z.int().optional(),
-                                    calories: z.int().optional(),
-                                    recordedAt: z.string(),
-                                    workoutPlanDayExercise: z.object({
-                                        exerciseType: exerciseTypeSchema,
-                                        workoutPlanDay: z.object({
-                                            day: z.int(),
-                                            isRestDay: z.boolean(),
+                            id: z
+                                .int()
+                                .openapi({ description: 'Workout plan ID' }),
+                            name: z
+                                .string()
+                                .openapi({ description: 'Workout plan name' }),
+                            description: z
+                                .string()
+                                .optional()
+                                .openapi({
+                                    description: 'Workout plan description',
+                                }),
+                            difficulty: z
+                                .enum(['beginner', 'intermediate', 'advanced'])
+                                .optional()
+                                .openapi({ description: 'Difficulty level' }),
+                            estimatedCalories: z
+                                .int()
+                                .optional()
+                                .openapi({
+                                    description:
+                                        'Estimated calories per session',
+                                }),
+                            createdBy: z
+                                .string()
+                                .openapi({ description: 'Creator user ID' }),
+                            isActive: z
+                                .boolean()
+                                .openapi({
+                                    description: 'Whether plan is active',
+                                }),
+                            createdAt: z
+                                .string()
+                                .openapi({ description: 'Creation date' }),
+                            updatedAt: z
+                                .string()
+                                .openapi({ description: 'Last update date' }),
+                            workoutPlanDays: z
+                                .array(
+                                    z.object({
+                                        id: z
+                                            .int()
+                                            .openapi({ description: 'Day ID' }),
+                                        workoutPlanId: z
+                                            .int()
+                                            .openapi({
+                                                description: 'Workout plan ID',
+                                            }),
+                                        day: z
+                                            .int()
+                                            .openapi({
+                                                description: 'Day number',
+                                            }),
+                                        isRestDay: z
+                                            .boolean()
+                                            .openapi({
+                                                description:
+                                                    'Whether this is a rest day',
+                                            }),
+                                        estimatedCalories: z
+                                            .int()
+                                            .optional()
+                                            .openapi({
+                                                description:
+                                                    'Estimated calories for this day',
+                                            }),
+                                        duration: z
+                                            .int()
+                                            .optional()
+                                            .openapi({
+                                                description:
+                                                    'Duration in seconds',
+                                            }),
+                                        exercises: z
+                                            .array(
+                                                z.object({
+                                                    id: z
+                                                        .int()
+                                                        .openapi({
+                                                            description:
+                                                                'Exercise ID',
+                                                        }),
+                                                    workoutPlanDayId: z
+                                                        .int()
+                                                        .openapi({
+                                                            description:
+                                                                'Workout plan day ID',
+                                                        }),
+                                                    exerciseTypeId: z
+                                                        .int()
+                                                        .openapi({
+                                                            description:
+                                                                'Exercise type ID',
+                                                        }),
+                                                    order: z
+                                                        .int()
+                                                        .optional()
+                                                        .openapi({
+                                                            description:
+                                                                'Exercise order',
+                                                        }),
+                                                    targetReps: z
+                                                        .int()
+                                                        .optional()
+                                                        .openapi({
+                                                            description:
+                                                                'Target repetitions',
+                                                        }),
+                                                    targetDuration: z
+                                                        .int()
+                                                        .optional()
+                                                        .openapi({
+                                                            description:
+                                                                'Target duration in seconds',
+                                                        }),
+                                                    estimatedCalories: z
+                                                        .int()
+                                                        .optional()
+                                                        .openapi({
+                                                            description:
+                                                                'Estimated calories for this exercise',
+                                                        }),
+                                                    notes: z
+                                                        .string()
+                                                        .optional()
+                                                        .openapi({
+                                                            description:
+                                                                'Exercise notes',
+                                                        }),
+                                                    createdAt: z
+                                                        .string()
+                                                        .openapi({
+                                                            description:
+                                                                'Creation date',
+                                                        }),
+                                                    updatedAt: z
+                                                        .string()
+                                                        .openapi({
+                                                            description:
+                                                                'Last update date',
+                                                        }),
+                                                    exerciseType:
+                                                        exerciseTypeSchema.openapi(
+                                                            {
+                                                                description:
+                                                                    'Exercise type details',
+                                                            }
+                                                        ),
+                                                    exerciseResults: z
+                                                        .array(
+                                                            z.object({
+                                                                id: z
+                                                                    .int()
+                                                                    .openapi({
+                                                                        description:
+                                                                            'Exercise result ID',
+                                                                    }),
+                                                                workoutPlanDayExerciseId:
+                                                                    z
+                                                                        .int()
+                                                                        .openapi(
+                                                                            {
+                                                                                description:
+                                                                                    'Exercise ID',
+                                                                            }
+                                                                        ),
+                                                                userWorkoutPlanId:
+                                                                    z
+                                                                        .int()
+                                                                        .openapi(
+                                                                            {
+                                                                                description:
+                                                                                    'User workout plan ID',
+                                                                            }
+                                                                        ),
+                                                                userId: z
+                                                                    .string()
+                                                                    .openapi({
+                                                                        description:
+                                                                            'User ID',
+                                                                    }),
+                                                                reps: z
+                                                                    .int()
+                                                                    .optional()
+                                                                    .openapi({
+                                                                        description:
+                                                                            'Actual repetitions completed',
+                                                                    }),
+                                                                duration: z
+                                                                    .int()
+                                                                    .optional()
+                                                                    .openapi({
+                                                                        description:
+                                                                            'Actual duration in seconds',
+                                                                    }),
+                                                                calories: z
+                                                                    .int()
+                                                                    .optional()
+                                                                    .openapi({
+                                                                        description:
+                                                                            'Actual calories burned',
+                                                                    }),
+                                                                completedAt: z
+                                                                    .string()
+                                                                    .openapi({
+                                                                        description:
+                                                                            'Completion timestamp',
+                                                                    }),
+                                                                createdAt: z
+                                                                    .string()
+                                                                    .openapi({
+                                                                        description:
+                                                                            'Creation date',
+                                                                    }),
+                                                            })
+                                                        )
+                                                        .openapi({
+                                                            description:
+                                                                'Exercise results/logs',
+                                                        }),
+                                                })
+                                            )
+                                            .openapi({
+                                                description:
+                                                    'Exercises for this day',
+                                            }),
+                                    })
+                                )
+                                .openapi({ description: 'Workout plan days' }),
+                            userWorkoutPlan: z
+                                .object({
+                                    id: z
+                                        .int()
+                                        .openapi({
+                                            description: 'User workout plan ID',
                                         }),
-                                    }),
+                                    userId: z
+                                        .string()
+                                        .openapi({ description: 'User ID' }),
+                                    workoutPlanId: z
+                                        .int()
+                                        .openapi({
+                                            description: 'Workout plan ID',
+                                        }),
+                                    assignedBy: z
+                                        .string()
+                                        .openapi({
+                                            description: 'Assigned by user ID',
+                                        }),
+                                    startDate: z
+                                        .string()
+                                        .openapi({ description: 'Start date' }),
+                                    endDate: z
+                                        .string()
+                                        .optional()
+                                        .openapi({ description: 'End date' }),
+                                    status: z
+                                        .enum([
+                                            'active',
+                                            'completed',
+                                            'paused',
+                                            'cancelled',
+                                        ])
+                                        .openapi({
+                                            description: 'Assignment status',
+                                        }),
+                                    progress: z
+                                        .number()
+                                        .openapi({
+                                            description: 'Progress percentage',
+                                        }),
+                                    notes: z
+                                        .string()
+                                        .optional()
+                                        .openapi({
+                                            description: 'Assignment notes',
+                                        }),
+                                    createdAt: z
+                                        .string()
+                                        .openapi({
+                                            description: 'Creation date',
+                                        }),
+                                    updatedAt: z
+                                        .string()
+                                        .openapi({
+                                            description: 'Last update date',
+                                        }),
                                 })
-                            ),
+                                .openapi({
+                                    description:
+                                        'User workout plan assignment details',
+                                }),
                         })
                         .openapi('WorkoutPlanResults'),
                 },

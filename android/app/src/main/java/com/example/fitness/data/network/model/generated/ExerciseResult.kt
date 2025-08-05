@@ -26,7 +26,8 @@ import com.squareup.moshi.JsonClass
  * @param workoutPlanDayExerciseId 
  * @param userWorkoutPlanId 
  * @param userId 
- * @param recordedAt 
+ * @param completedAt 
+ * @param createdAt 
  * @param reps 
  * @param duration 
  * @param calories 
@@ -47,8 +48,11 @@ data class ExerciseResult (
     @Json(name = "userId")
     val userId: kotlin.String,
 
-    @Json(name = "recordedAt")
-    val recordedAt: kotlin.String,
+    @Json(name = "completedAt")
+    val completedAt: kotlin.String,
+
+    @Json(name = "createdAt")
+    val createdAt: kotlin.String,
 
     @Json(name = "reps")
     val reps: kotlin.Int? = null,

@@ -38,7 +38,7 @@ data class DetailedNutritionPlan (
 
     /* Nutrition plan ID */
     @Json(name = "id")
-    val id: Int,
+    val id: kotlin.Int,
 
     /* Plan name */
     @Json(name = "name")

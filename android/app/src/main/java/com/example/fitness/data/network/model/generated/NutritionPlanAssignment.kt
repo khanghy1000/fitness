@@ -15,6 +15,7 @@
 
 package com.example.fitness.data.network.model.generated
 
+import com.example.fitness.data.network.model.generated.NutritionAdherence
 import com.example.fitness.data.network.model.generated.NutritionPlan
 
 import com.squareup.moshi.Json
@@ -25,12 +26,16 @@ import com.squareup.moshi.JsonClass
  *
  * @param id 
  * @param userId 
+ * @param nutritionPlanId 
  * @param assignedBy 
  * @param startDate 
- * @param isActive 
- * @param assignedAt 
- * @param nutritionPlan 
+ * @param status 
+ * @param createdAt 
+ * @param updatedAt 
+ * @param nutritionAdherences 
  * @param endDate 
+ * @param notes 
+ * @param nutritionPlan 
  */
 
 
@@ -42,26 +47,50 @@ data class NutritionPlanAssignment (
     @Json(name = "userId")
     val userId: kotlin.String,
 
+    @Json(name = "nutritionPlanId")
+    val nutritionPlanId: kotlin.Int,
+
     @Json(name = "assignedBy")
     val assignedBy: kotlin.String,
 
     @Json(name = "startDate")
     val startDate: kotlin.String,
 
-    @Json(name = "isActive")
-    val isActive: kotlin.Boolean,
+    @Json(name = "status")
+    val status: NutritionPlanAssignment.Status,
 
-    @Json(name = "assignedAt")
-    val assignedAt: kotlin.String,
+    @Json(name = "createdAt")
+    val createdAt: kotlin.String,
 
-    @Json(name = "nutritionPlan")
-    val nutritionPlan: NutritionPlan? = null,
+    @Json(name = "updatedAt")
+    val updatedAt: kotlin.String,
+
+    @Json(name = "nutritionAdherences")
+    val nutritionAdherences: kotlin.collections.List<NutritionAdherence>,
 
     @Json(name = "endDate")
-    val endDate: kotlin.String? = null
+    val endDate: kotlin.String? = null,
+
+    @Json(name = "notes")
+    val notes: kotlin.String? = null,
+
+    @Json(name = "nutritionPlan")
+    val nutritionPlan: NutritionPlan? = null
 
 ) {
 
+    /**
+     * 
+     *
+     * Values: active,completed,paused,cancelled
+     */
+    @JsonClass(generateAdapter = false)
+    enum class Status(val value: kotlin.String) {
+        @Json(name = "active") active("active"),
+        @Json(name = "completed") completed("completed"),
+        @Json(name = "paused") paused("paused"),
+        @Json(name = "cancelled") cancelled("cancelled");
+    }
 
 }
 

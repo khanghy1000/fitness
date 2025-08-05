@@ -27,10 +27,12 @@ import com.squareup.moshi.JsonClass
  * @param userId 
  * @param date 
  * @param weekday 
+ * @param mealsCompleted 
  * @param totalMeals 
  * @param adherencePercentage 
+ * @param totalCaloriesConsumed 
+ * @param totalCaloriesPlanned 
  * @param notes 
- * @param mealsCompleted 
  */
 
 
@@ -51,17 +53,23 @@ data class NutritionAdherenceHistory (
     @Json(name = "weekday")
     val weekday: NutritionAdherenceHistory.Weekday,
 
+    @Json(name = "mealsCompleted")
+    val mealsCompleted: kotlin.Int? = null,
+
     @Json(name = "totalMeals")
-    val totalMeals: kotlin.Int,
+    val totalMeals: kotlin.Int? = null,
 
     @Json(name = "adherencePercentage")
     val adherencePercentage: java.math.BigDecimal? = null,
 
-    @Json(name = "notes")
-    val notes: kotlin.String? = null,
+    @Json(name = "totalCaloriesConsumed")
+    val totalCaloriesConsumed: kotlin.Int? = null,
 
-    @Json(name = "mealsCompleted")
-    val mealsCompleted: kotlin.Int? = null
+    @Json(name = "totalCaloriesPlanned")
+    val totalCaloriesPlanned: kotlin.Int? = null,
+
+    @Json(name = "notes")
+    val notes: kotlin.String? = null
 
 ) {
 

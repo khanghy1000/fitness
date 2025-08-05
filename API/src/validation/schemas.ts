@@ -798,38 +798,31 @@ export const recordUserStatsSchema = z
 
 export const nutritionAdherenceSchema = z
     .object({
-        date: z
-            .string()
-            .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format')
-            .refine((date) => !isNaN(Date.parse(date)), {
-                message: 'Invalid date format',
-            })
-            .optional()
-            .openapi({
-                description: 'Date of adherence record (YYYY-MM-DD format)',
-                example: '2025-01-15',
-            }),
-        weekday: z
-            .enum(['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'])
-            .optional()
-            .openapi({ description: 'Day of the week', example: 'mon' }),
-        totalMeals: z.number().positive().optional().openapi({
-            description: 'Total number of meals planned',
-            example: 5,
-        }),
+        id: z.int(),
+        userNutritionPlanId: z.int(),
+        userId: z.string(),
+        date: z.string(),
+        weekday: z.enum([
+            'sun',
+            'mon',
+            'tue',
+            'wed',
+            'thu',
+            'fri',
+            'sat',
+        ]),
+        mealsCompleted: z.int().optional(),
+        totalMeals: z.int().optional(),
         adherencePercentage: z
             .number()
-            .min(0)
-            .max(100, 'Adherence percentage must be between 0 and 100')
-            .optional()
-            .openapi({
-                description: 'Percentage of plan followed',
-                example: 85.5,
-            }),
-        notes: z.string().optional().openapi({
-            description: 'Notes about adherence',
-            example: 'Skipped afternoon snack due to meeting',
-        }),
+            .optional(),
+        totalCaloriesConsumed: z
+            .int()
+            .optional(),
+        totalCaloriesPlanned: z
+            .int()
+            .optional(),
+        notes: z.string().optional(),
     })
     .openapi('NutritionAdherence');
 

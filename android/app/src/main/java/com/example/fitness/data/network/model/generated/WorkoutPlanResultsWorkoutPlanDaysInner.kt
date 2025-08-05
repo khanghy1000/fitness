@@ -15,7 +15,7 @@
 
 package com.example.fitness.data.network.model.generated
 
-import com.example.fitness.data.network.model.generated.DetailedWorkoutPlanDayExercise
+import com.example.fitness.data.network.model.generated.WorkoutPlanResultsWorkoutPlanDaysInnerExercisesInner
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -28,12 +28,12 @@ import com.squareup.moshi.JsonClass
  * @param day Day number
  * @param isRestDay Whether this is a rest day
  * @param exercises Exercises for this day
- * @param estimatedCalories Estimated calories burned
+ * @param estimatedCalories Estimated calories for this day
  * @param duration Duration in seconds
  */
 
 
-data class DetailedWorkoutPlanDay (
+data class WorkoutPlanResultsWorkoutPlanDaysInner (
 
     /* Day ID */
     @Json(name = "id")
@@ -53,9 +53,9 @@ data class DetailedWorkoutPlanDay (
 
     /* Exercises for this day */
     @Json(name = "exercises")
-    val exercises: kotlin.collections.List<DetailedWorkoutPlanDayExercise>,
+    val exercises: kotlin.collections.List<WorkoutPlanResultsWorkoutPlanDaysInnerExercisesInner>,
 
-    /* Estimated calories burned */
+    /* Estimated calories for this day */
     @Json(name = "estimatedCalories")
     val estimatedCalories: kotlin.Int? = null,
 

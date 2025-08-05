@@ -15,7 +15,6 @@
 
 package com.example.fitness.data.network.model.generated
 
-import com.example.fitness.data.network.model.generated.WorkoutPlanResultsResultsInnerWorkoutPlanDayExercise
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -23,44 +22,53 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * @param id 
- * @param workoutPlanDayExerciseId 
- * @param userWorkoutPlanId 
- * @param userId 
- * @param recordedAt 
- * @param workoutPlanDayExercise 
- * @param reps 
- * @param duration 
- * @param calories 
+ * @param id Exercise result ID
+ * @param workoutPlanDayExerciseId Exercise ID
+ * @param userWorkoutPlanId User workout plan ID
+ * @param userId User ID
+ * @param completedAt Completion timestamp
+ * @param createdAt Creation date
+ * @param reps Actual repetitions completed
+ * @param duration Actual duration in seconds
+ * @param calories Actual calories burned
  */
 
 
-data class WorkoutPlanResultsResultsInner (
+data class WorkoutPlanResultsWorkoutPlanDaysInnerExercisesInnerExerciseResultsInner (
 
+    /* Exercise result ID */
     @Json(name = "id")
     val id: kotlin.Int,
 
+    /* Exercise ID */
     @Json(name = "workoutPlanDayExerciseId")
     val workoutPlanDayExerciseId: kotlin.Int,
 
+    /* User workout plan ID */
     @Json(name = "userWorkoutPlanId")
     val userWorkoutPlanId: kotlin.Int,
 
+    /* User ID */
     @Json(name = "userId")
     val userId: kotlin.String,
 
-    @Json(name = "recordedAt")
-    val recordedAt: kotlin.String,
+    /* Completion timestamp */
+    @Json(name = "completedAt")
+    val completedAt: kotlin.String,
 
-    @Json(name = "workoutPlanDayExercise")
-    val workoutPlanDayExercise: WorkoutPlanResultsResultsInnerWorkoutPlanDayExercise,
+    /* Creation date */
+    @Json(name = "createdAt")
+    val createdAt: kotlin.String,
 
+    /* Actual repetitions completed */
     @Json(name = "reps")
     val reps: kotlin.Int? = null,
 
+    /* Actual duration in seconds */
     @Json(name = "duration")
     val duration: kotlin.Int? = null,
 
+    /* Actual calories burned */
     @Json(name = "calories")
     val calories: kotlin.Int? = null
 

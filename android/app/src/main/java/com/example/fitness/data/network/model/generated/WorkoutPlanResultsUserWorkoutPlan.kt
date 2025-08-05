@@ -20,39 +20,82 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * 
+ * User workout plan assignment details
  *
- * @param id 
- * @param userId 
- * @param assignedBy 
- * @param startDate 
- * @param isActive 
- * @param endDate 
+ * @param id User workout plan ID
+ * @param userId User ID
+ * @param workoutPlanId Workout plan ID
+ * @param assignedBy Assigned by user ID
+ * @param startDate Start date
+ * @param status Assignment status
+ * @param progress Progress percentage
+ * @param createdAt Creation date
+ * @param updatedAt Last update date
+ * @param endDate End date
+ * @param notes Assignment notes
  */
 
 
 data class WorkoutPlanResultsUserWorkoutPlan (
 
+    /* User workout plan ID */
     @Json(name = "id")
     val id: kotlin.Int,
 
+    /* User ID */
     @Json(name = "userId")
     val userId: kotlin.String,
 
+    /* Workout plan ID */
+    @Json(name = "workoutPlanId")
+    val workoutPlanId: kotlin.Int,
+
+    /* Assigned by user ID */
     @Json(name = "assignedBy")
     val assignedBy: kotlin.String,
 
+    /* Start date */
     @Json(name = "startDate")
     val startDate: kotlin.String,
 
-    @Json(name = "isActive")
-    val isActive: kotlin.Boolean,
+    /* Assignment status */
+    @Json(name = "status")
+    val status: WorkoutPlanResultsUserWorkoutPlan.Status,
 
+    /* Progress percentage */
+    @Json(name = "progress")
+    val progress: java.math.BigDecimal,
+
+    /* Creation date */
+    @Json(name = "createdAt")
+    val createdAt: kotlin.String,
+
+    /* Last update date */
+    @Json(name = "updatedAt")
+    val updatedAt: kotlin.String,
+
+    /* End date */
     @Json(name = "endDate")
-    val endDate: kotlin.String? = null
+    val endDate: kotlin.String? = null,
+
+    /* Assignment notes */
+    @Json(name = "notes")
+    val notes: kotlin.String? = null
 
 ) {
 
+    /**
+     * Assignment status
+     *
+     * Values: active,completed,paused,cancelled
+     */
+    @JsonClass(generateAdapter = false)
+    enum class Status(val value: kotlin.String) {
+        @Json(name = "active") active("active"),
+        @Json(name = "completed") completed("completed"),
+        @Json(name = "paused") paused("paused"),
+        @Json(name = "cancelled") cancelled("cancelled");
+    }
 
 }
 
