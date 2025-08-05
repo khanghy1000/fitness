@@ -1,5 +1,6 @@
 package com.example.fitness.data.repository;
 
+import com.example.fitness.R;
 import com.example.fitness.data.network.retrofit.ExercisesApi;
 import com.example.fitness.data.network.model.generated.*;
 import com.example.fitness.model.ExerciseImage;
@@ -24,13 +25,14 @@ public class ExercisesRepository {
         this.exercisesApi = exercisesApi;
 
         this.exerciseImages = new ArrayList<>();
-        exerciseImages.add(new ExerciseImage("Bicep Curl", "exercise_bicep_curl.gif"));
-        exerciseImages.add(new ExerciseImage("Crunch", "exercise_crunch.gif"));
-        exerciseImages.add(new ExerciseImage("Squat", "exercise_squat.gif"));
-        exerciseImages.add(new ExerciseImage("Lunge", "exercise_lunge.gif"));
-        exerciseImages.add(new ExerciseImage("Heel Touch", "exercise_heel_touch.gif"));
-        exerciseImages.add(new ExerciseImage("Plank", "exercise_plank.gif"));
-        exerciseImages.add(new ExerciseImage("Cobra", "exercise_cobra.gif"));
+
+        exerciseImages.add(new ExerciseImage("Bicep Curl", R.drawable.exercise_bicep_curl));
+        exerciseImages.add(new ExerciseImage("Crunch", R.drawable.exercise_crunch));
+        exerciseImages.add(new ExerciseImage("Squat", R.drawable.exercise_squat));
+        exerciseImages.add(new ExerciseImage("Lunge", R.drawable.exercise_lunge));
+        exerciseImages.add(new ExerciseImage("Heel Touch", R.drawable.exercise_heel_touch));
+        exerciseImages.add(new ExerciseImage("Plank", R.drawable.exercise_plank));
+        exerciseImages.add(new ExerciseImage("Cobra", R.drawable.exercise_cobra));
     }
 
     public interface ExercisesCallback<T> {
@@ -92,45 +94,12 @@ public class ExercisesRepository {
         });
     }
 
-    public String getExerciseImageByName(String name) {
-        for (ExerciseImage image : exerciseImages) {
-            if (image.getName().equalsIgnoreCase(name)) {
-                return image.getImageFileName();
-            }
-        }
-        return "placeholder.gif"; // Default image if not found
-    }
-
     public int getExerciseImageResourceByName(String name) {
         for (ExerciseImage image : exerciseImages) {
-            if (image.getName().equalsIgnoreCase(name)) {
-                String fileName = image.getImageFileName();
-                // Convert filename to resource name (remove .gif extension)
-                String resourceName = fileName.replace(".gif", "");
-                
-                // Map resource names to drawable resource IDs
-                switch (resourceName) {
-                    case "exercise_bicep_curl":
-                        return com.example.fitness.R.drawable.exercise_bicep_curl;
-                    case "exercise_crunch":
-                        return com.example.fitness.R.drawable.exercise_crunch;
-                    case "exercise_squat":
-                        return com.example.fitness.R.drawable.exercise_squat;
-                    case "exercise_lunge":
-                        return com.example.fitness.R.drawable.exercise_lunge;
-                    case "exercise_heel_touch":
-                        return com.example.fitness.R.drawable.exercise_heel_touch;
-                    case "exercise_plank":
-                        return com.example.fitness.R.drawable.exercise_plank;
-                    case "exercise_cobra":
-                        return com.example.fitness.R.drawable.exercise_cobra;
-                    case "placeholder":
-                        return com.example.fitness.R.drawable.placeholder;
-                    default:
-                        return com.example.fitness.R.drawable.placeholder_exercise;
-                }
+            if (image.getName().equalsIgnoreCase(name) && image.getImageResourceId() != 0) {
+                return image.getImageResourceId();
             }
         }
-        return com.example.fitness.R.drawable.placeholder_exercise; // Default image if not found
+        return R.drawable.placeholder_exercise; // Default image if not found
     }
 }

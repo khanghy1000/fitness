@@ -9,5 +9,5 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ExerciseImage {
     private String name;
-    private String imageFileName;
+    private int imageResourceId;
 }
