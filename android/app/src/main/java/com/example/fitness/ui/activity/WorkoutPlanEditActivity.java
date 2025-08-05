@@ -1,4 +1,4 @@
-package com.example.fitness.ui.activity.coach;
+package com.example.fitness.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,7 +19,7 @@ import com.example.fitness.R;
 import com.example.fitness.data.network.model.generated.BulkUpdateWorkoutPlan;
 import com.example.fitness.data.network.model.generated.DetailedWorkoutPlan;
 import com.example.fitness.data.repository.ExercisesRepository;
-import com.example.fitness.databinding.ActivityCoachWorkoutPlanEditBinding;
+import com.example.fitness.databinding.ActivityWorkoutPlanEditBinding;
 import com.example.fitness.ui.adapter.WorkoutDayEditAdapter;
 import com.example.fitness.ui.dialog.EditWorkoutExerciseInfoDialogFragment;
 import com.example.fitness.ui.dialog.EditWorkoutPlanInfoDialogFragment;
@@ -30,9 +30,9 @@ import javax.inject.Inject;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class CoachWorkoutPlanEditActivity extends AppCompatActivity {
+public class WorkoutPlanEditActivity extends AppCompatActivity {
 
-    private ActivityCoachWorkoutPlanEditBinding binding;
+    private ActivityWorkoutPlanEditBinding binding;
     private WorkoutPlanEditViewModel viewModel;
     private WorkoutDayEditAdapter dayAdapter;
     private String planId;
@@ -47,7 +47,7 @@ public class CoachWorkoutPlanEditActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         
-        binding = ActivityCoachWorkoutPlanEditBinding.inflate(getLayoutInflater());
+        binding = ActivityWorkoutPlanEditBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {

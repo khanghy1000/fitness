@@ -17,7 +17,7 @@ import com.example.fitness.ui.activity.coach.CoachNutritionPlanActivity;
 import com.example.fitness.ui.activity.coach.CoachTraineeActivity;
 import com.example.fitness.ui.activity.coach.CoachWorkoutPlanActivity;
 import com.example.fitness.ui.activity.trainee.TraineeCoachActivity;
-import com.example.fitness.ui.activity.trainee.TraineeExercisePlanActivity;
+import com.example.fitness.ui.activity.trainee.TraineeWorkoutPlanActivity;
 import com.example.fitness.ui.activity.trainee.TraineeNutritionPlanActivity;
 import com.example.fitness.ui.activity.trainee.TraineeStatsActivity;
 import com.example.fitness.ui.viewmodel.MainViewModel;
@@ -82,7 +82,7 @@ public class HomeFragment extends Fragment {
         });
         
         binding.btnTraineeExercisePlan.setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), TraineeExercisePlanActivity.class);
+            Intent intent = new Intent(getActivity(), TraineeWorkoutPlanActivity.class);
             startActivity(intent);
         });
         

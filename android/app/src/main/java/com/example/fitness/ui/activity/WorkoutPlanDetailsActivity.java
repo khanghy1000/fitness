@@ -1,4 +1,4 @@
-package com.example.fitness.ui.activity.coach;
+package com.example.fitness.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.fitness.R;
 import com.example.fitness.data.network.model.generated.DetailedWorkoutPlan;
 import com.example.fitness.data.repository.ExercisesRepository;
-import com.example.fitness.databinding.ActivityCoachWorkoutPlanDetailsBinding;
+import com.example.fitness.databinding.ActivityWorkoutPlanDetailsBinding;
 import com.example.fitness.ui.adapter.WorkoutDayDetailAdapter;
 import com.example.fitness.ui.viewmodel.WorkoutPlanDetailsViewModel;
 
@@ -25,9 +25,9 @@ import javax.inject.Inject;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class CoachWorkoutPlanDetailsActivity extends AppCompatActivity {
+public class WorkoutPlanDetailsActivity extends AppCompatActivity {
 
-    private ActivityCoachWorkoutPlanDetailsBinding binding;
+    private ActivityWorkoutPlanDetailsBinding binding;
     private WorkoutPlanDetailsViewModel viewModel;
     private WorkoutDayDetailAdapter dayAdapter;
     private String planId;
@@ -41,7 +41,7 @@ public class CoachWorkoutPlanDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         
-        binding = ActivityCoachWorkoutPlanDetailsBinding.inflate(getLayoutInflater());
+        binding = ActivityWorkoutPlanDetailsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -95,7 +95,7 @@ public class CoachWorkoutPlanDetailsActivity extends AppCompatActivity {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
         
         binding.fabEditWorkoutPlan.setOnClickListener(v -> {
-            Intent intent = new Intent(this, CoachWorkoutPlanEditActivity.class);
+            Intent intent = new Intent(this, WorkoutPlanEditActivity.class);
             intent.putExtra("PLAN_ID", Integer.parseInt(planId));
             intent.putExtra("PLAN_NAME", planName);
             startActivity(intent);
