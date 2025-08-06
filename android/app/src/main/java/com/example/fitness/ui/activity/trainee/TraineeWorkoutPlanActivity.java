@@ -59,6 +59,7 @@ public class TraineeWorkoutPlanActivity extends AppCompatActivity implements Tra
 
     private void setupViewModel() {
         viewModel = new ViewModelProvider(this).get(WorkoutPlanViewModel.class);
+        viewModel.loadUserWorkoutPlanAssignments();
     }
 
     private void setupRecyclerView() {
@@ -72,15 +73,15 @@ public class TraineeWorkoutPlanActivity extends AppCompatActivity implements Tra
         
         binding.fabAddWorkoutPlan.setOnClickListener(v -> showCreateWorkoutPlanDialog());
         
-        binding.swipeRefreshLayout.setOnRefreshListener(() -> viewModel.refreshWorkoutPlans());
+        binding.swipeRefreshLayout.setOnRefreshListener(() -> viewModel.refreshUserWorkoutPlanAssignments());
     }
 
     private void observeViewModel() {
-        viewModel.workoutPlans.observe(this, workoutPlans -> {
-            if (workoutPlans != null && !workoutPlans.isEmpty()) {
+        viewModel.userWorkoutPlanAssignments.observe(this, workoutPlanAssignments -> {
+            if (workoutPlanAssignments != null && !workoutPlanAssignments.isEmpty()) {
                 binding.textViewEmpty.setVisibility(View.GONE);
                 binding.recyclerViewWorkoutPlans.setVisibility(View.VISIBLE);
-                workoutPlanAdapter.updateWorkoutPlans(workoutPlans);
+                workoutPlanAdapter.updateWorkoutPlanAssignments(workoutPlanAssignments);
             } else {
                 binding.textViewEmpty.setVisibility(View.VISIBLE);
                 binding.recyclerViewWorkoutPlans.setVisibility(View.GONE);

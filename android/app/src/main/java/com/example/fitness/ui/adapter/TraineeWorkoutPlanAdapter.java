@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fitness.R;
 import com.example.fitness.data.network.model.generated.WorkoutPlan;
+import com.example.fitness.data.network.model.generated.WorkoutPlanAssignment;
 import com.google.android.material.chip.Chip;
 
 import java.text.SimpleDateFormat;
@@ -19,7 +20,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class TraineeWorkoutPlanAdapter extends RecyclerView.Adapter<TraineeWorkoutPlanAdapter.TraineeWorkoutPlanViewHolder> {
-    private List<WorkoutPlan> workoutPlans = new ArrayList<>();
+    private List<WorkoutPlanAssignment> workoutPlanAssignments = new ArrayList<>();
     private OnWorkoutPlanClickListener listener;
 
     public interface OnWorkoutPlanClickListener {
@@ -40,18 +41,18 @@ public class TraineeWorkoutPlanAdapter extends RecyclerView.Adapter<TraineeWorko
 
     @Override
     public void onBindViewHolder(@NonNull TraineeWorkoutPlanViewHolder holder, int position) {
-        WorkoutPlan workoutPlan = workoutPlans.get(position);
-        holder.bind(workoutPlan, listener);
+        WorkoutPlanAssignment workoutPlanAssignment = workoutPlanAssignments.get(position);
+        holder.bind(workoutPlanAssignment, listener);
     }
 
     @Override
     public int getItemCount() {
-        return workoutPlans.size();
+        return workoutPlanAssignments.size();
     }
 
-    public void updateWorkoutPlans(List<WorkoutPlan> workoutPlans) {
-        this.workoutPlans.clear();
-        this.workoutPlans.addAll(workoutPlans);
+    public void updateWorkoutPlanAssignments(List<WorkoutPlanAssignment> workoutPlanAssignments) {
+        this.workoutPlanAssignments.clear();
+        this.workoutPlanAssignments.addAll(workoutPlanAssignments);
         notifyDataSetChanged();
     }
 
@@ -61,6 +62,7 @@ public class TraineeWorkoutPlanAdapter extends RecyclerView.Adapter<TraineeWorko
         private TextView textViewDifficulty;
         private TextView textViewEstimatedCalories;
         private TextView textViewCreatedDate;
+        private TextView textViewProgress;
         private Chip chipStatus;
 
         public TraineeWorkoutPlanViewHolder(@NonNull View itemView) {
@@ -70,10 +72,13 @@ public class TraineeWorkoutPlanAdapter extends RecyclerView.Adapter<TraineeWorko
             textViewDifficulty = itemView.findViewById(R.id.textViewDifficulty);
             textViewEstimatedCalories = itemView.findViewById(R.id.textViewEstimatedCalories);
             textViewCreatedDate = itemView.findViewById(R.id.textViewCreatedDate);
+            textViewProgress = itemView.findViewById(R.id.textViewProgress);
             chipStatus = itemView.findViewById(R.id.chipStatus);
         }
 
-        public void bind(WorkoutPlan workoutPlan, OnWorkoutPlanClickListener listener) {
+        public void bind(WorkoutPlanAssignment workoutPlanAssignment, OnWorkoutPlanClickListener listener) {
+            WorkoutPlan workoutPlan = workoutPlanAssignment.getWorkoutPlan();
+            
             textViewWorkoutPlanName.setText(workoutPlan.getName());
             
             if (workoutPlan.getDescription() != null && !workoutPlan.getDescription().isEmpty()) {
@@ -100,21 +105,31 @@ public class TraineeWorkoutPlanAdapter extends RecyclerView.Adapter<TraineeWorko
                 textViewEstimatedCalories.setVisibility(View.GONE);
             }
 
-            // Created date
+            // Progress
+            if (workoutPlanAssignment.getProgress() != null && textViewProgress != null) {
+                int progressPercent = workoutPlanAssignment.getProgress().intValue();
+                textViewProgress.setText("Progress: " + progressPercent + "%");
+                textViewProgress.setVisibility(View.VISIBLE);
+            } else if (textViewProgress != null) {
+                textViewProgress.setVisibility(View.GONE);
+            }
+
+            // Start date instead of created date
             try {
                 SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
                 SimpleDateFormat outputFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
-                Date date = inputFormat.parse(workoutPlan.getCreatedAt());
-                textViewCreatedDate.setText("Created: " + outputFormat.format(date));
+                Date date = inputFormat.parse(workoutPlanAssignment.getStartDate());
+                textViewCreatedDate.setText("Started: " + outputFormat.format(date));
             } catch (Exception e) {
-                textViewCreatedDate.setText("Created: " + workoutPlan.getCreatedAt());
+                textViewCreatedDate.setText("Started: " + workoutPlanAssignment.getStartDate());
             }
 
-            // Status
-            chipStatus.setText(workoutPlan.isActive() ? "Active" : "Inactive");
-            chipStatus.setChecked(workoutPlan.isActive());
+            // Status from assignment
+            String status = workoutPlanAssignment.getStatus().getValue();
+            chipStatus.setText(status.substring(0, 1).toUpperCase() + status.substring(1));
+            chipStatus.setChecked(workoutPlanAssignment.getStatus() == WorkoutPlanAssignment.Status.active);
 
-            // Click listener
+            // Click listener - pass the workout plan
             itemView.setOnClickListener(v -> {
                 if (listener != null) {
                     listener.onWorkoutPlanClick(workoutPlan);
