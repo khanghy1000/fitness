@@ -654,46 +654,32 @@
         "type": "object",
         "properties": {
           "workoutPlanDayExerciseId": {
-            "anyOf": [
-              {
-                "type": "integer",
-                "exclusiveMinimum": 0
-              },
-              {
-                "type": "string"
-              }
-            ],
+            "type": "integer",
+            "exclusiveMinimum": 0,
             "description": "ID of the workout plan day exercise",
             "example": 789
           },
           "userWorkoutPlanId": {
-            "anyOf": [
-              {
-                "type": "integer",
-                "exclusiveMinimum": 0
-              },
-              {
-                "type": "string"
-              }
-            ],
+            "type": "integer",
+            "exclusiveMinimum": 0,
             "description": "ID of the user workout plan",
             "example": 123
           },
           "reps": {
             "type": "integer",
-            "exclusiveMinimum": 0,
+            "minimum": 0,
             "description": "Number of repetitions completed",
             "example": 15
           },
           "duration": {
             "type": "integer",
-            "exclusiveMinimum": 0,
+            "minimum": 0,
             "description": "Duration of exercise in seconds",
             "example": 180
           },
           "calories": {
             "type": "integer",
-            "exclusiveMinimum": 0,
+            "minimum": 0,
             "description": "Calories burned during exercise",
             "example": 45
           }
@@ -2188,15 +2174,8 @@
         "type": "object",
         "properties": {
           "userWorkoutPlanId": {
-            "anyOf": [
-              {
-                "type": "integer",
-                "exclusiveMinimum": 0
-              },
-              {
-                "type": "string"
-              }
-            ],
+            "type": "integer",
+            "exclusiveMinimum": 0,
             "description": "ID of the user workout plan",
             "example": 123
           },

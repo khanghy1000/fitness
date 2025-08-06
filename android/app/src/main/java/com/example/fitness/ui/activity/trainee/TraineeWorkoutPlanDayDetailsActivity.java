@@ -111,6 +111,12 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
             intent.putExtra("DAY_ID", dayId);
             intent.putExtra("DAY_NUMBER", dayNumber);
             intent.putExtra("PLAN_NAME", planName);
+            intent.putExtra("PLAN_ID", planId);
+            
+            // For now, we'll use a placeholder user workout plan ID
+            // In a real app, this would come from the actual user assignment
+            intent.putExtra("USER_WORKOUT_PLAN_ID", "1");
+            
             startActivity(intent);
         });
     }

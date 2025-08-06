@@ -15,8 +15,6 @@
 
 package com.example.fitness.data.network.model.generated
 
-import com.example.fitness.data.network.model.generated.RecordExerciseResultUserWorkoutPlanId
-import com.example.fitness.data.network.model.generated.RecordExerciseResultWorkoutPlanDayExerciseId
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -24,8 +22,8 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * @param workoutPlanDayExerciseId 
- * @param userWorkoutPlanId 
+ * @param workoutPlanDayExerciseId ID of the workout plan day exercise
+ * @param userWorkoutPlanId ID of the user workout plan
  * @param reps Number of repetitions completed
  * @param duration Duration of exercise in seconds
  * @param calories Calories burned during exercise
@@ -34,11 +32,13 @@ import com.squareup.moshi.JsonClass
 
 data class RecordExerciseResult (
 
+    /* ID of the workout plan day exercise */
     @Json(name = "workoutPlanDayExerciseId")
-    val workoutPlanDayExerciseId: RecordExerciseResultWorkoutPlanDayExerciseId,
+    val workoutPlanDayExerciseId: kotlin.Int,
 
+    /* ID of the user workout plan */
     @Json(name = "userWorkoutPlanId")
-    val userWorkoutPlanId: RecordExerciseResultUserWorkoutPlanId,
+    val userWorkoutPlanId: kotlin.Int,
 
     /* Number of repetitions completed */
     @Json(name = "reps")

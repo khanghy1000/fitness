@@ -528,7 +528,6 @@ export const createPlannedWorkoutSchema = z
         userWorkoutPlanId: z
             .int()
             .positive()
-            .or(z.string().transform(Number))
             .openapi({
                 description: 'ID of the user workout plan',
                 example: 123,
@@ -582,7 +581,6 @@ export const recordExerciseResultSchema = z
         workoutPlanDayExerciseId: z
             .int()
             .positive()
-            .or(z.string().transform(Number))
             .openapi({
                 description: 'ID of the workout plan day exercise',
                 example: 789,
@@ -590,20 +588,19 @@ export const recordExerciseResultSchema = z
         userWorkoutPlanId: z
             .int()
             .positive()
-            .or(z.string().transform(Number))
             .openapi({
                 description: 'ID of the user workout plan',
                 example: 123,
             }),
-        reps: z.int().positive().optional().openapi({
+        reps: z.int().nonnegative().optional().openapi({
             description: 'Number of repetitions completed',
             example: 15,
         }),
-        duration: z.int().positive().optional().openapi({
+        duration: z.int().nonnegative().optional().openapi({
             description: 'Duration of exercise in seconds',
             example: 180,
         }),
-        calories: z.int().positive().optional().openapi({
+        calories: z.int().nonnegative().optional().openapi({
             description: 'Calories burned during exercise',
             example: 45,
         }),
