@@ -1,12 +1,17 @@
 package com.example.fitness.ui.activity.trainee;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -14,13 +19,17 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.fitness.R;
+import com.example.fitness.ble.BleServiceManager;
 import com.example.fitness.data.network.model.generated.DetailedWorkoutPlanDayExercise;
+import com.example.fitness.data.network.model.generated.ExerciseType;
 import com.example.fitness.data.repository.ExercisesRepository;
 import com.example.fitness.databinding.ActivityTraineeWorkoutPlanDayDetailsBinding;
 import com.example.fitness.ui.adapter.TraineeWorkoutExerciseAdapter;
+import com.example.fitness.ui.dialog.BleConnectionDialog;
 import com.example.fitness.ui.viewmodel.WorkoutDayDetailsViewModel;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -32,6 +41,7 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
     private ActivityTraineeWorkoutPlanDayDetailsBinding binding;
     private TraineeWorkoutExerciseAdapter exerciseAdapter;
     private WorkoutDayDetailsViewModel viewModel;
+    private BleServiceManager bleServiceManager;
     
     private int dayId;
     private int dayNumber;
@@ -40,9 +50,28 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
     private String planId;
     private Integer dayDuration;
     private Integer dayCalories;
+    private List<DetailedWorkoutPlanDayExercise> currentExercises;
     
     @Inject
     ExercisesRepository exercisesRepository;
+    
+    // Permission request launcher
+    private final ActivityResultLauncher<String[]> permissionLauncher = 
+        registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+            boolean allGranted = true;
+            for (Boolean granted : result.values()) {
+                if (!granted) {
+                    allGranted = false;
+                    break;
+                }
+            }
+            
+            if (allGranted) {
+                showBleConnectionDialog();
+            } else {
+                Toast.makeText(this, "Bluetooth permissions are required for rep counting exercises", Toast.LENGTH_LONG).show();
+            }
+        });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +94,9 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
         setupListeners();
         observeViewModel();
         displayDayInfo();
+        
+        // Initialize BLE service manager
+        bleServiceManager = new BleServiceManager(this);
         
         // Load exercises from the plan
         if (planId != null && !isRestDay) {
@@ -107,18 +139,87 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
         
         binding.buttonStart.setOnClickListener(v -> {
-            Intent intent = new Intent(this, TraineeWorkoutActivity.class);
-            intent.putExtra("DAY_ID", dayId);
-            intent.putExtra("DAY_NUMBER", dayNumber);
-            intent.putExtra("PLAN_NAME", planName);
-            intent.putExtra("PLAN_ID", planId);
-            
-            // For now, we'll use a placeholder user workout plan ID
-            // In a real app, this would come from the actual user assignment
-            intent.putExtra("USER_WORKOUT_PLAN_ID", "1");
-            
-            startActivity(intent);
+            // Check if workout has reps exercises that require BLE connection
+            if (hasRepsExercises()) {
+                checkPermissionsAndConnect();
+            } else {
+                startWorkout();
+            }
         });
+    }
+    
+    private boolean hasRepsExercises() {
+        if (currentExercises == null) return false;
+        
+        for (DetailedWorkoutPlanDayExercise exercise : currentExercises) {
+            if (exercise.getExerciseType().getLogType() == ExerciseType.LogType.reps) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private void checkPermissionsAndConnect() {
+        String[] requiredPermissions = {
+            Manifest.permission.BLUETOOTH_CONNECT,
+            Manifest.permission.BLUETOOTH_SCAN,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        };
+        
+        boolean allPermissionsGranted = true;
+        for (String permission : requiredPermissions) {
+            if (ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                allPermissionsGranted = false;
+                break;
+            }
+        }
+        
+        if (allPermissionsGranted) {
+            showBleConnectionDialog();
+        } else {
+            permissionLauncher.launch(requiredPermissions);
+        }
+    }
+    
+    private void showBleConnectionDialog() {
+        BleConnectionDialog dialog = BleConnectionDialog.newInstance();
+        dialog.setBleServiceManager(bleServiceManager);
+        dialog.setBleConnectionDialogListener(new BleConnectionDialog.BleConnectionDialogListener() {
+            @Override
+            public void onBleConnected() {
+                startWorkout();
+            }
+            
+            @Override
+            public void onBleConnectionFailed(String error) {
+                Toast.makeText(TraineeWorkoutPlanDayDetailsActivity.this, 
+                    "Failed to connect to exercise tracker: " + error, Toast.LENGTH_LONG).show();
+            }
+            
+            @Override
+            public void onBleConnectionCancelled() {
+                Toast.makeText(TraineeWorkoutPlanDayDetailsActivity.this, 
+                    "Connection cancelled. Automatic rep counting will not be available.", Toast.LENGTH_LONG).show();
+            }
+        });
+        dialog.show(getSupportFragmentManager(), "ble_connection");
+    }
+    
+    private void startWorkout() {
+        Intent intent = new Intent(this, TraineeWorkoutActivity.class);
+        intent.putExtra("DAY_ID", dayId);
+        intent.putExtra("DAY_NUMBER", dayNumber);
+        intent.putExtra("PLAN_NAME", planName);
+        intent.putExtra("PLAN_ID", planId);
+        
+        // For now, we'll use a placeholder user workout plan ID
+        // In a real app, this would come from the actual user assignment
+        intent.putExtra("USER_WORKOUT_PLAN_ID", "1");
+        
+        // Pass BLE connection status
+        intent.putExtra("BLE_CONNECTED", bleServiceManager != null && bleServiceManager.isConnected());
+        
+        startActivity(intent);
     }
 
     private void observeViewModel() {
@@ -171,6 +272,8 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
 
     // Method to update exercises when data is loaded
     public void updateExercises(List<DetailedWorkoutPlanDayExercise> exercises) {
+        this.currentExercises = exercises; // Store for BLE check
+        
         if (exercises != null && !exercises.isEmpty()) {
             binding.layoutEmpty.setVisibility(View.GONE);
             binding.recyclerViewExercises.setVisibility(View.VISIBLE);
@@ -209,6 +312,9 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (bleServiceManager != null) {
+            bleServiceManager.cleanup();
+        }
         binding = null;
     }
 }

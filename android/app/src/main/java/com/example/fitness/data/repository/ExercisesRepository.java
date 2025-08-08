@@ -112,4 +112,13 @@ public class ExercisesRepository {
         }
         return null;
     }
+
+    public String getAllExerciseLabels() {
+        StringBuilder labels = new StringBuilder();
+        for (ExerciseMetaData metaData : exerciseMetaData) {
+            if (labels.length() > 0) labels.append(", ");
+            labels.append(metaData.getName()).append("->").append(metaData.getLabel());
+        }
+        return labels.toString();
+    }
 }

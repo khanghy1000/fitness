@@ -76,7 +76,7 @@
                 android:layout_marginBottom="16dp"
                 android:visibility="gone"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="2dp" >
+                app:cardElevation="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -282,29 +282,157 @@
                         android:gravity="center"
                         android:visibility="gone">
 
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <!-- Current Reps Display -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Target Reps"
-                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="?attr/colorOnSurfaceVariant"
-                            android:layout_marginBottom="4dp" />
+                            android:orientation="horizontal"
+                            android:gravity="center"
+                            android:layout_marginBottom="16dp">
 
-                        <TextView
-                            android:id="@+id/text_view_target_reps"
-                            android:layout_width="wrap_content"
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical"
+                                android:gravity="center">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Current"
+                                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                                <TextView
+                                    android:id="@+id/text_view_current_reps"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0"
+                                    android:textAppearance="@style/TextAppearance.Material3.DisplayMedium"
+                                    android:textStyle="bold"
+                                    android:textColor="?attr/colorPrimary" />
+
+                            </LinearLayout>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="/"
+                                android:textAppearance="@style/TextAppearance.Material3.DisplaySmall"
+                                android:textColor="?attr/colorOnSurfaceVariant"
+                                android:layout_marginHorizontal="16dp" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical"
+                                android:gravity="center">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Target"
+                                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                                <TextView
+                                    android:id="@+id/text_view_target_reps"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="12"
+                                    android:textAppearance="@style/TextAppearance.Material3.DisplayMedium"
+                                    android:textStyle="bold"
+                                    android:textColor="?attr/colorOnSurface" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <!-- Progress Bar -->
+                        <com.google.android.material.progressindicator.LinearProgressIndicator
+                            android:id="@+id/progress_bar_reps"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="12"
-                            android:textAppearance="@style/TextAppearance.Material3.HeadlineLarge"
-                            android:textStyle="bold"
-                            android:textColor="?attr/colorOnSurface"
-                            android:layout_marginBottom="24dp" />
+                            android:layout_marginBottom="24dp"
+                            android:progress="0" />
+
+                        <!-- BLE Status (optional) -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="8dp">
+
+                            <TextView
+                                android:id="@+id/text_view_ble_status"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Automatic rep counting enabled"
+                                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                                android:textColor="?attr/colorPrimary"
+                                android:visibility="gone" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/button_toggle_log"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="Debug"
+                                android:textSize="10sp"
+                                android:visibility="gone"
+                                android:minWidth="60dp"
+                                style="@style/Widget.Material3.Button.TextButton" />
+
+                        </LinearLayout>
+
+                        <!-- BLE Debug Log -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/card_ble_log"
+                            android:layout_width="match_parent"
+                            android:layout_height="120dp"
+                            android:layout_marginBottom="16dp"
+                            android:visibility="gone"
+                            app:cardCornerRadius="8dp"
+                            app:cardElevation="1dp"
+                            app:cardBackgroundColor="?attr/colorSurfaceVariant">
+
+                            <ScrollView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:padding="8dp">
+
+                                <TextView
+                                    android:id="@+id/text_view_ble_log"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text=""
+                                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                                    android:textColor="?attr/colorOnSurfaceVariant"
+                                    android:fontFamily="monospace"
+                                    android:textSize="10sp"
+                                    android:gravity="top" />
+
+                            </ScrollView>
+
+                        </com.google.android.material.card.MaterialCardView>
 
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/button_add_rep"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="+1 Rep"
+                                android:layout_marginEnd="8dp"
+                                android:visibility="gone"
+                                style="@style/Widget.Material3.Button.OutlinedButton" />
 
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/button_complete_reps"
