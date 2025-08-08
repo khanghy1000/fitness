@@ -60,7 +60,7 @@ public class NetworkModule {
     @Singleton
     public Retrofit provideRetrofit(Moshi moshi, OkHttpClient okHttpClient) {
         return new Retrofit.Builder()
-                .baseUrl(Constants.BASE_URL)
+                .baseUrl(Constants.getBaseUrl())
                 .client(okHttpClient)
                 .addConverterFactory(MoshiConverterFactory.create(moshi))
                 .build();

@@ -7,7 +7,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class ExerciseImage {
+public class ExerciseMetaData {
     private String name;
     private int imageResourceId;
+    private String label;
 }

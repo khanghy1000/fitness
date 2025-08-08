@@ -3,7 +3,7 @@ package com.example.fitness.data.repository;
 import com.example.fitness.R;
 import com.example.fitness.data.network.retrofit.ExercisesApi;
 import com.example.fitness.data.network.model.generated.*;
-import com.example.fitness.model.ExerciseImage;
+import com.example.fitness.model.ExerciseMetaData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,21 +18,22 @@ import retrofit2.Response;
 @Singleton
 public class ExercisesRepository {
     private final ExercisesApi exercisesApi;
-    private List<ExerciseImage> exerciseImages;
+    private List<ExerciseMetaData> exerciseMetaData;
 
     @Inject
     public ExercisesRepository(ExercisesApi exercisesApi) {
         this.exercisesApi = exercisesApi;
 
-        this.exerciseImages = new ArrayList<>();
+        this.exerciseMetaData = new ArrayList<>();
 
-        exerciseImages.add(new ExerciseImage("Bicep Curl", R.drawable.exercise_bicep_curl));
-        exerciseImages.add(new ExerciseImage("Crunch", R.drawable.exercise_crunch));
-        exerciseImages.add(new ExerciseImage("Squat", R.drawable.exercise_squat));
-        exerciseImages.add(new ExerciseImage("Lunge", R.drawable.exercise_lunge));
-        exerciseImages.add(new ExerciseImage("Heel Touch", R.drawable.exercise_heel_touch));
-        exerciseImages.add(new ExerciseImage("Plank", R.drawable.exercise_plank));
-        exerciseImages.add(new ExerciseImage("Cobra", R.drawable.exercise_cobra));
+        exerciseMetaData.add(new ExerciseMetaData("Squat", R.drawable.exercise_squat, "squat"));
+        exerciseMetaData.add(new ExerciseMetaData("Sit-up", R.drawable.exercise_squat, "sit_up"));
+        exerciseMetaData.add(new ExerciseMetaData("Lunge", R.drawable.exercise_lunge, "lunge"));
+//        exerciseMetaData.add(new ExerciseMetaData("Bicep Curl", R.drawable.exercise_bicep_curl, "bicep_curl"));
+//        exerciseMetaData.add(new ExerciseMetaData("Crunch", R.drawable.exercise_crunch, "crunch"));
+//        exerciseMetaData.add(new ExerciseMetaData("Heel Touch", R.drawable.exercise_heel_touch, "heel_touch"));
+        exerciseMetaData.add(new ExerciseMetaData("Plank", R.drawable.exercise_plank, "plank"));
+        exerciseMetaData.add(new ExerciseMetaData("Cobra", R.drawable.exercise_cobra, "cobra"));
     }
 
     public interface ExercisesCallback<T> {
@@ -95,11 +96,20 @@ public class ExercisesRepository {
     }
 
     public int getExerciseImageResourceByName(String name) {
-        for (ExerciseImage image : exerciseImages) {
+        for (ExerciseMetaData image : exerciseMetaData) {
             if (image.getName().equalsIgnoreCase(name) && image.getImageResourceId() != 0) {
                 return image.getImageResourceId();
             }
         }
         return R.drawable.placeholder_exercise; // Default image if not found
+    }
+
+    public String getExerciseLabelByName(String name) {
+        for (ExerciseMetaData image : exerciseMetaData) {
+            if (image.getName().equalsIgnoreCase(name)) {
+                return image.getLabel();
+            }
+        }
+        return null;
     }
 }
