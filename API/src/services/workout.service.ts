@@ -140,40 +140,6 @@ export class WorkoutService {
         return result[0] || null;
     }
 
-    static async addDayToWorkoutPlan(
-        workoutPlanId: number,
-        data: {
-            day: number;
-            isRestDay?: boolean;
-            estimatedCalories?: number;
-            duration?: number;
-        }
-    ) {
-        const result = await db
-            .insert(workoutPlanDay)
-            .values({ ...data, workoutPlanId })
-            .returning();
-        return result[0];
-    }
-
-    static async addExerciseToPlanDay(
-        workoutPlanDayId: number,
-        data: {
-            exerciseTypeId: number;
-            order?: number;
-            targetReps?: number;
-            targetDuration?: number;
-            estimatedCalories?: number;
-            notes?: string;
-        }
-    ) {
-        const result = await db
-            .insert(workoutPlanDayExercise)
-            .values({ ...data, workoutPlanDayId })
-            .returning();
-        return result[0];
-    }
-
     static async assignWorkoutPlanToUser(data: {
         userId: string;
         workoutPlanId: number;
@@ -207,107 +173,6 @@ export class WorkoutService {
                 },
             },
         });
-    }
-
-    // Workout Plan Day methods
-    static async getWorkoutPlanDays(workoutPlanId: number) {
-        return await db.query.workoutPlanDay.findMany({
-            where: eq(workoutPlanDay.workoutPlanId, workoutPlanId),
-            with: {
-                exercises: {
-                    with: {
-                        exerciseType: true,
-                    },
-                },
-            },
-        });
-    }
-
-    static async getWorkoutPlanDayById(id: number) {
-        return await db.query.workoutPlanDay.findFirst({
-            where: eq(workoutPlanDay.id, id),
-            with: {
-                exercises: {
-                    with: {
-                        exerciseType: true,
-                    },
-                },
-            },
-        });
-    }
-
-    static async updateWorkoutPlanDay(
-        id: number,
-        data: {
-            day?: number;
-            isRestDay?: boolean;
-            estimatedCalories?: number;
-            duration?: number;
-        }
-    ) {
-        const result = await db
-            .update(workoutPlanDay)
-            .set(data)
-            .where(eq(workoutPlanDay.id, id))
-            .returning();
-        return result[0] || null;
-    }
-
-    static async deleteWorkoutPlanDay(id: number) {
-        const result = await db
-            .delete(workoutPlanDay)
-            .where(eq(workoutPlanDay.id, id))
-            .returning();
-        return result[0] || null;
-    }
-
-    // Workout Plan Day Exercise methods
-    static async getWorkoutPlanDayExercises(workoutPlanDayId: number) {
-        return await db.query.workoutPlanDayExercise.findMany({
-            where: eq(
-                workoutPlanDayExercise.workoutPlanDayId,
-                workoutPlanDayId
-            ),
-            with: {
-                exerciseType: true,
-            },
-        });
-    }
-
-    static async getWorkoutPlanDayExerciseById(id: number) {
-        return await db.query.workoutPlanDayExercise.findFirst({
-            where: eq(workoutPlanDayExercise.id, id),
-            with: {
-                exerciseType: true,
-            },
-        });
-    }
-
-    static async updateExerciseInPlanDay(
-        id: number,
-        data: {
-            exerciseTypeId?: number;
-            order?: number;
-            targetReps?: number;
-            targetDuration?: number;
-            estimatedCalories?: number;
-            notes?: string;
-        }
-    ) {
-        const result = await db
-            .update(workoutPlanDayExercise)
-            .set({ ...data, updatedAt: new Date() })
-            .where(eq(workoutPlanDayExercise.id, id))
-            .returning();
-        return result[0] || null;
-    }
-
-    static async deleteExerciseFromPlanDay(id: number) {
-        const result = await db
-            .delete(workoutPlanDayExercise)
-            .where(eq(workoutPlanDayExercise.id, id))
-            .returning();
-        return result[0] || null;
     }
 
     // Record exercise result
@@ -712,6 +577,9 @@ export class WorkoutService {
                 }
             }
 
+            // Recalculate workout progress for all users with this plan assigned
+            await this.recalculateWorkoutProgressForPlan(id, tx);
+
             // Return the updated plan with full details
             return await tx.query.workoutPlan.findFirst({
                 where: eq(workoutPlan.id, id),
@@ -728,5 +596,25 @@ export class WorkoutService {
                 },
             });
         });
+    }
+
+    // Helper method to recalculate workout progress for all users with a specific workout plan
+    static async recalculateWorkoutProgressForPlan(
+        workoutPlanId: number,
+        tx: any = db
+    ) {
+        // Get all user workout plans for this workout plan
+        const userWorkoutPlans = await tx.query.userWorkoutPlan.findMany({
+            where: eq(userWorkoutPlan.workoutPlanId, workoutPlanId),
+        });
+
+        // Recalculate progress for each user workout plan
+        for (const userPlan of userWorkoutPlans) {
+            await this.updateWorkoutPlanProgress(
+                userPlan.id,
+                userPlan.userId,
+                tx
+            );
+        }
     }
 }

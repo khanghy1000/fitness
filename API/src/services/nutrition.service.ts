@@ -221,52 +221,6 @@ export class NutritionService {
         return result[0]?.id || null;
     }
 
-    static async createDailyAdherence(data: {
-        userNutritionPlanId: number;
-        userId: string;
-        date: Date;
-        weekday: 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
-        totalMeals?: number;
-    }) {
-        // Convert to date string in YYYY-MM-DD format for date column
-        const dateStr = data.date.toISOString().split('T')[0];
-
-        const result = await db
-            .insert(nutritionAdherence)
-            .values({
-                userNutritionPlanId: data.userNutritionPlanId,
-                userId: data.userId,
-                date: dateStr,
-                weekday: data.weekday,
-                totalMeals: data.totalMeals || 0,
-                mealsCompleted: 0,
-                adherencePercentage: 0,
-                totalCaloriesConsumed: 0,
-                totalCaloriesPlanned: 0,
-            })
-            .returning();
-        return result[0];
-    }
-
-    static async updateDailyAdherence(
-        id: number,
-        data: {
-            mealsCompleted?: number;
-            totalMeals?: number;
-            adherencePercentage?: number;
-            totalCaloriesConsumed?: number;
-            totalCaloriesPlanned?: number;
-            notes?: string;
-        }
-    ) {
-        const result = await db
-            .update(nutritionAdherence)
-            .set({ ...data, updatedAt: new Date() })
-            .where(eq(nutritionAdherence.id, id))
-            .returning();
-        return result[0] || null;
-    }
-
     static async getDailyAdherence(
         userId: string,
         userNutritionPlanId: number,
@@ -599,203 +553,6 @@ export class NutritionService {
             .from(nutritionAdherence)
             .where(and(...conditions))
             .orderBy(desc(nutritionAdherence.date));
-    }
-
-    // Nutrition Plan Day methods
-    static async getNutritionPlanDays(nutritionPlanId: number) {
-        return await db.query.nutritionPlanDay.findMany({
-            where: eq(nutritionPlanDay.nutritionPlanId, nutritionPlanId),
-            with: {
-                meals: {
-                    with: {
-                        foods: true,
-                    },
-                },
-            },
-        });
-    }
-
-    static async getNutritionPlanDayById(id: number) {
-        return await db.query.nutritionPlanDay.findFirst({
-            where: eq(nutritionPlanDay.id, id),
-            with: {
-                meals: {
-                    with: {
-                        foods: true,
-                    },
-                },
-            },
-        });
-    }
-
-    static async createNutritionPlanDay(data: {
-        nutritionPlanId: number;
-        weekday: 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
-        totalCalories?: number;
-        protein?: number;
-        carbs?: number;
-        fat?: number;
-        fiber?: number;
-    }) {
-        const result = await db
-            .insert(nutritionPlanDay)
-            .values(data)
-            .returning();
-        return result[0];
-    }
-
-    static async updateNutritionPlanDay(
-        id: number,
-        data: {
-            weekday?: 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
-            totalCalories?: number;
-            protein?: number;
-            carbs?: number;
-            fat?: number;
-            fiber?: number;
-        }
-    ) {
-        const result = await db
-            .update(nutritionPlanDay)
-            .set({ ...data, updatedAt: new Date() })
-            .where(eq(nutritionPlanDay.id, id))
-            .returning();
-        return result[0] || null;
-    }
-
-    static async deleteNutritionPlanDay(id: number) {
-        const result = await db
-            .delete(nutritionPlanDay)
-            .where(eq(nutritionPlanDay.id, id))
-            .returning();
-        return result[0] || null;
-    }
-
-    // Nutrition Plan Meal methods
-    static async getNutritionPlanMeals(nutritionPlanDayId: number) {
-        return await db.query.nutritionPlanMeal.findMany({
-            where: eq(nutritionPlanMeal.nutritionPlanDayId, nutritionPlanDayId),
-            with: {
-                foods: true,
-            },
-        });
-    }
-
-    static async getNutritionPlanMealById(id: number) {
-        return await db.query.nutritionPlanMeal.findFirst({
-            where: eq(nutritionPlanMeal.id, id),
-            with: {
-                foods: true,
-            },
-        });
-    }
-
-    static async createNutritionPlanMeal(data: {
-        nutritionPlanDayId: number;
-        name: string;
-        time: string;
-        calories?: number;
-        protein?: number;
-        carbs?: number;
-        fat?: number;
-        fiber?: number;
-    }) {
-        const result = await db
-            .insert(nutritionPlanMeal)
-            .values(data)
-            .returning();
-        return result[0];
-    }
-
-    static async updateNutritionPlanMeal(
-        id: number,
-        data: {
-            name?: string;
-            time?: string;
-            calories?: number;
-            protein?: number;
-            carbs?: number;
-            fat?: number;
-            fiber?: number;
-        }
-    ) {
-        const result = await db
-            .update(nutritionPlanMeal)
-            .set({ ...data, updatedAt: new Date() })
-            .where(eq(nutritionPlanMeal.id, id))
-            .returning();
-        return result[0] || null;
-    }
-
-    static async deleteNutritionPlanMeal(id: number) {
-        const result = await db
-            .delete(nutritionPlanMeal)
-            .where(eq(nutritionPlanMeal.id, id))
-            .returning();
-        return result[0] || null;
-    }
-
-    // Nutrition Plan Food methods
-    static async getNutritionPlanFoods(nutritionPlanMealId: number) {
-        return await db
-            .select()
-            .from(nutritionPlanFood)
-            .where(
-                eq(nutritionPlanFood.nutritionPlanMealId, nutritionPlanMealId)
-            );
-    }
-
-    static async getNutritionPlanFoodById(id: number) {
-        const result = await db
-            .select()
-            .from(nutritionPlanFood)
-            .where(eq(nutritionPlanFood.id, id));
-        return result[0] || null;
-    }
-
-    static async createNutritionPlanFood(data: {
-        nutritionPlanMealId: number;
-        name: string;
-        quantity: string;
-        calories: number;
-        protein?: number;
-        carbs?: number;
-        fat?: number;
-        fiber?: number;
-    }) {
-        const result = await db
-            .insert(nutritionPlanFood)
-            .values(data)
-            .returning();
-        return result[0];
-    }
-
-    static async updateNutritionPlanFood(
-        id: number,
-        data: {
-            name?: string;
-            quantity?: string;
-            calories?: number;
-            protein?: number;
-            carbs?: number;
-            fat?: number;
-            fiber?: number;
-        }
-    ) {
-        const result = await db
-            .update(nutritionPlanFood)
-            .set({ ...data, updatedAt: new Date() })
-            .where(eq(nutritionPlanFood.id, id))
-            .returning();
-        return result[0] || null;
-    }
-
-    static async deleteNutritionPlanFood(id: number) {
-        const result = await db
-            .delete(nutritionPlanFood)
-            .where(eq(nutritionPlanFood.id, id))
-            .returning();
-        return result[0] || null;
     }
 
     static async bulkUpdateNutritionPlan(
@@ -1136,6 +893,9 @@ export class NutritionService {
                 }
             }
 
+            // Recalculate nutrition adherence for all users with this plan assigned
+            await this.recalculateNutritionAdherenceForPlan(id, tx);
+
             // Return the updated plan with full details
             return await tx.query.nutritionPlan.findFirst({
                 where: eq(nutritionPlan.id, id),
@@ -1152,5 +912,33 @@ export class NutritionService {
                 },
             });
         });
+    }
+
+    // Helper method to recalculate nutrition adherence for all users with a specific nutrition plan
+    static async recalculateNutritionAdherenceForPlan(
+        nutritionPlanId: number,
+        tx: any = db
+    ) {
+        // Get all user nutrition plans for this nutrition plan
+        const userNutritionPlans = await tx.query.userNutritionPlan.findMany({
+            where: eq(userNutritionPlan.nutritionPlanId, nutritionPlanId),
+        });
+
+        // Get all nutrition adherence records for these user nutrition plans
+        for (const userPlan of userNutritionPlans) {
+            const adherenceRecords = await tx.query.nutritionAdherence.findMany(
+                {
+                    where: eq(
+                        nutritionAdherence.userNutritionPlanId,
+                        userPlan.id
+                    ),
+                }
+            );
+
+            // Recalculate each adherence record
+            for (const adherence of adherenceRecords) {
+                await this.updateNutritionAdherenceStats(adherence.id, tx);
+            }
+        }
     }
 }
