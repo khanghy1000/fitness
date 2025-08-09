@@ -1,4 +1,4 @@
-package com.example.fitness.ui.activity.coach;
+package com.example.fitness.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,9 +15,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.fitness.R;
 import com.example.fitness.data.network.model.generated.DetailedNutritionPlan;
-import com.example.fitness.data.network.model.generated.NutritionPlan;
 import com.example.fitness.data.network.model.generated.NutritionPlanDay;
-import com.example.fitness.databinding.ActivityCoachNutritionPlanDetailsBinding;
+import com.example.fitness.databinding.ActivityNutritionPlanDetailsBinding;
 import com.example.fitness.ui.adapter.NutritionDayAdapter;
 import com.example.fitness.ui.viewmodel.NutritionPlanDetailsViewModel;
 
@@ -28,9 +27,9 @@ import java.util.Locale;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class CoachNutritionPlanDetailsActivity extends AppCompatActivity implements NutritionDayAdapter.OnDayClickListener {
+public class NutritionPlanDetailsActivity extends AppCompatActivity implements NutritionDayAdapter.OnDayClickListener {
 
-    private ActivityCoachNutritionPlanDetailsBinding binding;
+    private ActivityNutritionPlanDetailsBinding binding;
     private NutritionPlanDetailsViewModel viewModel;
     private NutritionDayAdapter dayAdapter;
     private String planId;
@@ -41,7 +40,7 @@ public class CoachNutritionPlanDetailsActivity extends AppCompatActivity impleme
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         
-        binding = ActivityCoachNutritionPlanDetailsBinding.inflate(getLayoutInflater());
+        binding = ActivityNutritionPlanDetailsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -96,7 +95,7 @@ public class CoachNutritionPlanDetailsActivity extends AppCompatActivity impleme
         binding.toolbar.setNavigationOnClickListener(v -> finish());
         
         binding.fabEditPlan.setOnClickListener(v -> {
-            Intent intent = new Intent(this, CoachNutritionPlanEditActivity.class);
+            Intent intent = new Intent(this, NutritionPlanEditActivity.class);
             intent.putExtra("PLAN_ID", Integer.parseInt(planId));
             intent.putExtra("PLAN_NAME", planName);
             startActivity(intent);

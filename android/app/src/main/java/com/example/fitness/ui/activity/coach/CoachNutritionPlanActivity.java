@@ -7,23 +7,21 @@ import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.fitness.R;
 import com.example.fitness.data.network.model.generated.NutritionPlan;
 import com.example.fitness.databinding.ActivityCoachNutritionPlanBinding;
+import com.example.fitness.ui.activity.NutritionPlanDetailsActivity;
+import com.example.fitness.ui.activity.NutritionPlanEditActivity;
 import com.example.fitness.ui.adapter.NutritionPlanAdapter;
 import com.example.fitness.ui.viewmodel.NutritionPlanViewModel;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -139,7 +137,7 @@ public class CoachNutritionPlanActivity extends AppCompatActivity implements Nut
 
     @Override
     public void onNutritionPlanClick(NutritionPlan nutritionPlan) {
-        Intent intent = new Intent(this, CoachNutritionPlanDetailsActivity.class);
+        Intent intent = new Intent(this, NutritionPlanDetailsActivity.class);
         intent.putExtra("PLAN_ID", nutritionPlan.getId());
         intent.putExtra("PLAN_NAME", nutritionPlan.getName());
         startActivity(intent);
@@ -166,7 +164,7 @@ public class CoachNutritionPlanActivity extends AppCompatActivity implements Nut
     }
 
     private void editNutritionPlan(NutritionPlan nutritionPlan) {
-        Intent intent = new Intent(this, CoachNutritionPlanEditActivity.class);
+        Intent intent = new Intent(this, NutritionPlanEditActivity.class);
         intent.putExtra("PLAN_ID", nutritionPlan.getId());
         intent.putExtra("PLAN_NAME", nutritionPlan.getName());
         startActivity(intent);

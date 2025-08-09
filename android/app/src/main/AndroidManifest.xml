@@ -59,10 +59,10 @@
             android:name=".ui.activity.trainee.TraineeNutritionPlanEditActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.activity.coach.CoachNutritionPlanEditActivity"
+            android:name=".ui.activity.NutritionPlanEditActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.activity.coach.CoachNutritionPlanDetailsActivity"
+            android:name=".ui.activity.NutritionPlanDetailsActivity"
             android:exported="false" />
         <activity
             android:name=".ui.activity.coach.CoachWorkoutPlanActivity"

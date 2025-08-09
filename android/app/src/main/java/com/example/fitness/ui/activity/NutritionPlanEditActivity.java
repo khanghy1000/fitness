@@ -1,4 +1,4 @@
-package com.example.fitness.ui.activity.coach;
+package com.example.fitness.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.fitness.R;
 import com.example.fitness.data.network.model.generated.DetailedNutritionPlan;
-import com.example.fitness.databinding.ActivityCoachNutritionPlanEditBinding;
+import com.example.fitness.databinding.ActivityNutritionPlanEditBinding;
 import com.example.fitness.ui.adapter.NutritionDayEditAdapter;
 import com.example.fitness.ui.dialog.EditDayInfoDialogFragment;
 import com.example.fitness.ui.dialog.EditFoodInfoDialogFragment;
@@ -30,9 +30,9 @@ import java.util.ArrayList;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class CoachNutritionPlanEditActivity extends AppCompatActivity {
+public class NutritionPlanEditActivity extends AppCompatActivity {
 
-    private ActivityCoachNutritionPlanEditBinding binding;
+    private ActivityNutritionPlanEditBinding binding;
     private NutritionPlanEditViewModel viewModel;
     private NutritionDayEditAdapter dayAdapter;
     private String planId;
@@ -44,7 +44,7 @@ public class CoachNutritionPlanEditActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         
-        binding = ActivityCoachNutritionPlanEditBinding.inflate(getLayoutInflater());
+        binding = ActivityNutritionPlanEditBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
