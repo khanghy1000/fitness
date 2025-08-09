@@ -4,6 +4,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="primary">@color/design_default_color_primary</color>
     <color name="gray">#FF757575</color>
+    <color name="light_gray">#FFEEEEEE</color>
+    <color name="accent">#FFFF9800</color>
     <color name="success">#FF4CAF50</color>
     <color name="error">#FFF44336</color>
 </resources>

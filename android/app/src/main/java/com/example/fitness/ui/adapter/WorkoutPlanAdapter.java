@@ -26,6 +26,9 @@ public class WorkoutPlanAdapter extends RecyclerView.Adapter<WorkoutPlanAdapter.
     public interface OnWorkoutPlanClickListener {
         void onWorkoutPlanClick(WorkoutPlan workoutPlan);
         void onWorkoutPlanOptionsClick(WorkoutPlan workoutPlan, View anchorView);
+        default void onWorkoutPlanAssign(String workoutPlanId, String workoutPlanName) {
+            // Default implementation for backward compatibility
+        }
     }
 
     public WorkoutPlanAdapter(OnWorkoutPlanClickListener listener) {

@@ -71,6 +71,12 @@
             android:name=".ui.activity.coach.CoachTraineeActivity"
             android:exported="false" />
         <activity
+            android:name=".ui.activity.coach.AssignWorkoutPlanActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activity.coach.AssignNutritionPlanActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.activity.trainee.TraineeWorkoutPlanActivity"
             android:exported="false" />
         <activity

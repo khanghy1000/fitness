@@ -6,9 +6,15 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.fitness.data.network.model.generated.CreateNutritionPlan;
 import com.example.fitness.data.network.model.generated.NutritionPlan;
+import com.example.fitness.data.network.model.generated.AssignNutritionPlan;
+import com.example.fitness.data.network.model.generated.NutritionPlanAssignmentResponse;
 import com.example.fitness.data.repository.NutritionRepository;
+import com.example.fitness.data.repository.UsersRepository;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -17,6 +23,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 @HiltViewModel
 public class NutritionPlanViewModel extends ViewModel {
     private final NutritionRepository nutritionRepository;
+    private final UsersRepository usersRepository;
 
     private final MutableLiveData<List<NutritionPlan>> _nutritionPlans = new MutableLiveData<>();
     public final LiveData<List<NutritionPlan>> nutritionPlans = _nutritionPlans;
@@ -33,9 +40,16 @@ public class NutritionPlanViewModel extends ViewModel {
     private final MutableLiveData<NutritionPlan> _createdPlan = new MutableLiveData<>();
     public final LiveData<NutritionPlan> createdPlan = _createdPlan;
 
+    private final MutableLiveData<String> _successMessage = new MutableLiveData<>();
+    public final LiveData<String> successMessage = _successMessage;
+
+    private final MutableLiveData<String> _errorMessage = new MutableLiveData<>();
+    public final LiveData<String> errorMessage = _errorMessage;
+
     @Inject
-    public NutritionPlanViewModel(NutritionRepository nutritionRepository) {
+    public NutritionPlanViewModel(NutritionRepository nutritionRepository, UsersRepository usersRepository) {
         this.nutritionRepository = nutritionRepository;
+        this.usersRepository = usersRepository;
         loadNutritionPlans();
     }
 
@@ -111,5 +125,35 @@ public class NutritionPlanViewModel extends ViewModel {
 
     public void clearCreatedPlan() {
         _createdPlan.setValue(null);
+    }
+
+    public void assignNutritionPlan(String nutritionPlanId, String traineeId) {
+        _isLoading.setValue(true);
+        
+        // Use current date as start date
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        String startDate = dateFormat.format(new Date());
+        AssignNutritionPlan assignNutritionPlan = new AssignNutritionPlan(traineeId, startDate, null);
+        
+        usersRepository.assignNutritionPlan(nutritionPlanId, assignNutritionPlan, new UsersRepository.UsersCallback<NutritionPlanAssignmentResponse>() {
+            @Override
+            public void onSuccess(NutritionPlanAssignmentResponse result) {
+                _isLoading.setValue(false);
+                _successMessage.setValue("Nutrition plan assigned successfully!");
+                _errorMessage.setValue(null);
+            }
+
+            @Override
+            public void onError(String error) {
+                _isLoading.setValue(false);
+                _errorMessage.setValue(error);
+                _successMessage.setValue(null);
+            }
+        });
+    }
+
+    public void clearMessages() {
+        _successMessage.setValue(null);
+        _errorMessage.setValue(null);
     }
 }

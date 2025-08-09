@@ -7,11 +7,16 @@ import androidx.lifecycle.ViewModel;
 import com.example.fitness.data.network.model.generated.CreateWorkoutPlan;
 import com.example.fitness.data.network.model.generated.WorkoutPlan;
 import com.example.fitness.data.network.model.generated.WorkoutPlanAssignment;
+import com.example.fitness.data.network.model.generated.WorkoutPlanAssignmentResponse;
+import com.example.fitness.data.network.model.generated.AssignWorkoutPlan;
 import com.example.fitness.data.repository.UsersRepository;
 import com.example.fitness.data.repository.WorkoutsRepository;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -39,6 +44,12 @@ public class WorkoutPlanViewModel extends ViewModel {
 
     private final MutableLiveData<WorkoutPlan> _createdPlan = new MutableLiveData<>();
     public final LiveData<WorkoutPlan> createdPlan = _createdPlan;
+
+    private final MutableLiveData<String> _successMessage = new MutableLiveData<>();
+    public final LiveData<String> successMessage = _successMessage;
+
+    private final MutableLiveData<String> _errorMessage = new MutableLiveData<>();
+    public final LiveData<String> errorMessage = _errorMessage;
 
     @Inject
     public WorkoutPlanViewModel(UsersRepository usersRepository, WorkoutsRepository workoutsRepository) {
@@ -137,5 +148,35 @@ public class WorkoutPlanViewModel extends ViewModel {
 
     public void clearCreatedPlan() {
         _createdPlan.setValue(null);
+    }
+
+    public void assignWorkoutPlan(String workoutPlanId, String traineeId) {
+        _isLoading.setValue(true);
+        
+        // Use current date as start date
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        String startDate = dateFormat.format(new Date());
+        AssignWorkoutPlan assignWorkoutPlan = new AssignWorkoutPlan(traineeId, startDate, null);
+        
+        usersRepository.assignWorkoutPlan(workoutPlanId, assignWorkoutPlan, new UsersRepository.UsersCallback<WorkoutPlanAssignmentResponse>() {
+            @Override
+            public void onSuccess(WorkoutPlanAssignmentResponse result) {
+                _isLoading.setValue(false);
+                _successMessage.setValue("Workout plan assigned successfully!");
+                _errorMessage.setValue(null);
+            }
+
+            @Override
+            public void onError(String error) {
+                _isLoading.setValue(false);
+                _errorMessage.setValue(error);
+                _successMessage.setValue(null);
+            }
+        });
+    }
+
+    public void clearMessages() {
+        _successMessage.setValue(null);
+        _errorMessage.setValue(null);
     }
 }
