@@ -365,8 +365,11 @@ export class NutritionService {
                         },
                     });
 
-                const totalMeals =
-                    nutritionPlan?.nutritionPlan?.days[0]?.meals?.length || 0;
+                // Get the total meals for this specific weekday
+                const dayPlan = nutritionPlan?.nutritionPlan?.days?.find(
+                    (day) => day.weekday === weekday
+                );
+                const totalMeals = dayPlan?.meals?.length || 0;
 
                 const adherenceResult = await tx
                     .insert(nutritionAdherence)
@@ -456,16 +459,41 @@ export class NutritionService {
             },
         });
 
-        // Get adherence record with total meals
+        // Get adherence record with total meals and associated nutrition plan
         const adherence = await tx.query.nutritionAdherence.findFirst({
             where: eq(nutritionAdherence.id, adherenceId),
+            with: {
+                userNutritionPlan: {
+                    with: {
+                        nutritionPlan: {
+                            with: {
+                                days: {
+                                    with: {
+                                        meals: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
         });
 
         if (!adherence) return;
 
+        // Get the meals planned for this specific weekday
+        const dayPlan = adherence.userNutritionPlan?.nutritionPlan?.days?.find(
+            (day: any) => day.weekday === adherence.weekday
+        );
+        const plannedMeals = dayPlan?.meals || [];
+
+        // Update total meals if it's different from what's currently stored
+        const actualTotalMeals = plannedMeals.length;
+
         const completedMeals = completions.filter(
             (c: any) => c.isCompleted
         ).length;
+
         const totalCaloriesConsumed = completions
             .filter((c: any) => c.isCompleted)
             .reduce(
@@ -473,19 +501,21 @@ export class NutritionService {
                 0
             );
 
-        const totalCaloriesPlanned = completions.reduce(
-            (sum: number, c: any) => sum + (c.nutritionPlanMeal?.calories || 0),
+        // Calculate total planned calories from the nutrition plan meals for this day
+        const totalCaloriesPlanned = plannedMeals.reduce(
+            (sum: number, meal: any) => sum + (meal.calories || 0),
             0
         );
 
         const adherencePercentage =
-            adherence.totalMeals > 0
-                ? (completedMeals / adherence.totalMeals) * 100
+            actualTotalMeals > 0
+                ? (completedMeals / actualTotalMeals) * 100
                 : 0;
 
         await tx
             .update(nutritionAdherence)
             .set({
+                totalMeals: actualTotalMeals,
                 mealsCompleted: completedMeals,
                 adherencePercentage:
                     Math.round(adherencePercentage * 100) / 100,
