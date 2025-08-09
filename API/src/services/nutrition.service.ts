@@ -295,19 +295,37 @@ export class NutritionService {
         userNutritionPlanId: number;
         nutritionPlanMealId: number;
         userId: string;
-        date?: Date;
-        caloriesConsumed?: number;
-        proteinConsumed?: number;
-        carbsConsumed?: number;
-        fatConsumed?: number;
-        fiberConsumed?: number;
         notes?: string;
     }) {
         return await db.transaction(async (tx) => {
-            const completionDate = data.date || new Date();
+            const completionDate = new Date();
             // Convert to date string in YYYY-MM-DD format for date column
             const dateStr = completionDate.toISOString().split('T')[0];
             const weekday = this.getWeekdayEnum(completionDate.getDay());
+
+            // Get the nutrition plan meal with its foods to calculate nutrition values
+            const mealWithFoods = await tx.query.nutritionPlanMeal.findFirst({
+                where: eq(nutritionPlanMeal.id, data.nutritionPlanMealId),
+                with: {
+                    foods: true,
+                },
+            });
+
+            if (!mealWithFoods) {
+                throw new Error('Nutrition plan meal not found');
+            }
+
+            // Calculate total nutrition values from all foods in the meal
+            const calculatedNutrition = mealWithFoods.foods.reduce(
+                (totals, food) => ({
+                    calories: totals.calories + (food.calories || 0),
+                    protein: totals.protein + (food.protein || 0),
+                    carbs: totals.carbs + (food.carbs || 0),
+                    fat: totals.fat + (food.fat || 0),
+                    fiber: totals.fiber + (food.fiber || 0),
+                }),
+                { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 }
+            );
 
             // Check if nutrition adherence record exists for this date
             let adherence = await tx.query.nutritionAdherence.findFirst({
@@ -380,17 +398,17 @@ export class NutritionService {
 
             let completion;
             if (existingCompletion) {
-                // Update existing completion
+                // Update existing completion with calculated nutrition values
                 const updateResult = await tx
                     .update(mealCompletion)
                     .set({
                         isCompleted: true,
                         completedAt: new Date(),
-                        caloriesConsumed: data.caloriesConsumed,
-                        proteinConsumed: data.proteinConsumed,
-                        carbsConsumed: data.carbsConsumed,
-                        fatConsumed: data.fatConsumed,
-                        fiberConsumed: data.fiberConsumed,
+                        caloriesConsumed: calculatedNutrition.calories,
+                        proteinConsumed: calculatedNutrition.protein,
+                        carbsConsumed: calculatedNutrition.carbs,
+                        fatConsumed: calculatedNutrition.fat,
+                        fiberConsumed: calculatedNutrition.fiber,
                         notes: data.notes,
                         updatedAt: new Date(),
                     })
@@ -398,7 +416,7 @@ export class NutritionService {
                     .returning();
                 completion = updateResult[0];
             } else {
-                // Create new completion
+                // Create new completion with calculated nutrition values
                 const completionResult = await tx
                     .insert(mealCompletion)
                     .values({
@@ -407,11 +425,11 @@ export class NutritionService {
                         userId: data.userId,
                         isCompleted: true,
                         completedAt: new Date(),
-                        caloriesConsumed: data.caloriesConsumed,
-                        proteinConsumed: data.proteinConsumed,
-                        carbsConsumed: data.carbsConsumed,
-                        fatConsumed: data.fatConsumed,
-                        fiberConsumed: data.fiberConsumed,
+                        caloriesConsumed: calculatedNutrition.calories,
+                        proteinConsumed: calculatedNutrition.protein,
+                        carbsConsumed: calculatedNutrition.carbs,
+                        fatConsumed: calculatedNutrition.fat,
+                        fiberConsumed: calculatedNutrition.fiber,
                         notes: data.notes,
                     })
                     .returning();

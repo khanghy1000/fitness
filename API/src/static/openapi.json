@@ -717,42 +717,6 @@
       "MealCompletion": {
         "type": "object",
         "properties": {
-          "date": {
-            "type": "string",
-            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
-            "description": "Date when the meal was completed (YYYY-MM-DD format, defaults to current date). Only the date part is used for adherence tracking.",
-            "example": "2025-01-15"
-          },
-          "caloriesConsumed": {
-            "type": "number",
-            "minimum": 0,
-            "description": "Actual calories consumed",
-            "example": 420
-          },
-          "proteinConsumed": {
-            "type": "number",
-            "minimum": 0,
-            "description": "Actual protein consumed",
-            "example": 23.5
-          },
-          "carbsConsumed": {
-            "type": "number",
-            "minimum": 0,
-            "description": "Actual carbs consumed",
-            "example": 40
-          },
-          "fatConsumed": {
-            "type": "number",
-            "minimum": 0,
-            "description": "Actual fat consumed",
-            "example": 11
-          },
-          "fiberConsumed": {
-            "type": "number",
-            "minimum": 0,
-            "description": "Actual fiber consumed",
-            "example": 7.5
-          },
           "notes": {
             "type": "string",
             "description": "Notes about the meal completion",

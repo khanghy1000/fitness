@@ -226,11 +226,10 @@ router.post(
         const { userNutritionPlanId, mealId } = req.params;
 
         const completion = await NutritionService.completeMeal({
-            userNutritionPlanId,
-            nutritionPlanMealId: mealId,
+            userNutritionPlanId: parseInt(userNutritionPlanId),
+            nutritionPlanMealId: parseInt(mealId),
             userId: req.session!.user.id,
-            date: req.body.date ? new Date(req.body.date) : undefined,
-            ...req.body,
+            notes: req.body.notes,
         });
 
         res.status(201).json(completion);

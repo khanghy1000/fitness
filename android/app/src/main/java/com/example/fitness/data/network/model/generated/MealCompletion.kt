@@ -22,41 +22,11 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * @param date Date when the meal was completed (YYYY-MM-DD format, defaults to current date). Only the date part is used for adherence tracking.
- * @param caloriesConsumed Actual calories consumed
- * @param proteinConsumed Actual protein consumed
- * @param carbsConsumed Actual carbs consumed
- * @param fatConsumed Actual fat consumed
- * @param fiberConsumed Actual fiber consumed
  * @param notes Notes about the meal completion
  */
 
 
 data class MealCompletion (
-
-    /* Date when the meal was completed (YYYY-MM-DD format, defaults to current date). Only the date part is used for adherence tracking. */
-    @Json(name = "date")
-    val date: kotlin.String? = null,
-
-    /* Actual calories consumed */
-    @Json(name = "caloriesConsumed")
-    val caloriesConsumed: java.math.BigDecimal? = null,
-
-    /* Actual protein consumed */
-    @Json(name = "proteinConsumed")
-    val proteinConsumed: java.math.BigDecimal? = null,
-
-    /* Actual carbs consumed */
-    @Json(name = "carbsConsumed")
-    val carbsConsumed: java.math.BigDecimal? = null,
-
-    /* Actual fat consumed */
-    @Json(name = "fatConsumed")
-    val fatConsumed: java.math.BigDecimal? = null,
-
-    /* Actual fiber consumed */
-    @Json(name = "fiberConsumed")
-    val fiberConsumed: java.math.BigDecimal? = null,
 
     /* Notes about the meal completion */
     @Json(name = "notes")

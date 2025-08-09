@@ -301,43 +301,6 @@ export const assignNutritionPlanSchema = z
 
 export const mealCompletionSchema = z
     .object({
-        date: z
-            .string()
-            .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format')
-            .refine((date) => !isNaN(Date.parse(date)), {
-                message: 'Invalid date format',
-            })
-            .optional()
-            .openapi({
-                description:
-                    'Date when the meal was completed (YYYY-MM-DD format, defaults to current date). Only the date part is used for adherence tracking.',
-                example: '2025-01-15',
-            }),
-        caloriesConsumed: z
-            .number()
-            .min(0)
-            .optional()
-            .openapi({ description: 'Actual calories consumed', example: 420 }),
-        proteinConsumed: z
-            .number()
-            .min(0)
-            .optional()
-            .openapi({ description: 'Actual protein consumed', example: 23.5 }),
-        carbsConsumed: z
-            .number()
-            .min(0)
-            .optional()
-            .openapi({ description: 'Actual carbs consumed', example: 40.0 }),
-        fatConsumed: z
-            .number()
-            .min(0)
-            .optional()
-            .openapi({ description: 'Actual fat consumed', example: 11.0 }),
-        fiberConsumed: z
-            .number()
-            .min(0)
-            .optional()
-            .openapi({ description: 'Actual fiber consumed', example: 7.5 }),
         notes: z.string().optional().openapi({
             description: 'Notes about the meal completion',
             example: 'Felt satisfied after this meal',
@@ -525,13 +488,10 @@ export const addExerciseToPlanDaySchema = z
 // Planned Workout schemas
 export const createPlannedWorkoutSchema = z
     .object({
-        userWorkoutPlanId: z
-            .int()
-            .positive()
-            .openapi({
-                description: 'ID of the user workout plan',
-                example: 123,
-            }),
+        userWorkoutPlanId: z.int().positive().openapi({
+            description: 'ID of the user workout plan',
+            example: 123,
+        }),
         weekdays: z
             .array(z.enum(['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']))
             .min(1, 'At least one weekday is required')
@@ -578,20 +538,14 @@ export const updatePlannedWorkoutSchema = z
 
 export const recordExerciseResultSchema = z
     .object({
-        workoutPlanDayExerciseId: z
-            .int()
-            .positive()
-            .openapi({
-                description: 'ID of the workout plan day exercise',
-                example: 789,
-            }),
-        userWorkoutPlanId: z
-            .int()
-            .positive()
-            .openapi({
-                description: 'ID of the user workout plan',
-                example: 123,
-            }),
+        workoutPlanDayExerciseId: z.int().positive().openapi({
+            description: 'ID of the workout plan day exercise',
+            example: 789,
+        }),
+        userWorkoutPlanId: z.int().positive().openapi({
+            description: 'ID of the user workout plan',
+            example: 123,
+        }),
         reps: z.int().nonnegative().optional().openapi({
             description: 'Number of repetitions completed',
             example: 15,
@@ -799,26 +753,12 @@ export const nutritionAdherenceSchema = z
         userNutritionPlanId: z.int(),
         userId: z.string(),
         date: z.string(),
-        weekday: z.enum([
-            'sun',
-            'mon',
-            'tue',
-            'wed',
-            'thu',
-            'fri',
-            'sat',
-        ]),
+        weekday: z.enum(['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']),
         mealsCompleted: z.int().optional(),
         totalMeals: z.int().optional(),
-        adherencePercentage: z
-            .number()
-            .optional(),
-        totalCaloriesConsumed: z
-            .int()
-            .optional(),
-        totalCaloriesPlanned: z
-            .int()
-            .optional(),
+        adherencePercentage: z.number().optional(),
+        totalCaloriesConsumed: z.int().optional(),
+        totalCaloriesPlanned: z.int().optional(),
         notes: z.string().optional(),
     })
     .openapi('NutritionAdherence');
