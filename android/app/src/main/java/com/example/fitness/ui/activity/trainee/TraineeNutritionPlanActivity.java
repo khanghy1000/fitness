@@ -79,6 +79,12 @@ public class TraineeNutritionPlanActivity extends AppCompatActivity implements T
             }
         });
 
+        viewModel.creatorNames.observe(this, creatorNames -> {
+            if (creatorNames != null) {
+                adapter.updateCreatorNames(creatorNames);
+            }
+        });
+
         viewModel.isLoading.observe(this, isLoading -> {
             binding.progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
         });

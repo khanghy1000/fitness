@@ -16,11 +16,14 @@ import com.google.android.material.chip.Chip;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class TraineeWorkoutPlanAdapter extends RecyclerView.Adapter<TraineeWorkoutPlanAdapter.TraineeWorkoutPlanViewHolder> {
     private List<WorkoutPlanAssignment> workoutPlanAssignments = new ArrayList<>();
+    private Map<String, String> creatorNames = new HashMap<>();
     private OnWorkoutPlanClickListener listener;
 
     public interface OnWorkoutPlanClickListener {
@@ -42,7 +45,7 @@ public class TraineeWorkoutPlanAdapter extends RecyclerView.Adapter<TraineeWorko
     @Override
     public void onBindViewHolder(@NonNull TraineeWorkoutPlanViewHolder holder, int position) {
         WorkoutPlanAssignment workoutPlanAssignment = workoutPlanAssignments.get(position);
-        holder.bind(workoutPlanAssignment, listener);
+        holder.bind(workoutPlanAssignment, listener, creatorNames);
     }
 
     @Override
@@ -56,6 +59,15 @@ public class TraineeWorkoutPlanAdapter extends RecyclerView.Adapter<TraineeWorko
         notifyDataSetChanged();
     }
 
+    public void updateCreatorNames(Map<String, String> creatorNames) {
+        if (creatorNames != null) {
+            this.creatorNames.clear();
+            this.creatorNames.putAll(creatorNames);
+            // Always notify all items to refresh their creator names
+            notifyDataSetChanged();
+        }
+    }
+
     public static class TraineeWorkoutPlanViewHolder extends RecyclerView.ViewHolder {
         private TextView textViewWorkoutPlanName;
         private TextView textViewWorkoutPlanDescription;
@@ -63,6 +75,7 @@ public class TraineeWorkoutPlanAdapter extends RecyclerView.Adapter<TraineeWorko
         private TextView textViewEstimatedCalories;
         private TextView textViewCreatedDate;
         private TextView textViewProgress;
+        private TextView textViewCreatedBy;
         private Chip chipStatus;
 
         public TraineeWorkoutPlanViewHolder(@NonNull View itemView) {
@@ -73,10 +86,11 @@ public class TraineeWorkoutPlanAdapter extends RecyclerView.Adapter<TraineeWorko
             textViewEstimatedCalories = itemView.findViewById(R.id.textViewEstimatedCalories);
             textViewCreatedDate = itemView.findViewById(R.id.textViewCreatedDate);
             textViewProgress = itemView.findViewById(R.id.textViewProgress);
+            textViewCreatedBy = itemView.findViewById(R.id.textViewCreatedBy);
             chipStatus = itemView.findViewById(R.id.chipStatus);
         }
 
-        public void bind(WorkoutPlanAssignment workoutPlanAssignment, OnWorkoutPlanClickListener listener) {
+        public void bind(WorkoutPlanAssignment workoutPlanAssignment, OnWorkoutPlanClickListener listener, Map<String, String> creatorNames) {
             WorkoutPlan workoutPlan = workoutPlanAssignment.getWorkoutPlan();
             
             textViewWorkoutPlanName.setText(workoutPlan.getName());
@@ -112,6 +126,25 @@ public class TraineeWorkoutPlanAdapter extends RecyclerView.Adapter<TraineeWorko
                 textViewProgress.setVisibility(View.VISIBLE);
             } else if (textViewProgress != null) {
                 textViewProgress.setVisibility(View.GONE);
+            }
+
+            // Set created by
+            if (workoutPlan.getCreatedBy() != null) {
+                String creatorId = workoutPlan.getCreatedBy();
+                String creatorName = creatorNames != null ? creatorNames.get(creatorId) : null;
+                
+                // Debug logging
+                android.util.Log.d("CreatorDebug", "Workout - Creator ID: " + creatorId + ", Creator Name: " + creatorName + ", Map size: " + (creatorNames != null ? creatorNames.size() : "null"));
+                
+                if (creatorName != null && !creatorName.isEmpty()) {
+                    textViewCreatedBy.setText("Created by: " + creatorName);
+                    textViewCreatedBy.setVisibility(View.VISIBLE);
+                } else {
+                    // Hide while loading, will show when data is available
+                    textViewCreatedBy.setVisibility(View.GONE);
+                }
+            } else {
+                textViewCreatedBy.setVisibility(View.GONE);
             }
 
             // Start date instead of created date

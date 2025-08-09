@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.fitness.data.network.model.generated.DetailedNutritionPlan;
+import com.example.fitness.data.network.model.generated.DetailedUser;
 import com.example.fitness.data.network.model.generated.MealCompletion;
 import com.example.fitness.data.network.model.generated.MealCompletionResponse;
 import com.example.fitness.data.network.model.generated.NutritionPlanAssignment;
@@ -13,7 +14,11 @@ import com.example.fitness.data.repository.NutritionRepository;
 import com.example.fitness.data.repository.UsersRepository;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -42,6 +47,16 @@ public class TraineeNutritionPlanViewModel extends ViewModel {
     private final MutableLiveData<String> _successMessage = new MutableLiveData<>();
     public final LiveData<String> successMessage = _successMessage;
 
+    // Cache for creator details
+    private final MutableLiveData<Map<String, String>> _creatorNames = new MutableLiveData<>(new HashMap<>());
+    public final LiveData<Map<String, String>> creatorNames = _creatorNames;
+    
+    // Track which creator IDs are currently being fetched to prevent duplicate requests
+    private final Set<String> fetchingCreatorIds = new HashSet<>();
+    
+    // Local map to accumulate creator names before posting to LiveData
+    private final Map<String, String> creatorNamesCache = new HashMap<>();
+
     @Inject
     public TraineeNutritionPlanViewModel(UsersRepository usersRepository, NutritionRepository nutritionRepository) {
         this.usersRepository = usersRepository;
@@ -66,6 +81,9 @@ public class TraineeNutritionPlanViewModel extends ViewModel {
 
                 _nutritionPlanAssignments.setValue(activeAssignments);
                 _error.setValue(null);
+                
+                // Fetch creator details for all plans
+                fetchCreatorDetailsForAssignments(activeAssignments);
             }
 
             @Override
@@ -73,6 +91,62 @@ public class TraineeNutritionPlanViewModel extends ViewModel {
                 _isLoading.setValue(false);
                 _isRefreshing.setValue(false);
                 _error.setValue(error);
+            }
+        });
+    }
+
+    private void fetchCreatorDetailsForAssignments(List<NutritionPlanAssignment> assignments) {
+        List<String> creatorIdsToFetch = new ArrayList<>();
+        
+        for (NutritionPlanAssignment assignment : assignments) {
+            if (assignment.getNutritionPlan() != null && assignment.getNutritionPlan().getCreatedBy() != null) {
+                String creatorId = assignment.getNutritionPlan().getCreatedBy();
+                
+                // Skip if we already have this creator's name or are currently fetching it
+                if (!creatorNamesCache.containsKey(creatorId) && !fetchingCreatorIds.contains(creatorId)) {
+                    fetchingCreatorIds.add(creatorId);
+                    creatorIdsToFetch.add(creatorId);
+                }
+            }
+        }
+        
+        android.util.Log.d("CreatorDebug", "Will fetch " + creatorIdsToFetch.size() + " creator IDs: " + creatorIdsToFetch);
+        
+        // Fetch all creator names
+        for (String creatorId : creatorIdsToFetch) {
+            fetchCreatorName(creatorId, creatorIdsToFetch.size());
+        }
+    }
+
+    private void fetchCreatorName(String creatorId, int totalToFetch) {
+        android.util.Log.d("CreatorDebug", "Fetching creator for ID: " + creatorId);
+        usersRepository.getUserById(creatorId, new UsersRepository.UsersCallback<DetailedUser>() {
+            @Override
+            public void onSuccess(DetailedUser result) {
+                synchronized (TraineeNutritionPlanViewModel.this) {
+                    fetchingCreatorIds.remove(creatorId);
+                    creatorNamesCache.put(creatorId, result.getName());
+                    
+                    android.util.Log.d("CreatorDebug", "Success for ID: " + creatorId + ", Name: " + result.getName() + ", Cache size: " + creatorNamesCache.size() + ", Still fetching: " + fetchingCreatorIds.size());
+                    
+                    // Update LiveData with the accumulated cache
+                    Map<String, String> updatedMap = new HashMap<>(creatorNamesCache);
+                    _creatorNames.postValue(updatedMap);
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                synchronized (TraineeNutritionPlanViewModel.this) {
+                    fetchingCreatorIds.remove(creatorId);
+                    creatorNamesCache.put(creatorId, "User #" + creatorId);
+                    
+                    android.util.Log.d("CreatorDebug", "Error for ID: " + creatorId + ", Error: " + error + ", Cache size: " + creatorNamesCache.size() + ", Still fetching: " + fetchingCreatorIds.size());
+                    
+                    // Update LiveData with the accumulated cache
+                    Map<String, String> updatedMap = new HashMap<>(creatorNamesCache);
+                    _creatorNames.postValue(updatedMap);
+                }
             }
         });
     }

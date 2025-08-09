@@ -15,11 +15,14 @@ import com.google.android.material.chip.Chip;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class TraineeNutritionPlanAssignmentAdapter extends RecyclerView.Adapter<TraineeNutritionPlanAssignmentAdapter.AssignmentViewHolder> {
     private List<NutritionPlanAssignment> assignments = new ArrayList<>();
+    private Map<String, String> creatorNames = new HashMap<>();
     private OnAssignmentClickListener listener;
 
     public interface OnAssignmentClickListener {
@@ -41,7 +44,7 @@ public class TraineeNutritionPlanAssignmentAdapter extends RecyclerView.Adapter<
     @Override
     public void onBindViewHolder(@NonNull AssignmentViewHolder holder, int position) {
         NutritionPlanAssignment assignment = assignments.get(position);
-        holder.bind(assignment, listener);
+        holder.bind(assignment, listener, creatorNames);
     }
 
     @Override
@@ -55,11 +58,20 @@ public class TraineeNutritionPlanAssignmentAdapter extends RecyclerView.Adapter<
         notifyDataSetChanged();
     }
 
+    public void updateCreatorNames(Map<String, String> creatorNames) {
+        if (creatorNames != null) {
+            this.creatorNames.clear();
+            this.creatorNames.putAll(creatorNames);
+            // Always notify all items to refresh their creator names
+            notifyDataSetChanged();
+        }
+    }
+
     public static class AssignmentViewHolder extends RecyclerView.ViewHolder {
         private TextView textViewPlanName;
         private TextView textViewPlanDescription;
         private TextView textViewStartDate;
-        private TextView textViewAssignedBy;
+        private TextView textViewCreatedBy;
         private Chip chipStatus;
 
         public AssignmentViewHolder(@NonNull View itemView) {
@@ -67,11 +79,11 @@ public class TraineeNutritionPlanAssignmentAdapter extends RecyclerView.Adapter<
             textViewPlanName = itemView.findViewById(R.id.textViewPlanName);
             textViewPlanDescription = itemView.findViewById(R.id.textViewPlanDescription);
             textViewStartDate = itemView.findViewById(R.id.textViewStartDate);
-            textViewAssignedBy = itemView.findViewById(R.id.textViewAssignedBy);
+            textViewCreatedBy = itemView.findViewById(R.id.textViewCreatedBy);
             chipStatus = itemView.findViewById(R.id.chipStatus);
         }
 
-        public void bind(NutritionPlanAssignment assignment, OnAssignmentClickListener listener) {
+        public void bind(NutritionPlanAssignment assignment, OnAssignmentClickListener listener, Map<String, String> creatorNames) {
             // Set plan name and description
             if (assignment.getNutritionPlan() != null) {
                 textViewPlanName.setText(assignment.getNutritionPlan().getName());
@@ -98,8 +110,24 @@ public class TraineeNutritionPlanAssignmentAdapter extends RecyclerView.Adapter<
                 textViewStartDate.setText("Started: " + assignment.getStartDate());
             }
 
-            // Set assigned by
-            textViewAssignedBy.setText("Assigned by: " + assignment.getAssignedBy());
+            // Set created by
+            if (assignment.getNutritionPlan() != null && assignment.getNutritionPlan().getCreatedBy() != null) {
+                String creatorId = assignment.getNutritionPlan().getCreatedBy();
+                String creatorName = creatorNames != null ? creatorNames.get(creatorId) : null;
+                
+                // Debug logging
+                android.util.Log.d("CreatorDebug", "Creator ID: " + creatorId + ", Creator Name: " + creatorName + ", Map size: " + (creatorNames != null ? creatorNames.size() : "null"));
+                
+                if (creatorName != null && !creatorName.isEmpty()) {
+                    textViewCreatedBy.setText("Created by: " + creatorName);
+                    textViewCreatedBy.setVisibility(View.VISIBLE);
+                } else {
+                    // Hide while loading, will show when data is available
+                    textViewCreatedBy.setVisibility(View.GONE);
+                }
+            } else {
+                textViewCreatedBy.setVisibility(View.GONE);
+            }
 
             // Set status chip
             String statusText = assignment.getStatus().getValue();

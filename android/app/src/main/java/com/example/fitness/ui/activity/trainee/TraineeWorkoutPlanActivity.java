@@ -88,6 +88,12 @@ public class TraineeWorkoutPlanActivity extends AppCompatActivity implements Tra
             }
         });
 
+        viewModel.creatorNames.observe(this, creatorNames -> {
+            if (creatorNames != null) {
+                workoutPlanAdapter.updateCreatorNames(creatorNames);
+            }
+        });
+
         viewModel.isLoading.observe(this, isLoading -> {
             binding.progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
         });

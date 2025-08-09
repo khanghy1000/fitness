@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.fitness.data.network.model.generated.CreateWorkoutPlan;
+import com.example.fitness.data.network.model.generated.DetailedUser;
 import com.example.fitness.data.network.model.generated.WorkoutPlan;
 import com.example.fitness.data.network.model.generated.WorkoutPlanAssignment;
 import com.example.fitness.data.network.model.generated.WorkoutPlanAssignmentResponse;
@@ -15,8 +16,12 @@ import com.example.fitness.data.repository.WorkoutsRepository;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -50,6 +55,16 @@ public class WorkoutPlanViewModel extends ViewModel {
 
     private final MutableLiveData<String> _errorMessage = new MutableLiveData<>();
     public final LiveData<String> errorMessage = _errorMessage;
+
+    // Cache for creator details
+    private final MutableLiveData<Map<String, String>> _creatorNames = new MutableLiveData<>(new HashMap<>());
+    public final LiveData<Map<String, String>> creatorNames = _creatorNames;
+    
+    // Track which creator IDs are currently being fetched to prevent duplicate requests
+    private final Set<String> fetchingCreatorIds = new HashSet<>();
+    
+    // Local map to accumulate creator names before posting to LiveData
+    private final Map<String, String> creatorNamesCache = new HashMap<>();
 
     @Inject
     public WorkoutPlanViewModel(UsersRepository usersRepository, WorkoutsRepository workoutsRepository) {
@@ -97,6 +112,9 @@ public class WorkoutPlanViewModel extends ViewModel {
                 
                 _userWorkoutPlanAssignments.setValue(activeAssignments);
                 _error.setValue(null);
+                
+                // Fetch creator details for all plans
+                fetchCreatorDetailsForAssignments(activeAssignments);
             }
 
             @Override
@@ -104,6 +122,62 @@ public class WorkoutPlanViewModel extends ViewModel {
                 _isLoading.setValue(false);
                 _isRefreshing.setValue(false);
                 _error.setValue(error);
+            }
+        });
+    }
+
+    private void fetchCreatorDetailsForAssignments(List<WorkoutPlanAssignment> assignments) {
+        List<String> creatorIdsToFetch = new ArrayList<>();
+        
+        for (WorkoutPlanAssignment assignment : assignments) {
+            if (assignment.getWorkoutPlan() != null && assignment.getWorkoutPlan().getCreatedBy() != null) {
+                String creatorId = assignment.getWorkoutPlan().getCreatedBy();
+                
+                // Skip if we already have this creator's name or are currently fetching it
+                if (!creatorNamesCache.containsKey(creatorId) && !fetchingCreatorIds.contains(creatorId)) {
+                    fetchingCreatorIds.add(creatorId);
+                    creatorIdsToFetch.add(creatorId);
+                }
+            }
+        }
+        
+        android.util.Log.d("CreatorDebug", "Workout - Will fetch " + creatorIdsToFetch.size() + " creator IDs: " + creatorIdsToFetch);
+        
+        // Fetch all creator names
+        for (String creatorId : creatorIdsToFetch) {
+            fetchCreatorName(creatorId, creatorIdsToFetch.size());
+        }
+    }
+
+    private void fetchCreatorName(String creatorId, int totalToFetch) {
+        android.util.Log.d("CreatorDebug", "Workout - Fetching creator for ID: " + creatorId);
+        usersRepository.getUserById(creatorId, new UsersRepository.UsersCallback<DetailedUser>() {
+            @Override
+            public void onSuccess(DetailedUser result) {
+                synchronized (WorkoutPlanViewModel.this) {
+                    fetchingCreatorIds.remove(creatorId);
+                    creatorNamesCache.put(creatorId, result.getName());
+                    
+                    android.util.Log.d("CreatorDebug", "Workout - Success for ID: " + creatorId + ", Name: " + result.getName() + ", Cache size: " + creatorNamesCache.size() + ", Still fetching: " + fetchingCreatorIds.size());
+                    
+                    // Update LiveData with the accumulated cache
+                    Map<String, String> updatedMap = new HashMap<>(creatorNamesCache);
+                    _creatorNames.postValue(updatedMap);
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                synchronized (WorkoutPlanViewModel.this) {
+                    fetchingCreatorIds.remove(creatorId);
+                    creatorNamesCache.put(creatorId, "User #" + creatorId);
+                    
+                    android.util.Log.d("CreatorDebug", "Workout - Error for ID: " + creatorId + ", Error: " + error + ", Cache size: " + creatorNamesCache.size() + ", Still fetching: " + fetchingCreatorIds.size());
+                    
+                    // Update LiveData with the accumulated cache
+                    Map<String, String> updatedMap = new HashMap<>(creatorNamesCache);
+                    _creatorNames.postValue(updatedMap);
+                }
             }
         });
     }

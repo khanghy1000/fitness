@@ -59,13 +59,13 @@
                     tools:text="Started: Jan 15, 2024" />
 
                 <TextView
-                    android:id="@+id/textViewAssignedBy"
+                    android:id="@+id/textViewCreatedBy"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:textSize="12sp"
                     android:textColor="?attr/colorOnSurfaceVariant"
-                    tools:text="Assigned by: Coach John" />
+                    tools:text="Created by: Coach Sarah" />
 
             </LinearLayout>
 
