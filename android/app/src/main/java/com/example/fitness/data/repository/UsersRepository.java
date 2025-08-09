@@ -281,4 +281,23 @@ public class UsersRepository {
             }
         });
     }
+
+    public void getUserById(String userId, UsersCallback<DetailedUser> callback) {
+        usersApi.apiUsersUserIdGet(userId).enqueue(new Callback<DetailedUser>() {
+            @Override
+            public void onResponse(Call<DetailedUser> call, Response<DetailedUser> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to get user by ID: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<DetailedUser> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
+    }
+
 }

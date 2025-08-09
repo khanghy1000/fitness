@@ -26,6 +26,7 @@ import {
     recordExerciseResultSchema,
     mealCompletionSchema,
     mealIdParamSchema,
+    userIdParamSchema,
 } from '../validation/schemas.ts';
 import { UserService } from '@services/user.service.ts';
 import { WorkoutService } from '@services/workout.service.ts';
@@ -411,6 +412,23 @@ router.get(
         } else {
             res.status(403).json({ error: 'Access denied' });
         }
+    }
+);
+
+// Get user information by ID
+router.get(
+    '/:userId',
+    requireAuthenticated,
+    validateParams(userIdParamSchema),
+    async (req, res) => {
+        const { userId } = req.params;
+
+        const user = await UserService.getUserById(userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.json(user);
     }
 );
 

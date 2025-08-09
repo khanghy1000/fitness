@@ -124,6 +124,20 @@
           "mealId"
         ]
       },
+      "UserIdParam": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "User identifier",
+            "example": "user123"
+          }
+        },
+        "required": [
+          "userId"
+        ]
+      },
       "SuccessMessage": {
         "type": "object",
         "properties": {
@@ -2339,6 +2353,54 @@
           "role"
         ]
       },
+      "DetailedUser": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "User ID",
+            "example": "user123"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "User email",
+            "example": "john.doe@example.com"
+          },
+          "name": {
+            "type": "string",
+            "description": "User full name",
+            "example": "John Doe"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "coach",
+              "trainee"
+            ],
+            "description": "User role",
+            "example": "trainee"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "User creation timestamp",
+            "example": "2024-01-01T10:00:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "User last update timestamp",
+            "example": "2024-01-15T14:30:00Z"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "name",
+          "role",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
       "PingResponse": {
         "type": "object",
         "properties": {
@@ -3469,6 +3531,47 @@
           },
           "403": {
             "description": "Access denied"
+          }
+        }
+      }
+    },
+    "/api/users/{userId}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get user information by ID",
+        "description": "Get user information by user ID. Users can view their own information, coaches can view any user.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "User identifier",
+              "example": "user123"
+            },
+            "required": true,
+            "description": "User identifier",
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailedUser"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "User not found"
           }
         }
       }

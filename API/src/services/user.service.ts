@@ -122,4 +122,21 @@ export class UserService {
             .where(and(...conditions))
             .limit(20);
     }
+
+    static async getUserById(userId: string) {
+        const result = await db
+            .select({
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                createdAt: user.createdAt,
+                updatedAt: user.updatedAt,
+            })
+            .from(user)
+            .where(eq(user.id, userId))
+            .limit(1);
+
+        return result[0] || null;
+    }
 }

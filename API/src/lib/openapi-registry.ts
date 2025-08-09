@@ -14,6 +14,7 @@ import {
     mealIdParamSchema,
     successMessageSchema,
     userIdQuerySchema,
+    userIdParamSchema,
 
     // Connection schemas
     connectRequestSchema,
@@ -69,6 +70,7 @@ import {
     userSearchQuerySchema,
     userSchema,
     userIdNameEmailSchema,
+    detailedUserSchema,
 } from '../validation/schemas.ts';
 import { create } from 'domain';
 
@@ -84,6 +86,7 @@ registry.register('UserNutritionPlanIdParam', userNutritionPlanIdParamSchema);
 registry.register('WorkoutPlanIdParam', workoutPlanIdParamSchema);
 registry.register('UserWorkoutPlanIdParam', userWorkoutPlanIdParamSchema);
 registry.register('MealIdParam', mealIdParamSchema);
+registry.register('UserIdParam', userIdParamSchema);
 registry.register('SuccessMessage', successMessageSchema);
 
 // Bulk update schemas
@@ -145,6 +148,7 @@ registry.register('RecordUserStats', recordUserStatsSchema);
 registry.register('UserSearchQuery', userSearchQuerySchema);
 registry.register('User', userSchema);
 registry.register('UserIdNameEmail', userIdNameEmailSchema);
+registry.register('DetailedUser', detailedUserSchema);
 
 // Register API paths
 
@@ -394,6 +398,34 @@ registry.registerPath({
 });
 
 // Users routes
+registry.registerPath({
+    method: 'get',
+    path: '/api/users/{userId}',
+    tags: ['Users'],
+    summary: 'Get user information by ID',
+    description:
+        'Get user information by user ID. Users can view their own information, coaches can view any user.',
+    request: {
+        params: userIdParamSchema,
+    },
+    responses: {
+        200: {
+            description: 'User information',
+            content: {
+                'application/json': {
+                    schema: detailedUserSchema,
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'User not found',
+        },
+    },
+});
+
 registry.registerPath({
     method: 'get',
     path: '/api/users/stats',
@@ -1036,31 +1068,22 @@ registry.registerPath({
                             name: z
                                 .string()
                                 .openapi({ description: 'Workout plan name' }),
-                            description: z
-                                .string()
-                                .optional()
-                                .openapi({
-                                    description: 'Workout plan description',
-                                }),
+                            description: z.string().optional().openapi({
+                                description: 'Workout plan description',
+                            }),
                             difficulty: z
                                 .enum(['beginner', 'intermediate', 'advanced'])
                                 .optional()
                                 .openapi({ description: 'Difficulty level' }),
-                            estimatedCalories: z
-                                .int()
-                                .optional()
-                                .openapi({
-                                    description:
-                                        'Estimated calories per session',
-                                }),
+                            estimatedCalories: z.int().optional().openapi({
+                                description: 'Estimated calories per session',
+                            }),
                             createdBy: z
                                 .string()
                                 .openapi({ description: 'Creator user ID' }),
-                            isActive: z
-                                .boolean()
-                                .openapi({
-                                    description: 'Whether plan is active',
-                                }),
+                            isActive: z.boolean().openapi({
+                                description: 'Whether plan is active',
+                            }),
                             createdAt: z
                                 .string()
                                 .openapi({ description: 'Creation date' }),
@@ -1073,22 +1096,16 @@ registry.registerPath({
                                         id: z
                                             .int()
                                             .openapi({ description: 'Day ID' }),
-                                        workoutPlanId: z
-                                            .int()
-                                            .openapi({
-                                                description: 'Workout plan ID',
-                                            }),
-                                        day: z
-                                            .int()
-                                            .openapi({
-                                                description: 'Day number',
-                                            }),
-                                        isRestDay: z
-                                            .boolean()
-                                            .openapi({
-                                                description:
-                                                    'Whether this is a rest day',
-                                            }),
+                                        workoutPlanId: z.int().openapi({
+                                            description: 'Workout plan ID',
+                                        }),
+                                        day: z.int().openapi({
+                                            description: 'Day number',
+                                        }),
+                                        isRestDay: z.boolean().openapi({
+                                            description:
+                                                'Whether this is a rest day',
+                                        }),
                                         estimatedCalories: z
                                             .int()
                                             .optional()
@@ -1096,22 +1113,16 @@ registry.registerPath({
                                                 description:
                                                     'Estimated calories for this day',
                                             }),
-                                        duration: z
-                                            .int()
-                                            .optional()
-                                            .openapi({
-                                                description:
-                                                    'Duration in seconds',
-                                            }),
+                                        duration: z.int().optional().openapi({
+                                            description: 'Duration in seconds',
+                                        }),
                                         exercises: z
                                             .array(
                                                 z.object({
-                                                    id: z
-                                                        .int()
-                                                        .openapi({
-                                                            description:
-                                                                'Exercise ID',
-                                                        }),
+                                                    id: z.int().openapi({
+                                                        description:
+                                                            'Exercise ID',
+                                                    }),
                                                     workoutPlanDayId: z
                                                         .int()
                                                         .openapi({
@@ -1261,24 +1272,18 @@ registry.registerPath({
                                 .openapi({ description: 'Workout plan days' }),
                             userWorkoutPlan: z
                                 .object({
-                                    id: z
-                                        .int()
-                                        .openapi({
-                                            description: 'User workout plan ID',
-                                        }),
+                                    id: z.int().openapi({
+                                        description: 'User workout plan ID',
+                                    }),
                                     userId: z
                                         .string()
                                         .openapi({ description: 'User ID' }),
-                                    workoutPlanId: z
-                                        .int()
-                                        .openapi({
-                                            description: 'Workout plan ID',
-                                        }),
-                                    assignedBy: z
-                                        .string()
-                                        .openapi({
-                                            description: 'Assigned by user ID',
-                                        }),
+                                    workoutPlanId: z.int().openapi({
+                                        description: 'Workout plan ID',
+                                    }),
+                                    assignedBy: z.string().openapi({
+                                        description: 'Assigned by user ID',
+                                    }),
                                     startDate: z
                                         .string()
                                         .openapi({ description: 'Start date' }),
@@ -1296,27 +1301,18 @@ registry.registerPath({
                                         .openapi({
                                             description: 'Assignment status',
                                         }),
-                                    progress: z
-                                        .number()
-                                        .openapi({
-                                            description: 'Progress percentage',
-                                        }),
-                                    notes: z
-                                        .string()
-                                        .optional()
-                                        .openapi({
-                                            description: 'Assignment notes',
-                                        }),
-                                    createdAt: z
-                                        .string()
-                                        .openapi({
-                                            description: 'Creation date',
-                                        }),
-                                    updatedAt: z
-                                        .string()
-                                        .openapi({
-                                            description: 'Last update date',
-                                        }),
+                                    progress: z.number().openapi({
+                                        description: 'Progress percentage',
+                                    }),
+                                    notes: z.string().optional().openapi({
+                                        description: 'Assignment notes',
+                                    }),
+                                    createdAt: z.string().openapi({
+                                        description: 'Creation date',
+                                    }),
+                                    updatedAt: z.string().openapi({
+                                        description: 'Last update date',
+                                    }),
                                 })
                                 .openapi({
                                     description:

@@ -40,6 +40,15 @@ export const nutritionPlanIdParamSchema = z
     })
     .openapi('NutritionPlanIdParam');
 
+export const userIdParamSchema = z
+    .object({
+        userId: z.string().min(1, 'User ID is required').openapi({
+            description: 'User identifier',
+            example: 'user123',
+        }),
+    })
+    .openapi('UserIdParam');
+
 export const myQuerySchema = z
     .object({
         my: z.enum(['true', 'false']).optional().openapi({
@@ -828,6 +837,30 @@ export const userSchema = z
             .openapi({ description: 'User role', example: 'trainee' }),
     })
     .openapi('User');
+
+export const detailedUserSchema = z
+    .object({
+        id: z.string().openapi({ description: 'User ID', example: 'user123' }),
+        email: z.string().email().openapi({
+            description: 'User email',
+            example: 'john.doe@example.com',
+        }),
+        name: z
+            .string()
+            .openapi({ description: 'User full name', example: 'John Doe' }),
+        role: z
+            .enum(['coach', 'trainee'])
+            .openapi({ description: 'User role', example: 'trainee' }),
+        createdAt: z.string().openapi({
+            description: 'User creation timestamp',
+            example: '2024-01-01T10:00:00Z',
+        }),
+        updatedAt: z.string().openapi({
+            description: 'User last update timestamp',
+            example: '2024-01-15T14:30:00Z',
+        }),
+    })
+    .openapi('DetailedUser');
 
 export const workoutPlanSchema = z
     .object({

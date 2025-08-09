@@ -154,6 +154,21 @@ interface UsersApi {
     fun apiUsersStatsPost(@Body recordUserStats: RecordUserStats? = null): Call<UserStatsResponse>
 
     /**
+     * GET api/users/{userId}
+     * Get user information by ID
+     * Get user information by user ID. Users can view their own information, coaches can view any user.
+     * Responses:
+     *  - 200: User information
+     *  - 401: Unauthorized
+     *  - 404: User not found
+     *
+     * @param userId User identifier
+     * @return [Call]<[DetailedUser]>
+     */
+    @GET("api/users/{userId}")
+    fun apiUsersUserIdGet(@Path("userId") userId: kotlin.String): Call<DetailedUser>
+
+    /**
      * POST api/users/workout/exercise-results
      * Record exercise result
      * Record the result of an exercise performance
