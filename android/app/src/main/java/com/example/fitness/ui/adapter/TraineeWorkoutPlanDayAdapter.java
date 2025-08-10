@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fitness.data.network.model.generated.DetailedWorkoutPlanDay;
 import com.example.fitness.databinding.ItemTraineeWorkoutPlanDayBinding;
+import com.example.fitness.utils.DurationUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -81,9 +82,9 @@ public class TraineeWorkoutPlanDayAdapter extends RecyclerView.Adapter<TraineeWo
                 binding.cardDay.setAlpha(0.6f);
             } else {
                 // Workout day
-                // Duration in minutes (convert from seconds)
-                int durationInMinutes = day.getDuration() != null ? day.getDuration() / 60 : 0;
-                binding.textViewDuration.setText(durationInMinutes + " min");
+                // Duration (convert from seconds to formatted string)
+                int duration = day.getDuration() != null ? day.getDuration() : 0;
+                binding.textViewDuration.setText(DurationUtil.formatDuration(duration));
                 
                 // Calories
                 binding.textViewCalories.setText("~" + (day.getEstimatedCalories() != null ? day.getEstimatedCalories() : 0) + " cal");

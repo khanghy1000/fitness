@@ -28,6 +28,7 @@ import com.example.fitness.ui.activity.WorkoutPlanEditActivity;
 import com.example.fitness.ui.adapter.TraineeWorkoutExerciseAdapter;
 import com.example.fitness.ui.dialog.BleConnectionDialog;
 import com.example.fitness.ui.viewmodel.WorkoutDayDetailsViewModel;
+import com.example.fitness.utils.DurationUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -294,8 +295,8 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
             binding.buttonStart.setVisibility(View.VISIBLE);
             
             // Display actual data from intent
-            int durationInMinutes = dayDuration != null ? dayDuration / 60 : 0;
-            binding.textViewDuration.setText(durationInMinutes + " min");
+            int duration = dayDuration != null ? dayDuration : 0;
+            binding.textViewDuration.setText(DurationUtil.formatDuration(duration));
             binding.textViewCalories.setText("~" + (dayCalories != null ? dayCalories : 0) + " cal");
             binding.textViewExerciseCount.setText("0 exercises"); // Will be updated when exercises load
         }
@@ -328,7 +329,7 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
             
             // Update duration and calories if not already set from intent
             if (dayDuration == null || dayDuration == 0) {
-                binding.textViewDuration.setText((totalDuration / 60) + " min");
+                binding.textViewDuration.setText(DurationUtil.formatDuration(totalDuration));
             }
             if (dayCalories == null || dayCalories == 0) {
                 binding.textViewCalories.setText("~" + totalCalories + " cal");
