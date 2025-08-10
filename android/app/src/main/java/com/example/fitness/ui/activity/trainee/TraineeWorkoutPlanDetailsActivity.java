@@ -18,6 +18,7 @@ import com.example.fitness.R;
 import com.example.fitness.data.network.model.generated.DetailedWorkoutPlan;
 import com.example.fitness.data.network.model.generated.DetailedWorkoutPlanDay;
 import com.example.fitness.databinding.ActivityTraineeWorkoutPlanDetailsBinding;
+import com.example.fitness.ui.activity.WorkoutPlanEditActivity;
 import com.example.fitness.ui.adapter.TraineeWorkoutPlanDayAdapter;
 import com.example.fitness.ui.viewmodel.WorkoutPlanDetailsViewModel;
 
@@ -32,6 +33,7 @@ public class TraineeWorkoutPlanDetailsActivity extends AppCompatActivity impleme
     private TraineeWorkoutPlanDayAdapter dayAdapter;
     private String planId;
     private String planName;
+    private DetailedWorkoutPlan currentPlan;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,10 +93,27 @@ public class TraineeWorkoutPlanDetailsActivity extends AppCompatActivity impleme
 
     private void setupListeners() {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
+        
+        binding.fabEditPlan.setOnClickListener(v -> {
+            Intent intent = new Intent(this, WorkoutPlanEditActivity.class);
+            intent.putExtra("PLAN_ID", Integer.parseInt(planId));
+            intent.putExtra("PLAN_NAME", planName);
+            startActivity(intent);
+        });
     }
 
     private void observeViewModel() {
-        viewModel.detailedWorkoutPlan.observe(this, this::displayWorkoutPlan);
+        viewModel.detailedWorkoutPlan.observe(this, plan -> {
+            this.currentPlan = plan;
+            this.displayWorkoutPlan(plan);
+            updateEditButtonVisibility(plan);
+        });
+
+        viewModel.currentUserId.observe(this, currentUserId -> {
+            if (currentUserId != null && currentPlan != null) {
+                updateEditButtonVisibility(currentPlan);
+            }
+        });
 
         viewModel.isLoading.observe(this, isLoading -> {
             binding.progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
@@ -148,6 +167,22 @@ public class TraineeWorkoutPlanDetailsActivity extends AppCompatActivity impleme
         } else {
             binding.layoutEmpty.setVisibility(View.VISIBLE);
             binding.recyclerViewDays.setVisibility(View.GONE);
+        }
+    }
+
+    private void updateEditButtonVisibility(DetailedWorkoutPlan plan) {
+        String currentUserId = viewModel.currentUserId.getValue();
+        boolean isCreatedByCurrentUser = plan != null && plan.getCreatedBy() != null && 
+                                       plan.getCreatedBy().equals(currentUserId);
+        binding.fabEditPlan.setVisibility(isCreatedByCurrentUser ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh data when returning from edit activity
+        if (planId != null) {
+            viewModel.loadWorkoutPlan(planId);
         }
     }
 

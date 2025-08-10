@@ -24,6 +24,7 @@ import com.example.fitness.data.network.model.generated.DetailedWorkoutPlanDayEx
 import com.example.fitness.data.network.model.generated.ExerciseType;
 import com.example.fitness.data.repository.ExercisesRepository;
 import com.example.fitness.databinding.ActivityTraineeWorkoutPlanDayDetailsBinding;
+import com.example.fitness.ui.activity.WorkoutPlanEditActivity;
 import com.example.fitness.ui.adapter.TraineeWorkoutExerciseAdapter;
 import com.example.fitness.ui.dialog.BleConnectionDialog;
 import com.example.fitness.ui.viewmodel.WorkoutDayDetailsViewModel;
@@ -98,6 +99,9 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
         // Initialize BLE service manager
         bleServiceManager = new BleServiceManager(this);
         
+        // Load current user ID and plan data
+        viewModel.loadCurrentUserId();
+        
         // Load exercises from the plan
         if (planId != null && !isRestDay) {
             viewModel.loadWorkoutPlanAndExtractDay(planId, dayNumber);
@@ -145,6 +149,12 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
             } else {
                 startWorkout();
             }
+        });
+        
+        binding.fabEdit.setOnClickListener(v -> {
+            Intent intent = new Intent(this, WorkoutPlanEditActivity.class);
+            intent.putExtra("WORKOUT_PLAN_ID", planId);
+            startActivity(intent);
         });
     }
     
@@ -235,6 +245,26 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
                 viewModel.clearError();
             }
         });
+
+        viewModel.currentUserId.observe(this, currentUserId -> {
+            if (currentUserId != null) {
+                checkEditPermission(currentUserId);
+            }
+        });
+
+        viewModel.currentPlan.observe(this, plan -> {
+            if (plan != null && viewModel.currentUserId.getValue() != null) {
+                checkEditPermission(viewModel.currentUserId.getValue());
+            }
+        });
+    }
+
+    private void checkEditPermission(String currentUserId) {
+        if (viewModel.currentPlan.getValue() != null) {
+            String planCreatorId = viewModel.currentPlan.getValue().getCreatedBy();
+            boolean canEdit = currentUserId.equals(planCreatorId);
+            binding.fabEdit.setVisibility(canEdit ? View.VISIBLE : View.GONE);
+        }
     }
 
     private void displayDayInfo() {

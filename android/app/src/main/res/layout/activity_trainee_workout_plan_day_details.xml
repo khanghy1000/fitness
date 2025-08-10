@@ -191,6 +191,18 @@
         app:cornerRadius="10dp"
         style="@style/Widget.Material3.Button" />
 
+    <!-- Edit FAB -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="96dp"
+        android:src="@drawable/ic_edit"
+        android:contentDescription="Edit workout plan"
+        android:visibility="gone" />
+
     <!-- Progress Bar -->
     <ProgressBar
         android:id="@+id/progressBar"
