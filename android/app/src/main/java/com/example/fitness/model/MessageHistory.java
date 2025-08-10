@@ -1,15 +1,32 @@
 package com.example.fitness.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-@Getter
-@Setter
-@AllArgsConstructor
+import lombok.Data;
+
+/**
+ * Holds messages of a conversation for easy binding.
+ */
+@Data
 public class MessageHistory {
-    private String senderName;
-    private String messageContent;
-    private String timestamp;
-    private boolean isRead;
+    private final List<Message> messages = new ArrayList<>();
+
+    public void setMessages(List<Message> newMessages) {
+        messages.clear();
+        if (newMessages != null) {
+            messages.addAll(newMessages);
+        }
+    }
+
+    public void addMessage(Message message) {
+        if (message != null) {
+            messages.add(message);
+        }
+    }
+
+    public List<Message> getMessages() {
+        return Collections.unmodifiableList(messages);
+    }
 }

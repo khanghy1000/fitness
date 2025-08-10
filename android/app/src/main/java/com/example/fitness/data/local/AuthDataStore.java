@@ -103,4 +103,12 @@ public class AuthDataStore {
             return Single.just(mutablePrefs);
         }).ignoreElement();
     }
+
+    public Completable updateToken(String token) {
+        return dataStore.updateDataAsync(prefs -> {
+            androidx.datastore.preferences.core.MutablePreferences mutablePrefs = prefs.toMutablePreferences();
+            mutablePrefs.set(JWT_TOKEN_KEY, token != null ? token : "");
+            return Single.just(mutablePrefs);
+        }).ignoreElement();
+    }
 }

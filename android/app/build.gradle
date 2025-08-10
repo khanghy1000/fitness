@@ -102,6 +102,9 @@ dependencies {
     // ViewPager2 for tabs
     implementation libs.viewpager2
 
+    // Socket.IO for real-time communication
+    implementation libs.socket
+
 }
 
 hilt {

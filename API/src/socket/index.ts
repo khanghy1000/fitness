@@ -13,17 +13,21 @@ export function initializeSocketIO(io: Server) {
     // Authentication middleware
     io.use(async (socket: AuthenticatedSocket, next) => {
         try {
-            const token = socket.handshake.auth.token;
+            const rawAuth = (socket.handshake.auth as any) || {};
+            const rawQuery = (socket.handshake.query as any) || {};
+            const token = rawAuth.token || rawQuery.token;
 
             if (!token) {
                 return next(new Error('Authentication token required'));
             }
 
-            // Simple token verification for better-auth
+            // Bearer-only authentication
             const session = await auth.api.getSession({
                 headers: {
-                    cookie: `better-auth.session_token=${token}`,
+                    authorization: `Bearer ${token}`,
                 } as any,
+            }).catch((e) => {
+                return null;
             });
 
             if (!session?.user) {
@@ -31,7 +35,6 @@ export function initializeSocketIO(io: Server) {
             }
 
             socket.session = session;
-
             next();
         } catch (error) {
             next(new Error('Authentication failed'));
@@ -40,7 +43,7 @@ export function initializeSocketIO(io: Server) {
 
     io.on('connection', (socket: AuthenticatedSocket) => {
         console.log(
-            `User ${socket.session!.user.name} (${socket.session!.user.id}) connected`
+            `User ${socket.session!.user.name} (${socket.session!.user.id}) connected via protocol v${socket.conn.protocol}`
         );
 
         // Store active user
@@ -146,10 +149,35 @@ export function initializeSocketIO(io: Server) {
         // Handle getting conversation list
         socket.on('get_conversations', async () => {
             try {
-                const conversations = await MessageService.getConversationList(
-                    socket.session!.user.id
-                );
-                socket.emit('conversations_list', conversations);
+                const userId = socket.session!.user.id;
+                const messages = await MessageService.getConversationList(userId);
+                // messages already sorted desc by createdAt; build unique latest per other user + unread counts
+                const seen = new Set<string>();
+                const unreadMap = new Map<string, number>();
+                for (const m of messages) {
+                    // Count unread where current user is recipient and message not read yet
+                    if (m.recipientId === userId && !(m as any).isRead) {
+                        const fromId = m.senderId as string | null; // conversation partner id
+                        if (fromId) {
+                            unreadMap.set(fromId, (unreadMap.get(fromId) || 0) + 1);
+                        }
+                    }
+                }
+                const summaries: any[] = [];
+                for (const msg of messages) {
+                    const other = msg.senderId === userId ? (msg as any).recipient : (msg as any).sender;
+                    if (!other || !other.id) continue;
+                    if (seen.has(other.id)) continue; // already have latest for this conversation
+                    seen.add(other.id);
+                    summaries.push({
+                        userId: other.id,
+                        userName: other.name,
+                        lastMessage: msg.content,
+                        lastMessageAt: msg.createdAt,
+                        unreadCount: unreadMap.get(other.id) || 0,
+                    });
+                }
+                socket.emit('conversations_list', { conversations: summaries });
             } catch (error) {
                 console.error('Error getting conversations:', error);
                 socket.emit('error', {
@@ -219,13 +247,10 @@ export function initializeSocketIO(io: Server) {
 
     // Helper function to get online users
     io.engine.on('connection_error', (err) => {
-        console.log(
-            'Socket.IO connection error:',
-            err.req,
-            err.code,
-            err.message,
-            err.context
-        );
+        console.log('[socket-engine] connection_error code:', err.code, 'message:', err.message);
+        try {
+            console.log('[socket-engine] headers:', err.req?.headers);
+        } catch {}
     });
 }
 

@@ -22,7 +22,12 @@ generateApiDocs();
 const { urlencoded, json } = bodyHandler;
 
 const app = express();
-const server = createServer(app);
+
+const API_PORT = Number(process.env.PORT) || 3000;
+const SOCKET_PORT = Number(process.env.SOCKET_PORT) || 3001;
+
+
+const server = createServer();
 const io = new Server(server, {
     cors: {
         origin: '*',
@@ -76,7 +81,10 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
 
 app.use(errorHandler);
 
-server.listen(3000, () => {
-    console.log('Server is running on http://localhost:3000');
-    console.log('Socket.IO server is ready for real-time messaging');
+app.listen(API_PORT, () => {
+    console.log(`Server is running on http://localhost:${API_PORT}`);
+});
+
+server.listen(SOCKET_PORT, () => {
+    console.log(`Socket.IO server running on ws://localhost:${SOCKET_PORT}`);
 });
