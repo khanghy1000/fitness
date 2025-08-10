@@ -260,7 +260,7 @@ interface UsersApi {
      * @param dayId Workout plan day identifier
      * @return [Call]<[SuccessMessage]>
      */
-    @DELETE("workout/user-plans/{userWorkoutPlanId}/days/{dayId}/results")
+    @DELETE("api/users/workout/user-plans/{userWorkoutPlanId}/days/{dayId}/results")
     fun workoutUserPlansUserWorkoutPlanIdDaysDayIdResultsDelete(@Path("userWorkoutPlanId") userWorkoutPlanId: kotlin.String, @Path("dayId") dayId: kotlin.String): Call<SuccessMessage>
 
 }

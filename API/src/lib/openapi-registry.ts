@@ -942,7 +942,7 @@ registry.registerPath({
 
 registry.registerPath({
     method: 'delete',
-    path: '/workout/user-plans/{userWorkoutPlanId}/days/{dayId}/results',
+    path: '/api/users/workout/user-plans/{userWorkoutPlanId}/days/{dayId}/results',
     tags: ['Users'],
     summary: 'Reset exercise results',
     description: 'Reset exercise results for a workout day',

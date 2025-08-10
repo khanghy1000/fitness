@@ -4057,7 +4057,7 @@
         }
       }
     },
-    "/workout/user-plans/{userWorkoutPlanId}/days/{dayId}/results": {
+    "/api/users/workout/user-plans/{userWorkoutPlanId}/days/{dayId}/results": {
       "delete": {
         "tags": [
           "Users"
