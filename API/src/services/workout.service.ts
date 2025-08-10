@@ -388,7 +388,12 @@ export class WorkoutService {
             let totalPlanCalories = 0;
             if (data.days) {
                 for (const dayData of data.days) {
-                    if (!dayData.isRestDay && dayData.exercises) {
+                    // Auto-determine if day should be rest day based on exercises
+                    const hasExercises =
+                        dayData.exercises && dayData.exercises.length > 0;
+                    const isRestDay = dayData.isRestDay || !hasExercises;
+
+                    if (!isRestDay && dayData.exercises) {
                         for (const exercise of dayData.exercises) {
                             totalPlanCalories += calculateExerciseCalories(
                                 exercise.targetReps,
@@ -475,11 +480,15 @@ export class WorkoutService {
                 for (const dayData of days) {
                     const { exercises, ...dayInfoRaw } = dayData;
 
+                    // Auto-set as rest day if no exercises are provided or exercises array is empty
+                    const hasExercises = exercises && exercises.length > 0;
+                    const isRestDay = dayData.isRestDay || !hasExercises;
+
                     // Calculate day-level totals
                     let dayCalories = 0;
                     let dayDuration = 0;
 
-                    if (!dayData.isRestDay && exercises) {
+                    if (!isRestDay && exercises) {
                         for (const exercise of exercises) {
                             dayCalories += calculateExerciseCalories(
                                 exercise.targetReps,
@@ -496,6 +505,7 @@ export class WorkoutService {
                     const { id: dayIdForUpdate, ...dayInfo } = dayInfoRaw;
                     const dayInfoWithCalculated = {
                         ...dayInfo,
+                        isRestDay: isRestDay,
                         estimatedCalories: dayCalories,
                         duration: dayDuration,
                     };
@@ -527,8 +537,8 @@ export class WorkoutService {
                         dayId = newDay[0].id;
                     }
 
-                    // Process exercises for this day
-                    if (exercises) {
+                    // Process exercises for this day (only if it's not a rest day)
+                    if (exercises && !isRestDay) {
                         for (const exerciseData of exercises) {
                             const {
                                 id: exerciseIdForUpdate,
