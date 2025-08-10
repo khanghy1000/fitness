@@ -8,6 +8,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fitness.data.network.model.generated.DetailedWorkoutPlanDay;
+import com.example.fitness.data.network.model.generated.WorkoutPlanResults;
+import com.example.fitness.data.network.model.generated.WorkoutPlanResultsWorkoutPlanDaysInner;
+import com.example.fitness.data.network.model.generated.WorkoutPlanResultsWorkoutPlanDaysInnerExercisesInner;
 import com.example.fitness.databinding.ItemTraineeWorkoutPlanDayBinding;
 import com.example.fitness.utils.DurationUtil;
 
@@ -18,6 +21,7 @@ import java.util.List;
 
 public class TraineeWorkoutPlanDayAdapter extends RecyclerView.Adapter<TraineeWorkoutPlanDayAdapter.DayViewHolder> {
     private List<DetailedWorkoutPlanDay> days = new ArrayList<>();
+    private WorkoutPlanResults workoutPlanResults;
     private OnDayClickListener listener;
 
     public interface OnDayClickListener {
@@ -26,6 +30,11 @@ public class TraineeWorkoutPlanDayAdapter extends RecyclerView.Adapter<TraineeWo
 
     public void setOnDayClickListener(OnDayClickListener listener) {
         this.listener = listener;
+    }
+
+    public void setWorkoutPlanResults(WorkoutPlanResults results) {
+        this.workoutPlanResults = results;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -80,6 +89,7 @@ public class TraineeWorkoutPlanDayAdapter extends RecyclerView.Adapter<TraineeWo
                 binding.textViewCalories.setText("-");
                 binding.textViewExercises.setText("Rest");
                 binding.cardDay.setAlpha(0.6f);
+                binding.layoutProgress.setVisibility(View.GONE);
             } else {
                 // Workout day
                 // Duration (convert from seconds to formatted string)
@@ -94,6 +104,13 @@ public class TraineeWorkoutPlanDayAdapter extends RecyclerView.Adapter<TraineeWo
                 binding.textViewExercises.setText(exerciseCount + " exercises");
                 
                 binding.cardDay.setAlpha(1.0f);
+                
+                // Show progress if we have workout plan results
+                if (workoutPlanResults != null && workoutPlanResults.getWorkoutPlanDays() != null) {
+                    showDayProgress(day);
+                } else {
+                    binding.layoutProgress.setVisibility(View.GONE);
+                }
             }
             
             // Click listener
@@ -102,6 +119,42 @@ public class TraineeWorkoutPlanDayAdapter extends RecyclerView.Adapter<TraineeWo
                     listener.onDayClick(day);
                 }
             });
+        }
+
+        private void showDayProgress(DetailedWorkoutPlanDay day) {
+            // Find this day in the results
+            WorkoutPlanResultsWorkoutPlanDaysInner dayResults = null;
+            for (WorkoutPlanResultsWorkoutPlanDaysInner resultDay : workoutPlanResults.getWorkoutPlanDays()) {
+                if (resultDay.getDay() == day.getDay()) {
+                    dayResults = resultDay;
+                    break;
+                }
+            }
+
+            if (dayResults == null || dayResults.getExercises() == null) {
+                binding.layoutProgress.setVisibility(View.GONE);
+                return;
+            }
+
+            // Count completed exercises
+            int totalExercises = day.getExercises() != null ? day.getExercises().size() : 0;
+            int completedExercises = 0;
+
+            for (WorkoutPlanResultsWorkoutPlanDaysInnerExercisesInner exerciseResult : dayResults.getExercises()) {
+                if (exerciseResult.getExerciseResults() != null && !exerciseResult.getExerciseResults().isEmpty()) {
+                    completedExercises++;
+                }
+            }
+
+            if (totalExercises > 0) {
+                binding.layoutProgress.setVisibility(View.VISIBLE);
+                binding.textViewProgress.setText(completedExercises + "/" + totalExercises + " completed");
+                
+                int progressPercentage = (completedExercises * 100) / totalExercises;
+                binding.progressBarDay.setProgress(progressPercentage);
+            } else {
+                binding.layoutProgress.setVisibility(View.GONE);
+            }
         }
     }
 }

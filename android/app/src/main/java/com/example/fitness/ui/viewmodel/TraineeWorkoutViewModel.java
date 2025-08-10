@@ -119,7 +119,8 @@ public class TraineeWorkoutViewModel extends ViewModel {
     }
     
     public void skipExercise() {
-        recordCurrentExerciseResult(null, null);
+        // Just move to next exercise without recording result
+        proceedToNextExercise();
     }
     
     public void completeExercise() {

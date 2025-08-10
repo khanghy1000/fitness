@@ -103,6 +103,10 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
         // Load current user ID and plan data
         viewModel.loadCurrentUserId();
         
+        // For demo purposes, set a placeholder userWorkoutPlanId
+        // In a real app, this would come from the workout plan assignment
+        viewModel.setUserWorkoutPlanId("1");
+        
         // Load exercises from the plan
         if (planId != null && !isRestDay) {
             viewModel.loadWorkoutPlanAndExtractDay(planId, dayNumber);
@@ -231,11 +235,51 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
         // Pass BLE connection status
         intent.putExtra("BLE_CONNECTED", bleServiceManager != null && bleServiceManager.isConnected());
         
+        // Pass flag to indicate we should start with uncompleted exercises only
+        intent.putExtra("START_WITH_UNCOMPLETED", true);
+        
         startActivity(intent);
+    }
+
+    private void updateStartButtonVisibility(List<DetailedWorkoutPlanDayExercise> uncompletedExercises) {
+        if (isRestDay) {
+            binding.buttonStart.setVisibility(View.GONE);
+        } else if (uncompletedExercises == null || uncompletedExercises.isEmpty()) {
+            // All exercises completed
+            binding.buttonStart.setVisibility(View.GONE);
+        } else {
+            binding.buttonStart.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void updateDayProgress() {
+        int completedCount = viewModel.getCompletedExerciseCount();
+        int totalCount = viewModel.getTotalExerciseCount();
+
+        if (totalCount > 0 && !isRestDay) {
+            binding.layoutDayProgress.setVisibility(View.VISIBLE);
+            binding.textViewDayProgress.setText("Progress: " + completedCount + "/" + totalCount + " exercises completed");
+            
+            int progressPercentage = (completedCount * 100) / totalCount;
+            binding.progressBarDayProgress.setProgress(progressPercentage);
+        } else {
+            binding.layoutDayProgress.setVisibility(View.GONE);
+        }
     }
 
     private void observeViewModel() {
         viewModel.exercises.observe(this, this::updateExercises);
+
+        viewModel.uncompletedExercises.observe(this, uncompletedExercises -> {
+            this.updateStartButtonVisibility(uncompletedExercises);
+        });
+
+        viewModel.workoutPlanResults.observe(this, results -> {
+            if (results != null) {
+                exerciseAdapter.setWorkoutPlanResults(results, dayNumber);
+                updateDayProgress();
+            }
+        });
 
         viewModel.isLoading.observe(this, isLoading -> {
             binding.progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);

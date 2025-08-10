@@ -11,6 +11,9 @@ import com.bumptech.glide.Glide;
 import com.example.fitness.R;
 import com.example.fitness.data.network.model.generated.DetailedWorkoutPlanDayExercise;
 import com.example.fitness.data.network.model.generated.ExerciseType;
+import com.example.fitness.data.network.model.generated.WorkoutPlanResults;
+import com.example.fitness.data.network.model.generated.WorkoutPlanResultsWorkoutPlanDaysInner;
+import com.example.fitness.data.network.model.generated.WorkoutPlanResultsWorkoutPlanDaysInnerExercisesInner;
 import com.example.fitness.data.repository.ExercisesRepository;
 import com.example.fitness.databinding.ItemTraineeWorkoutExerciseBinding;
 
@@ -25,6 +28,8 @@ import dagger.hilt.android.scopes.ActivityScoped;
 public class TraineeWorkoutExerciseAdapter extends RecyclerView.Adapter<TraineeWorkoutExerciseAdapter.ExerciseViewHolder> {
     private List<DetailedWorkoutPlanDayExercise> exercises = new ArrayList<>();
     private ExercisesRepository exercisesRepository;
+    private WorkoutPlanResults workoutPlanResults;
+    private int currentDayNumber;
 
     @Inject
     public TraineeWorkoutExerciseAdapter() {
@@ -32,6 +37,12 @@ public class TraineeWorkoutExerciseAdapter extends RecyclerView.Adapter<TraineeW
 
     public void setExercisesRepository(ExercisesRepository exercisesRepository) {
         this.exercisesRepository = exercisesRepository;
+    }
+
+    public void setWorkoutPlanResults(WorkoutPlanResults results, int dayNumber) {
+        this.workoutPlanResults = results;
+        this.currentDayNumber = dayNumber;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -104,6 +115,48 @@ public class TraineeWorkoutExerciseAdapter extends RecyclerView.Adapter<TraineeW
                 binding.textViewNotes.setVisibility(View.VISIBLE);
             } else {
                 binding.textViewNotes.setVisibility(View.GONE);
+            }
+            
+            // Show completion status
+            showCompletionStatus(exercise);
+        }
+
+        private void showCompletionStatus(DetailedWorkoutPlanDayExercise exercise) {
+            if (workoutPlanResults == null || workoutPlanResults.getWorkoutPlanDays() == null) {
+                binding.imageViewCompletionStatus.setVisibility(View.GONE);
+                return;
+            }
+
+            // Find the day in results
+            WorkoutPlanResultsWorkoutPlanDaysInner dayResults = null;
+            for (WorkoutPlanResultsWorkoutPlanDaysInner day : workoutPlanResults.getWorkoutPlanDays()) {
+                if (day.getDay() == currentDayNumber) {
+                    dayResults = day;
+                    break;
+                }
+            }
+
+            if (dayResults == null || dayResults.getExercises() == null) {
+                binding.imageViewCompletionStatus.setVisibility(View.GONE);
+                return;
+            }
+
+            // Check if this exercise is completed
+            boolean isCompleted = false;
+            for (WorkoutPlanResultsWorkoutPlanDaysInnerExercisesInner exerciseResult : dayResults.getExercises()) {
+                if (exerciseResult.getId() == (exercise.getId()) &&
+                    exerciseResult.getExerciseResults() != null && 
+                    !exerciseResult.getExerciseResults().isEmpty()) {
+                    isCompleted = true;
+                    break;
+                }
+            }
+
+            if (isCompleted) {
+                binding.imageViewCompletionStatus.setVisibility(View.VISIBLE);
+                binding.imageViewCompletionStatus.setImageResource(R.drawable.ic_check_circle);
+            } else {
+                binding.imageViewCompletionStatus.setVisibility(View.GONE);
             }
         }
     }

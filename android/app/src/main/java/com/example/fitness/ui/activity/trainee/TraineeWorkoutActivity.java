@@ -92,6 +92,13 @@ public class TraineeWorkoutActivity extends AppCompatActivity {
         
         // Load exercises for the day
         if (planId != null) {
+            // Check if we should start with uncompleted exercises only
+            boolean startWithUncompleted = getIntent().getBooleanExtra("START_WITH_UNCOMPLETED", false);
+            if (startWithUncompleted) {
+                // Set the user workout plan ID for progress tracking
+                dayDetailsViewModel.setUserWorkoutPlanId(userWorkoutPlanId);
+                dayDetailsViewModel.loadCurrentUserId();
+            }
             dayDetailsViewModel.loadWorkoutPlanAndExtractDay(planId, dayNumber);
         }
     }
@@ -213,8 +220,7 @@ public class TraineeWorkoutActivity extends AppCompatActivity {
         binding.buttonPauseResume.setOnClickListener(v -> workoutViewModel.togglePause());
         binding.buttonSkipDuration.setOnClickListener(v -> workoutViewModel.skipExercise());
         
-        // Reps exercise controls
-        binding.buttonCompleteReps.setOnClickListener(v -> workoutViewModel.completeExercise());
+        // Reps exercise controls - removed complete button
         binding.buttonSkipReps.setOnClickListener(v -> workoutViewModel.skipExercise());
         
         // Manual rep counting button
@@ -236,11 +242,18 @@ public class TraineeWorkoutActivity extends AppCompatActivity {
     }
 
     private void observeViewModels() {
-        // Observe day details to get exercises
+        // Observe day details to get exercises - prioritize uncompleted exercises
+        dayDetailsViewModel.uncompletedExercises.observe(this, uncompletedExercises -> {
+            if (uncompletedExercises != null && !uncompletedExercises.isEmpty()) {
+                // Start workout with uncompleted exercises
+                workoutViewModel.setExercises(uncompletedExercises);
+            }
+        });
+        
+        // Fallback to all exercises if uncompleted list is not available
         dayDetailsViewModel.exercises.observe(this, exercises -> {
-            if (exercises != null && !exercises.isEmpty()) {
+            if (dayDetailsViewModel.uncompletedExercises.getValue() == null && exercises != null && !exercises.isEmpty()) {
                 workoutViewModel.setExercises(exercises);
-                binding.progressBarLoading.setVisibility(View.GONE);
             }
         });
         

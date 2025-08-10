@@ -58,6 +58,9 @@ public class TraineeWorkoutPlanDetailsActivity extends AppCompatActivity impleme
         
         // Load workout plan data
         if (planId != null) {
+            // For demo purposes, set a placeholder userWorkoutPlanId
+            // In a real app, this would come from the workout plan assignment
+            viewModel.setUserWorkoutPlanId("1");
             viewModel.loadWorkoutPlan(planId);
         }
     }
@@ -107,6 +110,12 @@ public class TraineeWorkoutPlanDetailsActivity extends AppCompatActivity impleme
             this.currentPlan = plan;
             this.displayWorkoutPlan(plan);
             updateEditButtonVisibility(plan);
+        });
+
+        viewModel.workoutPlanResults.observe(this, results -> {
+            if (results != null) {
+                dayAdapter.setWorkoutPlanResults(results);
+            }
         });
 
         viewModel.currentUserId.observe(this, currentUserId -> {
