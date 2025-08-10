@@ -151,7 +151,7 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
             }
         });
         
-        binding.fabEdit.setOnClickListener(v -> {
+        binding.buttonEdit.setOnClickListener(v -> {
             Intent intent = new Intent(this, WorkoutPlanEditActivity.class);
             intent.putExtra("WORKOUT_PLAN_ID", planId);
             startActivity(intent);
@@ -263,7 +263,7 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
         if (viewModel.currentPlan.getValue() != null) {
             String planCreatorId = viewModel.currentPlan.getValue().getCreatedBy();
             boolean canEdit = currentUserId.equals(planCreatorId);
-            binding.fabEdit.setVisibility(canEdit ? View.VISIBLE : View.GONE);
+            binding.buttonEdit.setVisibility(canEdit ? View.VISIBLE : View.GONE);
         }
     }
 

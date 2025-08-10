@@ -94,7 +94,7 @@ public class TraineeWorkoutPlanDetailsActivity extends AppCompatActivity impleme
     private void setupListeners() {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
         
-        binding.fabEditPlan.setOnClickListener(v -> {
+        binding.buttonEdit.setOnClickListener(v -> {
             Intent intent = new Intent(this, WorkoutPlanEditActivity.class);
             intent.putExtra("PLAN_ID", Integer.parseInt(planId));
             intent.putExtra("PLAN_NAME", planName);
@@ -174,7 +174,7 @@ public class TraineeWorkoutPlanDetailsActivity extends AppCompatActivity impleme
         String currentUserId = viewModel.currentUserId.getValue();
         boolean isCreatedByCurrentUser = plan != null && plan.getCreatedBy() != null && 
                                        plan.getCreatedBy().equals(currentUserId);
-        binding.fabEditPlan.setVisibility(isCreatedByCurrentUser ? View.VISIBLE : View.GONE);
+        binding.buttonEdit.setVisibility(isCreatedByCurrentUser ? View.VISIBLE : View.GONE);
     }
 
     @Override

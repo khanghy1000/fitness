@@ -103,7 +103,7 @@ public class TraineeNutritionPlanDetailsActivity extends AppCompatActivity imple
         binding.toolbar.setNavigationOnClickListener(v -> finish());
         binding.swipeRefreshLayout.setOnRefreshListener(() -> loadPlanDetails());
         
-        binding.fabEditPlan.setOnClickListener(v -> {
+        binding.buttonEdit.setOnClickListener(v -> {
             Intent intent = new Intent(this, NutritionPlanEditActivity.class);
             intent.putExtra("PLAN_ID", planId);
             intent.putExtra("PLAN_NAME", planName);
@@ -233,7 +233,7 @@ public class TraineeNutritionPlanDetailsActivity extends AppCompatActivity imple
         String currentUserId = viewModel.currentUserId.getValue();
         boolean isCreatedByCurrentUser = plan.getCreatedBy() != null && 
                                        plan.getCreatedBy().equals(currentUserId);
-        binding.fabEditPlan.setVisibility(isCreatedByCurrentUser ? View.VISIBLE : View.GONE);
+        binding.buttonEdit.setVisibility(isCreatedByCurrentUser ? View.VISIBLE : View.GONE);
     }
 
     @Override

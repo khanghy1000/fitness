@@ -17,7 +17,20 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_arrow_back"
-            app:title="Day Details" />
+            app:title="Day Details">
+
+            <ImageButton
+                android:id="@+id/buttonEdit"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_edit"
+                android:contentDescription="Edit workout plan"
+                android:visibility="gone" />
+
+        </com.google.android.material.appbar.MaterialToolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -190,18 +203,6 @@
         app:icon="@drawable/ic_play_arrow"
         app:cornerRadius="10dp"
         style="@style/Widget.Material3.Button" />
-
-    <!-- Edit FAB -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabEdit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="96dp"
-        android:src="@drawable/ic_edit"
-        android:contentDescription="Edit workout plan"
-        android:visibility="gone" />
 
     <!-- Progress Bar -->
     <ProgressBar
