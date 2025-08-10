@@ -151,6 +151,20 @@
           "message"
         ]
       },
+      "DayIdParam": {
+        "type": "object",
+        "properties": {
+          "dayId": {
+            "type": "string",
+            "pattern": "^\\d+$",
+            "description": "Workout plan day identifier",
+            "example": "456"
+          }
+        },
+        "required": [
+          "dayId"
+        ]
+      },
       "BulkWorkoutPlanDayExercise": {
         "type": "object",
         "properties": {
@@ -4030,6 +4044,59 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ExerciseResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/workout/user-plans/{userWorkoutPlanId}/days/{dayId}/results": {
+      "delete": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Reset exercise results",
+        "description": "Reset exercise results for a workout day",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+$",
+              "description": "User workout plan identifier",
+              "example": "789"
+            },
+            "required": true,
+            "description": "User workout plan identifier",
+            "name": "userWorkoutPlanId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+$",
+              "description": "Workout plan day identifier",
+              "example": "456"
+            },
+            "required": true,
+            "description": "Workout plan day identifier",
+            "name": "dayId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Exercise result recorded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessage"
                 }
               }
             }

@@ -210,6 +210,24 @@ public class UsersRepository {
         });
     }
 
+    public void resetExerciseResult(String exerciseResultId, String dayId, UsersCallback<SuccessMessage> callback) {
+        usersApi.workoutUserPlansUserWorkoutPlanIdDaysDayIdResultsDelete(exerciseResultId, dayId).enqueue(new Callback<SuccessMessage>() {
+            @Override
+            public void onResponse(Call<SuccessMessage> call, Response<SuccessMessage> response) {
+                if (response.isSuccessful()) {
+                    callback.onSuccess(null);
+                } else {
+                    callback.onError("Failed to reset exercise result: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SuccessMessage> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
+    }
+
     public void getUserWorkoutPlans(UsersCallback<java.util.List<WorkoutPlanAssignment>> callback) {
         usersApi.apiUsersWorkoutPlansGet().enqueue(new Callback<java.util.List<WorkoutPlanAssignment>>() {
             @Override

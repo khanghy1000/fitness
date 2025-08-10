@@ -247,4 +247,20 @@ interface UsersApi {
     @POST("api/users/workout/{workoutPlanId}/assign")
     fun apiUsersWorkoutWorkoutPlanIdAssignPost(@Path("workoutPlanId") workoutPlanId: kotlin.String, @Body assignWorkoutPlan: AssignWorkoutPlan? = null): Call<WorkoutPlanAssignmentResponse>
 
+    /**
+     * DELETE workout/user-plans/{userWorkoutPlanId}/days/{dayId}/results
+     * Reset exercise results
+     * Reset exercise results for a workout day
+     * Responses:
+     *  - 201: Exercise result recorded successfully
+     *  - 400: Invalid input data
+     *  - 401: Unauthorized
+     *
+     * @param userWorkoutPlanId User workout plan identifier
+     * @param dayId Workout plan day identifier
+     * @return [Call]<[SuccessMessage]>
+     */
+    @DELETE("workout/user-plans/{userWorkoutPlanId}/days/{dayId}/results")
+    fun workoutUserPlansUserWorkoutPlanIdDaysDayIdResultsDelete(@Path("userWorkoutPlanId") userWorkoutPlanId: kotlin.String, @Path("dayId") dayId: kotlin.String): Call<SuccessMessage>
+
 }

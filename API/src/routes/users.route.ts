@@ -12,6 +12,7 @@ import {
 } from '@middlewares/validation.middleware.ts';
 import {
     idParamSchema,
+    dayIdParamSchema,
     createUserGoalSchema,
     updateUserGoalSchema,
     recordUserStatsSchema,
@@ -299,6 +300,24 @@ router.post(
         });
 
         res.status(201).json(result);
+    }
+);
+
+// Reset exercise results for a workout day
+router.delete(
+    '/workout/user-plans/:userWorkoutPlanId/days/:dayId/results',
+    requireAuthenticated,
+    validateParams(userWorkoutPlanIdParamSchema.merge(dayIdParamSchema)),
+    async (req, res) => {
+        const { userWorkoutPlanId, dayId } = req.params;
+
+        await WorkoutService.resetWorkoutDayResults({
+            userWorkoutPlanId: parseInt(userWorkoutPlanId),
+            workoutPlanDayId: parseInt(dayId),
+            userId: req.session!.user.id,
+        });
+
+        res.json({ message: 'Exercise results reset successfully' });
     }
 );
 

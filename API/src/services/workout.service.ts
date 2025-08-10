@@ -185,14 +185,50 @@ export class WorkoutService {
         calories?: number;
     }) {
         return await db.transaction(async (tx) => {
-            // Insert exercise result
-            const result = await tx
-                .insert(exerciseResult)
-                .values({
-                    ...data,
-                    completedAt: new Date(),
-                })
-                .returning();
+            // Check if an exercise result already exists for this exercise, user workout plan, and user
+            const existingResult = await tx
+                .select()
+                .from(exerciseResult)
+                .where(
+                    and(
+                        eq(
+                            exerciseResult.workoutPlanDayExerciseId,
+                            data.workoutPlanDayExerciseId
+                        ),
+                        eq(
+                            exerciseResult.userWorkoutPlanId,
+                            data.userWorkoutPlanId
+                        ),
+                        eq(exerciseResult.userId, data.userId)
+                    )
+                )
+                .limit(1);
+
+            let result;
+            if (existingResult.length > 0) {
+                // Update existing record
+                const updated = await tx
+                    .update(exerciseResult)
+                    .set({
+                        reps: data.reps,
+                        duration: data.duration,
+                        calories: data.calories,
+                        completedAt: new Date(),
+                    })
+                    .where(eq(exerciseResult.id, existingResult[0].id))
+                    .returning();
+                result = updated[0];
+            } else {
+                // Insert new exercise result
+                const inserted = await tx
+                    .insert(exerciseResult)
+                    .values({
+                        ...data,
+                        completedAt: new Date(),
+                    })
+                    .returning();
+                result = inserted[0];
+            }
 
             // Update progress for the user workout plan
             await this.updateWorkoutPlanProgress(
@@ -201,7 +237,60 @@ export class WorkoutService {
                 tx
             );
 
-            return result[0];
+            return result;
+        });
+    }
+
+    // Reset exercise results for a workout day
+    static async resetWorkoutDayResults(data: {
+        userWorkoutPlanId: number;
+        workoutPlanDayId: number;
+        userId: string;
+    }) {
+        return await db.transaction(async (tx) => {
+            // Get all exercises for this workout plan day
+            const dayExercises = await tx
+                .select({ id: workoutPlanDayExercise.id })
+                .from(workoutPlanDayExercise)
+                .where(
+                    eq(
+                        workoutPlanDayExercise.workoutPlanDayId,
+                        data.workoutPlanDayId
+                    )
+                );
+
+            if (dayExercises.length > 0) {
+                const exerciseIds = dayExercises.map((e) => e.id);
+
+                // Delete all exercise results for this day, user workout plan, and user
+                const deletedResults = await tx
+                    .delete(exerciseResult)
+                    .where(
+                        and(
+                            eq(
+                                exerciseResult.userWorkoutPlanId,
+                                data.userWorkoutPlanId
+                            ),
+                            eq(exerciseResult.userId, data.userId),
+                            or(
+                                ...exerciseIds.map((id) =>
+                                    eq(
+                                        exerciseResult.workoutPlanDayExerciseId,
+                                        id
+                                    )
+                                )
+                            )
+                        )
+                    )
+                    .returning();
+
+                // Update progress for the user workout plan
+                await this.updateWorkoutPlanProgress(
+                    data.userWorkoutPlanId,
+                    data.userId,
+                    tx
+                );
+            }
         });
     }
 

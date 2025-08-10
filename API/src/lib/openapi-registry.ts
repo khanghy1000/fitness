@@ -71,6 +71,7 @@ import {
     userSchema,
     userIdNameEmailSchema,
     detailedUserSchema,
+    dayIdParamSchema,
 } from '../validation/schemas.ts';
 import { create } from 'domain';
 
@@ -88,6 +89,7 @@ registry.register('UserWorkoutPlanIdParam', userWorkoutPlanIdParamSchema);
 registry.register('MealIdParam', mealIdParamSchema);
 registry.register('UserIdParam', userIdParamSchema);
 registry.register('SuccessMessage', successMessageSchema);
+registry.register('DayIdParam', dayIdParamSchema);
 
 // Bulk update schemas
 registry.register('BulkUpdateWorkoutPlan', bulkUpdateWorkoutPlanSchema);
@@ -926,6 +928,33 @@ registry.registerPath({
                             createdAt: z.string(),
                         })
                         .openapi('ExerciseResult'),
+                },
+            },
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'delete',
+    path: '/workout/user-plans/{userWorkoutPlanId}/days/{dayId}/results',
+    tags: ['Users'],
+    summary: 'Reset exercise results',
+    description: 'Reset exercise results for a workout day',
+    request: {
+        params: userWorkoutPlanIdParamSchema.merge(dayIdParamSchema),
+    },
+    responses: {
+        201: {
+            description: 'Exercise result recorded successfully',
+            content: {
+                'application/json': {
+                    schema: successMessageSchema,
                 },
             },
         },
