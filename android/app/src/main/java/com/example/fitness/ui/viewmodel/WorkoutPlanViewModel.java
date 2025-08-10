@@ -10,6 +10,7 @@ import com.example.fitness.data.network.model.generated.WorkoutPlan;
 import com.example.fitness.data.network.model.generated.WorkoutPlanAssignment;
 import com.example.fitness.data.network.model.generated.WorkoutPlanAssignmentResponse;
 import com.example.fitness.data.network.model.generated.AssignWorkoutPlan;
+import com.example.fitness.data.repository.AuthRepository;
 import com.example.fitness.data.repository.UsersRepository;
 import com.example.fitness.data.repository.WorkoutsRepository;
 
@@ -26,11 +27,14 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 @HiltViewModel
 public class WorkoutPlanViewModel extends ViewModel {
     private final UsersRepository usersRepository;
     private final WorkoutsRepository workoutsRepository;
+    private final AuthRepository authRepository;
 
     private final MutableLiveData<List<WorkoutPlan>> _workoutPlans = new MutableLiveData<>();
     public final LiveData<List<WorkoutPlan>> workoutPlans = _workoutPlans;
@@ -66,11 +70,16 @@ public class WorkoutPlanViewModel extends ViewModel {
     // Local map to accumulate creator names before posting to LiveData
     private final Map<String, String> creatorNamesCache = new HashMap<>();
 
+    private final MutableLiveData<String> _currentUserId = new MutableLiveData<>();
+    public final LiveData<String> currentUserId = _currentUserId;
+
     @Inject
-    public WorkoutPlanViewModel(UsersRepository usersRepository, WorkoutsRepository workoutsRepository) {
+    public WorkoutPlanViewModel(UsersRepository usersRepository, WorkoutsRepository workoutsRepository, AuthRepository authRepository) {
         this.usersRepository = usersRepository;
         this.workoutsRepository = workoutsRepository;
+        this.authRepository = authRepository;
         loadWorkoutPlans();
+        loadCurrentUserId();
     }
 
     public void loadWorkoutPlans() {
@@ -252,5 +261,18 @@ public class WorkoutPlanViewModel extends ViewModel {
     public void clearMessages() {
         _successMessage.setValue(null);
         _errorMessage.setValue(null);
+    }
+
+    private void loadCurrentUserId() {
+        authRepository.getCurrentUserIdSync()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                userId -> _currentUserId.setValue(userId),
+                throwable -> {
+                    // Handle error if needed
+                    android.util.Log.e("WorkoutPlanViewModel", "Failed to get current user ID", throwable);
+                }
+            );
     }
 }

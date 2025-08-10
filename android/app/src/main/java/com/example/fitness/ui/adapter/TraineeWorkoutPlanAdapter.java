@@ -25,9 +25,11 @@ public class TraineeWorkoutPlanAdapter extends RecyclerView.Adapter<TraineeWorko
     private List<WorkoutPlanAssignment> workoutPlanAssignments = new ArrayList<>();
     private Map<String, String> creatorNames = new HashMap<>();
     private OnWorkoutPlanClickListener listener;
+    private String currentUserId;
 
     public interface OnWorkoutPlanClickListener {
         void onWorkoutPlanClick(WorkoutPlan workoutPlan);
+        void onWorkoutPlanEdit(WorkoutPlan workoutPlan);
     }
 
     public TraineeWorkoutPlanAdapter(OnWorkoutPlanClickListener listener) {
@@ -45,7 +47,7 @@ public class TraineeWorkoutPlanAdapter extends RecyclerView.Adapter<TraineeWorko
     @Override
     public void onBindViewHolder(@NonNull TraineeWorkoutPlanViewHolder holder, int position) {
         WorkoutPlanAssignment workoutPlanAssignment = workoutPlanAssignments.get(position);
-        holder.bind(workoutPlanAssignment, listener, creatorNames);
+        holder.bind(workoutPlanAssignment, listener, creatorNames, currentUserId);
     }
 
     @Override
@@ -68,6 +70,11 @@ public class TraineeWorkoutPlanAdapter extends RecyclerView.Adapter<TraineeWorko
         }
     }
 
+    public void setCurrentUserId(String currentUserId) {
+        this.currentUserId = currentUserId;
+        notifyDataSetChanged();
+    }
+
     public static class TraineeWorkoutPlanViewHolder extends RecyclerView.ViewHolder {
         private TextView textViewWorkoutPlanName;
         private TextView textViewWorkoutPlanDescription;
@@ -77,6 +84,7 @@ public class TraineeWorkoutPlanAdapter extends RecyclerView.Adapter<TraineeWorko
         private TextView textViewProgress;
         private TextView textViewCreatedBy;
         private Chip chipStatus;
+        private View buttonEdit;
 
         public TraineeWorkoutPlanViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -88,9 +96,10 @@ public class TraineeWorkoutPlanAdapter extends RecyclerView.Adapter<TraineeWorko
             textViewProgress = itemView.findViewById(R.id.textViewProgress);
             textViewCreatedBy = itemView.findViewById(R.id.textViewCreatedBy);
             chipStatus = itemView.findViewById(R.id.chipStatus);
+            buttonEdit = itemView.findViewById(R.id.buttonEdit);
         }
 
-        public void bind(WorkoutPlanAssignment workoutPlanAssignment, OnWorkoutPlanClickListener listener, Map<String, String> creatorNames) {
+        public void bind(WorkoutPlanAssignment workoutPlanAssignment, OnWorkoutPlanClickListener listener, Map<String, String> creatorNames, String currentUserId) {
             WorkoutPlan workoutPlan = workoutPlanAssignment.getWorkoutPlan();
             
             textViewWorkoutPlanName.setText(workoutPlan.getName());
@@ -161,6 +170,20 @@ public class TraineeWorkoutPlanAdapter extends RecyclerView.Adapter<TraineeWorko
             String status = workoutPlanAssignment.getStatus().getValue();
             chipStatus.setText(status.substring(0, 1).toUpperCase() + status.substring(1));
             chipStatus.setChecked(workoutPlanAssignment.getStatus() == WorkoutPlanAssignment.Status.active);
+
+            // Show edit button only if current user created this plan
+            boolean isCreatedByCurrentUser = workoutPlan.getCreatedBy() != null && 
+                                           workoutPlan.getCreatedBy().equals(currentUserId);
+            if (buttonEdit != null) {
+                buttonEdit.setVisibility(isCreatedByCurrentUser ? View.VISIBLE : View.GONE);
+                if (isCreatedByCurrentUser) {
+                    buttonEdit.setOnClickListener(v -> {
+                        if (listener != null) {
+                            listener.onWorkoutPlanEdit(workoutPlan);
+                        }
+                    });
+                }
+            }
 
             // Click listener - pass the workout plan
             itemView.setOnClickListener(v -> {

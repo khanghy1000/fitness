@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.fitness.R;
 import com.example.fitness.data.network.model.generated.WorkoutPlan;
 import com.example.fitness.databinding.ActivityTraineeWorkoutPlanBinding;
+import com.example.fitness.ui.activity.WorkoutPlanEditActivity;
 import com.example.fitness.ui.adapter.TraineeWorkoutPlanAdapter;
 import com.example.fitness.ui.dialog.CreateWorkoutPlanDialogFragment;
 import com.example.fitness.ui.viewmodel.WorkoutPlanViewModel;
@@ -102,6 +103,12 @@ public class TraineeWorkoutPlanActivity extends AppCompatActivity implements Tra
             binding.swipeRefreshLayout.setRefreshing(isRefreshing);
         });
 
+        viewModel.currentUserId.observe(this, currentUserId -> {
+            if (currentUserId != null) {
+                workoutPlanAdapter.setCurrentUserId(currentUserId);
+            }
+        });
+
         viewModel.error.observe(this, error -> {
             if (error != null) {
                 Toast.makeText(this, error, Toast.LENGTH_LONG).show();
@@ -128,6 +135,14 @@ public class TraineeWorkoutPlanActivity extends AppCompatActivity implements Tra
     @Override
     public void onWorkoutPlanClick(WorkoutPlan workoutPlan) {
         Intent intent = new Intent(this, TraineeWorkoutPlanDetailsActivity.class);
+        intent.putExtra("PLAN_ID", workoutPlan.getId());
+        intent.putExtra("PLAN_NAME", workoutPlan.getName());
+        startActivity(intent);
+    }
+
+    @Override
+    public void onWorkoutPlanEdit(WorkoutPlan workoutPlan) {
+        Intent intent = new Intent(this, WorkoutPlanEditActivity.class);
         intent.putExtra("PLAN_ID", workoutPlan.getId());
         intent.putExtra("PLAN_NAME", workoutPlan.getName());
         startActivity(intent);
