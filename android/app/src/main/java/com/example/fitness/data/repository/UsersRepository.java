@@ -210,8 +210,8 @@ public class UsersRepository {
         });
     }
 
-    public void resetExerciseResult(String exerciseResultId, String dayId, UsersCallback<SuccessMessage> callback) {
-        usersApi.workoutUserPlansUserWorkoutPlanIdDaysDayIdResultsDelete(exerciseResultId, dayId).enqueue(new Callback<SuccessMessage>() {
+    public void resetExerciseResult(String userWorkoutPlanId, String dayId, UsersCallback<SuccessMessage> callback) {
+        usersApi.workoutUserPlansUserWorkoutPlanIdDaysDayIdResultsDelete(userWorkoutPlanId, dayId).enqueue(new Callback<SuccessMessage>() {
             @Override
             public void onResponse(Call<SuccessMessage> call, Response<SuccessMessage> response) {
                 if (response.isSuccessful()) {
