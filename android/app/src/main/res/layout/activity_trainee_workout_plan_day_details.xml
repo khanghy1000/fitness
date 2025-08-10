@@ -220,18 +220,44 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Start Button (Fixed Position) -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/buttonStart"
+    <!-- Button Container (Fixed Position) -->
+    <LinearLayout
+        android:id="@+id/layoutButtonContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_margin="16dp"
-        android:text="Start Workout"
-        android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
-        app:icon="@drawable/ic_play_arrow"
-        app:cornerRadius="10dp"
-        style="@style/Widget.Material3.Button" />
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <!-- Start Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonStart"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:text="Start Workout"
+            android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+            app:icon="@drawable/ic_play_arrow"
+            app:cornerRadius="10dp"
+            style="@style/Widget.Material3.Button" />
+
+        <!-- Reset Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonReset"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:text="Reset Progress"
+            android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+            app:icon="@drawable/ic_refresh"
+            app:cornerRadius="10dp"
+            android:visibility="gone"
+            style="@style/Widget.Material3.Button.UnelevatedButton" />
+
+    </LinearLayout>
 
     <!-- Progress Bar -->
     <ProgressBar

@@ -49,8 +49,12 @@ public class WorkoutDayDetailsViewModel extends ViewModel {
     private final MutableLiveData<DetailedWorkoutPlan> _currentPlan = new MutableLiveData<>();
     public final LiveData<DetailedWorkoutPlan> currentPlan = _currentPlan;
 
+    private final MutableLiveData<Boolean> _isResetting = new MutableLiveData<>();
+    public final LiveData<Boolean> isResetting = _isResetting;
+
     private String userWorkoutPlanId;
     private int currentDayNumber;
+    private int currentDayId;
 
     @Inject
     public WorkoutDayDetailsViewModel(WorkoutsRepository workoutsRepository, UsersRepository usersRepository, AuthRepository authRepository) {
@@ -89,6 +93,7 @@ public class WorkoutDayDetailsViewModel extends ViewModel {
                 if (result.getWorkoutPlanDays() != null) {
                     for (var day : result.getWorkoutPlanDays()) {
                         if (day.getDay() == dayNumber) {
+                            currentDayId = day.getId(); // Store day ID for reset functionality
                             _exercises.setValue(day.getExercises());
                             
                             // Load workout plan results to determine uncompleted exercises
@@ -199,6 +204,48 @@ public class WorkoutDayDetailsViewModel extends ViewModel {
     public boolean isWorkoutCompleted() {
         List<DetailedWorkoutPlanDayExercise> uncompletedExercises = _uncompletedExercises.getValue();
         return uncompletedExercises != null && uncompletedExercises.isEmpty();
+    }
+
+    public boolean hasExerciseProgress() {
+        List<DetailedWorkoutPlanDayExercise> allExercises = _exercises.getValue();
+        List<DetailedWorkoutPlanDayExercise> uncompletedExercises = _uncompletedExercises.getValue();
+        
+        if (allExercises == null || allExercises.isEmpty()) return false;
+        if (uncompletedExercises == null) return true; // All exercises are completed
+        
+        return uncompletedExercises.size() < allExercises.size(); // Some exercises are completed
+    }
+
+    public void resetExerciseProgress() {
+        if (userWorkoutPlanId == null) {
+            _error.setValue("Cannot reset progress: No user workout plan ID");
+            return;
+        }
+        
+        _isResetting.setValue(true);
+        usersRepository.resetExerciseResult(userWorkoutPlanId, String.valueOf(currentDayId), 
+            new UsersRepository.UsersCallback<com.example.fitness.data.network.model.generated.SuccessMessage>() {
+                @Override
+                public void onSuccess(com.example.fitness.data.network.model.generated.SuccessMessage result) {
+                    _isResetting.setValue(false);
+                    // Reload exercises to reflect the reset
+                    List<DetailedWorkoutPlanDayExercise> allExercises = _exercises.getValue();
+                    if (allExercises != null) {
+                        _uncompletedExercises.setValue(allExercises); // All exercises are now uncompleted
+                        _workoutPlanResults.setValue(null); // Clear previous results
+                        // Reload workout plan results
+                        if (_currentUserId.getValue() != null) {
+                            loadWorkoutPlanResults(allExercises);
+                        }
+                    }
+                }
+
+                @Override
+                public void onError(String error) {
+                    _isResetting.setValue(false);
+                    _error.setValue("Failed to reset exercise progress: " + error);
+                }
+            });
     }
 
     public void clearError() {

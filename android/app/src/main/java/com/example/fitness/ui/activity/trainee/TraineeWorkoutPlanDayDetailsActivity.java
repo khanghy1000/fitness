@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -156,6 +157,18 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
             }
         });
         
+        binding.buttonReset.setOnClickListener(v -> {
+            // Show confirmation dialog before resetting
+            new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Reset Exercise Progress")
+                    .setMessage("Are you sure you want to reset all exercise progress for this day? This action cannot be undone.")
+                    .setPositiveButton("Reset", (dialog, which) -> {
+                        viewModel.resetExerciseProgress();
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        });
+        
         binding.buttonEdit.setOnClickListener(v -> {
             Intent intent = new Intent(this, WorkoutPlanEditActivity.class);
             intent.putExtra("PLAN_ID", Integer.parseInt(planId));
@@ -241,15 +254,51 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void updateStartButtonVisibility(List<DetailedWorkoutPlanDayExercise> uncompletedExercises) {
+    private void updateButtonVisibility(List<DetailedWorkoutPlanDayExercise> uncompletedExercises) {
         if (isRestDay) {
             binding.buttonStart.setVisibility(View.GONE);
-        } else if (uncompletedExercises == null || uncompletedExercises.isEmpty()) {
+            binding.buttonReset.setVisibility(View.GONE);
+            return;
+        }
+
+        boolean hasProgress = viewModel.hasExerciseProgress();
+        boolean hasUncompletedExercises = uncompletedExercises != null && !uncompletedExercises.isEmpty();
+
+        if (hasUncompletedExercises) {
+            // Show start button when there are uncompleted exercises
+            binding.buttonStart.setVisibility(View.VISIBLE);
+            if (hasProgress) {
+                // Show both buttons side by side when there's progress and uncompleted exercises
+                binding.buttonStart.setLayoutParams(createWeightedLayoutParams(1, 8));
+                binding.buttonReset.setVisibility(View.VISIBLE);
+                binding.buttonReset.setLayoutParams(createWeightedLayoutParams(1, 8));
+            } else {
+                // Show only start button when no progress yet
+                binding.buttonStart.setLayoutParams(createWeightedLayoutParams(2, 0));
+                binding.buttonReset.setVisibility(View.GONE);
+            }
+        } else {
             // All exercises completed
             binding.buttonStart.setVisibility(View.GONE);
-        } else {
-            binding.buttonStart.setVisibility(View.VISIBLE);
+            if (hasProgress) {
+                // Show only reset button at full width when all exercises are completed
+                binding.buttonReset.setVisibility(View.VISIBLE);
+                binding.buttonReset.setLayoutParams(createWeightedLayoutParams(2, 0));
+            } else {
+                binding.buttonReset.setVisibility(View.GONE);
+            }
         }
+    }
+
+    private LinearLayout.LayoutParams createWeightedLayoutParams(int weight, int marginDp) {
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, weight);
+        int marginPx = (int) (marginDp * getResources().getDisplayMetrics().density);
+        if (weight == 1) {
+            // Side by side buttons
+            params.setMarginStart(marginPx);
+            params.setMarginEnd(marginPx);
+        }
+        return params;
     }
 
     private void updateDayProgress() {
@@ -271,18 +320,25 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
         viewModel.exercises.observe(this, this::updateExercises);
 
         viewModel.uncompletedExercises.observe(this, uncompletedExercises -> {
-            this.updateStartButtonVisibility(uncompletedExercises);
+            this.updateButtonVisibility(uncompletedExercises);
         });
 
         viewModel.workoutPlanResults.observe(this, results -> {
             if (results != null) {
                 exerciseAdapter.setWorkoutPlanResults(results, dayNumber);
                 updateDayProgress();
+                // Update button visibility when results change
+                this.updateButtonVisibility(viewModel.uncompletedExercises.getValue());
             }
         });
 
         viewModel.isLoading.observe(this, isLoading -> {
             binding.progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        });
+
+        viewModel.isResetting.observe(this, isResetting -> {
+            binding.buttonReset.setEnabled(!isResetting);
+            binding.buttonReset.setText(isResetting ? "Resetting..." : "Reset Progress");
         });
 
         viewModel.error.observe(this, error -> {
@@ -329,14 +385,14 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
             binding.textViewExercisesTitle.setVisibility(View.GONE);
             binding.recyclerViewExercises.setVisibility(View.GONE);
             binding.layoutEmpty.setVisibility(View.GONE);
-            binding.buttonStart.setVisibility(View.GONE);
+            binding.layoutButtonContainer.setVisibility(View.GONE);
         } else {
             // Show workout day layout
             binding.layoutRestDay.setVisibility(View.GONE);
             binding.layoutWorkoutInfo.setVisibility(View.VISIBLE);
             binding.textViewExercisesTitle.setVisibility(View.VISIBLE);
             binding.recyclerViewExercises.setVisibility(View.VISIBLE);
-            binding.buttonStart.setVisibility(View.VISIBLE);
+            binding.layoutButtonContainer.setVisibility(View.VISIBLE);
             
             // Display actual data from intent
             int duration = dayDuration != null ? dayDuration : 0;
@@ -382,6 +438,15 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
             binding.layoutEmpty.setVisibility(View.VISIBLE);
             binding.recyclerViewExercises.setVisibility(View.GONE);
             binding.textViewExerciseCount.setText("0 exercises");
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh data when returning from workout activity or edit activity
+        if (planId != null && !isRestDay) {
+            viewModel.loadWorkoutPlanAndExtractDay(planId, dayNumber);
         }
     }
 
