@@ -153,7 +153,8 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
         
         binding.buttonEdit.setOnClickListener(v -> {
             Intent intent = new Intent(this, WorkoutPlanEditActivity.class);
-            intent.putExtra("WORKOUT_PLAN_ID", planId);
+            intent.putExtra("PLAN_ID", Integer.parseInt(planId));
+            intent.putExtra("PLAN_NAME", planName);
             startActivity(intent);
         });
     }
