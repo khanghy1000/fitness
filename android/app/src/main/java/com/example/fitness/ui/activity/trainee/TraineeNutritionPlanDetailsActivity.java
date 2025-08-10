@@ -1,5 +1,6 @@
 package com.example.fitness.ui.activity.trainee;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -18,6 +19,7 @@ import com.example.fitness.data.network.model.generated.DetailedNutritionPlanDay
 import com.example.fitness.data.network.model.generated.DetailedNutritionPlanMeal;
 import com.example.fitness.data.network.model.generated.MealCompletion;
 import com.example.fitness.databinding.ActivityTraineeNutritionPlanDetailsBinding;
+import com.example.fitness.ui.activity.NutritionPlanEditActivity;
 import com.example.fitness.ui.adapter.TodayMealsAdapter;
 import com.example.fitness.ui.viewmodel.TraineeNutritionPlanViewModel;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -100,6 +102,13 @@ public class TraineeNutritionPlanDetailsActivity extends AppCompatActivity imple
     private void setupListeners() {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
         binding.swipeRefreshLayout.setOnRefreshListener(() -> loadPlanDetails());
+        
+        binding.fabEditPlan.setOnClickListener(v -> {
+            Intent intent = new Intent(this, NutritionPlanEditActivity.class);
+            intent.putExtra("PLAN_ID", planId);
+            intent.putExtra("PLAN_NAME", planName);
+            startActivity(intent);
+        });
     }
 
     private void observeViewModel() {
@@ -107,6 +116,13 @@ public class TraineeNutritionPlanDetailsActivity extends AppCompatActivity imple
             if (plan != null) {
                 currentPlan = plan;
                 displayTodaysMeals(plan);
+                updateEditButtonVisibility(plan);
+            }
+        });
+
+        viewModel.currentUserId.observe(this, currentUserId -> {
+            if (currentUserId != null && currentPlan != null) {
+                updateEditButtonVisibility(currentPlan);
             }
         });
 
@@ -213,6 +229,13 @@ public class TraineeNutritionPlanDetailsActivity extends AppCompatActivity imple
         }
     }
 
+    private void updateEditButtonVisibility(DetailedNutritionPlan plan) {
+        String currentUserId = viewModel.currentUserId.getValue();
+        boolean isCreatedByCurrentUser = plan.getCreatedBy() != null && 
+                                       plan.getCreatedBy().equals(currentUserId);
+        binding.fabEditPlan.setVisibility(isCreatedByCurrentUser ? View.VISIBLE : View.GONE);
+    }
+
     @Override
     public void onCompleteMeal(DetailedNutritionPlanMeal meal) {
         showMealCompletionDialog(meal);
@@ -237,6 +260,13 @@ public class TraineeNutritionPlanDetailsActivity extends AppCompatActivity imple
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh data when returning from edit activity
+        loadPlanDetails();
     }
 
     @Override

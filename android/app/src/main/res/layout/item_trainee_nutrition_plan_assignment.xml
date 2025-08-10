@@ -69,13 +69,31 @@
 
             </LinearLayout>
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipStatus"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Active"
-                android:textSize="12sp"
-                style="@style/Widget.MaterialComponents.Chip.Choice" />
+                android:orientation="vertical"
+                android:gravity="end">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Active"
+                    android:textSize="12sp"
+                    style="@style/Widget.MaterialComponents.Chip.Choice" />
+
+                <ImageButton
+                    android:id="@+id/buttonEdit"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="8dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_edit"
+                    android:contentDescription="Edit nutrition plan"
+                    android:visibility="gone" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

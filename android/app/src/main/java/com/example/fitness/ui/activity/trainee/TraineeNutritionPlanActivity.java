@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.fitness.R;
 import com.example.fitness.data.network.model.generated.NutritionPlanAssignment;
 import com.example.fitness.databinding.ActivityTraineeNutritionPlanBinding;
+import com.example.fitness.ui.activity.NutritionPlanEditActivity;
 import com.example.fitness.ui.adapter.TraineeNutritionPlanAssignmentAdapter;
 import com.example.fitness.ui.viewmodel.TraineeNutritionPlanViewModel;
 
@@ -85,6 +86,12 @@ public class TraineeNutritionPlanActivity extends AppCompatActivity implements T
             }
         });
 
+        viewModel.currentUserId.observe(this, currentUserId -> {
+            if (currentUserId != null) {
+                adapter.setCurrentUserId(currentUserId);
+            }
+        });
+
         viewModel.isLoading.observe(this, isLoading -> {
             binding.progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
         });
@@ -115,6 +122,15 @@ public class TraineeNutritionPlanActivity extends AppCompatActivity implements T
     public void onAssignmentClick(NutritionPlanAssignment assignment) {
         Intent intent = new Intent(this, TraineeNutritionPlanDetailsActivity.class);
         intent.putExtra("ASSIGNMENT_ID", assignment.getId());
+        intent.putExtra("PLAN_ID", assignment.getNutritionPlanId());
+        intent.putExtra("PLAN_NAME", assignment.getNutritionPlan() != null ? 
+            assignment.getNutritionPlan().getName() : "Nutrition Plan #" + assignment.getNutritionPlanId());
+        startActivity(intent);
+    }
+
+    @Override
+    public void onAssignmentEdit(NutritionPlanAssignment assignment) {
+        Intent intent = new Intent(this, NutritionPlanEditActivity.class);
         intent.putExtra("PLAN_ID", assignment.getNutritionPlanId());
         intent.putExtra("PLAN_NAME", assignment.getNutritionPlan() != null ? 
             assignment.getNutritionPlan().getName() : "Nutrition Plan #" + assignment.getNutritionPlanId());

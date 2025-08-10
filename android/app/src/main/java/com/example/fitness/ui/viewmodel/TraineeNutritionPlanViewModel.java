@@ -10,6 +10,7 @@ import com.example.fitness.data.network.model.generated.MealCompletion;
 import com.example.fitness.data.network.model.generated.MealCompletionResponse;
 import com.example.fitness.data.network.model.generated.NutritionPlanAssignment;
 import com.example.fitness.data.network.model.generated.WorkoutPlanAssignment;
+import com.example.fitness.data.repository.AuthRepository;
 import com.example.fitness.data.repository.NutritionRepository;
 import com.example.fitness.data.repository.UsersRepository;
 
@@ -23,11 +24,14 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 @HiltViewModel
 public class TraineeNutritionPlanViewModel extends ViewModel {
     private final UsersRepository usersRepository;
     private final NutritionRepository nutritionRepository;
+    private final AuthRepository authRepository;
 
     private final MutableLiveData<List<NutritionPlanAssignment>> _nutritionPlanAssignments = new MutableLiveData<>();
     public final LiveData<List<NutritionPlanAssignment>> nutritionPlanAssignments = _nutritionPlanAssignments;
@@ -57,11 +61,16 @@ public class TraineeNutritionPlanViewModel extends ViewModel {
     // Local map to accumulate creator names before posting to LiveData
     private final Map<String, String> creatorNamesCache = new HashMap<>();
 
+    private final MutableLiveData<String> _currentUserId = new MutableLiveData<>();
+    public final LiveData<String> currentUserId = _currentUserId;
+
     @Inject
-    public TraineeNutritionPlanViewModel(UsersRepository usersRepository, NutritionRepository nutritionRepository) {
+    public TraineeNutritionPlanViewModel(UsersRepository usersRepository, NutritionRepository nutritionRepository, AuthRepository authRepository) {
         this.usersRepository = usersRepository;
         this.nutritionRepository = nutritionRepository;
+        this.authRepository = authRepository;
         loadUserNutritionPlans();
+        loadCurrentUserId();
     }
 
     public void loadUserNutritionPlans() {
@@ -198,5 +207,18 @@ public class TraineeNutritionPlanViewModel extends ViewModel {
 
     public void clearSuccessMessage() {
         _successMessage.setValue(null);
+    }
+
+    private void loadCurrentUserId() {
+        authRepository.getCurrentUserIdSync()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                userId -> _currentUserId.setValue(userId),
+                throwable -> {
+                    // Handle error if needed
+                    android.util.Log.e("TraineeNutritionPlanViewModel", "Failed to get current user ID", throwable);
+                }
+            );
     }
 }

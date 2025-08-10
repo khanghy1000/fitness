@@ -24,9 +24,11 @@ public class TraineeNutritionPlanAssignmentAdapter extends RecyclerView.Adapter<
     private List<NutritionPlanAssignment> assignments = new ArrayList<>();
     private Map<String, String> creatorNames = new HashMap<>();
     private OnAssignmentClickListener listener;
+    private String currentUserId;
 
     public interface OnAssignmentClickListener {
         void onAssignmentClick(NutritionPlanAssignment assignment);
+        void onAssignmentEdit(NutritionPlanAssignment assignment);
     }
 
     public TraineeNutritionPlanAssignmentAdapter(OnAssignmentClickListener listener) {
@@ -44,7 +46,7 @@ public class TraineeNutritionPlanAssignmentAdapter extends RecyclerView.Adapter<
     @Override
     public void onBindViewHolder(@NonNull AssignmentViewHolder holder, int position) {
         NutritionPlanAssignment assignment = assignments.get(position);
-        holder.bind(assignment, listener, creatorNames);
+        holder.bind(assignment, listener, creatorNames, currentUserId);
     }
 
     @Override
@@ -67,12 +69,18 @@ public class TraineeNutritionPlanAssignmentAdapter extends RecyclerView.Adapter<
         }
     }
 
+    public void setCurrentUserId(String currentUserId) {
+        this.currentUserId = currentUserId;
+        notifyDataSetChanged();
+    }
+
     public static class AssignmentViewHolder extends RecyclerView.ViewHolder {
         private TextView textViewPlanName;
         private TextView textViewPlanDescription;
         private TextView textViewStartDate;
         private TextView textViewCreatedBy;
         private Chip chipStatus;
+        private View buttonEdit;
 
         public AssignmentViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -81,9 +89,10 @@ public class TraineeNutritionPlanAssignmentAdapter extends RecyclerView.Adapter<
             textViewStartDate = itemView.findViewById(R.id.textViewStartDate);
             textViewCreatedBy = itemView.findViewById(R.id.textViewCreatedBy);
             chipStatus = itemView.findViewById(R.id.chipStatus);
+            buttonEdit = itemView.findViewById(R.id.buttonEdit);
         }
 
-        public void bind(NutritionPlanAssignment assignment, OnAssignmentClickListener listener, Map<String, String> creatorNames) {
+        public void bind(NutritionPlanAssignment assignment, OnAssignmentClickListener listener, Map<String, String> creatorNames, String currentUserId) {
             // Set plan name and description
             if (assignment.getNutritionPlan() != null) {
                 textViewPlanName.setText(assignment.getNutritionPlan().getName());
@@ -152,6 +161,21 @@ public class TraineeNutritionPlanAssignmentAdapter extends RecyclerView.Adapter<
                     chipStatus.setChipBackgroundColorResource(R.color.red_100);
                     chipStatus.setTextColor(itemView.getContext().getResources().getColor(R.color.red_800, null));
                     break;
+            }
+
+            // Show edit button only if current user created this plan
+            boolean isCreatedByCurrentUser = assignment.getNutritionPlan() != null && 
+                                           assignment.getNutritionPlan().getCreatedBy() != null && 
+                                           assignment.getNutritionPlan().getCreatedBy().equals(currentUserId);
+            if (buttonEdit != null) {
+                buttonEdit.setVisibility(isCreatedByCurrentUser ? View.VISIBLE : View.GONE);
+                if (isCreatedByCurrentUser) {
+                    buttonEdit.setOnClickListener(v -> {
+                        if (listener != null) {
+                            listener.onAssignmentEdit(assignment);
+                        }
+                    });
+                }
             }
 
             // Set click listener
