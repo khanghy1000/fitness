@@ -41,8 +41,8 @@ data class NutritionAdherenceHistory (
     @Json(name = "id")
     val id: kotlin.Int,
 
-    @Json(name = "nutritionPlanId")
-    val nutritionPlanId: kotlin.Int,
+    @Json(name = "userNutritionPlanId")
+    val userNutritionPlanId: kotlin.Int,
 
     @Json(name = "userId")
     val userId: kotlin.String,

@@ -8,6 +8,7 @@ import com.example.fitness.data.network.model.generated.DetailedNutritionPlan;
 import com.example.fitness.data.network.model.generated.DetailedUser;
 import com.example.fitness.data.network.model.generated.MealCompletion;
 import com.example.fitness.data.network.model.generated.MealCompletionResponse;
+import com.example.fitness.data.network.model.generated.NutritionAdherenceHistory;
 import com.example.fitness.data.network.model.generated.NutritionPlanAssignment;
 import com.example.fitness.data.network.model.generated.WorkoutPlanAssignment;
 import com.example.fitness.data.repository.AuthRepository;
@@ -38,6 +39,9 @@ public class TraineeNutritionPlanViewModel extends ViewModel {
 
     private final MutableLiveData<DetailedNutritionPlan> _detailedNutritionPlan = new MutableLiveData<>();
     public final LiveData<DetailedNutritionPlan> detailedNutritionPlan = _detailedNutritionPlan;
+
+    private final MutableLiveData<List<NutritionAdherenceHistory>> _nutritionAdherenceHistory = new MutableLiveData<>();
+    public final LiveData<List<NutritionAdherenceHistory>> nutritionAdherenceHistory = _nutritionAdherenceHistory;
 
     private final MutableLiveData<Boolean> _isLoading = new MutableLiveData<>();
     public final LiveData<Boolean> isLoading = _isLoading;
@@ -207,6 +211,32 @@ public class TraineeNutritionPlanViewModel extends ViewModel {
 
     public void clearSuccessMessage() {
         _successMessage.setValue(null);
+    }
+
+    public void loadNutritionAdherenceHistory(String userNutritionPlanId) {
+        String currentUserId = _currentUserId.getValue();
+        android.util.Log.d("AdherenceDebug", "Loading adherence history for userNutritionPlanId: " + userNutritionPlanId + ", currentUserId: " + currentUserId);
+        
+        if (currentUserId == null) {
+            android.util.Log.w("AdherenceDebug", "Current user ID is null, cannot load adherence history");
+            return;
+        }
+        
+        usersRepository.getNutritionAdherenceHistory(userNutritionPlanId, currentUserId, new UsersRepository.UsersCallback<List<NutritionAdherenceHistory>>() {
+            @Override
+            public void onSuccess(List<NutritionAdherenceHistory> result) {
+                android.util.Log.d("AdherenceDebug", "Successfully loaded " + (result != null ? result.size() : 0) + " adherence records");
+                _nutritionAdherenceHistory.setValue(result);
+            }
+
+            @Override
+            public void onError(String error) {
+                android.util.Log.e("AdherenceDebug", "Failed to load adherence history: " + error);
+                _error.setValue("Failed to load adherence history: " + error);
+                // Set empty list to show appropriate UI
+                _nutritionAdherenceHistory.setValue(new ArrayList<>());
+            }
+        });
     }
 
     private void loadCurrentUserId() {
