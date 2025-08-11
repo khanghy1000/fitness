@@ -3,11 +3,12 @@ import { db } from '../src/lib/db.js';
 import { exerciseType as exerciseTypeTable } from '../src/db/schema/tables.js';
 
 const exerciseTypes = [
-    { name: 'Bicep Curl', devicePosition: 'arm', logType: 'reps' },
-    { name: 'Crunch', devicePosition: 'arm', logType: 'reps' },
+    // { name: 'Bicep Curl', devicePosition: 'arm', logType: 'reps' },
+    // { name: 'Crunch', devicePosition: 'arm', logType: 'reps' },
     { name: 'Squat', devicePosition: 'arm', logType: 'reps' },
     { name: 'Lunge', devicePosition: 'arm', logType: 'reps' },
-    { name: 'Heel Touch', devicePosition: 'arm', logType: 'reps' },
+    { name: 'Sit-up', devicePosition: 'arm', logType: 'reps' },
+    // { name: 'Heel Touch', devicePosition: 'arm', logType: 'reps' },
     { name: 'Plank', devicePosition: 'none', logType: 'duration' },
     { name: 'Cobra', devicePosition: 'none', logType: 'duration' },
 ];
