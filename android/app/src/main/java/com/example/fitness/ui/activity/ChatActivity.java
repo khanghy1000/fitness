@@ -19,6 +19,7 @@ import com.example.fitness.databinding.ActivityChatBinding;
 import com.example.fitness.model.Message;
 import com.example.fitness.ui.adapter.ChatAdapter;
 import com.example.fitness.ui.viewmodel.ChatViewModel;
+import com.example.fitness.ui.viewmodel.ConnectionsViewModel;
 import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private ActivityChatBinding binding;
     private ChatViewModel viewModel;
+    private ConnectionsViewModel connectionsViewModel;
     private ChatAdapter adapter;
     private String remoteUserId;
     private String remoteUserName;
@@ -55,7 +57,8 @@ public class ChatActivity extends AppCompatActivity {
     // Force adjustResize in case theme flags interfere
     getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
-        parseIntent(getIntent());
+    parseIntent(getIntent());
+    connectionsViewModel = new ViewModelProvider(this).get(ConnectionsViewModel.class);
         setupToolbar();
     setupRecycler();
     setupKeyboardAwareScrolling();
@@ -64,10 +67,22 @@ public class ChatActivity extends AppCompatActivity {
         observeViewModel();
     fetchCurrentUserId();
 
-        if (!viewModel.isConnected()) viewModel.connect();
-        viewModel.init(remoteUserId);
-        viewModel.loadConversation(50, 0);
-        viewModel.markMessagesRead();
+        // Enforce only active connections can chat
+        if (!connectionsViewModel.hasLoadedActiveConnections()) {
+            connectionsViewModel.loadActiveConnections();
+        }
+        connectionsViewModel.activeConnectionUserIds.observe(this, set -> {
+            if (remoteUserId == null || set == null) return; // wait for data
+            if (connectionsViewModel.hasLoadedActiveConnections() && !set.contains(remoteUserId)) {
+                Toast.makeText(this, "You are not connected with this user", Toast.LENGTH_LONG).show();
+                finish();
+            } else if (set.contains(remoteUserId)) {
+                if (!viewModel.isConnected()) viewModel.connect();
+                viewModel.init(remoteUserId);
+                viewModel.loadConversation(50, 0);
+                viewModel.markMessagesRead();
+            }
+        });
     }
 
     private void fetchCurrentUserId() {
