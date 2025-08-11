@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp">
+    <TextView
+        android:id="@+id/textViewSender"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#888888"
+        android:textSize="12sp"
+        android:text="Sender Name"
+        android:layout_gravity="end"
+        android:paddingBottom="2dp"/>
+    <TextView
+        android:id="@+id/textViewMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_outgoing_message"
+        android:textColor="#FFFFFF"
+        android:padding="12dp"
+        android:text="Outgoing message"
+        android:layout_gravity="end"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="end"
+        android:layout_marginTop="2dp">
+        <TextView
+            android:id="@+id/textViewTimestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2:45 PM"
+            android:textSize="10sp"
+            android:textColor="#DDDDDD"/>
+        <TextView
+            android:id="@+id/textViewReadStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" • Sent"
+            android:textSize="10sp"
+            android:textColor="#DDDDDD"/>
+    </LinearLayout>
+</LinearLayout>
