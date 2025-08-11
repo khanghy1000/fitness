@@ -74,6 +74,16 @@
                     android:insetBottom="0dp"
                     style="@style/Widget.MaterialComponents.Button" />
 
+                <TextView
+                    android:id="@+id/textViewCompletedStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    tools:text="✓ Completed" />
+
             </LinearLayout>
 
         </LinearLayout>

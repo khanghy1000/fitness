@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fitness.R;
 import com.example.fitness.data.network.model.generated.DetailedNutritionPlanMeal;
+import com.example.fitness.data.network.model.generated.MealCompletionDetailed;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 
@@ -18,9 +19,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.HashMap;
 
 public class TodayMealsAdapter extends RecyclerView.Adapter<TodayMealsAdapter.MealViewHolder> {
     private List<DetailedNutritionPlanMeal> meals = new ArrayList<>();
+    private Map<Integer, MealCompletionDetailed> mealCompletions = new HashMap<>();
     private OnMealActionListener listener;
 
     public interface OnMealActionListener {
@@ -42,7 +46,8 @@ public class TodayMealsAdapter extends RecyclerView.Adapter<TodayMealsAdapter.Me
     @Override
     public void onBindViewHolder(@NonNull MealViewHolder holder, int position) {
         DetailedNutritionPlanMeal meal = meals.get(position);
-        holder.bind(meal, listener);
+        MealCompletionDetailed completion = mealCompletions.get(meal.getId());
+        holder.bind(meal, completion, listener);
     }
 
     @Override
@@ -56,6 +61,12 @@ public class TodayMealsAdapter extends RecyclerView.Adapter<TodayMealsAdapter.Me
         notifyDataSetChanged();
     }
 
+    public void updateMealCompletions(Map<Integer, MealCompletionDetailed> completions) {
+        this.mealCompletions.clear();
+        this.mealCompletions.putAll(completions);
+        notifyDataSetChanged();
+    }
+
     public static class MealViewHolder extends RecyclerView.ViewHolder {
         private MaterialCardView cardView;
         private TextView textViewMealName;
@@ -64,6 +75,7 @@ public class TodayMealsAdapter extends RecyclerView.Adapter<TodayMealsAdapter.Me
         private TextView textViewMacros;
         private TextView textViewFoods;
         private MaterialButton buttonComplete;
+        private TextView textViewCompletedStatus;
 
         public MealViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -74,9 +86,10 @@ public class TodayMealsAdapter extends RecyclerView.Adapter<TodayMealsAdapter.Me
             textViewMacros = itemView.findViewById(R.id.textViewMacros);
             textViewFoods = itemView.findViewById(R.id.textViewFoods);
             buttonComplete = itemView.findViewById(R.id.buttonComplete);
+            textViewCompletedStatus = itemView.findViewById(R.id.textViewCompletedStatus);
         }
 
-        public void bind(DetailedNutritionPlanMeal meal, OnMealActionListener listener) {
+        public void bind(DetailedNutritionPlanMeal meal, MealCompletionDetailed completion, OnMealActionListener listener) {
             textViewMealName.setText(meal.getName());
             
             // Format meal time
@@ -130,12 +143,31 @@ public class TodayMealsAdapter extends RecyclerView.Adapter<TodayMealsAdapter.Me
                 textViewFoods.setVisibility(View.GONE);
             }
 
-            // Set complete button listener
-            buttonComplete.setOnClickListener(v -> {
-                if (listener != null) {
-                    listener.onCompleteMeal(meal);
-                }
-            });
+            // Handle completion status
+            if (completion != null && completion.isCompleted()) {
+                // Meal is completed - show completed status and hide complete button
+                buttonComplete.setVisibility(View.GONE);
+                textViewCompletedStatus.setVisibility(View.VISIBLE);
+                textViewCompletedStatus.setText("✓ Completed");
+                textViewCompletedStatus.setTextColor(itemView.getContext().getColor(android.R.color.holo_green_dark));
+                
+                // Change card background to indicate completion
+                cardView.setCardBackgroundColor(itemView.getContext().getColor(R.color.meal_completed_background));
+            } else {
+                // Meal is not completed - show complete button and hide status
+                buttonComplete.setVisibility(View.VISIBLE);
+                textViewCompletedStatus.setVisibility(View.GONE);
+                
+                // Reset card background
+                cardView.setCardBackgroundColor(itemView.getContext().getColor(R.color.surface));
+                
+                // Set complete button listener
+                buttonComplete.setOnClickListener(v -> {
+                    if (listener != null) {
+                        listener.onCompleteMeal(meal);
+                    }
+                });
+            }
         }
     }
 }

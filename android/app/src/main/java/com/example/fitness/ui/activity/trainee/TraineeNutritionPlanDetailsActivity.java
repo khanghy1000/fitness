@@ -18,6 +18,7 @@ import com.example.fitness.data.network.model.generated.DetailedNutritionPlan;
 import com.example.fitness.data.network.model.generated.DetailedNutritionPlanDay;
 import com.example.fitness.data.network.model.generated.DetailedNutritionPlanMeal;
 import com.example.fitness.data.network.model.generated.MealCompletion;
+import com.example.fitness.data.network.model.generated.MealCompletionDetailed;
 import com.example.fitness.data.network.model.generated.DetailedNutritionAdherenceHistory;
 import com.example.fitness.databinding.ActivityTraineeNutritionPlanDetailsBinding;
 import com.example.fitness.ui.activity.NutritionPlanEditActivity;
@@ -33,8 +34,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -51,6 +54,7 @@ public class TraineeNutritionPlanDetailsActivity extends AppCompatActivity imple
     private int planId;
     private String planName;
     private DetailedNutritionPlan currentPlan;
+    private List<DetailedNutritionAdherenceHistory> currentAdherenceHistory = new ArrayList<>();
     
     // View mode tracking
     private enum ViewMode {
@@ -78,7 +82,7 @@ public class TraineeNutritionPlanDetailsActivity extends AppCompatActivity imple
         setupRecyclerView();
         setupListeners();
         observeViewModel();
-        loadPlanDetails();
+        loadInitialData();
     }
 
     private void getIntentData() {
@@ -115,7 +119,7 @@ public class TraineeNutritionPlanDetailsActivity extends AppCompatActivity imple
 
     private void setupListeners() {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
-        binding.swipeRefreshLayout.setOnRefreshListener(() -> loadPlanDetails());
+        binding.swipeRefreshLayout.setOnRefreshListener(() -> loadInitialData());
         
         binding.buttonEdit.setOnClickListener(v -> {
             Intent intent = new Intent(this, NutritionPlanEditActivity.class);
@@ -157,21 +161,29 @@ public class TraineeNutritionPlanDetailsActivity extends AppCompatActivity imple
         viewModel.detailedNutritionPlan.observe(this, plan -> {
             if (plan != null) {
                 currentPlan = plan;
+                android.util.Log.d("ActivityObserver", "Plan received, refreshing current view: " + currentViewMode);
                 refreshCurrentView();
                 updateEditButtonVisibility(plan);
             }
         });
 
         viewModel.nutritionAdherenceHistory.observe(this, adherenceHistory -> {
-            android.util.Log.d("AdherenceDebug", "Activity received adherence history: " + (adherenceHistory != null ? adherenceHistory.size() : "null") + " items");
-            if (adherenceHistory != null) {
-                adherenceAdapter.updateAdherence(adherenceHistory);
-                updateProgressStats(adherenceHistory);
-                
-                // If we're currently in progress view, refresh the display
-                if (currentViewMode == ViewMode.PROGRESS) {
-                    displayProgressView();
-                }
+            android.util.Log.d("ActivityObserver", "Adherence history received: " + (adherenceHistory != null ? adherenceHistory.size() : "null") + " items");
+            currentAdherenceHistory = adherenceHistory != null ? adherenceHistory : new ArrayList<>();
+            
+            // Update progress data
+            adherenceAdapter.updateAdherence(currentAdherenceHistory);
+            updateProgressStats(currentAdherenceHistory);
+            
+            // If we're in Today view and have plan data, refresh to show meal completions
+            if (currentViewMode == ViewMode.TODAY && currentPlan != null) {
+                android.util.Log.d("ActivityObserver", "Refreshing today view with completion data");
+                refreshCurrentView();
+            }
+            
+            // If we're in progress view, refresh the display
+            if (currentViewMode == ViewMode.PROGRESS) {
+                displayProgressView();
             }
         });
 
@@ -199,27 +211,31 @@ public class TraineeNutritionPlanDetailsActivity extends AppCompatActivity imple
             if (message != null) {
                 Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
                 viewModel.clearSuccessMessage();
-                // Refresh the plan after successful meal completion
-                loadPlanDetails();
+                // Refresh data after successful meal completion
+                loadInitialData();
             }
         });
     }
 
-    private void loadPlanDetails() {
-        android.util.Log.d("AdherenceDebug", "Loading plan details - planId: " + planId + ", assignmentId: " + assignmentId);
+    private void loadInitialData() {
+        android.util.Log.d("DataLoading", "Loading initial data - planId: " + planId + ", assignmentId: " + assignmentId);
         if (planId != -1) {
-            viewModel.loadNutritionPlanDetails(String.valueOf(planId));
-            // Also load adherence history for progress tracking
             if (assignmentId != -1) {
-                android.util.Log.d("AdherenceDebug", "Loading adherence history for assignmentId: " + assignmentId);
-                viewModel.loadNutritionAdherenceHistory(String.valueOf(assignmentId));
+                // Load both plan and adherence history
+                viewModel.loadNutritionPlanDetailsWithAdherence(String.valueOf(planId), String.valueOf(assignmentId));
             } else {
-                android.util.Log.w("AdherenceDebug", "Assignment ID is -1, cannot load adherence history");
+                // Just load plan details
+                viewModel.loadNutritionPlanDetails(String.valueOf(planId));
             }
         }
     }
 
+    private void loadPlanDetails() {
+        loadInitialData();
+    }
+
     private void setViewMode(ViewMode mode) {
+        android.util.Log.d("ViewMode", "Setting view mode to: " + mode);
         currentViewMode = mode;
         
         // Update tab selection
@@ -255,14 +271,15 @@ public class TraineeNutritionPlanDetailsActivity extends AppCompatActivity imple
         
         refreshCurrentView();
         
-        // Load adherence history when switching to progress view
-        if (mode == ViewMode.PROGRESS && assignmentId != -1) {
-            viewModel.loadNutritionAdherenceHistory(String.valueOf(assignmentId));
-        }
+        // No need to load adherence history when switching tabs - it's already loaded on startup
     }
     
     private void refreshCurrentView() {
-        if (currentPlan == null) return;
+        android.util.Log.d("ViewRefresh", "Refreshing current view: " + currentViewMode + ", currentPlan: " + (currentPlan != null) + ", currentAdherenceHistory size: " + currentAdherenceHistory.size());
+        if (currentPlan == null) {
+            android.util.Log.d("ViewRefresh", "No plan data available yet");
+            return;
+        }
         
         switch (currentViewMode) {
             case TODAY:
@@ -278,6 +295,8 @@ public class TraineeNutritionPlanDetailsActivity extends AppCompatActivity imple
     }
 
     private void displayTodaysMeals(DetailedNutritionPlan plan) {
+        android.util.Log.d("TodayMeals", "Displaying today's meals, plan days: " + plan.getDays().size() + ", adherence history size: " + currentAdherenceHistory.size());
+        
         // Set today's date in header
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, MMMM dd, yyyy", Locale.getDefault());
         String todayText = "Today - " + dateFormat.format(new Date());
@@ -303,15 +322,28 @@ public class TraineeNutritionPlanDetailsActivity extends AppCompatActivity imple
         }
 
         if (todaysDay != null) {
+            android.util.Log.d("TodayMeals", "Found today's day with " + todaysDay.getMeals().size() + " meals");
+            
+            // Always update meals first
             todayMealsAdapter.updateMeals(todaysDay.getMeals());
+            
+            // Get today's meal completions and update adapter
+            Map<Integer, MealCompletionDetailed> todayCompletions = getTodayMealCompletions();
+            android.util.Log.d("TodayMeals", "Found " + todayCompletions.size() + " meal completions for today");
+            todayMealsAdapter.updateMealCompletions(todayCompletions);
+            
             updateDayMacros(todaysDay);
             updateEmptyState(todaysDay.getMeals().isEmpty());
             
-            // Update adapter in RecyclerView
-            binding.recyclerViewMeals.setAdapter(todayMealsAdapter);
+            // Make sure we're using the correct adapter in RecyclerView
+            if (binding.recyclerViewMeals.getAdapter() != todayMealsAdapter) {
+                binding.recyclerViewMeals.setAdapter(todayMealsAdapter);
+            }
             binding.recyclerViewMeals.setVisibility(View.VISIBLE);
         } else {
+            android.util.Log.d("TodayMeals", "No plan found for today");
             todayMealsAdapter.updateMeals(new ArrayList<>());
+            todayMealsAdapter.updateMealCompletions(new HashMap<>());
             binding.textViewDayMacros.setText("No plan for today");
             updateEmptyState(true);
         }
@@ -328,6 +360,35 @@ public class TraineeNutritionPlanDetailsActivity extends AppCompatActivity imple
             case Calendar.SATURDAY: return DetailedNutritionPlanDay.Weekday.sat;
             default: return DetailedNutritionPlanDay.Weekday.mon;
         }
+    }
+
+    private Map<Integer, MealCompletionDetailed> getTodayMealCompletions() {
+        Map<Integer, MealCompletionDetailed> completions = new HashMap<>();
+        
+        if (currentAdherenceHistory.isEmpty()) {
+            android.util.Log.d("MealCompletion", "No adherence history available");
+            return completions;
+        }
+        
+        // Get today's date in yyyy-MM-dd format
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        String todayDate = dateFormat.format(new Date());
+        
+        // Find today's adherence record
+        for (DetailedNutritionAdherenceHistory adherence : currentAdherenceHistory) {
+            if (todayDate.equals(adherence.getDate())) {
+                // Found today's record, extract meal completions
+                if (adherence.getMealCompletions() != null) {
+                    for (MealCompletionDetailed completion : adherence.getMealCompletions()) {
+                        completions.put(completion.getNutritionPlanMealId(), completion);
+                    }
+                }
+                break;
+            }
+        }
+        
+        android.util.Log.d("MealCompletion", "Found " + completions.size() + " meal completions for today (" + todayDate + ")");
+        return completions;
     }
 
     private void updateDayMacros(DetailedNutritionPlanDay day) {
@@ -387,9 +448,8 @@ public class TraineeNutritionPlanDetailsActivity extends AppCompatActivity imple
         binding.recyclerViewMeals.setVisibility(View.VISIBLE);
         binding.cardViewStats.setVisibility(View.VISIBLE);
         
-        // Check if we have adherence data
-        List<DetailedNutritionAdherenceHistory> currentData = viewModel.nutritionAdherenceHistory.getValue();
-        if (currentData == null || currentData.isEmpty()) {
+        // Use the current adherence history instead of getting from ViewModel
+        if (currentAdherenceHistory.isEmpty()) {
             binding.textViewEmptyState.setText("No adherence data available yet. Complete some meals to see your progress!");
             binding.textViewEmptyState.setVisibility(View.VISIBLE);
             binding.recyclerViewMeals.setVisibility(View.GONE);
@@ -401,8 +461,8 @@ public class TraineeNutritionPlanDetailsActivity extends AppCompatActivity imple
         } else {
             binding.textViewEmptyState.setVisibility(View.GONE);
             binding.recyclerViewMeals.setVisibility(View.VISIBLE);
-            adherenceAdapter.updateAdherence(currentData);
-            updateProgressStats(currentData);
+            adherenceAdapter.updateAdherence(currentAdherenceHistory);
+            updateProgressStats(currentAdherenceHistory);
         }
     }
     
@@ -525,7 +585,7 @@ public class TraineeNutritionPlanDetailsActivity extends AppCompatActivity imple
     protected void onResume() {
         super.onResume();
         // Refresh data when returning from edit activity
-        loadPlanDetails();
+        loadInitialData();
     }
 
     @Override

@@ -26,4 +26,7 @@
     <color name="current_day_background">#FFE3F2FD</color>
     <color name="current_day_border">#FF1976D2</color>
     <color name="current_day_text">#FF0D47A1</color>
+    
+    <!-- Meal completion colors -->
+    <color name="meal_completed_background">#FFE8F5E8</color>
 </resources>
