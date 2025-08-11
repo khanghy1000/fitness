@@ -15,6 +15,8 @@ import org.json.JSONObject;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -31,7 +33,8 @@ public class SocketService {
     private final JsonAdapter<SendMessageRequest> sendMessageAdapter;
     private final JsonAdapter<ConversationRequest> conversationAdapter;
     private final JsonAdapter<List<ConversationSummary>> conversationSummaryListAdapter;
-    private SocketEventListener eventListener;
+    // Support multiple listeners (e.g., chat screen + list screen simultaneously)
+    private final Set<SocketEventListener> listeners = Collections.newSetFromMap(new ConcurrentHashMap<>());
     private final AuthDataStore authDataStore;
 
     public interface SocketEventListener {
@@ -68,44 +71,36 @@ public class SocketService {
         // Additional low-level connection diagnostics
     socket.on("connect_error", args -> {
             Log.e(TAG, "Connect error: " + (args != null && args.length > 0 ? args[0] : "unknown"));
-            if (eventListener != null) {
-                eventListener.onError("connect_error: " + (args != null && args.length > 0 ? args[0] : ""));
+            for (SocketEventListener l : listeners) {
+                l.onError("connect_error: " + (args != null && args.length > 0 ? args[0] : ""));
             }
         });
     socket.on("connect_timeout", args -> {
             Log.e(TAG, "Connect timeout");
-            if (eventListener != null) {
-                eventListener.onError("connect_timeout");
-            }
+            for (SocketEventListener l : listeners) { l.onError("connect_timeout"); }
         });
     socket.on("reconnect_attempt", args -> Log.d(TAG, "Reconnecting attempt..."));
     socket.on("reconnect_error", args -> Log.e(TAG, "Reconnect error: " + (args != null && args.length > 0 ? args[0] : "")));
     socket.on("reconnect_failed", args -> {
             Log.e(TAG, "Reconnect failed");
-            if (eventListener != null) {
-                eventListener.onDisconnected();
-            }
+            for (SocketEventListener l : listeners) { l.onDisconnected(); }
         });
         socket.on(Socket.EVENT_CONNECT, args -> {
             Log.d(TAG, "Socket connected");
-            if (eventListener != null) {
-                eventListener.onConnected();
-            }
+            for (SocketEventListener l : listeners) { l.onConnected(); }
         });
 
         socket.on(Socket.EVENT_DISCONNECT, args -> {
             Log.d(TAG, "Socket disconnected");
-            if (eventListener != null) {
-                eventListener.onDisconnected();
-            }
+            for (SocketEventListener l : listeners) { l.onDisconnected(); }
         });
 
         socket.on("new_message", args -> {
             try {
                 JSONObject data = (JSONObject) args[0];
                 Message message = messageAdapter.fromJson(data.toString());
-                if (eventListener != null && message != null) {
-                    eventListener.onNewMessage(message);
+                if (message != null) {
+                    for (SocketEventListener l : listeners) { l.onNewMessage(message); }
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Error parsing new message", e);
@@ -116,8 +111,8 @@ public class SocketService {
             try {
                 JSONObject data = (JSONObject) args[0];
                 Message message = messageAdapter.fromJson(data.toString());
-                if (eventListener != null && message != null) {
-                    eventListener.onMessageSent(message);
+                if (message != null) {
+                    for (SocketEventListener l : listeners) { l.onMessageSent(message); }
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Error parsing message sent", e);
@@ -131,9 +126,7 @@ public class SocketService {
                 String messagesJson = data.getJSONArray("messages").toString();
                 List<Message> messages = messageListAdapter.fromJson(messagesJson);
 
-                if (eventListener != null) {
-                    eventListener.onConversationHistory(userId, messages);
-                }
+                for (SocketEventListener l : listeners) { l.onConversationHistory(userId, messages); }
             } catch (Exception e) {
                 Log.e(TAG, "Error parsing conversation history", e);
             }
@@ -145,9 +138,7 @@ public class SocketService {
                 String listJson = data.getJSONArray("conversations").toString();
                 List<ConversationSummary> list = conversationSummaryListAdapter.fromJson(listJson);
                 Log.d(TAG, "Received conversations_list size=" + (list != null ? list.size() : 0));
-                if (eventListener != null) {
-                    eventListener.onConversationsList(list != null ? list : Collections.emptyList());
-                }
+                for (SocketEventListener l : listeners) { l.onConversationsList(list != null ? list : Collections.emptyList()); }
             } catch (Exception e) {
                 Log.e(TAG, "Error parsing conversations list", e);
             }
@@ -157,9 +148,7 @@ public class SocketService {
             try {
                 JSONObject data = (JSONObject) args[0];
                 int count = data.getInt("count");
-                if (eventListener != null) {
-                    eventListener.onUnreadCount(count);
-                }
+                for (SocketEventListener l : listeners) { l.onUnreadCount(count); }
             } catch (JSONException e) {
                 Log.e(TAG, "Error parsing unread count", e);
             }
@@ -169,9 +158,7 @@ public class SocketService {
                 JSONObject data = (JSONObject) args[0];
                 String readBy = data.getString("readBy");
                 String readAt = data.getString("readAt");
-                if (eventListener != null) {
-                    eventListener.onMessagesRead(readBy, readAt);
-                }
+                for (SocketEventListener l : listeners) { l.onMessagesRead(readBy, readAt); }
             } catch (JSONException e) {
                 Log.e(TAG, "Error parsing messages read", e);
             }
@@ -182,9 +169,7 @@ public class SocketService {
                 JSONObject data = (JSONObject) args[0];
                 String userId = data.getString("userId");
                 String userName = data.getString("userName");
-                if (eventListener != null) {
-                    eventListener.onUserTyping(userId, userName);
-                }
+                for (SocketEventListener l : listeners) { l.onUserTyping(userId, userName); }
             } catch (JSONException e) {
                 Log.e(TAG, "Error parsing user typing", e);
             }
@@ -194,9 +179,7 @@ public class SocketService {
             try {
                 JSONObject data = (JSONObject) args[0];
                 String userId = data.getString("userId");
-                if (eventListener != null) {
-                    eventListener.onUserStoppedTyping(userId);
-                }
+                for (SocketEventListener l : listeners) { l.onUserStoppedTyping(userId); }
             } catch (JSONException e) {
                 Log.e(TAG, "Error parsing user stopped typing", e);
             }
@@ -207,9 +190,7 @@ public class SocketService {
                 JSONObject data = (JSONObject) args[0];
                 String userId = data.getString("userId");
                 String status = data.getString("status");
-                if (eventListener != null) {
-                    eventListener.onUserStatusChanged(userId, status);
-                }
+                for (SocketEventListener l : listeners) { l.onUserStatusChanged(userId, status); }
             } catch (JSONException e) {
                 Log.e(TAG, "Error parsing user status changed", e);
             }
@@ -219,9 +200,7 @@ public class SocketService {
             try {
                 JSONObject data = (JSONObject) args[0];
                 String message = data.getString("message");
-                if (eventListener != null) {
-                    eventListener.onError(message);
-                }
+                for (SocketEventListener l : listeners) { l.onError(message); }
             } catch (JSONException e) {
                 Log.e(TAG, "Error parsing error message", e);
             }
@@ -301,13 +280,14 @@ public class SocketService {
         socket.emit("user_online");
     }
 
+    // Backwards compatible: replaces all listeners with the provided one
     public void setEventListener(SocketEventListener listener) {
-        this.eventListener = listener;
+        listeners.clear();
+        if (listener != null) listeners.add(listener);
     }
-
-    public void removeEventListener() {
-        this.eventListener = null;
-    }
+    public void addEventListener(SocketEventListener listener) { if (listener != null) listeners.add(listener); }
+    public void removeEventListener(SocketEventListener listener) { if (listener != null) listeners.remove(listener); }
+    public void clearEventListeners() { listeners.clear(); }
 
     public boolean isConnected() {
         return socket.connected();

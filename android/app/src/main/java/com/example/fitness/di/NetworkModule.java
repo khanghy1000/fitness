@@ -118,7 +118,7 @@ public class NetworkModule {
                 // The socket will handle authentication failure
                 System.err.println("Failed to get auth token for socket: " + e.getMessage());
             }
-            return IO.socket(Constants.SOCKET_URL, options); // Add SOCKET_URL to Constants
+            return IO.socket(Constants.BASE_URL, options); // Add SOCKET_URL to Constants
         } catch (Exception e) {
             throw new RuntimeException("Failed to create socket", e);
         }

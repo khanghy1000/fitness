@@ -110,8 +110,11 @@ public class MessageActivity extends AppCompatActivity implements MessageHistory
 
     @Override
     public void onMessageClick(ConversationSummary summary) {
-        Toast.makeText(this, "Clicked conversation with: " + summary.getUserName(), Toast.LENGTH_SHORT).show();
-        // TODO: navigate to detail chat using summary.getUserId()
+    Toast.makeText(this, "Opening chat with: " + summary.getUserName(), Toast.LENGTH_SHORT).show();
+    android.content.Intent intent = new android.content.Intent(this, ChatActivity.class);
+    intent.putExtra(ChatActivity.EXTRA_USER_ID, summary.getUserId());
+    intent.putExtra(ChatActivity.EXTRA_USER_NAME, summary.getUserName());
+    startActivity(intent);
     }
 
     private void loadConversationIfProvided() {
