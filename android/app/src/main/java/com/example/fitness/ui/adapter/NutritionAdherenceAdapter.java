@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fitness.R;
-import com.example.fitness.data.network.model.generated.NutritionAdherenceHistory;
+import com.example.fitness.data.network.model.generated.DetailedNutritionAdherenceHistory;
 import com.google.android.material.card.MaterialCardView;
 
 import java.text.SimpleDateFormat;
@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class NutritionAdherenceAdapter extends RecyclerView.Adapter<NutritionAdherenceAdapter.AdherenceViewHolder> {
-    private List<NutritionAdherenceHistory> adherenceHistory = new ArrayList<>();
+    private List<DetailedNutritionAdherenceHistory> adherenceHistory = new ArrayList<>();
 
     @NonNull
     @Override
@@ -32,7 +32,7 @@ public class NutritionAdherenceAdapter extends RecyclerView.Adapter<NutritionAdh
 
     @Override
     public void onBindViewHolder(@NonNull AdherenceViewHolder holder, int position) {
-        NutritionAdherenceHistory history = adherenceHistory.get(position);
+        DetailedNutritionAdherenceHistory history = adherenceHistory.get(position);
         holder.bind(history);
     }
 
@@ -41,7 +41,7 @@ public class NutritionAdherenceAdapter extends RecyclerView.Adapter<NutritionAdh
         return adherenceHistory.size();
     }
 
-    public void updateAdherence(List<NutritionAdherenceHistory> history) {
+    public void updateAdherence(List<DetailedNutritionAdherenceHistory> history) {
         this.adherenceHistory.clear();
         if (history != null) {
             this.adherenceHistory.addAll(history);
@@ -71,7 +71,7 @@ public class NutritionAdherenceAdapter extends RecyclerView.Adapter<NutritionAdh
             textViewAdherencePercentage = itemView.findViewById(R.id.textViewAdherencePercentage);
         }
 
-        public void bind(NutritionAdherenceHistory history) {
+        public void bind(DetailedNutritionAdherenceHistory history) {
             // Format and display date
             try {
                 SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
@@ -128,7 +128,7 @@ public class NutritionAdherenceAdapter extends RecyclerView.Adapter<NutritionAdh
             }
         }
 
-        private String getDayDisplayName(NutritionAdherenceHistory.Weekday weekday) {
+        private String getDayDisplayName(DetailedNutritionAdherenceHistory.Weekday weekday) {
             switch (weekday) {
                 case sun: return "Sunday";
                 case mon: return "Monday";

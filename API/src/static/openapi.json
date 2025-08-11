@@ -1568,6 +1568,116 @@
           "days"
         ]
       },
+      "MealCompletionDetailed": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "nutritionAdherenceId": {
+            "type": "integer"
+          },
+          "nutritionPlanMealId": {
+            "type": "integer"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "isCompleted": {
+            "type": "boolean"
+          },
+          "completedAt": {
+            "type": "string"
+          },
+          "caloriesConsumed": {
+            "type": "integer"
+          },
+          "proteinConsumed": {
+            "type": "number"
+          },
+          "carbsConsumed": {
+            "type": "number"
+          },
+          "fatConsumed": {
+            "type": "number"
+          },
+          "fiberConsumed": {
+            "type": "number"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "nutritionAdherenceId",
+          "nutritionPlanMealId",
+          "userId",
+          "isCompleted",
+          "completedAt"
+        ]
+      },
+      "DetailedNutritionAdherenceHistory": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "userNutritionPlanId": {
+            "type": "integer"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "weekday": {
+            "type": "string",
+            "enum": [
+              "sun",
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat"
+            ]
+          },
+          "mealsCompleted": {
+            "type": "integer"
+          },
+          "totalMeals": {
+            "type": "integer"
+          },
+          "adherencePercentage": {
+            "type": "number"
+          },
+          "totalCaloriesConsumed": {
+            "type": "integer"
+          },
+          "totalCaloriesPlanned": {
+            "type": "integer"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "mealCompletions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MealCompletionDetailed"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "userNutritionPlanId",
+          "userId",
+          "date",
+          "weekday",
+          "mealCompletions"
+        ]
+      },
       "AssignWorkoutPlan": {
         "type": "object",
         "properties": {
@@ -2804,60 +2914,6 @@
           "updatedAt"
         ]
       },
-      "NutritionAdherenceHistory": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer"
-          },
-          "nutritionPlanId": {
-            "type": "integer"
-          },
-          "userId": {
-            "type": "string"
-          },
-          "date": {
-            "type": "string"
-          },
-          "weekday": {
-            "type": "string",
-            "enum": [
-              "sun",
-              "mon",
-              "tue",
-              "wed",
-              "thu",
-              "fri",
-              "sat"
-            ]
-          },
-          "mealsCompleted": {
-            "type": "integer"
-          },
-          "totalMeals": {
-            "type": "integer"
-          },
-          "adherencePercentage": {
-            "type": "number"
-          },
-          "totalCaloriesConsumed": {
-            "type": "integer"
-          },
-          "totalCaloriesPlanned": {
-            "type": "integer"
-          },
-          "notes": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "nutritionPlanId",
-          "userId",
-          "date",
-          "weekday"
-        ]
-      },
       "ExerciseResult": {
         "type": "object",
         "properties": {
@@ -3992,7 +4048,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/NutritionAdherenceHistory"
+                    "$ref": "#/components/schemas/DetailedNutritionAdherenceHistory"
                   }
                 }
               }

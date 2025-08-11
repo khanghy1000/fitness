@@ -540,28 +540,6 @@ export class NutritionService {
             );
     }
 
-    static async getUserAdherenceHistory(
-        userId: string,
-        startDate: Date,
-        endDate: Date
-    ) {
-        // Convert to date strings in YYYY-MM-DD format
-        const startDateStr = startDate.toISOString().split('T')[0];
-        const endDateStr = endDate.toISOString().split('T')[0];
-
-        return await db
-            .select()
-            .from(nutritionAdherence)
-            .where(
-                and(
-                    eq(nutritionAdherence.userId, userId),
-                    sql`${nutritionAdherence.date} >= ${startDateStr}`,
-                    sql`${nutritionAdherence.date} <= ${endDateStr}`
-                )
-            )
-            .orderBy(desc(nutritionAdherence.date));
-    }
-
     // Get user adherence history by user nutrition plan ID
     static async getUserAdherenceHistoryByPlan(
         userId: string,
@@ -583,11 +561,13 @@ export class NutritionService {
             conditions.push(sql`${nutritionAdherence.date} <= ${endDateStr}`);
         }
 
-        return await db
-            .select()
-            .from(nutritionAdherence)
-            .where(and(...conditions))
-            .orderBy(desc(nutritionAdherence.date));
+        return await db.query.nutritionAdherence.findMany({
+            where: and(...conditions),
+            orderBy: (adherence) => desc(adherence.date),
+            with: {
+                mealCompletions: true,
+            },
+        });
     }
 
     static async bulkUpdateNutritionPlan(

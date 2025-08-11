@@ -18,7 +18,7 @@ import com.example.fitness.data.network.model.generated.DetailedNutritionPlan;
 import com.example.fitness.data.network.model.generated.DetailedNutritionPlanDay;
 import com.example.fitness.data.network.model.generated.DetailedNutritionPlanMeal;
 import com.example.fitness.data.network.model.generated.MealCompletion;
-import com.example.fitness.data.network.model.generated.NutritionAdherenceHistory;
+import com.example.fitness.data.network.model.generated.DetailedNutritionAdherenceHistory;
 import com.example.fitness.databinding.ActivityTraineeNutritionPlanDetailsBinding;
 import com.example.fitness.ui.activity.NutritionPlanEditActivity;
 import com.example.fitness.ui.adapter.TodayMealsAdapter;
@@ -388,7 +388,7 @@ public class TraineeNutritionPlanDetailsActivity extends AppCompatActivity imple
         binding.cardViewStats.setVisibility(View.VISIBLE);
         
         // Check if we have adherence data
-        List<NutritionAdherenceHistory> currentData = viewModel.nutritionAdherenceHistory.getValue();
+        List<DetailedNutritionAdherenceHistory> currentData = viewModel.nutritionAdherenceHistory.getValue();
         if (currentData == null || currentData.isEmpty()) {
             binding.textViewEmptyState.setText("No adherence data available yet. Complete some meals to see your progress!");
             binding.textViewEmptyState.setVisibility(View.VISIBLE);
@@ -436,7 +436,7 @@ public class TraineeNutritionPlanDetailsActivity extends AppCompatActivity imple
         binding.textViewDayMacros.setText(macros.toString());
     }
     
-    private void updateProgressStats(List<NutritionAdherenceHistory> adherenceHistory) {
+    private void updateProgressStats(List<DetailedNutritionAdherenceHistory> adherenceHistory) {
         if (adherenceHistory == null || adherenceHistory.isEmpty()) {
             binding.textViewWeeklyAdherence.setText("Weekly Adherence: No data available");
             binding.textViewMonthlyAverage.setText("Monthly Average: No data available");
@@ -451,7 +451,7 @@ public class TraineeNutritionPlanDetailsActivity extends AppCompatActivity imple
         int totalMealsPlanned = 0;
         
         for (int i = 0; i < recentDays; i++) {
-            NutritionAdherenceHistory day = adherenceHistory.get(i);
+            DetailedNutritionAdherenceHistory day = adherenceHistory.get(i);
             if (day.getAdherencePercentage() != null) {
                 weeklyAdherence += day.getAdherencePercentage().doubleValue();
             }
@@ -471,7 +471,7 @@ public class TraineeNutritionPlanDetailsActivity extends AppCompatActivity imple
         double monthlyAverage = 0;
         int monthlyDays = Math.min(30, adherenceHistory.size());
         for (int i = 0; i < monthlyDays; i++) {
-            NutritionAdherenceHistory day = adherenceHistory.get(i);
+            DetailedNutritionAdherenceHistory day = adherenceHistory.get(i);
             if (day.getAdherencePercentage() != null) {
                 monthlyAverage += day.getAdherencePercentage().doubleValue();
             }

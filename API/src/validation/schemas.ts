@@ -1737,3 +1737,38 @@ export const detailedWorkoutPlanSchema = z
             .openapi({ description: 'Workout plan days' }),
     })
     .openapi('DetailedWorkoutPlan');
+
+// Detailed Nutrition Adherence History with mealCompletions
+export const mealCompletionDetailedSchema = z
+    .object({
+        id: z.int(),
+        nutritionAdherenceId: z.int(),
+        nutritionPlanMealId: z.int(),
+        userId: z.string(),
+        isCompleted: z.boolean(),
+        completedAt: z.string(),
+        caloriesConsumed: z.int().optional(),
+        proteinConsumed: z.number().optional(),
+        carbsConsumed: z.number().optional(),
+        fatConsumed: z.number().optional(),
+        fiberConsumed: z.number().optional(),
+        notes: z.string().optional(),
+    })
+    .openapi('MealCompletionDetailed');
+
+export const detailedNutritionAdherenceHistorySchema = z
+    .object({
+        id: z.int(),
+        userNutritionPlanId: z.int(),
+        userId: z.string(),
+        date: z.string(),
+        weekday: z.enum(['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']),
+        mealsCompleted: z.int().optional(),
+        totalMeals: z.int().optional(),
+        adherencePercentage: z.number().optional(),
+        totalCaloriesConsumed: z.int().optional(),
+        totalCaloriesPlanned: z.int().optional(),
+        notes: z.string().optional(),
+        mealCompletions: z.array(mealCompletionDetailedSchema),
+    })
+    .openapi('DetailedNutritionAdherenceHistory');

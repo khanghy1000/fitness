@@ -8,9 +8,8 @@ import com.example.fitness.data.network.model.generated.DetailedNutritionPlan;
 import com.example.fitness.data.network.model.generated.DetailedUser;
 import com.example.fitness.data.network.model.generated.MealCompletion;
 import com.example.fitness.data.network.model.generated.MealCompletionResponse;
-import com.example.fitness.data.network.model.generated.NutritionAdherenceHistory;
+import com.example.fitness.data.network.model.generated.DetailedNutritionAdherenceHistory;
 import com.example.fitness.data.network.model.generated.NutritionPlanAssignment;
-import com.example.fitness.data.network.model.generated.WorkoutPlanAssignment;
 import com.example.fitness.data.repository.AuthRepository;
 import com.example.fitness.data.repository.NutritionRepository;
 import com.example.fitness.data.repository.UsersRepository;
@@ -40,8 +39,8 @@ public class TraineeNutritionPlanViewModel extends ViewModel {
     private final MutableLiveData<DetailedNutritionPlan> _detailedNutritionPlan = new MutableLiveData<>();
     public final LiveData<DetailedNutritionPlan> detailedNutritionPlan = _detailedNutritionPlan;
 
-    private final MutableLiveData<List<NutritionAdherenceHistory>> _nutritionAdherenceHistory = new MutableLiveData<>();
-    public final LiveData<List<NutritionAdherenceHistory>> nutritionAdherenceHistory = _nutritionAdherenceHistory;
+    private final MutableLiveData<List<DetailedNutritionAdherenceHistory>> _nutritionAdherenceHistory = new MutableLiveData<>();
+    public final LiveData<List<DetailedNutritionAdherenceHistory>> nutritionAdherenceHistory = _nutritionAdherenceHistory;
 
     private final MutableLiveData<Boolean> _isLoading = new MutableLiveData<>();
     public final LiveData<Boolean> isLoading = _isLoading;
@@ -222,9 +221,9 @@ public class TraineeNutritionPlanViewModel extends ViewModel {
             return;
         }
         
-        usersRepository.getNutritionAdherenceHistory(userNutritionPlanId, currentUserId, new UsersRepository.UsersCallback<List<NutritionAdherenceHistory>>() {
+        usersRepository.getNutritionAdherenceHistory(userNutritionPlanId, currentUserId, new UsersRepository.UsersCallback<List<DetailedNutritionAdherenceHistory>>() {
             @Override
-            public void onSuccess(List<NutritionAdherenceHistory> result) {
+            public void onSuccess(List<DetailedNutritionAdherenceHistory> result) {
                 android.util.Log.d("AdherenceDebug", "Successfully loaded " + (result != null ? result.size() : 0) + " adherence records");
                 _nutritionAdherenceHistory.setValue(result);
             }

@@ -64,10 +64,10 @@ interface UsersApi {
      *
      * @param userNutritionPlanId User nutrition plan identifier
      * @param userId User ID for coach to specify which user (optional)
-     * @return [Call]<[kotlin.collections.List<NutritionAdherenceHistory>]>
+     * @return [Call]<[kotlin.collections.List<DetailedNutritionAdherenceHistory>]>
      */
     @GET("api/users/nutrition/user-plans/{userNutritionPlanId}/adherence")
-    fun apiUsersNutritionUserPlansUserNutritionPlanIdAdherenceGet(@Path("userNutritionPlanId") userNutritionPlanId: kotlin.String, @Query("userId") userId: kotlin.String? = null): Call<kotlin.collections.List<NutritionAdherenceHistory>>
+    fun apiUsersNutritionUserPlansUserNutritionPlanIdAdherenceGet(@Path("userNutritionPlanId") userNutritionPlanId: kotlin.String, @Query("userId") userId: kotlin.String? = null): Call<kotlin.collections.List<DetailedNutritionAdherenceHistory>>
 
     /**
      * PUT api/users/nutrition/user-plans/{userNutritionPlanId}/complete

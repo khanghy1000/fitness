@@ -72,6 +72,7 @@ import {
     userIdNameEmailSchema,
     detailedUserSchema,
     dayIdParamSchema,
+    detailedNutritionAdherenceHistorySchema,
 } from '../validation/schemas.ts';
 import { create } from 'domain';
 
@@ -126,6 +127,10 @@ registry.register('NutritionPlanFood', nutritionPlanFoodSchema);
 registry.register('CreateNutritionPlanFood', createNutritionPlanFoodSchema);
 registry.register('UpdateNutritionPlanFood', updateNutritionPlanFoodSchema);
 registry.register('DetailedNutritionPlan', detailedNutritionPlanSchema);
+registry.register(
+    'DetailedNutritionAdherenceHistory',
+    detailedNutritionAdherenceHistorySchema
+);
 
 // Workout schemas
 registry.register('AssignWorkoutPlan', assignWorkoutPlanSchema);
@@ -854,31 +859,7 @@ registry.registerPath({
             description: 'Nutrition adherence history',
             content: {
                 'application/json': {
-                    schema: z.array(
-                        z
-                            .object({
-                                id: z.int(),
-                                nutritionPlanId: z.int(),
-                                userId: z.string(),
-                                date: z.string(),
-                                weekday: z.enum([
-                                    'sun',
-                                    'mon',
-                                    'tue',
-                                    'wed',
-                                    'thu',
-                                    'fri',
-                                    'sat',
-                                ]),
-                                mealsCompleted: z.int().optional(),
-                                totalMeals: z.int().optional(),
-                                adherencePercentage: z.number().optional(),
-                                totalCaloriesConsumed: z.int().optional(),
-                                totalCaloriesPlanned: z.int().optional(),
-                                notes: z.string().optional(),
-                            })
-                            .openapi('NutritionAdherenceHistory')
-                    ),
+                    schema: z.array(detailedNutritionAdherenceHistorySchema),
                 },
             },
         },

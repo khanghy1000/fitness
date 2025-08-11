@@ -118,10 +118,10 @@ public class UsersRepository {
         });
     }
 
-    public void getNutritionAdherenceHistory(String userNutritionPlanId, String userId, UsersCallback<java.util.List<NutritionAdherenceHistory>> callback) {
-        usersApi.apiUsersNutritionUserPlansUserNutritionPlanIdAdherenceGet(userNutritionPlanId, userId).enqueue(new Callback<java.util.List<NutritionAdherenceHistory>>() {
+    public void getNutritionAdherenceHistory(String userNutritionPlanId, String userId, UsersCallback<java.util.List<DetailedNutritionAdherenceHistory>> callback) {
+        usersApi.apiUsersNutritionUserPlansUserNutritionPlanIdAdherenceGet(userNutritionPlanId, userId).enqueue(new Callback<java.util.List<DetailedNutritionAdherenceHistory>>() {
             @Override
-            public void onResponse(Call<java.util.List<NutritionAdherenceHistory>> call, Response<java.util.List<NutritionAdherenceHistory>> response) {
+            public void onResponse(Call<java.util.List<DetailedNutritionAdherenceHistory>> call, Response<java.util.List<DetailedNutritionAdherenceHistory>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     callback.onSuccess(response.body());
                 } else {
@@ -130,7 +130,7 @@ public class UsersRepository {
             }
 
             @Override
-            public void onFailure(Call<java.util.List<NutritionAdherenceHistory>> call, Throwable t) {
+            public void onFailure(Call<java.util.List<DetailedNutritionAdherenceHistory>> call, Throwable t) {
                 callback.onError(t.getMessage());
             }
         });

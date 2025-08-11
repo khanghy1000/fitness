@@ -15,7 +15,6 @@
 
 package com.example.fitness.data.network.model.generated
 
-
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -23,10 +22,11 @@ import com.squareup.moshi.JsonClass
  * 
  *
  * @param id 
- * @param nutritionPlanId 
+ * @param userNutritionPlanId 
  * @param userId 
  * @param date 
  * @param weekday 
+ * @param mealCompletions 
  * @param mealsCompleted 
  * @param totalMeals 
  * @param adherencePercentage 
@@ -36,7 +36,7 @@ import com.squareup.moshi.JsonClass
  */
 
 
-data class NutritionAdherenceHistory (
+data class DetailedNutritionAdherenceHistory (
 
     @Json(name = "id")
     val id: kotlin.Int,
@@ -51,7 +51,10 @@ data class NutritionAdherenceHistory (
     val date: kotlin.String,
 
     @Json(name = "weekday")
-    val weekday: NutritionAdherenceHistory.Weekday,
+    val weekday: DetailedNutritionAdherenceHistory.Weekday,
+
+    @Json(name = "mealCompletions")
+    val mealCompletions: kotlin.collections.List<MealCompletionDetailed>,
 
     @Json(name = "mealsCompleted")
     val mealsCompleted: kotlin.Int? = null,
