@@ -36,6 +36,7 @@ public class TraineeWorkoutPlanDetailsActivity extends AppCompatActivity impleme
     private int assignmentId = -1;
     private String startDate;
     private DetailedWorkoutPlan currentPlan;
+    private boolean isCompleted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +74,7 @@ public class TraineeWorkoutPlanDetailsActivity extends AppCompatActivity impleme
         planName = intent.getStringExtra("PLAN_NAME");
         assignmentId = intent.getIntExtra("ASSIGNMENT_ID", -1);
         startDate = intent.getStringExtra("START_DATE");
+        isCompleted = intent.getBooleanExtra("IS_COMPLETED", false);
         
         if (planIdInt != -1) {
             planId = String.valueOf(planIdInt);
@@ -94,6 +96,7 @@ public class TraineeWorkoutPlanDetailsActivity extends AppCompatActivity impleme
     private void setupRecyclerView() {
         dayAdapter = new TraineeWorkoutPlanDayAdapter();
         dayAdapter.setOnDayClickListener(this);
+        dayAdapter.setIsCompleted(isCompleted); // Pass completed status to adapter
         // Pass the start date to the adapter for current day indication
         if (startDate != null) {
             dayAdapter.setStartDate(startDate);
@@ -191,7 +194,9 @@ public class TraineeWorkoutPlanDetailsActivity extends AppCompatActivity impleme
         String currentUserId = viewModel.currentUserId.getValue();
         boolean isCreatedByCurrentUser = plan != null && plan.getCreatedBy() != null && 
                                        plan.getCreatedBy().equals(currentUserId);
-        binding.buttonEdit.setVisibility(isCreatedByCurrentUser ? View.VISIBLE : View.GONE);
+        // Hide edit button for completed plans or if not created by current user
+        boolean shouldShowEdit = isCreatedByCurrentUser && !isCompleted;
+        binding.buttonEdit.setVisibility(shouldShowEdit ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -213,6 +218,7 @@ public class TraineeWorkoutPlanDetailsActivity extends AppCompatActivity impleme
         intent.putExtra("PLAN_ID", planId);
         intent.putExtra("DAY_DURATION", day.getDuration());
         intent.putExtra("DAY_CALORIES", day.getEstimatedCalories());
+        intent.putExtra("IS_COMPLETED", isCompleted); // Pass completed status
         // Pass assignment info for workout day validation
         if (assignmentId != -1) {
             intent.putExtra("ASSIGNMENT_ID", assignmentId);

@@ -171,12 +171,15 @@ public class TraineeWorkoutPlanAdapter extends RecyclerView.Adapter<TraineeWorko
             chipStatus.setText(status.substring(0, 1).toUpperCase() + status.substring(1));
             chipStatus.setChecked(workoutPlanAssignment.getStatus() == WorkoutPlanAssignment.Status.active);
 
-            // Show edit button only if current user created this plan
+            // Show edit button only if current user created this plan and it's not completed
             boolean isCreatedByCurrentUser = workoutPlan.getCreatedBy() != null && 
                                            workoutPlan.getCreatedBy().equals(currentUserId);
+            boolean isCompleted = workoutPlanAssignment.getStatus() == WorkoutPlanAssignment.Status.completed;
+            boolean shouldShowEdit = isCreatedByCurrentUser && !isCompleted;
+            
             if (buttonEdit != null) {
-                buttonEdit.setVisibility(isCreatedByCurrentUser ? View.VISIBLE : View.GONE);
-                if (isCreatedByCurrentUser) {
+                buttonEdit.setVisibility(shouldShowEdit ? View.VISIBLE : View.GONE);
+                if (shouldShowEdit) {
                     buttonEdit.setOnClickListener(v -> {
                         if (listener != null) {
                             listener.onWorkoutPlanEdit(workoutPlan);

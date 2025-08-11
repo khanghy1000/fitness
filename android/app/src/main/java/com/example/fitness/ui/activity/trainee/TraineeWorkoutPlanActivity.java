@@ -11,27 +11,22 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.fitness.R;
-import com.example.fitness.data.network.model.generated.WorkoutPlan;
-import com.example.fitness.data.network.model.generated.WorkoutPlanAssignment;
 import com.example.fitness.databinding.ActivityTraineeWorkoutPlanBinding;
-import com.example.fitness.ui.activity.WorkoutPlanEditActivity;
-import com.example.fitness.ui.adapter.TraineeWorkoutPlanAdapter;
+import com.example.fitness.ui.adapter.WorkoutPlanTabAdapter;
 import com.example.fitness.ui.dialog.CreateWorkoutPlanDialogFragment;
 import com.example.fitness.ui.viewmodel.WorkoutPlanViewModel;
-
-import java.util.List;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class TraineeWorkoutPlanActivity extends AppCompatActivity implements TraineeWorkoutPlanAdapter.OnWorkoutPlanClickListener {
+public class TraineeWorkoutPlanActivity extends AppCompatActivity {
 
     private ActivityTraineeWorkoutPlanBinding binding;
     private WorkoutPlanViewModel viewModel;
-    private TraineeWorkoutPlanAdapter workoutPlanAdapter;
+    private WorkoutPlanTabAdapter tabAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +44,7 @@ public class TraineeWorkoutPlanActivity extends AppCompatActivity implements Tra
 
         initializeViews();
         setupViewModel();
-        setupRecyclerView();
+        setupViewPager();
         setupListeners();
         observeViewModel();
     }
@@ -66,50 +61,33 @@ public class TraineeWorkoutPlanActivity extends AppCompatActivity implements Tra
         viewModel.loadUserWorkoutPlanAssignments();
     }
 
-    private void setupRecyclerView() {
-        workoutPlanAdapter = new TraineeWorkoutPlanAdapter(this);
-        binding.recyclerViewWorkoutPlans.setLayoutManager(new LinearLayoutManager(this));
-        binding.recyclerViewWorkoutPlans.setAdapter(workoutPlanAdapter);
+    private void setupViewPager() {
+        tabAdapter = new WorkoutPlanTabAdapter(this);
+        binding.viewPager.setAdapter(tabAdapter);
+        
+        new TabLayoutMediator(binding.tabLayout, binding.viewPager,
+                (tab, position) -> {
+                    switch (position) {
+                        case 0:
+                            tab.setText("Active");
+                            break;
+                        case 1:
+                            tab.setText("Completed");
+                            break;
+                    }
+                }
+        ).attach();
     }
 
     private void setupListeners() {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
         
         binding.fabAddWorkoutPlan.setOnClickListener(v -> showCreateWorkoutPlanDialog());
-        
-        binding.swipeRefreshLayout.setOnRefreshListener(() -> viewModel.refreshUserWorkoutPlanAssignments());
     }
 
     private void observeViewModel() {
-        viewModel.userWorkoutPlanAssignments.observe(this, workoutPlanAssignments -> {
-            if (workoutPlanAssignments != null && !workoutPlanAssignments.isEmpty()) {
-                binding.textViewEmpty.setVisibility(View.GONE);
-                binding.recyclerViewWorkoutPlans.setVisibility(View.VISIBLE);
-                workoutPlanAdapter.updateWorkoutPlanAssignments(workoutPlanAssignments);
-            } else {
-                binding.textViewEmpty.setVisibility(View.VISIBLE);
-                binding.recyclerViewWorkoutPlans.setVisibility(View.GONE);
-            }
-        });
-
-        viewModel.creatorNames.observe(this, creatorNames -> {
-            if (creatorNames != null) {
-                workoutPlanAdapter.updateCreatorNames(creatorNames);
-            }
-        });
-
         viewModel.isLoading.observe(this, isLoading -> {
             binding.progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-        });
-
-        viewModel.isRefreshing.observe(this, isRefreshing -> {
-            binding.swipeRefreshLayout.setRefreshing(isRefreshing);
-        });
-
-        viewModel.currentUserId.observe(this, currentUserId -> {
-            if (currentUserId != null) {
-                workoutPlanAdapter.setCurrentUserId(currentUserId);
-            }
         });
 
         viewModel.error.observe(this, error -> {
@@ -133,38 +111,6 @@ public class TraineeWorkoutPlanActivity extends AppCompatActivity implements Tra
             viewModel.createWorkoutPlan(name, description, difficulty);
         });
         dialog.show(getSupportFragmentManager(), "CreateWorkoutPlanDialog");
-    }
-
-    @Override
-    public void onWorkoutPlanClick(WorkoutPlan workoutPlan) {
-        // Find the corresponding assignment to pass start date
-        WorkoutPlanAssignment assignment = null;
-        List<WorkoutPlanAssignment> assignments = viewModel.userWorkoutPlanAssignments.getValue();
-        if (assignments != null) {
-            for (WorkoutPlanAssignment a : assignments) {
-                if (a.getWorkoutPlan().getId() == (workoutPlan.getId())) {
-                    assignment = a;
-                    break;
-                }
-            }
-        }
-        
-        Intent intent = new Intent(this, TraineeWorkoutPlanDetailsActivity.class);
-        intent.putExtra("PLAN_ID", workoutPlan.getId());
-        intent.putExtra("PLAN_NAME", workoutPlan.getName());
-        if (assignment != null) {
-            intent.putExtra("ASSIGNMENT_ID", assignment.getId());
-            intent.putExtra("START_DATE", assignment.getStartDate());
-        }
-        startActivity(intent);
-    }
-
-    @Override
-    public void onWorkoutPlanEdit(WorkoutPlan workoutPlan) {
-        Intent intent = new Intent(this, WorkoutPlanEditActivity.class);
-        intent.putExtra("PLAN_ID", workoutPlan.getId());
-        intent.putExtra("PLAN_NAME", workoutPlan.getName());
-        startActivity(intent);
     }
 
     @Override

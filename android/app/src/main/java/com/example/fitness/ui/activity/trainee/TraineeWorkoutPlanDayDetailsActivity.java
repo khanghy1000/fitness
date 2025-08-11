@@ -59,6 +59,7 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
     private int assignmentId = -1;
     private String startDate;
     private List<DetailedWorkoutPlanDayExercise> currentExercises;
+    private boolean isCompleted = false;
     
     @Inject
     ExercisesRepository exercisesRepository;
@@ -130,6 +131,7 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
             dayCalories = getIntent().getIntExtra("DAY_CALORIES", 0);
             assignmentId = getIntent().getIntExtra("ASSIGNMENT_ID", -1);
             startDate = getIntent().getStringExtra("START_DATE");
+            isCompleted = getIntent().getBooleanExtra("IS_COMPLETED", false);
         }
     }
 
@@ -304,7 +306,8 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
     }
 
     private void updateButtonVisibility(List<DetailedWorkoutPlanDayExercise> uncompletedExercises) {
-        if (isRestDay) {
+        if (isRestDay || isCompleted) {
+            // Hide workout buttons for rest days or completed workout plans
             binding.buttonStart.setVisibility(View.GONE);
             binding.buttonReset.setVisibility(View.GONE);
             return;
@@ -413,7 +416,7 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
     private void checkEditPermission(String currentUserId) {
         if (viewModel.currentPlan.getValue() != null) {
             String planCreatorId = viewModel.currentPlan.getValue().getCreatedBy();
-            boolean canEdit = currentUserId.equals(planCreatorId);
+            boolean canEdit = currentUserId.equals(planCreatorId) && !isCompleted;
             binding.buttonEdit.setVisibility(canEdit ? View.VISIBLE : View.GONE);
         }
     }
@@ -422,8 +425,8 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
         // Day title with current day indicator
         binding.textViewDayTitle.setText("Day " + dayNumber);
         
-        // Show/hide Today chip based on current day
-        if (startDate != null && DateUtils.isCurrentDay(startDate, dayNumber)) {
+        // Show/hide Today chip based on current day, but not for completed plans
+        if (!isCompleted && startDate != null && DateUtils.isCurrentDay(startDate, dayNumber)) {
             binding.chipTodayDetails.setVisibility(View.VISIBLE);
             binding.textViewDayTitle.setTextColor(getResources().getColor(R.color.current_day_text));
         } else {
@@ -431,9 +434,13 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
             binding.textViewDayTitle.setTextColor(getResources().getColor(android.R.color.black));
         }
         
-        // Plan name
+        // Plan name with completed indicator
         if (planName != null) {
-            binding.textViewPlanName.setText(planName);
+            String planText = planName;
+            if (isCompleted) {
+                planText += " (Completed)";
+            }
+            binding.textViewPlanName.setText(planText);
         }
         
         if (isRestDay) {
@@ -450,7 +457,8 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
             binding.layoutWorkoutInfo.setVisibility(View.VISIBLE);
             binding.textViewExercisesTitle.setVisibility(View.VISIBLE);
             binding.recyclerViewExercises.setVisibility(View.VISIBLE);
-            binding.layoutButtonContainer.setVisibility(View.VISIBLE);
+            // Hide button container for completed plans
+            binding.layoutButtonContainer.setVisibility(isCompleted ? View.GONE : View.VISIBLE);
             
             // Display actual data from intent
             int duration = dayDuration != null ? dayDuration : 0;

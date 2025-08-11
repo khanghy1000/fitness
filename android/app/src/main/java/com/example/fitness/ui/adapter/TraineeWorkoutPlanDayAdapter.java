@@ -26,6 +26,7 @@ public class TraineeWorkoutPlanDayAdapter extends RecyclerView.Adapter<TraineeWo
     private WorkoutPlanResults workoutPlanResults;
     private OnDayClickListener listener;
     private String startDate; // Start date of the workout plan assignment
+    private boolean isCompleted = false; // Whether this is a completed workout plan
 
     public interface OnDayClickListener {
         void onDayClick(DetailedWorkoutPlanDay day);
@@ -42,6 +43,11 @@ public class TraineeWorkoutPlanDayAdapter extends RecyclerView.Adapter<TraineeWo
     
     public void setStartDate(String startDate) {
         this.startDate = startDate;
+        notifyDataSetChanged();
+    }
+    
+    public void setIsCompleted(boolean isCompleted) {
+        this.isCompleted = isCompleted;
         notifyDataSetChanged();
     }
 
@@ -91,8 +97,8 @@ public class TraineeWorkoutPlanDayAdapter extends RecyclerView.Adapter<TraineeWo
             // Day number
             binding.textViewDayNumber.setText("Day " + day.getDay());
             
-            // Show/hide Today chip and apply styling
-            if (startDate != null && DateUtils.isCurrentDay(startDate, day.getDay())) {
+            // Show/hide Today chip and apply styling - but not for completed plans
+            if (!isCompleted && startDate != null && DateUtils.isCurrentDay(startDate, day.getDay())) {
                 // Current day styling
                 binding.chipToday.setVisibility(android.view.View.VISIBLE);
                 binding.textViewDayNumber.setTextColor(binding.getRoot().getContext().getResources().getColor(com.example.fitness.R.color.current_day_text));

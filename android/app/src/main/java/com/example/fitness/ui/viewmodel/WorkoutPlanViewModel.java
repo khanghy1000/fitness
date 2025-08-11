@@ -42,6 +42,12 @@ public class WorkoutPlanViewModel extends ViewModel {
     private final MutableLiveData<List<WorkoutPlanAssignment>> _userWorkoutPlanAssignments = new MutableLiveData<>();
     public final LiveData<List<WorkoutPlanAssignment>> userWorkoutPlanAssignments = _userWorkoutPlanAssignments;
 
+    private final MutableLiveData<List<WorkoutPlanAssignment>> _activeWorkoutPlanAssignments = new MutableLiveData<>();
+    public final LiveData<List<WorkoutPlanAssignment>> activeWorkoutPlanAssignments = _activeWorkoutPlanAssignments;
+
+    private final MutableLiveData<List<WorkoutPlanAssignment>> _completedWorkoutPlanAssignments = new MutableLiveData<>();
+    public final LiveData<List<WorkoutPlanAssignment>> completedWorkoutPlanAssignments = _completedWorkoutPlanAssignments;
+
     private final MutableLiveData<Boolean> _isLoading = new MutableLiveData<>();
     public final LiveData<Boolean> isLoading = _isLoading;
 
@@ -111,19 +117,25 @@ public class WorkoutPlanViewModel extends ViewModel {
                 _isLoading.setValue(false);
                 _isRefreshing.setValue(false);
                 
-                // Filter only active workout plan assignments
+                // Separate active and completed workout plan assignments
                 List<WorkoutPlanAssignment> activeAssignments = new ArrayList<>();
+                List<WorkoutPlanAssignment> completedAssignments = new ArrayList<>();
+                
                 for (WorkoutPlanAssignment assignment : result) {
                     if (assignment.getStatus() == WorkoutPlanAssignment.Status.active) {
                         activeAssignments.add(assignment);
+                    } else if (assignment.getStatus() == WorkoutPlanAssignment.Status.completed) {
+                        completedAssignments.add(assignment);
                     }
                 }
                 
-                _userWorkoutPlanAssignments.setValue(activeAssignments);
+                _userWorkoutPlanAssignments.setValue(result);
+                _activeWorkoutPlanAssignments.setValue(activeAssignments);
+                _completedWorkoutPlanAssignments.setValue(completedAssignments);
                 _error.setValue(null);
                 
                 // Fetch creator details for all plans
-                fetchCreatorDetailsForAssignments(activeAssignments);
+                fetchCreatorDetailsForAssignments(result);
             }
 
             @Override
@@ -198,6 +210,18 @@ public class WorkoutPlanViewModel extends ViewModel {
 
     // Refresh trainee workout plan assignments
     public void refreshUserWorkoutPlanAssignments() {
+        _isRefreshing.setValue(true);
+        loadUserWorkoutPlanAssignments();
+    }
+
+    // Refresh active workout plan assignments
+    public void refreshActiveWorkoutPlanAssignments() {
+        _isRefreshing.setValue(true);
+        loadUserWorkoutPlanAssignments();
+    }
+
+    // Refresh completed workout plan assignments
+    public void refreshCompletedWorkoutPlanAssignments() {
         _isRefreshing.setValue(true);
         loadUserWorkoutPlanAssignments();
     }
