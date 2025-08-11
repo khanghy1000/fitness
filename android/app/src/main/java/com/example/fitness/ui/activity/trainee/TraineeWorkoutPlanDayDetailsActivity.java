@@ -1,6 +1,7 @@
 package com.example.fitness.ui.activity.trainee;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.graphics.Insets;
@@ -29,6 +31,7 @@ import com.example.fitness.ui.activity.WorkoutPlanEditActivity;
 import com.example.fitness.ui.adapter.TraineeWorkoutExerciseAdapter;
 import com.example.fitness.ui.dialog.BleConnectionDialog;
 import com.example.fitness.ui.viewmodel.WorkoutDayDetailsViewModel;
+import com.example.fitness.utils.DateUtils;
 import com.example.fitness.utils.DurationUtil;
 
 import java.util.List;
@@ -53,6 +56,8 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
     private String planId;
     private Integer dayDuration;
     private Integer dayCalories;
+    private int assignmentId = -1;
+    private String startDate;
     private List<DetailedWorkoutPlanDayExercise> currentExercises;
     
     @Inject
@@ -116,13 +121,15 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
 
     private void getIntentData() {
         if (getIntent() != null) {
-            dayId = getIntent().getIntExtra("DAY_ID", 0);
+            dayId = getIntent().getIntExtra("DAY_ID", -1);
             dayNumber = getIntent().getIntExtra("DAY_NUMBER", 1);
             isRestDay = getIntent().getBooleanExtra("IS_REST_DAY", false);
             planName = getIntent().getStringExtra("PLAN_NAME");
             planId = getIntent().getStringExtra("PLAN_ID");
             dayDuration = getIntent().getIntExtra("DAY_DURATION", 0);
             dayCalories = getIntent().getIntExtra("DAY_CALORIES", 0);
+            assignmentId = getIntent().getIntExtra("ASSIGNMENT_ID", -1);
+            startDate = getIntent().getStringExtra("START_DATE");
         }
     }
 
@@ -149,11 +156,16 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
         
         binding.buttonStart.setOnClickListener(v -> {
-            // Check if workout has reps exercises that require BLE connection
-            if (hasRepsExercises()) {
-                checkPermissionsAndConnect();
+            // Check if this is a future day
+            if (startDate != null && !DateUtils.isDayAvailableForRecording(startDate, dayNumber)) {
+                showFutureDayDialog();
             } else {
-                startWorkout();
+                // Current or past day - check for BLE if needed
+                if (hasRepsExercises()) {
+                    checkPermissionsAndConnect();
+                } else {
+                    startWorkout();
+                }
             }
         });
         
@@ -216,7 +228,9 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
         dialog.setBleConnectionDialogListener(new BleConnectionDialog.BleConnectionDialogListener() {
             @Override
             public void onBleConnected() {
-                startWorkout();
+                // Determine if recording should be allowed
+                boolean allowRecording = startDate == null || DateUtils.isDayAvailableForRecording(startDate, dayNumber);
+                startWorkout(allowRecording);
             }
             
             @Override
@@ -234,7 +248,31 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
         dialog.show(getSupportFragmentManager(), "ble_connection");
     }
     
+    
+    private void showFutureDayDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Future Workout Day")
+                .setMessage("This workout day is scheduled for the future. You can practice the exercises but your results won't be recorded. Do you want to continue?")
+                .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Start workout without recording results
+                        if (hasRepsExercises()) {
+                            checkPermissionsAndConnect();
+                        } else {
+                            startWorkout(false); // Don't allow recording
+                        }
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+    
     private void startWorkout() {
+        startWorkout(true); // Allow recording by default
+    }
+    
+    private void startWorkout(boolean allowRecording) {
         Intent intent = new Intent(this, TraineeWorkoutActivity.class);
         intent.putExtra("DAY_ID", dayId);
         intent.putExtra("DAY_NUMBER", dayNumber);
@@ -250,6 +288,17 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
         
         // Pass flag to indicate we should start with uncompleted exercises only
         intent.putExtra("START_WITH_UNCOMPLETED", true);
+        
+        // Pass whether to allow result recording
+        intent.putExtra("ALLOW_RECORDING", allowRecording);
+        
+        // Pass assignment info for result recording validation
+        if (assignmentId != -1) {
+            intent.putExtra("ASSIGNMENT_ID", assignmentId);
+        }
+        if (startDate != null) {
+            intent.putExtra("START_DATE", startDate);
+        }
         
         startActivity(intent);
     }
@@ -370,8 +419,17 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
     }
 
     private void displayDayInfo() {
-        // Day title
+        // Day title with current day indicator
         binding.textViewDayTitle.setText("Day " + dayNumber);
+        
+        // Show/hide Today chip based on current day
+        if (startDate != null && DateUtils.isCurrentDay(startDate, dayNumber)) {
+            binding.chipTodayDetails.setVisibility(View.VISIBLE);
+            binding.textViewDayTitle.setTextColor(getResources().getColor(R.color.current_day_text));
+        } else {
+            binding.chipTodayDetails.setVisibility(View.GONE);
+            binding.textViewDayTitle.setTextColor(getResources().getColor(android.R.color.black));
+        }
         
         // Plan name
         if (planName != null) {

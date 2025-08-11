@@ -65,6 +65,9 @@ public class TraineeWorkoutActivity extends AppCompatActivity {
     private String planName;
     private String planId;
     private String userWorkoutPlanId;
+    private boolean allowRecording = true; // Default to allow recording
+    private int assignmentId = -1;
+    private String startDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +114,9 @@ public class TraineeWorkoutActivity extends AppCompatActivity {
             planId = getIntent().getStringExtra("PLAN_ID");
             userWorkoutPlanId = getIntent().getStringExtra("USER_WORKOUT_PLAN_ID");
             isBleConnected = getIntent().getBooleanExtra("BLE_CONNECTED", false);
+            allowRecording = getIntent().getBooleanExtra("ALLOW_RECORDING", true);
+            assignmentId = getIntent().getIntExtra("ASSIGNMENT_ID", -1);
+            startDate = getIntent().getStringExtra("START_DATE");
         }
     }
 
@@ -118,7 +124,11 @@ public class TraineeWorkoutActivity extends AppCompatActivity {
         setSupportActionBar(binding.toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Day " + dayNumber + " Workout");
+            String title = "Day " + dayNumber + " Workout";
+            if (!allowRecording) {
+                title += " (Practice)";
+            }
+            getSupportActionBar().setTitle(title);
         }
         
         // Hide all layouts initially
@@ -127,6 +137,13 @@ public class TraineeWorkoutActivity extends AppCompatActivity {
         binding.layoutWorkoutCompleted.setVisibility(View.GONE);
         binding.layoutDurationExercise.setVisibility(View.GONE);
         binding.layoutRepsExercise.setVisibility(View.GONE);
+        
+        // Show practice mode banner if not allowing recording
+        if (!allowRecording) {
+            binding.layoutPracticeModeBanner.setVisibility(View.VISIBLE);
+        } else {
+            binding.layoutPracticeModeBanner.setVisibility(View.GONE);
+        }
     }
 
     private void setupViewModels() {
@@ -136,6 +153,9 @@ public class TraineeWorkoutActivity extends AppCompatActivity {
         if (userWorkoutPlanId != null) {
             workoutViewModel.setUserWorkoutPlanId(userWorkoutPlanId);
         }
+        
+        // Set whether to allow recording results
+        workoutViewModel.setAllowRecording(allowRecording);
     }
     
     private void setupBleIfConnected() {

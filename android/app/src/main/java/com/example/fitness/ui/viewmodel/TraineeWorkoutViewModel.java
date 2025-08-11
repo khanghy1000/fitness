@@ -53,6 +53,7 @@ public class TraineeWorkoutViewModel extends ViewModel {
 
     // For tracking workout session
     private String userWorkoutPlanId;
+    private boolean allowRecording = true; // Default to allow recording
     
     @Inject
     public TraineeWorkoutViewModel(UsersRepository usersRepository) {
@@ -80,6 +81,10 @@ public class TraineeWorkoutViewModel extends ViewModel {
     
     public void setUserWorkoutPlanId(String userWorkoutPlanId) {
         this.userWorkoutPlanId = userWorkoutPlanId;
+    }
+    
+    public void setAllowRecording(boolean allowRecording) {
+        this.allowRecording = allowRecording;
     }
     
     public DetailedWorkoutPlanDayExercise getCurrentExercise() {
@@ -205,7 +210,9 @@ public class TraineeWorkoutViewModel extends ViewModel {
     
     private void recordCurrentExerciseResult(Integer reps, Integer duration) {
         DetailedWorkoutPlanDayExercise currentExercise = getCurrentExercise();
-        if (currentExercise == null || userWorkoutPlanId == null) {
+        if (currentExercise == null || userWorkoutPlanId == null || !allowRecording) {
+            // Skip recording and proceed to next exercise
+            proceedToNextExercise();
             return;
         }
         

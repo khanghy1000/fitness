@@ -7,11 +7,13 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.fitness.R;
 import com.example.fitness.data.network.model.generated.DetailedWorkoutPlanDay;
 import com.example.fitness.data.network.model.generated.WorkoutPlanResults;
 import com.example.fitness.data.network.model.generated.WorkoutPlanResultsWorkoutPlanDaysInner;
 import com.example.fitness.data.network.model.generated.WorkoutPlanResultsWorkoutPlanDaysInnerExercisesInner;
 import com.example.fitness.databinding.ItemTraineeWorkoutPlanDayBinding;
+import com.example.fitness.utils.DateUtils;
 import com.example.fitness.utils.DurationUtil;
 
 import java.util.ArrayList;
@@ -23,6 +25,7 @@ public class TraineeWorkoutPlanDayAdapter extends RecyclerView.Adapter<TraineeWo
     private List<DetailedWorkoutPlanDay> days = new ArrayList<>();
     private WorkoutPlanResults workoutPlanResults;
     private OnDayClickListener listener;
+    private String startDate; // Start date of the workout plan assignment
 
     public interface OnDayClickListener {
         void onDayClick(DetailedWorkoutPlanDay day);
@@ -34,6 +37,11 @@ public class TraineeWorkoutPlanDayAdapter extends RecyclerView.Adapter<TraineeWo
 
     public void setWorkoutPlanResults(WorkoutPlanResults results) {
         this.workoutPlanResults = results;
+        notifyDataSetChanged();
+    }
+    
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
         notifyDataSetChanged();
     }
 
@@ -82,6 +90,22 @@ public class TraineeWorkoutPlanDayAdapter extends RecyclerView.Adapter<TraineeWo
         public void bind(DetailedWorkoutPlanDay day) {
             // Day number
             binding.textViewDayNumber.setText("Day " + day.getDay());
+            
+            // Show/hide Today chip and apply styling
+            if (startDate != null && DateUtils.isCurrentDay(startDate, day.getDay())) {
+                // Current day styling
+                binding.chipToday.setVisibility(android.view.View.VISIBLE);
+                binding.textViewDayNumber.setTextColor(binding.getRoot().getContext().getResources().getColor(com.example.fitness.R.color.current_day_text));
+                binding.cardDay.setStrokeColor(binding.getRoot().getContext().getResources().getColor(com.example.fitness.R.color.current_day_border));
+                binding.cardDay.setStrokeWidth(3);
+                binding.cardDay.setCardBackgroundColor(binding.getRoot().getContext().getResources().getColor(com.example.fitness.R.color.current_day_background));
+            } else {
+                // Normal day styling
+                binding.chipToday.setVisibility(android.view.View.GONE);
+                binding.textViewDayNumber.setTextColor(binding.getRoot().getContext().getResources().getColor(android.R.color.black));
+                binding.cardDay.setStrokeWidth(0);
+                binding.cardDay.setCardBackgroundColor(binding.getRoot().getContext().getResources().getColor(R.color.surface));
+            }
             
             if (day.isRestDay()) {
                 // Rest day

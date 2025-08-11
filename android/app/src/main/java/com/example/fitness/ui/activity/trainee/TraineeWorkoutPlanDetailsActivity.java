@@ -33,6 +33,8 @@ public class TraineeWorkoutPlanDetailsActivity extends AppCompatActivity impleme
     private TraineeWorkoutPlanDayAdapter dayAdapter;
     private String planId;
     private String planName;
+    private int assignmentId = -1;
+    private String startDate;
     private DetailedWorkoutPlan currentPlan;
 
     @Override
@@ -69,6 +71,8 @@ public class TraineeWorkoutPlanDetailsActivity extends AppCompatActivity impleme
         Intent intent = getIntent();
         int planIdInt = intent.getIntExtra("PLAN_ID", -1);
         planName = intent.getStringExtra("PLAN_NAME");
+        assignmentId = intent.getIntExtra("ASSIGNMENT_ID", -1);
+        startDate = intent.getStringExtra("START_DATE");
         
         if (planIdInt != -1) {
             planId = String.valueOf(planIdInt);
@@ -90,6 +94,10 @@ public class TraineeWorkoutPlanDetailsActivity extends AppCompatActivity impleme
     private void setupRecyclerView() {
         dayAdapter = new TraineeWorkoutPlanDayAdapter();
         dayAdapter.setOnDayClickListener(this);
+        // Pass the start date to the adapter for current day indication
+        if (startDate != null) {
+            dayAdapter.setStartDate(startDate);
+        }
         binding.recyclerViewDays.setLayoutManager(new LinearLayoutManager(this));
         binding.recyclerViewDays.setAdapter(dayAdapter);
     }
@@ -205,6 +213,13 @@ public class TraineeWorkoutPlanDetailsActivity extends AppCompatActivity impleme
         intent.putExtra("PLAN_ID", planId);
         intent.putExtra("DAY_DURATION", day.getDuration());
         intent.putExtra("DAY_CALORIES", day.getEstimatedCalories());
+        // Pass assignment info for workout day validation
+        if (assignmentId != -1) {
+            intent.putExtra("ASSIGNMENT_ID", assignmentId);
+        }
+        if (startDate != null) {
+            intent.putExtra("START_DATE", startDate);
+        }
         startActivity(intent);
     }
 

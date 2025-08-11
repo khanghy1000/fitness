@@ -15,11 +15,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.fitness.R;
 import com.example.fitness.data.network.model.generated.WorkoutPlan;
+import com.example.fitness.data.network.model.generated.WorkoutPlanAssignment;
 import com.example.fitness.databinding.ActivityTraineeWorkoutPlanBinding;
 import com.example.fitness.ui.activity.WorkoutPlanEditActivity;
 import com.example.fitness.ui.adapter.TraineeWorkoutPlanAdapter;
 import com.example.fitness.ui.dialog.CreateWorkoutPlanDialogFragment;
 import com.example.fitness.ui.viewmodel.WorkoutPlanViewModel;
+
+import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -134,9 +137,25 @@ public class TraineeWorkoutPlanActivity extends AppCompatActivity implements Tra
 
     @Override
     public void onWorkoutPlanClick(WorkoutPlan workoutPlan) {
+        // Find the corresponding assignment to pass start date
+        WorkoutPlanAssignment assignment = null;
+        List<WorkoutPlanAssignment> assignments = viewModel.userWorkoutPlanAssignments.getValue();
+        if (assignments != null) {
+            for (WorkoutPlanAssignment a : assignments) {
+                if (a.getWorkoutPlan().getId() == (workoutPlan.getId())) {
+                    assignment = a;
+                    break;
+                }
+            }
+        }
+        
         Intent intent = new Intent(this, TraineeWorkoutPlanDetailsActivity.class);
         intent.putExtra("PLAN_ID", workoutPlan.getId());
         intent.putExtra("PLAN_NAME", workoutPlan.getName());
+        if (assignment != null) {
+            intent.putExtra("ASSIGNMENT_ID", assignment.getId());
+            intent.putExtra("START_DATE", assignment.getStartDate());
+        }
         startActivity(intent);
     }
 
