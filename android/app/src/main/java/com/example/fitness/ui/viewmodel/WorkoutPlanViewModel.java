@@ -239,7 +239,7 @@ public class WorkoutPlanViewModel extends ViewModel {
         // Use current date as start date
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         String startDate = dateFormat.format(new Date());
-        AssignWorkoutPlan assignWorkoutPlan = new AssignWorkoutPlan(traineeId, startDate, null);
+        AssignWorkoutPlan assignWorkoutPlan = new AssignWorkoutPlan(traineeId, startDate);
         
         usersRepository.assignWorkoutPlan(workoutPlanId, assignWorkoutPlan, new UsersRepository.UsersCallback<WorkoutPlanAssignmentResponse>() {
             @Override

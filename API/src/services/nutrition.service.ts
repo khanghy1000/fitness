@@ -169,13 +169,48 @@ export class NutritionService {
         nutritionPlanId: number;
         assignedBy: string;
         startDate: Date;
-        endDate?: Date;
     }) {
         const result = await db
             .insert(userNutritionPlan)
             .values(data)
             .returning();
         return result[0];
+    }
+
+    static async completeNutritionPlan(
+        userNutritionPlanId: number,
+        userId: string,
+    ) {
+        return await db.transaction(async (tx) => {
+            // First verify the plan belongs to the user
+            const existingPlan = await tx.query.userNutritionPlan.findFirst({
+                where: and(
+                    eq(userNutritionPlan.id, userNutritionPlanId),
+                    eq(userNutritionPlan.userId, userId)
+                ),
+            });
+
+            if (!existingPlan) {
+                throw new Error('Nutrition plan not found or access denied');
+            }
+
+            if (existingPlan.status === 'completed') {
+                throw new Error('Nutrition plan is already completed');
+            }
+
+            // Update the plan status to completed and set end date
+            const result = await tx
+                .update(userNutritionPlan)
+                .set({
+                    status: 'completed',
+                    endDate: new Date(),
+                    updatedAt: new Date(),
+                })
+                .where(eq(userNutritionPlan.id, userNutritionPlanId))
+                .returning();
+
+            return result[0];
+        });
     }
 
     static async getUserAssignedNutritionPlans(userId: string) {

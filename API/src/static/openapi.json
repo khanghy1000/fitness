@@ -730,11 +730,6 @@
             "type": "string",
             "description": "Start date for the nutrition plan",
             "example": "2025-01-01"
-          },
-          "endDate": {
-            "type": "string",
-            "description": "End date for the nutrition plan",
-            "example": "2025-03-01"
           }
         },
         "required": [
@@ -1586,11 +1581,6 @@
             "type": "string",
             "description": "Start date for the workout plan",
             "example": "2025-01-01"
-          },
-          "endDate": {
-            "type": "string",
-            "description": "End date for the workout plan",
-            "example": "2025-06-01"
           }
         },
         "required": [
@@ -4271,6 +4261,86 @@
           },
           "404": {
             "description": "Workout plan not found or not assigned to user"
+          }
+        }
+      }
+    },
+    "/api/users/nutrition/user-plans/{userNutritionPlanId}/complete": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Complete nutrition plan",
+        "description": "Mark a user nutrition plan as completed",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+$",
+              "description": "User nutrition plan identifier",
+              "example": "456"
+            },
+            "required": true,
+            "description": "User nutrition plan identifier",
+            "name": "userNutritionPlanId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Nutrition plan completed successfully"
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "User nutrition plan not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/users/workout/user-plans/{userWorkoutPlanId}/cancel": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Cancel workout plan",
+        "description": "Cancel a user workout plan",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+$",
+              "description": "User workout plan identifier",
+              "example": "789"
+            },
+            "required": true,
+            "description": "User workout plan identifier",
+            "name": "userWorkoutPlanId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Workout plan cancelled successfully"
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "User workout plan not found"
+          },
+          "500": {
+            "description": "Internal server error"
           }
         }
       }

@@ -133,7 +133,7 @@ public class NutritionPlanViewModel extends ViewModel {
         // Use current date as start date
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         String startDate = dateFormat.format(new Date());
-        AssignNutritionPlan assignNutritionPlan = new AssignNutritionPlan(traineeId, startDate, null);
+        AssignNutritionPlan assignNutritionPlan = new AssignNutritionPlan(traineeId, startDate);
         
         usersRepository.assignNutritionPlan(nutritionPlanId, assignNutritionPlan, new UsersRepository.UsersCallback<NutritionPlanAssignmentResponse>() {
             @Override

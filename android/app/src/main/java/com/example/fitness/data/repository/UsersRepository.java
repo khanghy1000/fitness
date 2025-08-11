@@ -8,6 +8,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import kotlin.Unit;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -94,6 +95,24 @@ public class UsersRepository {
 
             @Override
             public void onFailure(Call<MealCompletionResponse> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
+    }
+
+    public void completeNutritionPlan(String userNutritionPlanId, UsersCallback<Unit> callback) {
+        usersApi.apiUsersNutritionUserPlansUserNutritionPlanIdCompletePut(userNutritionPlanId).enqueue(new Callback<Unit>() {
+            @Override
+            public void onResponse(Call<Unit> call, Response<Unit> response) {
+                if (response.isSuccessful()) {
+                    callback.onSuccess(null);
+                } else {
+                    callback.onError("Failed to complete nutrition plan: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Unit> call, Throwable t) {
                 callback.onError(t.getMessage());
             }
         });
@@ -211,11 +230,11 @@ public class UsersRepository {
     }
 
     public void resetExerciseResult(String userWorkoutPlanId, String dayId, UsersCallback<SuccessMessage> callback) {
-        usersApi.workoutUserPlansUserWorkoutPlanIdDaysDayIdResultsDelete(userWorkoutPlanId, dayId).enqueue(new Callback<SuccessMessage>() {
+        usersApi.apiUsersWorkoutUserPlansUserWorkoutPlanIdDaysDayIdResultsDelete(userWorkoutPlanId, dayId).enqueue(new Callback<SuccessMessage>() {
             @Override
             public void onResponse(Call<SuccessMessage> call, Response<SuccessMessage> response) {
                 if (response.isSuccessful()) {
-                    callback.onSuccess(null);
+                    callback.onSuccess(response.body());
                 } else {
                     callback.onError("Failed to reset exercise result: " + response.message());
                 }
@@ -241,6 +260,24 @@ public class UsersRepository {
 
             @Override
             public void onFailure(Call<java.util.List<WorkoutPlanAssignment>> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
+    }
+
+    public void cancelWorkoutPlan(String userWorkoutPlanId, UsersCallback<Unit> callback) {
+        usersApi.apiUsersWorkoutUserPlansUserWorkoutPlanIdCancelPut(userWorkoutPlanId).enqueue(new Callback<Unit>() {
+            @Override
+            public void onResponse(Call<Unit> call, Response<Unit> response) {
+                if (response.isSuccessful()) {
+                    callback.onSuccess(null);
+                } else {
+                    callback.onError("Failed to cancel workout plan: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Unit> call, Throwable t) {
                 callback.onError(t.getMessage());
             }
         });

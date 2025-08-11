@@ -70,6 +70,23 @@ interface UsersApi {
     fun apiUsersNutritionUserPlansUserNutritionPlanIdAdherenceGet(@Path("userNutritionPlanId") userNutritionPlanId: kotlin.String, @Query("userId") userId: kotlin.String? = null): Call<kotlin.collections.List<NutritionAdherenceHistory>>
 
     /**
+     * PUT api/users/nutrition/user-plans/{userNutritionPlanId}/complete
+     * Complete nutrition plan
+     * Mark a user nutrition plan as completed
+     * Responses:
+     *  - 200: Nutrition plan completed successfully
+     *  - 400: Invalid input data
+     *  - 401: Unauthorized
+     *  - 404: User nutrition plan not found
+     *  - 500: Internal server error
+     *
+     * @param userNutritionPlanId User nutrition plan identifier
+     * @return [Call]<[Unit]>
+     */
+    @PUT("api/users/nutrition/user-plans/{userNutritionPlanId}/complete")
+    fun apiUsersNutritionUserPlansUserNutritionPlanIdCompletePut(@Path("userNutritionPlanId") userNutritionPlanId: kotlin.String): Call<Unit>
+
+    /**
      * POST api/users/nutrition/user-plans/{userNutritionPlanId}/meals/{mealId}/complete
      * Complete a meal
      * Mark a meal as completed with actual consumption data. Automatically creates or updates nutrition adherence record.
@@ -197,6 +214,39 @@ interface UsersApi {
     fun apiUsersWorkoutPlansGet(): Call<kotlin.collections.List<WorkoutPlanAssignment>>
 
     /**
+     * PUT api/users/workout/user-plans/{userWorkoutPlanId}/cancel
+     * Cancel workout plan
+     * Cancel a user workout plan
+     * Responses:
+     *  - 200: Workout plan cancelled successfully
+     *  - 400: Invalid input data
+     *  - 401: Unauthorized
+     *  - 404: User workout plan not found
+     *  - 500: Internal server error
+     *
+     * @param userWorkoutPlanId User workout plan identifier
+     * @return [Call]<[Unit]>
+     */
+    @PUT("api/users/workout/user-plans/{userWorkoutPlanId}/cancel")
+    fun apiUsersWorkoutUserPlansUserWorkoutPlanIdCancelPut(@Path("userWorkoutPlanId") userWorkoutPlanId: kotlin.String): Call<Unit>
+
+    /**
+     * DELETE api/users/workout/user-plans/{userWorkoutPlanId}/days/{dayId}/results
+     * Reset exercise results
+     * Reset exercise results for a workout day
+     * Responses:
+     *  - 201: Exercise result recorded successfully
+     *  - 400: Invalid input data
+     *  - 401: Unauthorized
+     *
+     * @param userWorkoutPlanId User workout plan identifier
+     * @param dayId Workout plan day identifier
+     * @return [Call]<[SuccessMessage]>
+     */
+    @DELETE("api/users/workout/user-plans/{userWorkoutPlanId}/days/{dayId}/results")
+    fun apiUsersWorkoutUserPlansUserWorkoutPlanIdDaysDayIdResultsDelete(@Path("userWorkoutPlanId") userWorkoutPlanId: kotlin.String, @Path("dayId") dayId: kotlin.String): Call<SuccessMessage>
+
+    /**
      * GET api/users/workout/user-plans/{userWorkoutPlanId}/results
      * Get user workout plan results
      * Get exercise results for a specific user workout plan
@@ -246,21 +296,5 @@ interface UsersApi {
      */
     @POST("api/users/workout/{workoutPlanId}/assign")
     fun apiUsersWorkoutWorkoutPlanIdAssignPost(@Path("workoutPlanId") workoutPlanId: kotlin.String, @Body assignWorkoutPlan: AssignWorkoutPlan? = null): Call<WorkoutPlanAssignmentResponse>
-
-    /**
-     * DELETE workout/user-plans/{userWorkoutPlanId}/days/{dayId}/results
-     * Reset exercise results
-     * Reset exercise results for a workout day
-     * Responses:
-     *  - 201: Exercise result recorded successfully
-     *  - 400: Invalid input data
-     *  - 401: Unauthorized
-     *
-     * @param userWorkoutPlanId User workout plan identifier
-     * @param dayId Workout plan day identifier
-     * @return [Call]<[SuccessMessage]>
-     */
-    @DELETE("api/users/workout/user-plans/{userWorkoutPlanId}/days/{dayId}/results")
-    fun workoutUserPlansUserWorkoutPlanIdDaysDayIdResultsDelete(@Path("userWorkoutPlanId") userWorkoutPlanId: kotlin.String, @Path("dayId") dayId: kotlin.String): Call<SuccessMessage>
 
 }

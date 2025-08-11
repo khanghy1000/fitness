@@ -295,16 +295,6 @@ export const assignNutritionPlanSchema = z
                 description: 'Start date for the nutrition plan',
                 example: '2025-01-01',
             }),
-        endDate: z
-            .string()
-            .refine((date) => !isNaN(Date.parse(date)), {
-                message: 'Invalid end date format',
-            })
-            .optional()
-            .openapi({
-                description: 'End date for the nutrition plan',
-                example: '2025-03-01',
-            }),
     })
     .openapi('AssignNutritionPlan');
 
@@ -405,16 +395,6 @@ export const assignWorkoutPlanSchema = z
             .openapi({
                 description: 'Start date for the workout plan',
                 example: '2025-01-01',
-            }),
-        endDate: z
-            .string()
-            .refine((date) => !isNaN(Date.parse(date)), {
-                message: 'Invalid end date format',
-            })
-            .optional()
-            .openapi({
-                description: 'End date for the workout plan',
-                example: '2025-06-01',
             }),
     })
     .openapi('AssignWorkoutPlan');

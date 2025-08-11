@@ -204,14 +204,13 @@ router.post(
     validateBody(assignNutritionPlanSchema),
     async (req, res) => {
         const { nutritionPlanId } = req.params;
-        const { userId, startDate, endDate } = req.body;
+        const { userId, startDate } = req.body;
 
         const assignment = await NutritionService.assignNutritionPlanToUser({
             userId,
             nutritionPlanId: parseInt(nutritionPlanId),
             assignedBy: req.session!.user.id,
             startDate: new Date(startDate),
-            endDate: endDate ? new Date(endDate) : undefined,
         });
 
         res.status(201).json(assignment);
@@ -369,14 +368,13 @@ router.post(
     validateBody(assignWorkoutPlanSchema),
     async (req, res) => {
         const { workoutPlanId } = req.params;
-        const { userId, startDate, endDate } = req.body;
+        const { userId, startDate } = req.body;
 
         const assignment = await WorkoutService.assignWorkoutPlanToUser({
             userId,
             workoutPlanId: parseInt(workoutPlanId),
             assignedBy: req.session!.user.id,
             startDate: new Date(startDate),
-            endDate: endDate ? new Date(endDate) : undefined,
         });
 
         res.status(201).json(assignment);
@@ -430,6 +428,75 @@ router.get(
             res.json(results);
         } else {
             res.status(403).json({ error: 'Access denied' });
+        }
+    }
+);
+
+// Mark nutrition plan as completed
+router.put(
+    '/nutrition/user-plans/:userNutritionPlanId/complete',
+    requireAuthenticated,
+    validateParams(userNutritionPlanIdParamSchema),
+    async (req, res) => {
+        const { userNutritionPlanId } = req.params;
+
+        try {
+            const completedPlan = await NutritionService.completeNutritionPlan(
+                parseInt(userNutritionPlanId),
+                req.session!.user.id
+            );
+
+            res.json(completedPlan);
+        } catch (error) {
+            const errorMessage =
+                error instanceof Error ? error.message : 'Unknown error';
+            if (
+                errorMessage.includes('not found') ||
+                errorMessage.includes('access denied')
+            ) {
+                return res.status(404).json({ error: errorMessage });
+            }
+            if (errorMessage.includes('already completed')) {
+                return res.status(400).json({ error: errorMessage });
+            }
+            res.status(500).json({
+                error: 'Failed to complete nutrition plan',
+            });
+        }
+    }
+);
+
+// Cancel workout plan
+router.put(
+    '/workout/user-plans/:userWorkoutPlanId/cancel',
+    requireAuthenticated,
+    validateParams(userWorkoutPlanIdParamSchema),
+    async (req, res) => {
+        const { userWorkoutPlanId } = req.params;
+
+        try {
+            const cancelledPlan = await WorkoutService.cancelWorkoutPlan(
+                parseInt(userWorkoutPlanId),
+                req.session!.user.id,
+            );
+
+            res.json(cancelledPlan);
+        } catch (error) {
+            const errorMessage =
+                error instanceof Error ? error.message : 'Unknown error';
+            if (
+                errorMessage.includes('not found') ||
+                errorMessage.includes('access denied')
+            ) {
+                return res.status(404).json({ error: errorMessage });
+            }
+            if (
+                errorMessage.includes('already cancelled') ||
+                errorMessage.includes('Cannot cancel')
+            ) {
+                return res.status(400).json({ error: errorMessage });
+            }
+            res.status(500).json({ error: 'Failed to cancel workout plan' });
         }
     }
 );

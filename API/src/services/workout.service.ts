@@ -145,13 +145,52 @@ export class WorkoutService {
         workoutPlanId: number;
         assignedBy: string;
         startDate: Date;
-        endDate?: Date;
     }) {
         const result = await db
             .insert(userWorkoutPlan)
             .values(data)
             .returning();
         return result[0];
+    }
+
+    static async cancelWorkoutPlan(
+        userWorkoutPlanId: number,
+        userId: string,
+    ) {
+        return await db.transaction(async (tx) => {
+            // First verify the plan belongs to the user
+            const existingPlan = await tx.query.userWorkoutPlan.findFirst({
+                where: and(
+                    eq(userWorkoutPlan.id, userWorkoutPlanId),
+                    eq(userWorkoutPlan.userId, userId)
+                ),
+            });
+
+            if (!existingPlan) {
+                throw new Error('Workout plan not found or access denied');
+            }
+
+            if (existingPlan.status === 'cancelled') {
+                throw new Error('Workout plan is already cancelled');
+            }
+
+            if (existingPlan.status === 'completed') {
+                throw new Error('Cannot cancel a completed workout plan');
+            }
+
+            // Update the plan status to cancelled and set end date
+            const result = await tx
+                .update(userWorkoutPlan)
+                .set({
+                    status: 'cancelled',
+                    endDate: new Date(),
+                    updatedAt: new Date(),
+                })
+                .where(eq(userWorkoutPlan.id, userWorkoutPlanId))
+                .returning();
+
+            return result[0];
+        });
     }
 
     static async getUserAssignedWorkoutPlans(userId: string) {
@@ -364,13 +403,22 @@ export class WorkoutService {
         const progress =
             totalNonRestDays > 0 ? (completedDays / totalNonRestDays) * 100 : 0;
 
-        // Update user workout plan progress
+        // Prepare update data
+        const updateData: any = {
+            progress: Math.round(progress * 100) / 100, // Round to 2 decimal places
+            updatedAt: new Date(),
+        };
+
+        // If progress is 100% and status is still active, mark as completed
+        if (progress >= 100 && userPlan.status === 'active') {
+            updateData.status = 'completed';
+            updateData.endDate = new Date();
+        }
+
+        // Update user workout plan progress and potentially status
         await tx
             .update(userWorkoutPlan)
-            .set({
-                progress: Math.round(progress * 100) / 100, // Round to 2 decimal places
-                updatedAt: new Date(),
-            })
+            .set(updateData)
             .where(eq(userWorkoutPlan.id, userWorkoutPlanId));
     }
 

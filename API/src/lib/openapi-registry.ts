@@ -1367,6 +1367,62 @@ registry.registerPath({
     },
 });
 
+registry.registerPath({
+    method: 'put',
+    path: '/api/users/nutrition/user-plans/{userNutritionPlanId}/complete',
+    tags: ['Users'],
+    summary: 'Complete nutrition plan',
+    description: 'Mark a user nutrition plan as completed',
+    request: {
+        params: userNutritionPlanIdParamSchema,
+    },
+    responses: {
+        200: {
+            description: 'Nutrition plan completed successfully',
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'User nutrition plan not found',
+        },
+        500: {
+            description: 'Internal server error',
+        },
+    },
+});
+
+registry.registerPath({
+    method: 'put',
+    path: '/api/users/workout/user-plans/{userWorkoutPlanId}/cancel',
+    tags: ['Users'],
+    summary: 'Cancel workout plan',
+    description: 'Cancel a user workout plan',
+    request: {
+        params: userWorkoutPlanIdParamSchema,
+    },
+    responses: {
+        200: {
+            description: 'Workout plan cancelled successfully',
+        },
+        400: {
+            description: 'Invalid input data',
+        },
+        401: {
+            description: 'Unauthorized',
+        },
+        404: {
+            description: 'User workout plan not found',
+        },
+        500: {
+            description: 'Internal server error',
+        },
+    },
+});
+
 // Exercise routes
 registry.registerPath({
     method: 'get',
