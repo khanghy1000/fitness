@@ -12,6 +12,7 @@ import {
 } from '@middlewares/validation.middleware.ts';
 import {
     idParamSchema,
+    dayIdParamSchema,
     createUserGoalSchema,
     updateUserGoalSchema,
     recordUserStatsSchema,
@@ -26,6 +27,7 @@ import {
     recordExerciseResultSchema,
     mealCompletionSchema,
     mealIdParamSchema,
+    userIdParamSchema,
 } from '../validation/schemas.ts';
 import { UserService } from '@services/user.service.ts';
 import { WorkoutService } from '@services/workout.service.ts';
@@ -162,7 +164,7 @@ router.get(
     validateParams(nutritionPlanIdParamSchema),
     validateQuery(z.object({ userId: z.string().optional() }).optional()),
     async (req, res) => {
-        const nutritionPlanId = (req.params as any).nutritionPlanId as number;
+        const { nutritionPlanId } = req.params;
         const user = req.session!.user;
 
         if (user.role === 'trainee') {
@@ -170,10 +172,10 @@ router.get(
             const plans = await NutritionService.getUserAssignedNutritionPlans(
                 user.id
             );
-            const plan = plans.find(
-                (p) => p.nutritionPlan?.id === nutritionPlanId
+            const matchingPlans = plans.filter(
+                (p) => p.nutritionPlan?.id === parseInt(nutritionPlanId)
             );
-            res.json(plan || null);
+            res.json(matchingPlans);
         } else if (user.role === 'coach') {
             // Get assigned plans for specified user
             const { userId } = req.query as { userId?: string };
@@ -184,10 +186,10 @@ router.get(
             }
             const plans =
                 await NutritionService.getUserAssignedNutritionPlans(userId);
-            const plan = plans.find(
-                (p) => p.nutritionPlan?.id === nutritionPlanId
+            const matchingPlans = plans.filter(
+                (p) => p.nutritionPlan?.id === parseInt(nutritionPlanId)
             );
-            res.json(plan || null);
+            res.json(matchingPlans);
         } else {
             res.status(403).json({ error: 'Access denied' });
         }
@@ -201,15 +203,14 @@ router.post(
     validateParams(nutritionPlanIdParamSchema),
     validateBody(assignNutritionPlanSchema),
     async (req, res) => {
-        const nutritionPlanId = (req.params as any).nutritionPlanId as number;
-        const { userId, startDate, endDate } = req.body;
+        const { nutritionPlanId } = req.params;
+        const { userId, startDate } = req.body;
 
         const assignment = await NutritionService.assignNutritionPlanToUser({
             userId,
-            nutritionPlanId,
+            nutritionPlanId: parseInt(nutritionPlanId),
             assignedBy: req.session!.user.id,
             startDate: new Date(startDate),
-            endDate: endDate ? new Date(endDate) : undefined,
         });
 
         res.status(201).json(assignment);
@@ -223,16 +224,13 @@ router.post(
     validateParams(userNutritionPlanIdParamSchema.merge(mealIdParamSchema)),
     validateBody(mealCompletionSchema),
     async (req, res) => {
-        const userNutritionPlanId = (req.params as any)
-            .userNutritionPlanId as number;
-        const mealId = (req.params as any).mealId as number;
+        const { userNutritionPlanId, mealId } = req.params;
 
         const completion = await NutritionService.completeMeal({
-            userNutritionPlanId,
-            nutritionPlanMealId: mealId,
+            userNutritionPlanId: parseInt(userNutritionPlanId),
+            nutritionPlanMealId: parseInt(mealId),
             userId: req.session!.user.id,
-            date: req.body.date ? new Date(req.body.date) : undefined,
-            ...req.body,
+            notes: req.body.notes,
         });
 
         res.status(201).json(completion);
@@ -246,8 +244,7 @@ router.get(
     validateParams(userNutritionPlanIdParamSchema),
     validateQuery(z.object({ userId: z.string().optional() }).optional()),
     async (req, res) => {
-        const userNutritionPlanId = (req.params as any)
-            .userNutritionPlanId as number;
+        const { userNutritionPlanId } = req.params;
         const user = req.session!.user;
 
         if (user.role === 'trainee') {
@@ -255,7 +252,7 @@ router.get(
             const adherenceHistory =
                 await NutritionService.getUserAdherenceHistoryByPlan(
                     user.id,
-                    userNutritionPlanId
+                    parseInt(userNutritionPlanId)
                 );
             res.json(adherenceHistory);
         } else if (user.role === 'coach') {
@@ -269,7 +266,7 @@ router.get(
             const adherenceHistory =
                 await NutritionService.getUserAdherenceHistoryByPlan(
                     userId,
-                    userNutritionPlanId
+                    parseInt(userNutritionPlanId)
                 );
             res.json(adherenceHistory);
         } else {
@@ -305,6 +302,24 @@ router.post(
     }
 );
 
+// Reset exercise results for a workout day
+router.delete(
+    '/workout/user-plans/:userWorkoutPlanId/days/:dayId/results',
+    requireAuthenticated,
+    validateParams(userWorkoutPlanIdParamSchema.merge(dayIdParamSchema)),
+    async (req, res) => {
+        const { userWorkoutPlanId, dayId } = req.params;
+
+        await WorkoutService.resetWorkoutDayResults({
+            userWorkoutPlanId: parseInt(userWorkoutPlanId),
+            workoutPlanDayId: parseInt(dayId),
+            userId: req.session!.user.id,
+        });
+
+        res.json({ message: 'Exercise results reset successfully' });
+    }
+);
+
 // Get workout plan assignments
 router.get(
     '/workout/:workoutPlanId/assign',
@@ -312,7 +327,7 @@ router.get(
     validateParams(workoutPlanIdParamSchema),
     validateQuery(z.object({ userId: z.string().optional() }).optional()),
     async (req, res) => {
-        const workoutPlanId = (req.params as any).workoutPlanId as number;
+        const { workoutPlanId } = req.params;
         const user = req.session!.user;
 
         if (user.role === 'trainee') {
@@ -320,8 +335,11 @@ router.get(
             const plans = await WorkoutService.getUserAssignedWorkoutPlans(
                 user.id
             );
-            const plan = plans.find((p) => p.workoutPlan?.id === workoutPlanId);
-            res.json(plan || null);
+
+            const matchingPlans = plans.filter(
+                (p) => p.workoutPlan?.id === parseInt(workoutPlanId)
+            );
+            res.json(matchingPlans);
         } else if (user.role === 'coach') {
             // Get assigned plans for specified user
             const { userId } = req.query as { userId?: string };
@@ -332,8 +350,10 @@ router.get(
             }
             const plans =
                 await WorkoutService.getUserAssignedWorkoutPlans(userId);
-            const plan = plans.find((p) => p.workoutPlan?.id === workoutPlanId);
-            res.json(plan || null);
+            const matchingPlans = plans.filter(
+                (p) => p.workoutPlan?.id === parseInt(workoutPlanId)
+            );
+            res.json(matchingPlans);
         } else {
             res.status(403).json({ error: 'Access denied' });
         }
@@ -347,15 +367,14 @@ router.post(
     validateParams(workoutPlanIdParamSchema),
     validateBody(assignWorkoutPlanSchema),
     async (req, res) => {
-        const workoutPlanId = (req.params as any).workoutPlanId as number;
-        const { userId, startDate, endDate } = req.body;
+        const { workoutPlanId } = req.params;
+        const { userId, startDate } = req.body;
 
         const assignment = await WorkoutService.assignWorkoutPlanToUser({
             userId,
-            workoutPlanId,
+            workoutPlanId: parseInt(workoutPlanId),
             assignedBy: req.session!.user.id,
             startDate: new Date(startDate),
-            endDate: endDate ? new Date(endDate) : undefined,
         });
 
         res.status(201).json(assignment);
@@ -369,14 +388,13 @@ router.get(
     validateParams(userWorkoutPlanIdParamSchema),
     validateQuery(z.object({ userId: z.string().optional() }).optional()),
     async (req, res) => {
-        const userWorkoutPlanId = (req.params as any)
-            .userWorkoutPlanId as number;
+        const { userWorkoutPlanId } = req.params;
         const user = req.session!.user;
 
         if (user.role === 'trainee') {
             // Get current user's exercise results
             const results = await WorkoutService.getWorkoutPlanResults(
-                userWorkoutPlanId,
+                parseInt(userWorkoutPlanId),
                 user.id
             );
 
@@ -397,7 +415,7 @@ router.get(
             }
 
             const results = await WorkoutService.getWorkoutPlanResults(
-                userWorkoutPlanId,
+                parseInt(userWorkoutPlanId),
                 userId
             );
 
@@ -411,6 +429,92 @@ router.get(
         } else {
             res.status(403).json({ error: 'Access denied' });
         }
+    }
+);
+
+// Mark nutrition plan as completed
+router.put(
+    '/nutrition/user-plans/:userNutritionPlanId/complete',
+    requireAuthenticated,
+    validateParams(userNutritionPlanIdParamSchema),
+    async (req, res) => {
+        const { userNutritionPlanId } = req.params;
+
+        try {
+            const completedPlan = await NutritionService.completeNutritionPlan(
+                parseInt(userNutritionPlanId),
+                req.session!.user.id
+            );
+
+            res.json(completedPlan);
+        } catch (error) {
+            const errorMessage =
+                error instanceof Error ? error.message : 'Unknown error';
+            if (
+                errorMessage.includes('not found') ||
+                errorMessage.includes('access denied')
+            ) {
+                return res.status(404).json({ error: errorMessage });
+            }
+            if (errorMessage.includes('already completed')) {
+                return res.status(400).json({ error: errorMessage });
+            }
+            res.status(500).json({
+                error: 'Failed to complete nutrition plan',
+            });
+        }
+    }
+);
+
+// Cancel workout plan
+router.put(
+    '/workout/user-plans/:userWorkoutPlanId/cancel',
+    requireAuthenticated,
+    validateParams(userWorkoutPlanIdParamSchema),
+    async (req, res) => {
+        const { userWorkoutPlanId } = req.params;
+
+        try {
+            const cancelledPlan = await WorkoutService.cancelWorkoutPlan(
+                parseInt(userWorkoutPlanId),
+                req.session!.user.id,
+            );
+
+            res.json(cancelledPlan);
+        } catch (error) {
+            const errorMessage =
+                error instanceof Error ? error.message : 'Unknown error';
+            if (
+                errorMessage.includes('not found') ||
+                errorMessage.includes('access denied')
+            ) {
+                return res.status(404).json({ error: errorMessage });
+            }
+            if (
+                errorMessage.includes('already cancelled') ||
+                errorMessage.includes('Cannot cancel')
+            ) {
+                return res.status(400).json({ error: errorMessage });
+            }
+            res.status(500).json({ error: 'Failed to cancel workout plan' });
+        }
+    }
+);
+
+// Get user information by ID
+router.get(
+    '/:userId',
+    requireAuthenticated,
+    validateParams(userIdParamSchema),
+    async (req, res) => {
+        const { userId } = req.params;
+
+        const user = await UserService.getUserById(userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.json(user);
     }
 );
 

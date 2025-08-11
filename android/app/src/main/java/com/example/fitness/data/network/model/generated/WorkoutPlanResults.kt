@@ -15,9 +15,8 @@
 
 package com.example.fitness.data.network.model.generated
 
-import com.example.fitness.data.network.model.generated.WorkoutPlan
-import com.example.fitness.data.network.model.generated.WorkoutPlanResultsResultsInner
 import com.example.fitness.data.network.model.generated.WorkoutPlanResultsUserWorkoutPlan
+import com.example.fitness.data.network.model.generated.WorkoutPlanResultsWorkoutPlanDaysInner
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -25,25 +24,78 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * @param workoutPlan 
+ * @param id Workout plan ID
+ * @param name Workout plan name
+ * @param createdBy Creator user ID
+ * @param isActive Whether plan is active
+ * @param createdAt Creation date
+ * @param updatedAt Last update date
+ * @param workoutPlanDays Workout plan days
  * @param userWorkoutPlan 
- * @param results 
+ * @param description Workout plan description
+ * @param difficulty Difficulty level
+ * @param estimatedCalories Estimated calories per session
  */
 
 
 data class WorkoutPlanResults (
 
-    @Json(name = "workoutPlan")
-    val workoutPlan: WorkoutPlan,
+    /* Workout plan ID */
+    @Json(name = "id")
+    val id: kotlin.Int,
+
+    /* Workout plan name */
+    @Json(name = "name")
+    val name: kotlin.String,
+
+    /* Creator user ID */
+    @Json(name = "createdBy")
+    val createdBy: kotlin.String,
+
+    /* Whether plan is active */
+    @Json(name = "isActive")
+    val isActive: kotlin.Boolean,
+
+    /* Creation date */
+    @Json(name = "createdAt")
+    val createdAt: kotlin.String,
+
+    /* Last update date */
+    @Json(name = "updatedAt")
+    val updatedAt: kotlin.String,
+
+    /* Workout plan days */
+    @Json(name = "workoutPlanDays")
+    val workoutPlanDays: kotlin.collections.List<WorkoutPlanResultsWorkoutPlanDaysInner>,
 
     @Json(name = "userWorkoutPlan")
     val userWorkoutPlan: WorkoutPlanResultsUserWorkoutPlan,
 
-    @Json(name = "results")
-    val results: kotlin.collections.List<WorkoutPlanResultsResultsInner>
+    /* Workout plan description */
+    @Json(name = "description")
+    val description: kotlin.String? = null,
+
+    /* Difficulty level */
+    @Json(name = "difficulty")
+    val difficulty: WorkoutPlanResults.Difficulty? = null,
+
+    /* Estimated calories per session */
+    @Json(name = "estimatedCalories")
+    val estimatedCalories: kotlin.Int? = null
 
 ) {
 
+    /**
+     * Difficulty level
+     *
+     * Values: beginner,intermediate,advanced
+     */
+    @JsonClass(generateAdapter = false)
+    enum class Difficulty(val value: kotlin.String) {
+        @Json(name = "beginner") beginner("beginner"),
+        @Json(name = "intermediate") intermediate("intermediate"),
+        @Json(name = "advanced") advanced("advanced");
+    }
 
 }
 

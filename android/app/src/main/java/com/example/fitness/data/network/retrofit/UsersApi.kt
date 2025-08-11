@@ -8,20 +8,20 @@ import retrofit2.Call
 interface UsersApi {
     /**
      * GET api/users/nutrition/{nutritionPlanId}/assign
-     * Get nutrition plan assignment
-     * Get nutrition plan assignment details for a specific plan
+     * Get nutrition plan assignments
+     * Get all nutrition plan assignment details for a specific plan
      * Responses:
-     *  - 200: Nutrition plan assignment details
+     *  - 200: List of nutrition plan assignments
      *  - 400: Missing userId parameter for coaches
      *  - 401: Unauthorized
      *  - 403: Access denied
      *
      * @param nutritionPlanId Nutrition plan identifier
      * @param userId User ID for coach to specify which user (optional)
-     * @return [Call]<[NutritionPlanAssignment]>
+     * @return [Call]<[kotlin.collections.List<NutritionPlanAssignment>]>
      */
     @GET("api/users/nutrition/{nutritionPlanId}/assign")
-    fun apiUsersNutritionNutritionPlanIdAssignGet(@Path("nutritionPlanId") nutritionPlanId: kotlin.String, @Query("userId") userId: kotlin.String? = null): Call<NutritionPlanAssignment>
+    fun apiUsersNutritionNutritionPlanIdAssignGet(@Path("nutritionPlanId") nutritionPlanId: kotlin.String, @Query("userId") userId: kotlin.String? = null): Call<kotlin.collections.List<NutritionPlanAssignment>>
 
     /**
      * POST api/users/nutrition/{nutritionPlanId}/assign
@@ -47,10 +47,10 @@ interface UsersApi {
      *  - 200: List of assigned nutrition plans
      *  - 401: Unauthorized
      *
-     * @return [Call]<[kotlin.collections.List<UserNutritionPlan>]>
+     * @return [Call]<[kotlin.collections.List<NutritionPlanAssignment>]>
      */
     @GET("api/users/nutrition-plans")
-    fun apiUsersNutritionPlansGet(): Call<kotlin.collections.List<UserNutritionPlan>>
+    fun apiUsersNutritionPlansGet(): Call<kotlin.collections.List<NutritionPlanAssignment>>
 
     /**
      * GET api/users/nutrition/user-plans/{userNutritionPlanId}/adherence
@@ -64,10 +64,27 @@ interface UsersApi {
      *
      * @param userNutritionPlanId User nutrition plan identifier
      * @param userId User ID for coach to specify which user (optional)
-     * @return [Call]<[kotlin.collections.List<NutritionAdherenceHistory>]>
+     * @return [Call]<[kotlin.collections.List<DetailedNutritionAdherenceHistory>]>
      */
     @GET("api/users/nutrition/user-plans/{userNutritionPlanId}/adherence")
-    fun apiUsersNutritionUserPlansUserNutritionPlanIdAdherenceGet(@Path("userNutritionPlanId") userNutritionPlanId: kotlin.String, @Query("userId") userId: kotlin.String? = null): Call<kotlin.collections.List<NutritionAdherenceHistory>>
+    fun apiUsersNutritionUserPlansUserNutritionPlanIdAdherenceGet(@Path("userNutritionPlanId") userNutritionPlanId: kotlin.String, @Query("userId") userId: kotlin.String? = null): Call<kotlin.collections.List<DetailedNutritionAdherenceHistory>>
+
+    /**
+     * PUT api/users/nutrition/user-plans/{userNutritionPlanId}/complete
+     * Complete nutrition plan
+     * Mark a user nutrition plan as completed
+     * Responses:
+     *  - 200: Nutrition plan completed successfully
+     *  - 400: Invalid input data
+     *  - 401: Unauthorized
+     *  - 404: User nutrition plan not found
+     *  - 500: Internal server error
+     *
+     * @param userNutritionPlanId User nutrition plan identifier
+     * @return [Call]<[Unit]>
+     */
+    @PUT("api/users/nutrition/user-plans/{userNutritionPlanId}/complete")
+    fun apiUsersNutritionUserPlansUserNutritionPlanIdCompletePut(@Path("userNutritionPlanId") userNutritionPlanId: kotlin.String): Call<Unit>
 
     /**
      * POST api/users/nutrition/user-plans/{userNutritionPlanId}/meals/{mealId}/complete
@@ -154,6 +171,21 @@ interface UsersApi {
     fun apiUsersStatsPost(@Body recordUserStats: RecordUserStats? = null): Call<UserStatsResponse>
 
     /**
+     * GET api/users/{userId}
+     * Get user information by ID
+     * Get user information by user ID. Users can view their own information, coaches can view any user.
+     * Responses:
+     *  - 200: User information
+     *  - 401: Unauthorized
+     *  - 404: User not found
+     *
+     * @param userId User identifier
+     * @return [Call]<[DetailedUser]>
+     */
+    @GET("api/users/{userId}")
+    fun apiUsersUserIdGet(@Path("userId") userId: kotlin.String): Call<DetailedUser>
+
+    /**
      * POST api/users/workout/exercise-results
      * Record exercise result
      * Record the result of an exercise performance
@@ -176,10 +208,43 @@ interface UsersApi {
      *  - 200: List of assigned workout plans
      *  - 401: Unauthorized
      *
-     * @return [Call]<[kotlin.collections.List<UserWorkoutPlan>]>
+     * @return [Call]<[kotlin.collections.List<WorkoutPlanAssignment>]>
      */
     @GET("api/users/workout-plans")
-    fun apiUsersWorkoutPlansGet(): Call<kotlin.collections.List<UserWorkoutPlan>>
+    fun apiUsersWorkoutPlansGet(): Call<kotlin.collections.List<WorkoutPlanAssignment>>
+
+    /**
+     * PUT api/users/workout/user-plans/{userWorkoutPlanId}/cancel
+     * Cancel workout plan
+     * Cancel a user workout plan
+     * Responses:
+     *  - 200: Workout plan cancelled successfully
+     *  - 400: Invalid input data
+     *  - 401: Unauthorized
+     *  - 404: User workout plan not found
+     *  - 500: Internal server error
+     *
+     * @param userWorkoutPlanId User workout plan identifier
+     * @return [Call]<[Unit]>
+     */
+    @PUT("api/users/workout/user-plans/{userWorkoutPlanId}/cancel")
+    fun apiUsersWorkoutUserPlansUserWorkoutPlanIdCancelPut(@Path("userWorkoutPlanId") userWorkoutPlanId: kotlin.String): Call<Unit>
+
+    /**
+     * DELETE api/users/workout/user-plans/{userWorkoutPlanId}/days/{dayId}/results
+     * Reset exercise results
+     * Reset exercise results for a workout day
+     * Responses:
+     *  - 201: Exercise result recorded successfully
+     *  - 400: Invalid input data
+     *  - 401: Unauthorized
+     *
+     * @param userWorkoutPlanId User workout plan identifier
+     * @param dayId Workout plan day identifier
+     * @return [Call]<[SuccessMessage]>
+     */
+    @DELETE("api/users/workout/user-plans/{userWorkoutPlanId}/days/{dayId}/results")
+    fun apiUsersWorkoutUserPlansUserWorkoutPlanIdDaysDayIdResultsDelete(@Path("userWorkoutPlanId") userWorkoutPlanId: kotlin.String, @Path("dayId") dayId: kotlin.String): Call<SuccessMessage>
 
     /**
      * GET api/users/workout/user-plans/{userWorkoutPlanId}/results
@@ -201,20 +266,20 @@ interface UsersApi {
 
     /**
      * GET api/users/workout/{workoutPlanId}/assign
-     * Get workout plan assignment
-     * Get workout plan assignment details for a specific plan
+     * Get workout plan assignments
+     * Get all workout plan assignment details for a specific plan
      * Responses:
-     *  - 200: Workout plan assignment details
+     *  - 200: List of workout plan assignments
      *  - 400: Missing userId parameter for coaches
      *  - 401: Unauthorized
      *  - 403: Access denied
      *
      * @param workoutPlanId Workout plan identifier
      * @param userId User ID for coach to specify which user (optional)
-     * @return [Call]<[WorkoutPlanAssignment]>
+     * @return [Call]<[kotlin.collections.List<WorkoutPlanAssignment>]>
      */
     @GET("api/users/workout/{workoutPlanId}/assign")
-    fun apiUsersWorkoutWorkoutPlanIdAssignGet(@Path("workoutPlanId") workoutPlanId: kotlin.String, @Query("userId") userId: kotlin.String? = null): Call<WorkoutPlanAssignment>
+    fun apiUsersWorkoutWorkoutPlanIdAssignGet(@Path("workoutPlanId") workoutPlanId: kotlin.String, @Query("userId") userId: kotlin.String? = null): Call<kotlin.collections.List<WorkoutPlanAssignment>>
 
     /**
      * POST api/users/workout/{workoutPlanId}/assign

@@ -22,40 +22,59 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * @param date Date of adherence record (YYYY-MM-DD format)
- * @param weekday Day of the week
- * @param totalMeals Total number of meals planned
- * @param adherencePercentage Percentage of plan followed
- * @param notes Notes about adherence
+ * @param id 
+ * @param userNutritionPlanId 
+ * @param userId 
+ * @param date 
+ * @param weekday 
+ * @param mealsCompleted 
+ * @param totalMeals 
+ * @param adherencePercentage 
+ * @param totalCaloriesConsumed 
+ * @param totalCaloriesPlanned 
+ * @param notes 
  */
 
 
 data class NutritionAdherence (
 
-    /* Date of adherence record (YYYY-MM-DD format) */
+    @Json(name = "id")
+    val id: kotlin.Int,
+
+    @Json(name = "userNutritionPlanId")
+    val userNutritionPlanId: kotlin.Int,
+
+    @Json(name = "userId")
+    val userId: kotlin.String,
+
     @Json(name = "date")
-    val date: kotlin.String? = null,
+    val date: kotlin.String,
 
-    /* Day of the week */
     @Json(name = "weekday")
-    val weekday: NutritionAdherence.Weekday? = null,
+    val weekday: NutritionAdherence.Weekday,
 
-    /* Total number of meals planned */
+    @Json(name = "mealsCompleted")
+    val mealsCompleted: kotlin.Int? = null,
+
     @Json(name = "totalMeals")
-    val totalMeals: java.math.BigDecimal? = null,
+    val totalMeals: kotlin.Int? = null,
 
-    /* Percentage of plan followed */
     @Json(name = "adherencePercentage")
     val adherencePercentage: java.math.BigDecimal? = null,
 
-    /* Notes about adherence */
+    @Json(name = "totalCaloriesConsumed")
+    val totalCaloriesConsumed: kotlin.Int? = null,
+
+    @Json(name = "totalCaloriesPlanned")
+    val totalCaloriesPlanned: kotlin.Int? = null,
+
     @Json(name = "notes")
     val notes: kotlin.String? = null
 
 ) {
 
     /**
-     * Day of the week
+     * 
      *
      * Values: sun,mon,tue,wed,thu,fri,sat
      */

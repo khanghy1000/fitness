@@ -62,41 +62,83 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="12dp"
-            android:gravity="end">
+            android:orientation="vertical"
+            android:layout_marginTop="12dp">
 
-            <Button
-                android:id="@+id/btn_accept"
-                style="@style/Widget.Material3.Button"
-                android:layout_width="wrap_content"
+            <!-- Assignment buttons for active connections -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Accept"
-                android:textColor="@color/white"
-                android:backgroundTint="@color/success"
-                android:layout_marginEnd="8dp"
-                android:visibility="gone" />
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginBottom="8dp">
 
-            <Button
-                android:id="@+id/btn_reject"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Reject"
-                android:textColor="@color/error"
-                android:strokeColor="@color/error"
-                android:layout_marginEnd="8dp"
-                android:visibility="gone" />
+                <Button
+                    android:id="@+id/btn_assign_workout"
+                    style="@style/Widget.Material3.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Assign Workout"
+                    android:textColor="@color/white"
+                    android:backgroundTint="@color/primary"
+                    android:layout_marginEnd="4dp"
+                    android:visibility="gone" />
 
-            <Button
-                android:id="@+id/btn_disconnect"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="wrap_content"
+                <Button
+                    android:id="@+id/btn_assign_nutrition"
+                    style="@style/Widget.Material3.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Assign Nutrition"
+                    android:textColor="@color/white"
+                    android:backgroundTint="@color/primary"
+                    android:layout_marginStart="4dp"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+
+            <!-- Action buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Disconnect"
-                android:textColor="@color/error"
-                android:strokeColor="@color/error"
-                android:visibility="gone" />
+                android:orientation="horizontal"
+                android:gravity="end">
+
+                <Button
+                    android:id="@+id/btn_accept"
+                    style="@style/Widget.Material3.Button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Accept"
+                    android:textColor="@color/white"
+                    android:backgroundTint="@color/success"
+                    android:layout_marginEnd="8dp"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/btn_reject"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Reject"
+                    android:textColor="@color/error"
+                    android:strokeColor="@color/error"
+                    android:layout_marginEnd="8dp"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/btn_disconnect"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Disconnect"
+                    android:textColor="@color/error"
+                    android:strokeColor="@color/error"
+                    android:visibility="gone" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

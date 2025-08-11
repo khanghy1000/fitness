@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <!-- Exercise Image -->
+        <ImageView
+            android:id="@+id/imageViewExercise"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_marginEnd="16dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/placeholder_exercise"
+            android:background="@drawable/rounded_image_background"
+            android:clipToOutline="true"
+            tools:src="@drawable/exercise_bicep_curl" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textViewExerciseName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:textStyle="bold"
+                android:textColor="?attr/colorOnSurface"
+                tools:text="Bicep Curl" />
+
+            <TextView
+                android:id="@+id/textViewNotes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:visibility="gone"
+                tools:text="Keep your back straight"
+                tools:visibility="visible" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textViewDurationReps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="8dp"
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+            android:textStyle="bold"
+            android:textColor="?attr/colorPrimary"
+            tools:text="30 sec" />
+
+        <!-- Completion Status Icon -->
+        <ImageView
+            android:id="@+id/imageViewCompletionStatus"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/ic_check_circle"
+            android:tint="?attr/colorPrimary"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

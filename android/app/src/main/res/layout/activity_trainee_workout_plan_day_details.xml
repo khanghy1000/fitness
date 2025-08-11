@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.activity.trainee.TraineeWorkoutPlanDayDetailsActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:title="Day Details">
+
+            <ImageButton
+                android:id="@+id/buttonEdit"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_edit"
+                android:contentDescription="Edit workout plan"
+                android:visibility="gone" />
+
+        </com.google.android.material.appbar.MaterialToolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="80dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Day Info Section -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/textViewDayTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnSurface"
+                            tools:text="Day 1" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chipTodayDetails"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:text="Today"
+                            android:textSize="12sp"
+                            android:visibility="gone"
+                            app:chipMinHeight="28dp"
+                            app:chipBackgroundColor="@color/current_day_primary"
+                            app:chipStrokeWidth="0dp"
+                            android:textColor="@color/white" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/textViewPlanName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        tools:text="Full Body Workout" />
+
+                    <LinearLayout
+                        android:id="@+id/layoutWorkoutInfo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/textViewDuration"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+                            android:textColor="?attr/colorPrimary"
+                            android:textStyle="bold"
+                            tools:text="30 min" />
+
+                        <TextView
+                            android:id="@+id/textViewCalories"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+                            android:textColor="?attr/colorPrimary"
+                            android:textStyle="bold"
+                            tools:text="~150 cal" />
+
+                        <TextView
+                            android:id="@+id/textViewExerciseCount"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+                            android:textColor="?attr/colorPrimary"
+                            android:textStyle="bold"
+                            tools:text="5 exercises" />
+
+                    </LinearLayout>
+
+                    <!-- Progress Section -->
+                    <LinearLayout
+                        android:id="@+id/layoutDayProgress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:id="@+id/textViewDayProgress"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                            android:textColor="?attr/colorPrimary"
+                            android:textStyle="bold"
+                            tools:text="Progress: 3/5 exercises completed"
+                            tools:visibility="visible" />
+
+                        <com.google.android.material.progressindicator.LinearProgressIndicator
+                            android:id="@+id/progressBarDayProgress"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:progress="60"
+                            tools:visibility="visible" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Exercises Section -->
+            <TextView
+                android:id="@+id/textViewExercisesTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:text="Exercises"
+                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                android:textStyle="bold"
+                android:textColor="?attr/colorOnSurface" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewExercises"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                tools:listitem="@layout/item_trainee_workout_exercise" />
+
+            <!-- Rest Day Message -->
+            <LinearLayout
+                android:id="@+id/layoutRestDay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="32dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Rest Day"
+                    android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSurface" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Take a break and let your body recover"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:gravity="center" />
+
+            </LinearLayout>
+
+            <!-- Empty State -->
+            <LinearLayout
+                android:id="@+id/layoutEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="32dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No exercises available"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Button Container (Fixed Position) -->
+    <LinearLayout
+        android:id="@+id/layoutButtonContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_margin="16dp"
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <!-- Start Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonStart"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:text="Start Workout"
+            android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+            app:icon="@drawable/ic_play_arrow"
+            app:cornerRadius="10dp"
+            style="@style/Widget.Material3.Button" />
+
+        <!-- Reset Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonReset"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:text="Reset Progress"
+            android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+            app:icon="@drawable/ic_refresh"
+            app:cornerRadius="10dp"
+            android:visibility="gone"
+            style="@style/Widget.Material3.Button.UnelevatedButton" />
+
+    </LinearLayout>
+
+    <!-- Progress Bar -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

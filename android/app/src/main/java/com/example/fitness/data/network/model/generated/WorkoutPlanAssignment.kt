@@ -25,12 +25,16 @@ import com.squareup.moshi.JsonClass
  *
  * @param id 
  * @param userId 
+ * @param workoutPlanId 
  * @param assignedBy 
  * @param startDate 
- * @param isActive 
- * @param assignedAt 
+ * @param status 
+ * @param progress 
+ * @param createdAt 
+ * @param updatedAt 
  * @param workoutPlan 
  * @param endDate 
+ * @param notes 
  */
 
 
@@ -42,26 +46,50 @@ data class WorkoutPlanAssignment (
     @Json(name = "userId")
     val userId: kotlin.String,
 
+    @Json(name = "workoutPlanId")
+    val workoutPlanId: kotlin.Int,
+
     @Json(name = "assignedBy")
     val assignedBy: kotlin.String,
 
     @Json(name = "startDate")
     val startDate: kotlin.String,
 
-    @Json(name = "isActive")
-    val isActive: kotlin.Boolean,
+    @Json(name = "status")
+    val status: WorkoutPlanAssignment.Status,
 
-    @Json(name = "assignedAt")
-    val assignedAt: kotlin.String,
+    @Json(name = "progress")
+    val progress: java.math.BigDecimal,
+
+    @Json(name = "createdAt")
+    val createdAt: kotlin.String,
+
+    @Json(name = "updatedAt")
+    val updatedAt: kotlin.String,
 
     @Json(name = "workoutPlan")
-    val workoutPlan: WorkoutPlan? = null,
+    val workoutPlan: WorkoutPlan,
 
     @Json(name = "endDate")
-    val endDate: kotlin.String? = null
+    val endDate: kotlin.String? = null,
+
+    @Json(name = "notes")
+    val notes: kotlin.String? = null
 
 ) {
 
+    /**
+     * 
+     *
+     * Values: active,completed,paused,cancelled
+     */
+    @JsonClass(generateAdapter = false)
+    enum class Status(val value: kotlin.String) {
+        @Json(name = "active") active("active"),
+        @Json(name = "completed") completed("completed"),
+        @Json(name = "paused") paused("paused"),
+        @Json(name = "cancelled") cancelled("cancelled");
+    }
 
 }
 

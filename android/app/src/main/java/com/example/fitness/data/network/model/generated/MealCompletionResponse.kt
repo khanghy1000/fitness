@@ -66,7 +66,7 @@ data class MealCompletionResponse (
     val updatedAt: kotlin.String,
 
     @Json(name = "caloriesConsumed")
-    val caloriesConsumed: java.math.BigDecimal? = null,
+    val caloriesConsumed: kotlin.Int? = null,
 
     @Json(name = "proteinConsumed")
     val proteinConsumed: java.math.BigDecimal? = null,

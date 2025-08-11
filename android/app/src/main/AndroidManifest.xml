@@ -4,6 +4,19 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- BLE permissions -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <!-- Bluetooth Low Energy requirement -->
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="true" />
+
     <application
         android:name=".MyApp"
         android:allowBackup="true"
@@ -16,6 +29,15 @@
         android:theme="@style/Theme.Fitness"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".ui.activity.trainee.TraineeWorkoutActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activity.trainee.TraineeWorkoutPlanDayDetailsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activity.trainee.TraineeWorkoutPlanDetailsActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.activity.MessageActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize|stateHidden" />
@@ -24,10 +46,10 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
-            android:name=".ui.activity.coach.CoachWorkoutPlanEditActivity"
+            android:name=".ui.activity.WorkoutPlanEditActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.activity.coach.CoachWorkoutPlanDetailsActivity"
+            android:name=".ui.activity.WorkoutPlanDetailsActivity"
             android:exported="false" />
         <activity
             android:name=".ui.activity.trainee.TraineeNutritionPlanActivity"
@@ -42,10 +64,10 @@
             android:name=".ui.activity.trainee.TraineeNutritionPlanEditActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.activity.coach.CoachNutritionPlanEditActivity"
+            android:name=".ui.activity.NutritionPlanEditActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.activity.coach.CoachNutritionPlanDetailsActivity"
+            android:name=".ui.activity.NutritionPlanDetailsActivity"
             android:exported="false" />
         <activity
             android:name=".ui.activity.coach.CoachWorkoutPlanActivity"
@@ -54,7 +76,13 @@
             android:name=".ui.activity.coach.CoachTraineeActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.activity.trainee.TraineeExercisePlanActivity"
+            android:name=".ui.activity.coach.AssignWorkoutPlanActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activity.coach.AssignNutritionPlanActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activity.trainee.TraineeWorkoutPlanActivity"
             android:exported="false" />
         <activity
             android:name=".ui.activity.trainee.TraineeCoachActivity"
@@ -71,7 +99,8 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- Login Activity -->
+        </activity> <!--
+        Login Activity -->
         <activity
             android:name=".ui.activity.LoginActivity"
             android:exported="false"

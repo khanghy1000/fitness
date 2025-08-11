@@ -24,7 +24,6 @@ import com.squareup.moshi.JsonClass
  *
  * @param userId ID of the user to assign the plan to
  * @param startDate Start date for the nutrition plan
- * @param endDate End date for the nutrition plan
  */
 
 
@@ -36,11 +35,7 @@ data class AssignNutritionPlan (
 
     /* Start date for the nutrition plan */
     @Json(name = "startDate")
-    val startDate: kotlin.String,
-
-    /* End date for the nutrition plan */
-    @Json(name = "endDate")
-    val endDate: kotlin.String? = null
+    val startDate: kotlin.String
 
 ) {
 

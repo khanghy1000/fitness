@@ -27,8 +27,6 @@ import com.squareup.moshi.JsonClass
  * @param workoutPlanId Workout plan ID
  * @param day Day number
  * @param isRestDay Whether this is a rest day
- * @param createdAt Creation date
- * @param updatedAt Last update date
  * @param exercises Exercises for this day
  * @param estimatedCalories Estimated calories burned
  * @param duration Duration in seconds

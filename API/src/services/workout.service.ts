@@ -140,52 +140,57 @@ export class WorkoutService {
         return result[0] || null;
     }
 
-    static async addDayToWorkoutPlan(
-        workoutPlanId: number,
-        data: {
-            day: number;
-            isRestDay?: boolean;
-            estimatedCalories?: number;
-            duration?: number;
-        }
-    ) {
-        const result = await db
-            .insert(workoutPlanDay)
-            .values({ ...data, workoutPlanId })
-            .returning();
-        return result[0];
-    }
-
-    static async addExerciseToPlanDay(
-        workoutPlanDayId: number,
-        data: {
-            exerciseTypeId: number;
-            order?: number;
-            targetReps?: number;
-            targetDuration?: number;
-            estimatedCalories?: number;
-            notes?: string;
-        }
-    ) {
-        const result = await db
-            .insert(workoutPlanDayExercise)
-            .values({ ...data, workoutPlanDayId })
-            .returning();
-        return result[0];
-    }
-
     static async assignWorkoutPlanToUser(data: {
         userId: string;
         workoutPlanId: number;
         assignedBy: string;
         startDate: Date;
-        endDate?: Date;
     }) {
         const result = await db
             .insert(userWorkoutPlan)
             .values(data)
             .returning();
         return result[0];
+    }
+
+    static async cancelWorkoutPlan(
+        userWorkoutPlanId: number,
+        userId: string,
+    ) {
+        return await db.transaction(async (tx) => {
+            // First verify the plan belongs to the user
+            const existingPlan = await tx.query.userWorkoutPlan.findFirst({
+                where: and(
+                    eq(userWorkoutPlan.id, userWorkoutPlanId),
+                    eq(userWorkoutPlan.userId, userId)
+                ),
+            });
+
+            if (!existingPlan) {
+                throw new Error('Workout plan not found or access denied');
+            }
+
+            if (existingPlan.status === 'cancelled') {
+                throw new Error('Workout plan is already cancelled');
+            }
+
+            if (existingPlan.status === 'completed') {
+                throw new Error('Cannot cancel a completed workout plan');
+            }
+
+            // Update the plan status to cancelled and set end date
+            const result = await tx
+                .update(userWorkoutPlan)
+                .set({
+                    status: 'cancelled',
+                    endDate: new Date(),
+                    updatedAt: new Date(),
+                })
+                .where(eq(userWorkoutPlan.id, userWorkoutPlanId))
+                .returning();
+
+            return result[0];
+        });
     }
 
     static async getUserAssignedWorkoutPlans(userId: string) {
@@ -209,107 +214,6 @@ export class WorkoutService {
         });
     }
 
-    // Workout Plan Day methods
-    static async getWorkoutPlanDays(workoutPlanId: number) {
-        return await db.query.workoutPlanDay.findMany({
-            where: eq(workoutPlanDay.workoutPlanId, workoutPlanId),
-            with: {
-                exercises: {
-                    with: {
-                        exerciseType: true,
-                    },
-                },
-            },
-        });
-    }
-
-    static async getWorkoutPlanDayById(id: number) {
-        return await db.query.workoutPlanDay.findFirst({
-            where: eq(workoutPlanDay.id, id),
-            with: {
-                exercises: {
-                    with: {
-                        exerciseType: true,
-                    },
-                },
-            },
-        });
-    }
-
-    static async updateWorkoutPlanDay(
-        id: number,
-        data: {
-            day?: number;
-            isRestDay?: boolean;
-            estimatedCalories?: number;
-            duration?: number;
-        }
-    ) {
-        const result = await db
-            .update(workoutPlanDay)
-            .set(data)
-            .where(eq(workoutPlanDay.id, id))
-            .returning();
-        return result[0] || null;
-    }
-
-    static async deleteWorkoutPlanDay(id: number) {
-        const result = await db
-            .delete(workoutPlanDay)
-            .where(eq(workoutPlanDay.id, id))
-            .returning();
-        return result[0] || null;
-    }
-
-    // Workout Plan Day Exercise methods
-    static async getWorkoutPlanDayExercises(workoutPlanDayId: number) {
-        return await db.query.workoutPlanDayExercise.findMany({
-            where: eq(
-                workoutPlanDayExercise.workoutPlanDayId,
-                workoutPlanDayId
-            ),
-            with: {
-                exerciseType: true,
-            },
-        });
-    }
-
-    static async getWorkoutPlanDayExerciseById(id: number) {
-        return await db.query.workoutPlanDayExercise.findFirst({
-            where: eq(workoutPlanDayExercise.id, id),
-            with: {
-                exerciseType: true,
-            },
-        });
-    }
-
-    static async updateExerciseInPlanDay(
-        id: number,
-        data: {
-            exerciseTypeId?: number;
-            order?: number;
-            targetReps?: number;
-            targetDuration?: number;
-            estimatedCalories?: number;
-            notes?: string;
-        }
-    ) {
-        const result = await db
-            .update(workoutPlanDayExercise)
-            .set({ ...data, updatedAt: new Date() })
-            .where(eq(workoutPlanDayExercise.id, id))
-            .returning();
-        return result[0] || null;
-    }
-
-    static async deleteExerciseFromPlanDay(id: number) {
-        const result = await db
-            .delete(workoutPlanDayExercise)
-            .where(eq(workoutPlanDayExercise.id, id))
-            .returning();
-        return result[0] || null;
-    }
-
     // Record exercise result
     static async recordExerciseResult(data: {
         workoutPlanDayExerciseId: number;
@@ -320,14 +224,50 @@ export class WorkoutService {
         calories?: number;
     }) {
         return await db.transaction(async (tx) => {
-            // Insert exercise result
-            const result = await tx
-                .insert(exerciseResult)
-                .values({
-                    ...data,
-                    completedAt: new Date(),
-                })
-                .returning();
+            // Check if an exercise result already exists for this exercise, user workout plan, and user
+            const existingResult = await tx
+                .select()
+                .from(exerciseResult)
+                .where(
+                    and(
+                        eq(
+                            exerciseResult.workoutPlanDayExerciseId,
+                            data.workoutPlanDayExerciseId
+                        ),
+                        eq(
+                            exerciseResult.userWorkoutPlanId,
+                            data.userWorkoutPlanId
+                        ),
+                        eq(exerciseResult.userId, data.userId)
+                    )
+                )
+                .limit(1);
+
+            let result;
+            if (existingResult.length > 0) {
+                // Update existing record
+                const updated = await tx
+                    .update(exerciseResult)
+                    .set({
+                        reps: data.reps,
+                        duration: data.duration,
+                        calories: data.calories,
+                        completedAt: new Date(),
+                    })
+                    .where(eq(exerciseResult.id, existingResult[0].id))
+                    .returning();
+                result = updated[0];
+            } else {
+                // Insert new exercise result
+                const inserted = await tx
+                    .insert(exerciseResult)
+                    .values({
+                        ...data,
+                        completedAt: new Date(),
+                    })
+                    .returning();
+                result = inserted[0];
+            }
 
             // Update progress for the user workout plan
             await this.updateWorkoutPlanProgress(
@@ -336,7 +276,60 @@ export class WorkoutService {
                 tx
             );
 
-            return result[0];
+            return result;
+        });
+    }
+
+    // Reset exercise results for a workout day
+    static async resetWorkoutDayResults(data: {
+        userWorkoutPlanId: number;
+        workoutPlanDayId: number;
+        userId: string;
+    }) {
+        return await db.transaction(async (tx) => {
+            // Get all exercises for this workout plan day
+            const dayExercises = await tx
+                .select({ id: workoutPlanDayExercise.id })
+                .from(workoutPlanDayExercise)
+                .where(
+                    eq(
+                        workoutPlanDayExercise.workoutPlanDayId,
+                        data.workoutPlanDayId
+                    )
+                );
+
+            if (dayExercises.length > 0) {
+                const exerciseIds = dayExercises.map((e) => e.id);
+
+                // Delete all exercise results for this day, user workout plan, and user
+                const deletedResults = await tx
+                    .delete(exerciseResult)
+                    .where(
+                        and(
+                            eq(
+                                exerciseResult.userWorkoutPlanId,
+                                data.userWorkoutPlanId
+                            ),
+                            eq(exerciseResult.userId, data.userId),
+                            or(
+                                ...exerciseIds.map((id) =>
+                                    eq(
+                                        exerciseResult.workoutPlanDayExerciseId,
+                                        id
+                                    )
+                                )
+                            )
+                        )
+                    )
+                    .returning();
+
+                // Update progress for the user workout plan
+                await this.updateWorkoutPlanProgress(
+                    data.userWorkoutPlanId,
+                    data.userId,
+                    tx
+                );
+            }
         });
     }
 
@@ -410,13 +403,22 @@ export class WorkoutService {
         const progress =
             totalNonRestDays > 0 ? (completedDays / totalNonRestDays) * 100 : 0;
 
-        // Update user workout plan progress
+        // Prepare update data
+        const updateData: any = {
+            progress: Math.round(progress * 100) / 100, // Round to 2 decimal places
+            updatedAt: new Date(),
+        };
+
+        // If progress is 100% and status is still active, mark as completed
+        if (progress >= 100 && userPlan.status === 'active') {
+            updateData.status = 'completed';
+            updateData.endDate = new Date();
+        }
+
+        // Update user workout plan progress and potentially status
         await tx
             .update(userWorkoutPlan)
-            .set({
-                progress: Math.round(progress * 100) / 100, // Round to 2 decimal places
-                updatedAt: new Date(),
-            })
+            .set(updateData)
             .where(eq(userWorkoutPlan.id, userWorkoutPlanId));
     }
 
@@ -523,7 +525,12 @@ export class WorkoutService {
             let totalPlanCalories = 0;
             if (data.days) {
                 for (const dayData of data.days) {
-                    if (!dayData.isRestDay && dayData.exercises) {
+                    // Auto-determine if day should be rest day based on exercises
+                    const hasExercises =
+                        dayData.exercises && dayData.exercises.length > 0;
+                    const isRestDay = dayData.isRestDay || !hasExercises;
+
+                    if (!isRestDay && dayData.exercises) {
                         for (const exercise of dayData.exercises) {
                             totalPlanCalories += calculateExerciseCalories(
                                 exercise.targetReps,
@@ -610,11 +617,15 @@ export class WorkoutService {
                 for (const dayData of days) {
                     const { exercises, ...dayInfoRaw } = dayData;
 
+                    // Auto-set as rest day if no exercises are provided or exercises array is empty
+                    const hasExercises = exercises && exercises.length > 0;
+                    const isRestDay = dayData.isRestDay || !hasExercises;
+
                     // Calculate day-level totals
                     let dayCalories = 0;
                     let dayDuration = 0;
 
-                    if (!dayData.isRestDay && exercises) {
+                    if (!isRestDay && exercises) {
                         for (const exercise of exercises) {
                             dayCalories += calculateExerciseCalories(
                                 exercise.targetReps,
@@ -631,6 +642,7 @@ export class WorkoutService {
                     const { id: dayIdForUpdate, ...dayInfo } = dayInfoRaw;
                     const dayInfoWithCalculated = {
                         ...dayInfo,
+                        isRestDay: isRestDay,
                         estimatedCalories: dayCalories,
                         duration: dayDuration,
                     };
@@ -662,8 +674,8 @@ export class WorkoutService {
                         dayId = newDay[0].id;
                     }
 
-                    // Process exercises for this day
-                    if (exercises) {
+                    // Process exercises for this day (only if it's not a rest day)
+                    if (exercises && !isRestDay) {
                         for (const exerciseData of exercises) {
                             const {
                                 id: exerciseIdForUpdate,
@@ -712,6 +724,9 @@ export class WorkoutService {
                 }
             }
 
+            // Recalculate workout progress for all users with this plan assigned
+            await this.recalculateWorkoutProgressForPlan(id, tx);
+
             // Return the updated plan with full details
             return await tx.query.workoutPlan.findFirst({
                 where: eq(workoutPlan.id, id),
@@ -728,5 +743,25 @@ export class WorkoutService {
                 },
             });
         });
+    }
+
+    // Helper method to recalculate workout progress for all users with a specific workout plan
+    static async recalculateWorkoutProgressForPlan(
+        workoutPlanId: number,
+        tx: any = db
+    ) {
+        // Get all user workout plans for this workout plan
+        const userWorkoutPlans = await tx.query.userWorkoutPlan.findMany({
+            where: eq(userWorkoutPlan.workoutPlanId, workoutPlanId),
+        });
+
+        // Recalculate progress for each user workout plan
+        for (const userPlan of userWorkoutPlans) {
+            await this.updateWorkoutPlanProgress(
+                userPlan.id,
+                userPlan.userId,
+                tx
+            );
+        }
     }
 }

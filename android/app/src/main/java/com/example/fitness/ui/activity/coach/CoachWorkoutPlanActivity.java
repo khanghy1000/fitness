@@ -15,9 +15,10 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.fitness.R;
-import com.example.fitness.data.network.model.generated.CreateWorkoutPlan;
 import com.example.fitness.data.network.model.generated.WorkoutPlan;
 import com.example.fitness.databinding.ActivityCoachWorkoutPlanBinding;
+import com.example.fitness.ui.activity.WorkoutPlanDetailsActivity;
+import com.example.fitness.ui.activity.WorkoutPlanEditActivity;
 import com.example.fitness.ui.adapter.WorkoutPlanAdapter;
 import com.example.fitness.ui.dialog.CreateWorkoutPlanDialogFragment;
 import com.example.fitness.ui.viewmodel.WorkoutPlanViewModel;
@@ -122,7 +123,7 @@ public class CoachWorkoutPlanActivity extends AppCompatActivity implements Worko
 
     @Override
     public void onWorkoutPlanClick(WorkoutPlan workoutPlan) {
-        Intent intent = new Intent(this, CoachWorkoutPlanDetailsActivity.class);
+        Intent intent = new Intent(this, WorkoutPlanDetailsActivity.class);
         intent.putExtra("PLAN_ID", workoutPlan.getId());
         intent.putExtra("PLAN_NAME", workoutPlan.getName());
         startActivity(intent);
@@ -139,7 +140,7 @@ public class CoachWorkoutPlanActivity extends AppCompatActivity implements Worko
                 onWorkoutPlanClick(workoutPlan);
                 return true;
             } else if (itemId == R.id.action_edit) {
-                Intent intent = new Intent(this, CoachWorkoutPlanEditActivity.class);
+                Intent intent = new Intent(this, WorkoutPlanEditActivity.class);
                 intent.putExtra("PLAN_ID", workoutPlan.getId());
                 intent.putExtra("PLAN_NAME", workoutPlan.getName());
                 startActivity(intent);

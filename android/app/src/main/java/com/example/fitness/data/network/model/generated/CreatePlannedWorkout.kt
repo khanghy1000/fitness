@@ -15,7 +15,6 @@
 
 package com.example.fitness.data.network.model.generated
 
-import com.example.fitness.data.network.model.generated.RecordExerciseResultUserWorkoutPlanId
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -23,7 +22,7 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * @param userWorkoutPlanId 
+ * @param userWorkoutPlanId ID of the user workout plan
  * @param weekdays Days of the week when workout is scheduled
  * @param time Time when workout is scheduled
  * @param isActive Whether the planned workout is active
@@ -32,8 +31,9 @@ import com.squareup.moshi.JsonClass
 
 data class CreatePlannedWorkout (
 
+    /* ID of the user workout plan */
     @Json(name = "userWorkoutPlanId")
-    val userWorkoutPlanId: RecordExerciseResultUserWorkoutPlanId,
+    val userWorkoutPlanId: kotlin.Int,
 
     /* Days of the week when workout is scheduled */
     @Json(name = "weekdays")

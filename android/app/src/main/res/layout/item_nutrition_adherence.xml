@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="4dp"
+    app:cardElevation="2dp"
+    app:cardCornerRadius="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textViewDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSurface"
+                    tools:text="Jan 15, 2024" />
+
+                <TextView
+                    android:id="@+id/textViewWeekday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    tools:text="Monday" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="end">
+
+                <TextView
+                    android:id="@+id/textViewAdherencePercentage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorPrimary"
+                    tools:text="85%" />
+
+                <ProgressBar
+                    android:id="@+id/progressBarAdherence"
+                    style="@android:style/Widget.ProgressBar.Horizontal"
+                    android:layout_width="100dp"
+                    android:layout_height="8dp"
+                    android:layout_marginTop="4dp"
+                    android:max="100"
+                    android:progressTint="?attr/colorPrimary"
+                    tools:progress="85" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textViewMealsCompleted"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:textSize="14sp"
+            android:textColor="?attr/colorOnSurface"
+            tools:text="4/5 meals completed" />
+
+        <TextView
+            android:id="@+id/textViewCaloriesConsumed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:textSize="14sp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            tools:text="1650/1800 calories" />
+
+        <TextView
+            android:id="@+id/textViewNotes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:background="?attr/colorSurfaceVariant"
+            android:textSize="12sp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textStyle="italic"
+            android:visibility="gone"
+            tools:text="Skipped dinner due to work meeting"
+            tools:visibility="visible" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

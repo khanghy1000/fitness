@@ -40,6 +40,15 @@ export const nutritionPlanIdParamSchema = z
     })
     .openapi('NutritionPlanIdParam');
 
+export const userIdParamSchema = z
+    .object({
+        userId: z.string().min(1, 'User ID is required').openapi({
+            description: 'User identifier',
+            example: 'user123',
+        }),
+    })
+    .openapi('UserIdParam');
+
 export const myQuerySchema = z
     .object({
         my: z.enum(['true', 'false']).optional().openapi({
@@ -286,58 +295,11 @@ export const assignNutritionPlanSchema = z
                 description: 'Start date for the nutrition plan',
                 example: '2025-01-01',
             }),
-        endDate: z
-            .string()
-            .refine((date) => !isNaN(Date.parse(date)), {
-                message: 'Invalid end date format',
-            })
-            .optional()
-            .openapi({
-                description: 'End date for the nutrition plan',
-                example: '2025-03-01',
-            }),
     })
     .openapi('AssignNutritionPlan');
 
 export const mealCompletionSchema = z
     .object({
-        date: z
-            .string()
-            .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format')
-            .refine((date) => !isNaN(Date.parse(date)), {
-                message: 'Invalid date format',
-            })
-            .optional()
-            .openapi({
-                description:
-                    'Date when the meal was completed (YYYY-MM-DD format, defaults to current date). Only the date part is used for adherence tracking.',
-                example: '2025-01-15',
-            }),
-        caloriesConsumed: z
-            .number()
-            .min(0)
-            .optional()
-            .openapi({ description: 'Actual calories consumed', example: 420 }),
-        proteinConsumed: z
-            .number()
-            .min(0)
-            .optional()
-            .openapi({ description: 'Actual protein consumed', example: 23.5 }),
-        carbsConsumed: z
-            .number()
-            .min(0)
-            .optional()
-            .openapi({ description: 'Actual carbs consumed', example: 40.0 }),
-        fatConsumed: z
-            .number()
-            .min(0)
-            .optional()
-            .openapi({ description: 'Actual fat consumed', example: 11.0 }),
-        fiberConsumed: z
-            .number()
-            .min(0)
-            .optional()
-            .openapi({ description: 'Actual fiber consumed', example: 7.5 }),
         notes: z.string().optional().openapi({
             description: 'Notes about the meal completion',
             example: 'Felt satisfied after this meal',
@@ -434,16 +396,6 @@ export const assignWorkoutPlanSchema = z
                 description: 'Start date for the workout plan',
                 example: '2025-01-01',
             }),
-        endDate: z
-            .string()
-            .refine((date) => !isNaN(Date.parse(date)), {
-                message: 'Invalid end date format',
-            })
-            .optional()
-            .openapi({
-                description: 'End date for the workout plan',
-                example: '2025-06-01',
-            }),
     })
     .openapi('AssignWorkoutPlan');
 
@@ -525,14 +477,10 @@ export const addExerciseToPlanDaySchema = z
 // Planned Workout schemas
 export const createPlannedWorkoutSchema = z
     .object({
-        userWorkoutPlanId: z
-            .int()
-            .positive()
-            .or(z.string().transform(Number))
-            .openapi({
-                description: 'ID of the user workout plan',
-                example: 123,
-            }),
+        userWorkoutPlanId: z.int().positive().openapi({
+            description: 'ID of the user workout plan',
+            example: 123,
+        }),
         weekdays: z
             .array(z.enum(['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']))
             .min(1, 'At least one weekday is required')
@@ -579,31 +527,23 @@ export const updatePlannedWorkoutSchema = z
 
 export const recordExerciseResultSchema = z
     .object({
-        workoutPlanDayExerciseId: z
-            .int()
-            .positive()
-            .or(z.string().transform(Number))
-            .openapi({
-                description: 'ID of the workout plan day exercise',
-                example: 789,
-            }),
-        userWorkoutPlanId: z
-            .int()
-            .positive()
-            .or(z.string().transform(Number))
-            .openapi({
-                description: 'ID of the user workout plan',
-                example: 123,
-            }),
-        reps: z.int().positive().optional().openapi({
+        workoutPlanDayExerciseId: z.int().positive().openapi({
+            description: 'ID of the workout plan day exercise',
+            example: 789,
+        }),
+        userWorkoutPlanId: z.int().positive().openapi({
+            description: 'ID of the user workout plan',
+            example: 123,
+        }),
+        reps: z.int().nonnegative().optional().openapi({
             description: 'Number of repetitions completed',
             example: 15,
         }),
-        duration: z.int().positive().optional().openapi({
+        duration: z.int().nonnegative().optional().openapi({
             description: 'Duration of exercise in seconds',
             example: 180,
         }),
-        calories: z.int().positive().optional().openapi({
+        calories: z.int().nonnegative().optional().openapi({
             description: 'Calories burned during exercise',
             example: 45,
         }),
@@ -798,38 +738,17 @@ export const recordUserStatsSchema = z
 
 export const nutritionAdherenceSchema = z
     .object({
-        date: z
-            .string()
-            .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format')
-            .refine((date) => !isNaN(Date.parse(date)), {
-                message: 'Invalid date format',
-            })
-            .optional()
-            .openapi({
-                description: 'Date of adherence record (YYYY-MM-DD format)',
-                example: '2025-01-15',
-            }),
-        weekday: z
-            .enum(['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'])
-            .optional()
-            .openapi({ description: 'Day of the week', example: 'mon' }),
-        totalMeals: z.number().positive().optional().openapi({
-            description: 'Total number of meals planned',
-            example: 5,
-        }),
-        adherencePercentage: z
-            .number()
-            .min(0)
-            .max(100, 'Adherence percentage must be between 0 and 100')
-            .optional()
-            .openapi({
-                description: 'Percentage of plan followed',
-                example: 85.5,
-            }),
-        notes: z.string().optional().openapi({
-            description: 'Notes about adherence',
-            example: 'Skipped afternoon snack due to meeting',
-        }),
+        id: z.int(),
+        userNutritionPlanId: z.int(),
+        userId: z.string(),
+        date: z.string(),
+        weekday: z.enum(['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']),
+        mealsCompleted: z.int().optional(),
+        totalMeals: z.int().optional(),
+        adherencePercentage: z.number().optional(),
+        totalCaloriesConsumed: z.int().optional(),
+        totalCaloriesPlanned: z.int().optional(),
+        notes: z.string().optional(),
     })
     .openapi('NutritionAdherence');
 
@@ -898,6 +817,30 @@ export const userSchema = z
             .openapi({ description: 'User role', example: 'trainee' }),
     })
     .openapi('User');
+
+export const detailedUserSchema = z
+    .object({
+        id: z.string().openapi({ description: 'User ID', example: 'user123' }),
+        email: z.string().email().openapi({
+            description: 'User email',
+            example: 'john.doe@example.com',
+        }),
+        name: z
+            .string()
+            .openapi({ description: 'User full name', example: 'John Doe' }),
+        role: z
+            .enum(['coach', 'trainee'])
+            .openapi({ description: 'User role', example: 'trainee' }),
+        createdAt: z.string().openapi({
+            description: 'User creation timestamp',
+            example: '2024-01-01T10:00:00Z',
+        }),
+        updatedAt: z.string().openapi({
+            description: 'User last update timestamp',
+            example: '2024-01-15T14:30:00Z',
+        }),
+    })
+    .openapi('DetailedUser');
 
 export const workoutPlanSchema = z
     .object({
@@ -1794,3 +1737,38 @@ export const detailedWorkoutPlanSchema = z
             .openapi({ description: 'Workout plan days' }),
     })
     .openapi('DetailedWorkoutPlan');
+
+// Detailed Nutrition Adherence History with mealCompletions
+export const mealCompletionDetailedSchema = z
+    .object({
+        id: z.int(),
+        nutritionAdherenceId: z.int(),
+        nutritionPlanMealId: z.int(),
+        userId: z.string(),
+        isCompleted: z.boolean(),
+        completedAt: z.string(),
+        caloriesConsumed: z.int().optional(),
+        proteinConsumed: z.number().optional(),
+        carbsConsumed: z.number().optional(),
+        fatConsumed: z.number().optional(),
+        fiberConsumed: z.number().optional(),
+        notes: z.string().optional(),
+    })
+    .openapi('MealCompletionDetailed');
+
+export const detailedNutritionAdherenceHistorySchema = z
+    .object({
+        id: z.int(),
+        userNutritionPlanId: z.int(),
+        userId: z.string(),
+        date: z.string(),
+        weekday: z.enum(['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']),
+        mealsCompleted: z.int().optional(),
+        totalMeals: z.int().optional(),
+        adherencePercentage: z.number().optional(),
+        totalCaloriesConsumed: z.int().optional(),
+        totalCaloriesPlanned: z.int().optional(),
+        notes: z.string().optional(),
+        mealCompletions: z.array(mealCompletionDetailedSchema),
+    })
+    .openapi('DetailedNutritionAdherenceHistory');

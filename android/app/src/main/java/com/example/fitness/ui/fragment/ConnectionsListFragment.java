@@ -1,5 +1,6 @@
 package com.example.fitness.ui.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fitness.databinding.FragmentConnectionsListBinding;
+import com.example.fitness.ui.activity.coach.AssignWorkoutPlanActivity;
+import com.example.fitness.ui.activity.coach.AssignNutritionPlanActivity;
 import com.example.fitness.ui.adapter.ConnectionAdapter;
 import com.example.fitness.ui.viewmodel.ConnectionsViewModel;
 
@@ -162,6 +165,22 @@ public class ConnectionsListFragment extends Fragment implements ConnectionAdapt
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
+    }
+
+    @Override
+    public void onAssignWorkoutPlan(String traineeId, String traineeName) {
+        Intent intent = new Intent(requireContext(), AssignWorkoutPlanActivity.class);
+        intent.putExtra("TRAINEE_ID", traineeId);
+        intent.putExtra("TRAINEE_NAME", traineeName);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onAssignNutritionPlan(String traineeId, String traineeName) {
+        Intent intent = new Intent(requireContext(), AssignNutritionPlanActivity.class);
+        intent.putExtra("TRAINEE_ID", traineeId);
+        intent.putExtra("TRAINEE_NAME", traineeName);
+        startActivity(intent);
     }
 
     @Override

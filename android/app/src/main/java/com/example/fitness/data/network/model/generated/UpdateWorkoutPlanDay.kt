@@ -25,7 +25,7 @@ import com.squareup.moshi.JsonClass
  * @param day Day number in the workout plan
  * @param isRestDay Whether this is a rest day
  * @param estimatedCalories Estimated calories burned for this day
- * @param duration Estimated duration in minutes
+ * @param duration Estimated duration in seconds
  */
 
 
@@ -43,7 +43,7 @@ data class UpdateWorkoutPlanDay (
     @Json(name = "estimatedCalories")
     val estimatedCalories: kotlin.Int? = null,
 
-    /* Estimated duration in minutes */
+    /* Estimated duration in seconds */
     @Json(name = "duration")
     val duration: kotlin.Int? = null
 

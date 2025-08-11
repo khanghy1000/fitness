@@ -3,7 +3,30 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="primary">@color/design_default_color_primary</color>
+    // surface
+    <color name="surface">@color/design_default_color_surface</color>
     <color name="gray">#FF757575</color>
+    <color name="light_gray">#FFEEEEEE</color>
+    <color name="accent">#FFFF9800</color>
     <color name="success">#FF4CAF50</color>
     <color name="error">#FFF44336</color>
+
+    <!-- Status chip colors -->
+    <color name="green_100">#FFC8E6C9</color>
+    <color name="green_800">#FF2E7D32</color>
+    <color name="blue_100">#FFBBDEFB</color>
+    <color name="blue_800">#FF1565C0</color>
+    <color name="orange_100">#FFFFE0B2</color>
+    <color name="orange_800">#FFE65100</color>
+    <color name="red_100">#FFFFCDD2</color>
+    <color name="red_800">#FFC62828</color>
+    
+    <!-- Current day colors -->
+    <color name="current_day_primary">#FF2196F3</color>
+    <color name="current_day_background">#FFE3F2FD</color>
+    <color name="current_day_border">#FF1976D2</color>
+    <color name="current_day_text">#FF0D47A1</color>
+    
+    <!-- Meal completion colors -->
+    <color name="meal_completed_background">#FFE8F5E8</color>
 </resources>
