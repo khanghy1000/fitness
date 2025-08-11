@@ -105,12 +105,19 @@ public class ReadOnlyMealsAdapter extends RecyclerView.Adapter<ReadOnlyMealsAdap
                 textViewMacros.setVisibility(View.GONE);
             }
 
-            // Display foods
+            // Display foods with quantities
             if (meal.getFoods() != null && !meal.getFoods().isEmpty()) {
                 StringBuilder foodsText = new StringBuilder();
                 for (int i = 0; i < meal.getFoods().size(); i++) {
-                    if (i > 0) foodsText.append(", ");
-                    foodsText.append(meal.getFoods().get(i).getName());
+                    if (i > 0) foodsText.append("\n");
+                    
+                    String foodName = meal.getFoods().get(i).getName();
+                    String quantity = meal.getFoods().get(i).getQuantity();
+                    
+                    foodsText.append("• ").append(foodName);
+                    if (quantity != null && !quantity.trim().isEmpty()) {
+                        foodsText.append(" (").append(quantity).append(")");
+                    }
                 }
                 textViewFoods.setText(foodsText.toString());
                 textViewFoods.setVisibility(View.VISIBLE);

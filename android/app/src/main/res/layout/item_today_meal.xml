@@ -5,16 +5,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="6dp"
+    app:strokeWidth="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="20dp">
 
+        <!-- Header Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -31,19 +34,35 @@
                     android:id="@+id/textViewMealName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="18sp"
+                    android:textSize="20sp"
                     android:textStyle="bold"
                     android:textColor="?attr/colorOnSurface"
+                    android:letterSpacing="0.01"
                     tools:text="Breakfast" />
 
-                <TextView
-                    android:id="@+id/textViewMealTime"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:textSize="14sp"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    tools:text="8:00 AM" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="4dp">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_access_time"
+                        android:tint="?attr/colorOnSurfaceVariant"
+                        android:layout_marginEnd="4dp" />
+
+                    <TextView
+                        android:id="@+id/textViewMealTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="14sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        tools:text="8:00 AM" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -57,30 +76,38 @@
                     android:id="@+id/textViewCalories"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"
+                    android:textSize="18sp"
                     android:textStyle="bold"
                     android:textColor="?attr/colorPrimary"
+                    android:background="@drawable/bg_calories_badge"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="4dp"
                     tools:text="450 cal" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonComplete"
                     android:layout_width="wrap_content"
-                    android:layout_height="36dp"
-                    android:layout_marginTop="4dp"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="8dp"
                     android:text="Complete"
                     android:textSize="12sp"
                     android:minWidth="0dp"
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
+                    android:paddingHorizontal="16dp"
+                    app:cornerRadius="20dp"
                     style="@style/Widget.MaterialComponents.Button" />
 
                 <TextView
                     android:id="@+id/textViewCompletedStatus"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:textSize="12sp"
+                    android:layout_marginTop="8dp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
+                    android:background="@drawable/bg_completed_badge"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="4dp"
                     android:visibility="gone"
                     tools:text="✓ Completed" />
 
@@ -88,25 +115,66 @@
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/textViewMacros"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textSize="12sp"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            tools:text="P: 25g | C: 45g | F: 15g" />
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="16dp"
+            android:background="?attr/colorOutlineVariant"
+            android:alpha="0.5" />
 
-        <TextView
-            android:id="@+id/textViewFoods"
-            android:layout_width="wrap_content"
+        <!-- Nutrition Information -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textSize="12sp"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:maxLines="3"
-            android:ellipsize="end"
-            tools:text="Oatmeal, Banana, Blueberries, Almonds, Greek Yogurt" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_nutrition"
+                android:tint="?attr/colorOnSurfaceVariant"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:id="@+id/textViewMacros"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textStyle="bold"
+                tools:text="P: 25g | C: 45g | F: 15g" />
+
+        </LinearLayout>
+
+        <!-- Foods List -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp"
+            android:gravity="top">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_restaurant"
+                android:tint="?attr/colorOnSurfaceVariant"
+                android:layout_marginEnd="8dp"
+                android:layout_marginTop="2dp" />
+
+            <TextView
+                android:id="@+id/textViewFoods"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="14sp"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:lineSpacingExtra="2dp"
+                tools:text="• Oatmeal (1 cup)\n• Banana (1 medium)\n• Blueberries (1/2 cup)\n• Almonds (1 oz)" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
