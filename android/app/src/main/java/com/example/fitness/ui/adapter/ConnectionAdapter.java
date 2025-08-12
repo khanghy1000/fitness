@@ -30,8 +30,7 @@ public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.Co
         void onAcceptConnection(String traineeId);
         void onRejectConnection(String traineeId);
         void onDisconnectTrainee(String traineeId);
-        void onAssignWorkoutPlan(String traineeId, String traineeName);
-        void onAssignNutritionPlan(String traineeId, String traineeName);
+        void onTraineeClick(String traineeId, String traineeName);
     }
 
     public ConnectionAdapter(ConnectionType connectionType, OnConnectionActionListener listener) {
@@ -73,8 +72,6 @@ public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.Co
         private Button btnAccept;
         private Button btnReject;
         private Button btnDisconnect;
-        private Button btnAssignWorkout;
-        private Button btnAssignNutrition;
 
         public ConnectionViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -86,8 +83,6 @@ public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.Co
             btnAccept = itemView.findViewById(R.id.btn_accept);
             btnReject = itemView.findViewById(R.id.btn_reject);
             btnDisconnect = itemView.findViewById(R.id.btn_disconnect);
-            btnAssignWorkout = itemView.findViewById(R.id.btn_assign_workout);
-            btnAssignNutrition = itemView.findViewById(R.id.btn_assign_nutrition);
         }
 
         public void bind(Connection connection, ConnectionType connectionType, OnConnectionActionListener listener) {
@@ -112,14 +107,27 @@ public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.Co
                 tvNotes.setVisibility(View.GONE);
             }
 
+            // Add click listener for active connections to open trainee management
+            if (connectionType == ConnectionType.ACTIVE_CONNECTION) {
+                itemView.setOnClickListener(v -> {
+                    if (listener != null) {
+                        listener.onTraineeClick(connection.getTraineeId(), connection.getTrainee().getName());
+                    }
+                });
+                itemView.setClickable(true);
+                itemView.setFocusable(true);
+            } else {
+                itemView.setOnClickListener(null);
+                itemView.setClickable(false);
+                itemView.setFocusable(false);
+            }
+
             // Configure buttons based on connection type
             switch (connectionType) {
                 case RECEIVED_REQUEST:
                     btnAccept.setVisibility(View.VISIBLE);
                     btnReject.setVisibility(View.VISIBLE);
                     btnDisconnect.setVisibility(View.GONE);
-                    btnAssignWorkout.setVisibility(View.GONE);
-                    btnAssignNutrition.setVisibility(View.GONE);
                     
                     btnAccept.setOnClickListener(v -> {
                         if (listener != null) {
@@ -138,24 +146,10 @@ public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.Co
                     btnAccept.setVisibility(View.GONE);
                     btnReject.setVisibility(View.GONE);
                     btnDisconnect.setVisibility(View.VISIBLE);
-                    btnAssignWorkout.setVisibility(View.VISIBLE);
-                    btnAssignNutrition.setVisibility(View.VISIBLE);
                     
                     btnDisconnect.setOnClickListener(v -> {
                         if (listener != null) {
                             listener.onDisconnectTrainee(connection.getTraineeId());
-                        }
-                    });
-                    
-                    btnAssignWorkout.setOnClickListener(v -> {
-                        if (listener != null) {
-                            listener.onAssignWorkoutPlan(connection.getTraineeId(), connection.getTrainee().getName());
-                        }
-                    });
-                    
-                    btnAssignNutrition.setOnClickListener(v -> {
-                        if (listener != null) {
-                            listener.onAssignNutritionPlan(connection.getTraineeId(), connection.getTrainee().getName());
                         }
                     });
                     break;
@@ -165,8 +159,6 @@ public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.Co
                     btnAccept.setVisibility(View.GONE);
                     btnReject.setVisibility(View.GONE);
                     btnDisconnect.setVisibility(View.GONE);
-                    btnAssignWorkout.setVisibility(View.GONE);
-                    btnAssignNutrition.setVisibility(View.GONE);
                     break;
             }
         }

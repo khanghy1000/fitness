@@ -97,6 +97,7 @@ public class AssignWorkoutPlanActivity extends AppCompatActivity implements Assi
             if (success != null) {
                 Toast.makeText(this, success, Toast.LENGTH_SHORT).show();
                 viewModel.clearMessages();
+                setResult(RESULT_OK);
                 finish();
             }
         });

@@ -65,40 +65,6 @@
             android:orientation="vertical"
             android:layout_marginTop="12dp">
 
-            <!-- Assignment buttons for active connections -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:layout_marginBottom="8dp">
-
-                <Button
-                    android:id="@+id/btn_assign_workout"
-                    style="@style/Widget.Material3.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Assign Workout"
-                    android:textColor="@color/white"
-                    android:backgroundTint="@color/primary"
-                    android:layout_marginEnd="4dp"
-                    android:visibility="gone" />
-
-                <Button
-                    android:id="@+id/btn_assign_nutrition"
-                    style="@style/Widget.Material3.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Assign Nutrition"
-                    android:textColor="@color/white"
-                    android:backgroundTint="@color/primary"
-                    android:layout_marginStart="4dp"
-                    android:visibility="gone" />
-
-            </LinearLayout>
-
             <!-- Action buttons -->
             <LinearLayout
                 android:layout_width="match_parent"

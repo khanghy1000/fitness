@@ -22,6 +22,7 @@ import java.util.Map;
 
 public class TraineeNutritionPlanAssignmentAdapter extends RecyclerView.Adapter<TraineeNutritionPlanAssignmentAdapter.AssignmentViewHolder> {
     private List<NutritionPlanAssignment> assignments = new ArrayList<>();
+    private List<NutritionPlanAssignment> filteredAssignments = new ArrayList<>();
     private Map<String, String> creatorNames = new HashMap<>();
     private OnAssignmentClickListener listener;
     private String currentUserId;
@@ -45,18 +46,36 @@ public class TraineeNutritionPlanAssignmentAdapter extends RecyclerView.Adapter<
 
     @Override
     public void onBindViewHolder(@NonNull AssignmentViewHolder holder, int position) {
-        NutritionPlanAssignment assignment = assignments.get(position);
+        NutritionPlanAssignment assignment = filteredAssignments.get(position);
         holder.bind(assignment, listener, creatorNames, currentUserId);
     }
 
     @Override
     public int getItemCount() {
-        return assignments.size();
+        return filteredAssignments.size();
     }
 
     public void updateAssignments(List<NutritionPlanAssignment> assignments) {
         this.assignments.clear();
-        this.assignments.addAll(assignments);
+        this.filteredAssignments.clear();
+        if (assignments != null) {
+            this.assignments.addAll(assignments);
+            this.filteredAssignments.addAll(assignments);
+        }
+        notifyDataSetChanged();
+    }
+
+    public void filterByStatus(String status) {
+        filteredAssignments.clear();
+        if (status.equals("All")) {
+            filteredAssignments.addAll(assignments);
+        } else {
+            for (NutritionPlanAssignment assignment : assignments) {
+                if (assignment.getStatus().getValue().equalsIgnoreCase(status)) {
+                    filteredAssignments.add(assignment);
+                }
+            }
+        }
         notifyDataSetChanged();
     }
 
@@ -77,29 +96,30 @@ public class TraineeNutritionPlanAssignmentAdapter extends RecyclerView.Adapter<
     public static class AssignmentViewHolder extends RecyclerView.ViewHolder {
         private TextView textViewPlanName;
         private TextView textViewPlanDescription;
+        private TextView tvStatus;
         private TextView textViewStartDate;
         private TextView textViewCreatedBy;
-        private Chip chipStatus;
-        private View buttonEdit;
+        private androidx.cardview.widget.CardView cardView;
 
         public AssignmentViewHolder(@NonNull View itemView) {
             super(itemView);
             textViewPlanName = itemView.findViewById(R.id.textViewPlanName);
             textViewPlanDescription = itemView.findViewById(R.id.textViewPlanDescription);
+            tvStatus = itemView.findViewById(R.id.tv_status);
             textViewStartDate = itemView.findViewById(R.id.textViewStartDate);
             textViewCreatedBy = itemView.findViewById(R.id.textViewCreatedBy);
-            chipStatus = itemView.findViewById(R.id.chipStatus);
-            buttonEdit = itemView.findViewById(R.id.buttonEdit);
+            cardView = itemView.findViewById(R.id.card_view);
         }
 
         public void bind(NutritionPlanAssignment assignment, OnAssignmentClickListener listener, Map<String, String> creatorNames, String currentUserId) {
-            // Set plan name and description
+            // Set plan name
             if (assignment.getNutritionPlan() != null) {
                 textViewPlanName.setText(assignment.getNutritionPlan().getName());
                 
-                if (assignment.getNutritionPlan().getDescription() != null && 
-                    !assignment.getNutritionPlan().getDescription().isEmpty()) {
-                    textViewPlanDescription.setText(assignment.getNutritionPlan().getDescription());
+                // Handle description visibility
+                String description = assignment.getNutritionPlan().getDescription();
+                if (description != null && !description.trim().isEmpty()) {
+                    textViewPlanDescription.setText(description);
                     textViewPlanDescription.setVisibility(View.VISIBLE);
                 } else {
                     textViewPlanDescription.setVisibility(View.GONE);
@@ -108,6 +128,9 @@ public class TraineeNutritionPlanAssignmentAdapter extends RecyclerView.Adapter<
                 textViewPlanName.setText("Nutrition Plan #" + assignment.getNutritionPlanId());
                 textViewPlanDescription.setVisibility(View.GONE);
             }
+
+            // Set status
+            tvStatus.setText("Status: " + assignment.getStatus().getValue());
 
             // Format start date
             try {
@@ -124,58 +147,30 @@ public class TraineeNutritionPlanAssignmentAdapter extends RecyclerView.Adapter<
                 String creatorId = assignment.getNutritionPlan().getCreatedBy();
                 String creatorName = creatorNames != null ? creatorNames.get(creatorId) : null;
                 
-                // Debug logging
-                android.util.Log.d("CreatorDebug", "Creator ID: " + creatorId + ", Creator Name: " + creatorName + ", Map size: " + (creatorNames != null ? creatorNames.size() : "null"));
-                
                 if (creatorName != null && !creatorName.isEmpty()) {
                     textViewCreatedBy.setText("Created by: " + creatorName);
                     textViewCreatedBy.setVisibility(View.VISIBLE);
                 } else {
-                    // Hide while loading, will show when data is available
                     textViewCreatedBy.setVisibility(View.GONE);
                 }
             } else {
                 textViewCreatedBy.setVisibility(View.GONE);
             }
 
-            // Set status chip
-            String statusText = assignment.getStatus().getValue();
-            statusText = statusText.substring(0, 1).toUpperCase() + statusText.substring(1);
-            chipStatus.setText(statusText);
-            
-            // Set chip appearance based on status
+            // Set different background colors based on status
             switch (assignment.getStatus()) {
                 case active:
-                    chipStatus.setChipBackgroundColorResource(R.color.green_100);
-                    chipStatus.setTextColor(itemView.getContext().getResources().getColor(R.color.green_800, null));
+                    cardView.setCardBackgroundColor(itemView.getContext().getColor(android.R.color.white));
                     break;
                 case completed:
-                    chipStatus.setChipBackgroundColorResource(R.color.blue_100);
-                    chipStatus.setTextColor(itemView.getContext().getResources().getColor(R.color.blue_800, null));
+                    cardView.setCardBackgroundColor(itemView.getContext().getColor(android.R.color.holo_green_light));
                     break;
                 case paused:
-                    chipStatus.setChipBackgroundColorResource(R.color.orange_100);
-                    chipStatus.setTextColor(itemView.getContext().getResources().getColor(R.color.orange_800, null));
+                    cardView.setCardBackgroundColor(itemView.getContext().getColor(android.R.color.holo_orange_light));
                     break;
                 case cancelled:
-                    chipStatus.setChipBackgroundColorResource(R.color.red_100);
-                    chipStatus.setTextColor(itemView.getContext().getResources().getColor(R.color.red_800, null));
+                    cardView.setCardBackgroundColor(itemView.getContext().getColor(android.R.color.holo_red_light));
                     break;
-            }
-
-            // Show edit button only if current user created this plan
-            boolean isCreatedByCurrentUser = assignment.getNutritionPlan() != null && 
-                                           assignment.getNutritionPlan().getCreatedBy() != null && 
-                                           assignment.getNutritionPlan().getCreatedBy().equals(currentUserId);
-            if (buttonEdit != null) {
-                buttonEdit.setVisibility(isCreatedByCurrentUser ? View.VISIBLE : View.GONE);
-                if (isCreatedByCurrentUser) {
-                    buttonEdit.setOnClickListener(v -> {
-                        if (listener != null) {
-                            listener.onAssignmentEdit(assignment);
-                        }
-                    });
-                }
             }
 
             // Set click listener

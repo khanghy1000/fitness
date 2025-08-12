@@ -15,16 +15,16 @@
         android:padding="16dp">
 
         <TextView
-            android:id="@+id/textViewPlanName"
+            android:id="@+id/tv_plan_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Nutrition Plan Name"
+            android:text="Workout Plan Name"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="@color/black" />
 
         <TextView
-            android:id="@+id/textViewPlanDescription"
+            android:id="@+id/tv_plan_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Plan description"
@@ -42,7 +42,16 @@
             android:layout_marginTop="8dp" />
 
         <TextView
-            android:id="@+id/textViewStartDate"
+            android:id="@+id/tv_progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Progress: 0%"
+            android:textSize="14sp"
+            android:textColor="@color/primary"
+            android:layout_marginTop="4dp" />
+
+        <TextView
+            android:id="@+id/tv_start_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Started: 2024-01-01"
@@ -51,13 +60,14 @@
             android:layout_marginTop="4dp" />
 
         <TextView
-            android:id="@+id/textViewCreatedBy"
+            android:id="@+id/tv_end_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Created by: Coach Name"
+            android:text="Ended: 2024-01-01"
             android:textSize="12sp"
             android:textColor="@color/gray"
-            android:layout_marginTop="4dp" />
+            android:layout_marginTop="4dp"
+            android:visibility="gone" />
 
     </LinearLayout>
 

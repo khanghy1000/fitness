@@ -2,17 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.INTERNET" />
-
-    <!-- BLE permissions -->
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- BLE permissions -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
-    <!-- Bluetooth Low Energy requirement -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> <!-- Bluetooth Low Energy requirement -->
     <uses-feature
         android:name="android.hardware.bluetooth_le"
         android:required="true" />
@@ -28,6 +24,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Fitness"
         android:usesCleartextTraffic="true">
+        <activity
+            android:name=".ui.activity.coach.CoachTraineeManagementActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.activity.trainee.TraineeWorkoutActivity"
             android:exported="false" />
@@ -102,8 +101,8 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!--
-        Login Activity -->
+        </activity>
+        <!--         Login Activity -->
         <activity
             android:name=".ui.activity.LoginActivity"
             android:exported="false"
