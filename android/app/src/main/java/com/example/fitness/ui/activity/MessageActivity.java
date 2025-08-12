@@ -18,6 +18,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.fitness.R;
 // Repository removed in refactor; using ViewModel directly
+import com.example.fitness.data.network.model.generated.Connection;
 import com.example.fitness.databinding.ActivityMessageBinding;
 import com.example.fitness.model.ConversationSummary;
 import com.example.fitness.ui.adapter.MessageHistoryAdapter;
@@ -32,6 +33,8 @@ import androidx.lifecycle.ViewModelProvider;
 import javax.inject.Inject;
 
 import com.example.fitness.data.local.AuthDataStore;
+
+import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -121,6 +124,13 @@ public class MessageActivity extends AppCompatActivity implements MessageHistory
         connectionsViewModel.errorMessage.observe(this, err -> {
             if (err != null) Toast.makeText(this, err, Toast.LENGTH_LONG).show();
         });
+        
+        // Provide active connections to MessageHistoryViewModel for user name lookup
+        connectionsViewModel.activeConnections.observe(this, connections -> {
+            if (connections != null) {
+                viewModel.setActiveConnections(connections);
+            }
+        });
     }
 
     private void fetchCurrentUserId() {
@@ -148,6 +158,34 @@ public class MessageActivity extends AppCompatActivity implements MessageHistory
         Toast.makeText(this, error, Toast.LENGTH_LONG).show();
     }
 
+    private String getUserNameFromConnections(String userId) {
+        if (connectionsViewModel == null || currentUserId == null || userId == null) {
+            return null;
+        }
+        
+        List<Connection> connections =
+            connectionsViewModel.activeConnections.getValue();
+        
+        if (connections == null) {
+            return null;
+        }
+        
+        for (com.example.fitness.data.network.model.generated.Connection connection : connections) {
+            try {
+                if (currentUserId.equals(connection.getCoachId()) && userId.equals(connection.getTraineeId())) {
+                    // Current user is coach, looking for trainee name
+                    return connection.getTrainee() != null ? connection.getTrainee().getName() : null;
+                } else if (currentUserId.equals(connection.getTraineeId()) && userId.equals(connection.getCoachId())) {
+                    // Current user is trainee, looking for coach name
+                    return connection.getCoach() != null ? connection.getCoach().getName() : null;
+                }
+            } catch (Exception ignored) {
+                // Ignore any errors accessing connection properties
+            }
+        }
+        return null;
+    }
+
     @Override
     public void onMessageClick(ConversationSummary summary) {
         // Enforce active connection restriction only after data loaded
@@ -160,9 +198,20 @@ public class MessageActivity extends AppCompatActivity implements MessageHistory
             connectionsViewModel.loadActiveConnections();
             return;
         }
+        
         android.content.Intent intent = new android.content.Intent(this, ChatActivity.class);
         intent.putExtra(ChatActivity.EXTRA_USER_ID, summary.getUserId());
-        intent.putExtra(ChatActivity.EXTRA_USER_NAME, summary.getUserName());
+        
+        // Try to get the proper user name, fallback to what's in summary
+        String userName = summary.getUserName();
+        if (userName == null || userName.equals(summary.getUserId())) {
+            // Try to get user name from connections
+            userName = getUserNameFromConnections(summary.getUserId());
+            if (userName == null) {
+                userName = summary.getUserName(); // Use original (might be null or userId)
+            }
+        }
+        intent.putExtra(ChatActivity.EXTRA_USER_NAME, userName);
         startActivity(intent);
     }
 

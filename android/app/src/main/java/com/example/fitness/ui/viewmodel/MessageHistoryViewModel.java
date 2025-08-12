@@ -9,6 +9,7 @@ import com.example.fitness.data.local.AuthDataStore;
 import com.example.fitness.model.ConversationSummary;
 import com.example.fitness.model.Message;
 import com.example.fitness.model.MessageHistory;
+import com.example.fitness.data.network.model.generated.Connection;
 
 import java.util.List;
 
@@ -27,6 +28,7 @@ public class MessageHistoryViewModel extends ViewModel implements SocketService.
 
     private final AuthDataStore authDataStore;
     private String currentUserId; // cached current user id
+    private List<Connection> activeConnections; // cached active connections for user name lookup
 
     @Inject
     public MessageHistoryViewModel(SocketService socketService, AuthDataStore authDataStore) {
@@ -73,6 +75,33 @@ public class MessageHistoryViewModel extends ViewModel implements SocketService.
     public void setUserOnline() { socketService.setUserOnline(); }
     public void requestUnreadCount() { socketService.getUnreadCount(); }
     public void requestConversationsList() { socketService.getConversationsList(); }
+
+    // Method to set active connections for user name lookup
+    public void setActiveConnections(List<Connection> connections) {
+        this.activeConnections = connections;
+    }
+
+    // Helper method to get user name by user ID from active connections
+    private String getUserNameById(String userId) {
+        if (activeConnections == null || userId == null || currentUserId == null) {
+            return null;
+        }
+        
+        for (Connection connection : activeConnections) {
+            try {
+                if (currentUserId.equals(connection.getCoachId()) && userId.equals(connection.getTraineeId())) {
+                    // Current user is coach, looking for trainee name
+                    return connection.getTrainee() != null ? connection.getTrainee().getName() : null;
+                } else if (currentUserId.equals(connection.getTraineeId()) && userId.equals(connection.getCoachId())) {
+                    // Current user is trainee, looking for coach name
+                    return connection.getCoach() != null ? connection.getCoach().getName() : null;
+                }
+            } catch (Exception ignored) {
+                // Ignore any errors accessing connection properties
+            }
+        }
+        return null;
+    }
 
     // Socket callbacks
     @Override
@@ -180,9 +209,10 @@ public class MessageHistoryViewModel extends ViewModel implements SocketService.
         } else {
             // New conversation not yet in list
             int unread = message.getRecipientId().equals(selfId) && !message.isRead() ? 1 : 0;
+            String userName = getUserNameById(otherUserId);
             ConversationSummary newSummary = new ConversationSummary(
                     otherUserId,
-                    null, // userName unknown; server list refresh will fill later
+                    userName, // Try to get userName from active connections, fall back to null if not found
                     message.getContent(),
                     message.getCreatedAt(),
                     unread

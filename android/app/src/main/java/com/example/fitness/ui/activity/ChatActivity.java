@@ -78,6 +78,15 @@ public class ChatActivity extends AppCompatActivity {
                 Toast.makeText(this, "You are not connected with this user", Toast.LENGTH_LONG).show();
                 finish();
             } else if (set.contains(remoteUserId)) {
+                // Try to get the user name from connections if not already set
+                if (remoteUserName == null || remoteUserName.equals(remoteUserId)) {
+                    String nameFromConnections = getUserNameFromConnections(remoteUserId);
+                    if (nameFromConnections != null) {
+                        remoteUserName = nameFromConnections;
+                        setupToolbar(); // Update the toolbar title with the correct name
+                    }
+                }
+                
                 if (!viewModel.isConnected()) viewModel.connect();
                 viewModel.init(remoteUserId);
                 viewModel.loadConversation(50, 0);
@@ -113,6 +122,34 @@ public class ChatActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+    }
+
+    private String getUserNameFromConnections(String userId) {
+        if (connectionsViewModel == null || currentUserId == null || userId == null) {
+            return null;
+        }
+        
+        List<com.example.fitness.data.network.model.generated.Connection> connections = 
+            connectionsViewModel.activeConnections.getValue();
+        
+        if (connections == null) {
+            return null;
+        }
+        
+        for (com.example.fitness.data.network.model.generated.Connection connection : connections) {
+            try {
+                if (currentUserId.equals(connection.getCoachId()) && userId.equals(connection.getTraineeId())) {
+                    // Current user is coach, looking for trainee name
+                    return connection.getTrainee() != null ? connection.getTrainee().getName() : null;
+                } else if (currentUserId.equals(connection.getTraineeId()) && userId.equals(connection.getCoachId())) {
+                    // Current user is trainee, looking for coach name
+                    return connection.getCoach() != null ? connection.getCoach().getName() : null;
+                }
+            } catch (Exception ignored) {
+                // Ignore any errors accessing connection properties
+            }
+        }
+        return null;
     }
 
     @Override
