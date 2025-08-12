@@ -7,6 +7,7 @@ import android.text.TextWatcher;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -54,12 +55,8 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Remove edge-to-edge for this screen to allow classic adjustResize behavior
         binding = ActivityChatBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        // Force adjustResize in case theme flags interfere
-        getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
         parseIntent(getIntent());
         connectionsViewModel = new ViewModelProvider(this).get(ConnectionsViewModel.class);
@@ -136,15 +133,6 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void setupKeyboardAwareScrolling() {
-        // Add insets listener to add bottom padding equal to IME height so last message stays above keyboard
-        ViewCompat.setOnApplyWindowInsetsListener(binding.recyclerViewChat, (v, insets) -> {
-            Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
-            Insets sys = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            int bottom = Math.max(ime.bottom, sys.bottom);
-            int extra = (int) (getResources().getDisplayMetrics().density * 8); // 8dp spacing
-            v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), bottom + extra);
-            return insets;
-        });
         // When layout changes (keyboard show/hide), scroll to last item
         binding.recyclerViewChat.addOnLayoutChangeListener((view, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
             if (bottom < oldBottom) { // likely keyboard shown

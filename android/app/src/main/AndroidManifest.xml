@@ -46,6 +46,9 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
+            android:name=".ui.activity.ConnectedUsersActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.activity.WorkoutPlanEditActivity"
             android:exported="false" />
         <activity
