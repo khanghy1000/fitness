@@ -26,8 +26,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
+
 import javax.inject.Inject;
+
 import com.example.fitness.data.local.AuthDataStore;
+
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -44,28 +47,29 @@ public class ChatActivity extends AppCompatActivity {
     private String remoteUserId;
     private String remoteUserName;
     private String currentUserId; // Derived from messages (sender/recipient); optional improvement: store from auth
-    @Inject AuthDataStore authDataStore;
+    @Inject
+    AuthDataStore authDataStore;
     private final CompositeDisposable disposables = new CompositeDisposable();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    // Remove edge-to-edge for this screen to allow classic adjustResize behavior
+        // Remove edge-to-edge for this screen to allow classic adjustResize behavior
         binding = ActivityChatBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-    // Force adjustResize in case theme flags interfere
-    getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        // Force adjustResize in case theme flags interfere
+        getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
-    parseIntent(getIntent());
-    connectionsViewModel = new ViewModelProvider(this).get(ConnectionsViewModel.class);
+        parseIntent(getIntent());
+        connectionsViewModel = new ViewModelProvider(this).get(ConnectionsViewModel.class);
         setupToolbar();
-    setupRecycler();
-    setupKeyboardAwareScrolling();
+        setupRecycler();
+        setupKeyboardAwareScrolling();
         setupViewModel();
         setupSendUI();
         observeViewModel();
-    fetchCurrentUserId();
+        fetchCurrentUserId();
 
         // Enforce only active connections can chat
         if (!connectionsViewModel.hasLoadedActiveConnections()) {
@@ -87,15 +91,15 @@ public class ChatActivity extends AppCompatActivity {
 
     private void fetchCurrentUserId() {
         disposables.add(
-            authDataStore.getUserIdSync()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(id -> {
-                    if (id != null && !id.isEmpty()) {
-                        currentUserId = id;
-                        adapter.setCurrentUserId(id);
-                    }
-                }, throwable -> { /* ignore */ })
+                authDataStore.getUserIdSync()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(id -> {
+                            if (id != null && !id.isEmpty()) {
+                                currentUserId = id;
+                                adapter.setCurrentUserId(id);
+                            }
+                        }, throwable -> { /* ignore */ })
         );
     }
 
@@ -124,10 +128,10 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void setupRecycler() {
-    adapter = new ChatAdapter(new ArrayList<>(), ""); // currentUserId unknown initially
-    LinearLayoutManager lm = new LinearLayoutManager(this);
-    lm.setStackFromEnd(true); // keep view anchored at bottom as messages grow
-    binding.recyclerViewChat.setLayoutManager(lm);
+        adapter = new ChatAdapter(new ArrayList<>(), ""); // currentUserId unknown initially
+        LinearLayoutManager lm = new LinearLayoutManager(this);
+        lm.setStackFromEnd(true); // keep view anchored at bottom as messages grow
+        binding.recyclerViewChat.setLayoutManager(lm);
         binding.recyclerViewChat.setAdapter(adapter);
     }
 
@@ -167,7 +171,9 @@ public class ChatActivity extends AppCompatActivity {
 
     private void observeViewModel() {
         viewModel.getMessages().observe(this, this::onMessagesUpdated);
-        viewModel.getErrors().observe(this, err -> { if (err != null) Toast.makeText(this, err, Toast.LENGTH_LONG).show(); });
+        viewModel.getErrors().observe(this, err -> {
+            if (err != null) Toast.makeText(this, err, Toast.LENGTH_LONG).show();
+        });
         viewModel.getTypingRemote().observe(this, typing -> {
             if (Boolean.TRUE.equals(typing)) {
                 binding.editTextMessage.setHint(remoteUserName + " is typing...");
@@ -191,8 +197,13 @@ public class ChatActivity extends AppCompatActivity {
                 typing = false;
                 viewModel.stopTyping();
             };
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (!typing && s.length() > 0) {
                     typing = true;
                     viewModel.startTyping();
@@ -202,7 +213,10 @@ public class ChatActivity extends AppCompatActivity {
                     viewModel.stopTyping();
                 }
             }
-            @Override public void afterTextChanged(Editable s) { }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
         });
     }
 
@@ -245,6 +259,6 @@ public class ChatActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         viewModel.disconnect();
-    disposables.clear();
+        disposables.clear();
     }
 }

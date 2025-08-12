@@ -26,9 +26,13 @@ import com.example.fitness.ui.viewmodel.MessageHistoryViewModel;
 import com.google.android.material.appbar.MaterialToolbar;
 
 import dagger.hilt.android.AndroidEntryPoint;
+
 import androidx.lifecycle.ViewModelProvider;
+
 import javax.inject.Inject;
+
 import com.example.fitness.data.local.AuthDataStore;
+
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
@@ -39,7 +43,9 @@ public class MessageActivity extends AppCompatActivity implements MessageHistory
     private MessageHistoryViewModel viewModel;
     private ConnectionsViewModel connectionsViewModel;
     private String currentUserId;
-    @Inject AuthDataStore authDataStore;
+    @Inject
+    AuthDataStore authDataStore;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,10 +57,10 @@ public class MessageActivity extends AppCompatActivity implements MessageHistory
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-    viewModel = new ViewModelProvider(this).get(MessageHistoryViewModel.class);
-    connectionsViewModel = new ViewModelProvider(this).get(ConnectionsViewModel.class);
-    connectToSocket();
-    loadConversationIfProvided();
+        viewModel = new ViewModelProvider(this).get(MessageHistoryViewModel.class);
+        connectionsViewModel = new ViewModelProvider(this).get(ConnectionsViewModel.class);
+        connectToSocket();
+        loadConversationIfProvided();
         initializeViews();
         setupRecyclerView();
         setupObservers();
@@ -65,6 +71,7 @@ public class MessageActivity extends AppCompatActivity implements MessageHistory
             connectionsViewModel.loadActiveConnections();
         }
     }
+
     private void initializeViews() {
         MaterialToolbar toolbar = binding.toolbar;
         setSupportActionBar(toolbar);
@@ -79,6 +86,7 @@ public class MessageActivity extends AppCompatActivity implements MessageHistory
             Toast.makeText(this, "Loading active connections...", Toast.LENGTH_SHORT).show();
         });
     }
+
     private void setupRecyclerView() {
         adapter = new MessageHistoryAdapter(this);
 
@@ -92,6 +100,7 @@ public class MessageActivity extends AppCompatActivity implements MessageHistory
         // Set your adapter here when you create it
         recyclerView.setAdapter(adapter);
     }
+
     private void setupObservers() {
         viewModel.getConversations().observe(this, list -> {
             Log.d(TAG, "Observer conversations size=" + (list != null ? list.size() : 0));
@@ -123,18 +132,19 @@ public class MessageActivity extends AppCompatActivity implements MessageHistory
 
     private void fetchCurrentUserId() {
         authDataStore.getUserIdSync()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(id -> currentUserId = id, throwable -> Log.e(TAG, "Failed to fetch user id", throwable));
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(id -> currentUserId = id, throwable -> Log.e(TAG, "Failed to fetch user id", throwable));
     }
+
     private void connectToSocket() {
         Log.d(TAG, "Attempting to connect to socket");
         if (!viewModel.isConnected()) {
-        authDataStore.getJwtTokenSync()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(token -> Log.d(TAG, "DEBUG_TOKEN len=" + (token != null ? token.length() : 0) + " value=" + token),
-                throwable -> Log.e(TAG, "Failed to fetch token", throwable));
+            authDataStore.getJwtTokenSync()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(token -> Log.d(TAG, "DEBUG_TOKEN len=" + (token != null ? token.length() : 0) + " value=" + token),
+                            throwable -> Log.e(TAG, "Failed to fetch token", throwable));
             viewModel.connect();
         } else {
             Log.d(TAG, "Socket already connected");
@@ -147,22 +157,22 @@ public class MessageActivity extends AppCompatActivity implements MessageHistory
 
     @Override
     public void onMessageClick(ConversationSummary summary) {
-    // Enforce active connection restriction only after data loaded
-    if (connectionsViewModel.hasLoadedActiveConnections() && !connectionsViewModel.isUserConnected(summary.getUserId())) {
-        Toast.makeText(this, "You can only message connected users", Toast.LENGTH_LONG).show();
-        connectionsViewModel.loadActiveConnections();
-        return;
-    } else if (!connectionsViewModel.hasLoadedActiveConnections()) {
-        // Trigger load and delay action
-        connectionsViewModel.loadActiveConnections();
-        Toast.makeText(this, "Checking connection status... try again in a moment", Toast.LENGTH_SHORT).show();
-        return;
-    }
-    Toast.makeText(this, "Opening chat with: " + summary.getUserName(), Toast.LENGTH_SHORT).show();
-    android.content.Intent intent = new android.content.Intent(this, ChatActivity.class);
-    intent.putExtra(ChatActivity.EXTRA_USER_ID, summary.getUserId());
-    intent.putExtra(ChatActivity.EXTRA_USER_NAME, summary.getUserName());
-    startActivity(intent);
+        // Enforce active connection restriction only after data loaded
+        if (connectionsViewModel.hasLoadedActiveConnections() && !connectionsViewModel.isUserConnected(summary.getUserId())) {
+            Toast.makeText(this, "You can only message connected users", Toast.LENGTH_LONG).show();
+            connectionsViewModel.loadActiveConnections();
+            return;
+        } else if (!connectionsViewModel.hasLoadedActiveConnections()) {
+            // Trigger load and delay action
+            connectionsViewModel.loadActiveConnections();
+            Toast.makeText(this, "Checking connection status... try again in a moment", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Toast.makeText(this, "Opening chat with: " + summary.getUserName(), Toast.LENGTH_SHORT).show();
+        android.content.Intent intent = new android.content.Intent(this, ChatActivity.class);
+        intent.putExtra(ChatActivity.EXTRA_USER_ID, summary.getUserId());
+        intent.putExtra(ChatActivity.EXTRA_USER_NAME, summary.getUserName());
+        startActivity(intent);
     }
 
     private void loadConversationIfProvided() {
@@ -171,16 +181,18 @@ public class MessageActivity extends AppCompatActivity implements MessageHistory
             viewModel.loadConversation(targetUserId, 50, 0);
         }
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         viewModel.disconnect();
     }
+
     @Override
     protected void onResume() {
         super.onResume();
         // Reconnect if disconnected
-    if (!viewModel.isConnected()) {
+        if (!viewModel.isConnected()) {
             Log.d(TAG, "Reconnecting in onResume");
             connectToSocket();
         }
@@ -193,7 +205,9 @@ public class MessageActivity extends AppCompatActivity implements MessageHistory
 
         for (com.example.fitness.data.network.model.generated.Connection c : connections) {
             // Determine other participant relative to current user
-            String otherId; String otherName; String roleLabel = "";
+            String otherId;
+            String otherName;
+            String roleLabel = "";
             try {
                 if (currentUserId != null && currentUserId.equals(c.getCoachId())) {
                     otherId = c.getTraineeId();
@@ -221,28 +235,28 @@ public class MessageActivity extends AppCompatActivity implements MessageHistory
         }
 
         new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-            .setTitle("Start conversation")
-            .setItems(displayNames.toArray(new String[0]), (dialog, which) -> {
-                String userId = userIds.get(which);
-                String name = displayNames.get(which);
-                if (connectionsViewModel.hasLoadedActiveConnections() && !connectionsViewModel.isUserConnected(userId)) {
-                    Toast.makeText(this, "Selected user not an active connection", Toast.LENGTH_LONG).show();
-                    connectionsViewModel.loadActiveConnections();
-                    return;
-                } else if (!connectionsViewModel.hasLoadedActiveConnections()) {
-                    connectionsViewModel.loadActiveConnections();
-                    Toast.makeText(this, "Refreshing connections... select again", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                android.content.Intent intent = new android.content.Intent(this, ChatActivity.class);
-                intent.putExtra(ChatActivity.EXTRA_USER_ID, userId);
-                // Remove role label for name if present
-                int idx = name.indexOf("(");
-                if (idx > 0) name = name.substring(0, idx).trim();
-                intent.putExtra(ChatActivity.EXTRA_USER_NAME, name);
-                startActivity(intent);
-            })
-            .setNegativeButton("Cancel", null)
-            .show();
+                .setTitle("Start conversation")
+                .setItems(displayNames.toArray(new String[0]), (dialog, which) -> {
+                    String userId = userIds.get(which);
+                    String name = displayNames.get(which);
+                    if (connectionsViewModel.hasLoadedActiveConnections() && !connectionsViewModel.isUserConnected(userId)) {
+                        Toast.makeText(this, "Selected user not an active connection", Toast.LENGTH_LONG).show();
+                        connectionsViewModel.loadActiveConnections();
+                        return;
+                    } else if (!connectionsViewModel.hasLoadedActiveConnections()) {
+                        connectionsViewModel.loadActiveConnections();
+                        Toast.makeText(this, "Refreshing connections... select again", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    android.content.Intent intent = new android.content.Intent(this, ChatActivity.class);
+                    intent.putExtra(ChatActivity.EXTRA_USER_ID, userId);
+                    // Remove role label for name if present
+                    int idx = name.indexOf("(");
+                    if (idx > 0) name = name.substring(0, idx).trim();
+                    intent.putExtra(ChatActivity.EXTRA_USER_NAME, name);
+                    startActivity(intent);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 }

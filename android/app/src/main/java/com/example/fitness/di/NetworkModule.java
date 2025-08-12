@@ -48,7 +48,7 @@ public class NetworkModule {
 
     @Provides
     @Singleton
-    public OkHttpClient provideOkHttpClient(AuthInterceptor authInterceptor, SessionCookieJar sessionCookieJar) {
+    public OkHttpClient provideOkHttpClient(AuthInterceptor authInterceptor) {
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
                 .readTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)
@@ -57,25 +57,8 @@ public class NetworkModule {
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         builder.addInterceptor(loggingInterceptor);
-        
-    builder.addInterceptor(authInterceptor);
-    builder.cookieJar(sessionCookieJar);
 
-        // Network-level logging for Set-Cookie diagnostics
-        builder.addNetworkInterceptor(chain -> {
-            okhttp3.Request request = chain.request();
-            okhttp3.Response response = chain.proceed(request);
-            java.util.List<String> setCookies = response.headers("Set-Cookie");
-            if (!setCookies.isEmpty()) {
-                android.util.Log.d("HTTP_COOKIE", "URL=" + request.url() + " Set-Cookie count=" + setCookies.size());
-                for (String c : setCookies) {
-                    android.util.Log.d("HTTP_COOKIE", "  -> " + c);
-                }
-            } else {
-                android.util.Log.d("HTTP_COOKIE", "URL=" + request.url() + " (no Set-Cookie)");
-            }
-            return response;
-        });
+        builder.addInterceptor(authInterceptor);
 
         return builder.build();
     }
@@ -136,6 +119,7 @@ public class NetworkModule {
         Type listType = Types.newParameterizedType(List.class, Message.class);
         return moshi.adapter(listType);
     }
+
     @Provides
     @Singleton
     public SocketService provideSocketService(Socket socket,
