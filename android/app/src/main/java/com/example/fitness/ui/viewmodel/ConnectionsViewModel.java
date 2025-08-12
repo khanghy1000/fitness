@@ -25,6 +25,10 @@ public class ConnectionsViewModel extends ViewModel {
     private final MutableLiveData<List<Connection>> _activeConnections = new MutableLiveData<>();
     public final LiveData<List<Connection>> activeConnections = _activeConnections;
 
+    // Track all participant userIds in active connections (coach & trainee ids) for quick membership checks
+    private final MutableLiveData<java.util.Set<String>> _activeConnectionUserIds = new MutableLiveData<>(new java.util.HashSet<>());
+    public final LiveData<java.util.Set<String>> activeConnectionUserIds = _activeConnectionUserIds;
+
     private final MutableLiveData<List<Connection>> _sentRequests = new MutableLiveData<>();
     public final LiveData<List<Connection>> sentRequests = _sentRequests;
 
@@ -40,6 +44,9 @@ public class ConnectionsViewModel extends ViewModel {
     private final MutableLiveData<Boolean> _isLoading = new MutableLiveData<>();
     public final LiveData<Boolean> isLoading = _isLoading;
 
+    // Internal state flag to know if we have attempted an initial load of active connections
+    private boolean activeConnectionsLoaded = false;
+
     @Inject
     public ConnectionsViewModel(ConnectionsRepository connectionsRepository, AuthRepository authRepository) {
         this.connectionsRepository = connectionsRepository;
@@ -53,12 +60,25 @@ public class ConnectionsViewModel extends ViewModel {
             public void onSuccess(List<Connection> result) {
                 _isLoading.setValue(false);
                 _activeConnections.setValue(result);
+                // Rebuild user id set
+                java.util.HashSet<String> ids = new java.util.HashSet<>();
+                if (result != null) {
+                    for (Connection c : result) {
+                        try {
+                            if (c.getCoachId() != null) ids.add(c.getCoachId());
+                            if (c.getTraineeId() != null) ids.add(c.getTraineeId());
+                        } catch (Exception ignored) { }
+                    }
+                }
+                _activeConnectionUserIds.setValue(ids);
+                activeConnectionsLoaded = true;
             }
 
             @Override
             public void onError(String error) {
                 _isLoading.setValue(false);
                 _errorMessage.setValue(error);
+                activeConnectionsLoaded = true; // mark attempted even on error
             }
         });
     }
@@ -175,4 +195,11 @@ public class ConnectionsViewModel extends ViewModel {
         _errorMessage.setValue(null);
         _successMessage.setValue(null);
     }
+
+    public boolean isUserConnected(String userId) {
+        java.util.Set<String> set = _activeConnectionUserIds.getValue();
+        return userId != null && set != null && set.contains(userId);
+    }
+
+    public boolean hasLoadedActiveConnections() { return activeConnectionsLoaded; }
 }

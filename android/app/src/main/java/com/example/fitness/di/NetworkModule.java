@@ -1,6 +1,7 @@
 package com.example.fitness.di;
 
 import com.example.fitness.Constants;
+import com.example.fitness.data.local.AuthDataStore;
 import com.example.fitness.data.network.*;
 import com.example.fitness.data.network.adapter.BigDecimalAdapter;
 import com.example.fitness.data.network.retrofit.AuthApi;
@@ -10,9 +11,14 @@ import com.example.fitness.data.network.retrofit.NutritionApi;
 import com.example.fitness.data.network.retrofit.PlannedWorkoutsApi;
 import com.example.fitness.data.network.retrofit.UsersApi;
 import com.example.fitness.data.network.retrofit.WorkoutsApi;
+import com.example.fitness.model.Message;
+import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
+import com.squareup.moshi.Types;
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory;
 
+import java.lang.reflect.Type;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Singleton;
@@ -21,6 +27,8 @@ import dagger.Module;
 import dagger.Provides;
 import dagger.hilt.InstallIn;
 import dagger.hilt.components.SingletonComponent;
+import io.socket.client.IO;
+import io.socket.client.Socket;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -40,7 +48,7 @@ public class NetworkModule {
 
     @Provides
     @Singleton
-    public OkHttpClient provideOkHttpClient(AuthInterceptor authInterceptor) {
+    public OkHttpClient provideOkHttpClient(AuthInterceptor authInterceptor, SessionCookieJar sessionCookieJar) {
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
                 .readTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)
@@ -50,8 +58,24 @@ public class NetworkModule {
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         builder.addInterceptor(loggingInterceptor);
         
-        // Add auth interceptor
-        builder.addInterceptor(authInterceptor);
+    builder.addInterceptor(authInterceptor);
+    builder.cookieJar(sessionCookieJar);
+
+        // Network-level logging for Set-Cookie diagnostics
+        builder.addNetworkInterceptor(chain -> {
+            okhttp3.Request request = chain.request();
+            okhttp3.Response response = chain.proceed(request);
+            java.util.List<String> setCookies = response.headers("Set-Cookie");
+            if (!setCookies.isEmpty()) {
+                android.util.Log.d("HTTP_COOKIE", "URL=" + request.url() + " Set-Cookie count=" + setCookies.size());
+                for (String c : setCookies) {
+                    android.util.Log.d("HTTP_COOKIE", "  -> " + c);
+                }
+            } else {
+                android.util.Log.d("HTTP_COOKIE", "URL=" + request.url() + " (no Set-Cookie)");
+            }
+            return response;
+        });
 
         return builder.build();
     }
@@ -64,6 +88,62 @@ public class NetworkModule {
                 .client(okHttpClient)
                 .addConverterFactory(MoshiConverterFactory.create(moshi))
                 .build();
+    }
+
+    @Provides
+    @Singleton
+    public Socket provideSocket(AuthDataStore authDataStore) {
+        try {
+            IO.Options options = new IO.Options();
+            options.forceNew = true;
+            options.reconnection = true;
+            options.timeout = 10000;
+            options.auth = new java.util.HashMap<String, String>();
+            try {
+                String authToken = authDataStore.getJwtTokenSync().blockingGet();
+                if (authToken != null && !authToken.isEmpty()) {
+                    // For newer Socket.IO protocol versions (server >= v3) "auth" object works.
+                    options.auth.put("token", authToken);
+                    // For older Java client library (2.x) which may not send auth payload, also append as query param.
+                    options.query = "token=" + java.net.URLEncoder.encode(authToken, java.nio.charset.StandardCharsets.UTF_8.name());
+                }
+                if (options.auth.isEmpty()) {
+                    // If no auth token is available, we can still create the socket
+                    // The server will handle authentication failure
+                    System.out.println("No auth token available for socket connection.");
+                }
+                System.out.println("Socket auth token: " + options.auth.get("token"));
+            } catch (Exception e) {
+                // Log the error but continue without auth token
+                // The socket will handle authentication failure
+                System.err.println("Failed to get auth token for socket: " + e.getMessage());
+            }
+            return IO.socket(Constants.getBaseUrl(), options); // Add SOCKET_URL to Constants
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create socket", e);
+        }
+    }
+
+    @Provides
+    @Singleton
+    public JsonAdapter<Message> provideMessageAdapter(Moshi moshi) {
+        return moshi.adapter(Message.class);
+    }
+
+    @Provides
+    @Singleton
+    public JsonAdapter<List<Message>> provideMessageListAdapter(Moshi moshi) {
+        Type listType = Types.newParameterizedType(List.class, Message.class);
+        return moshi.adapter(listType);
+    }
+    @Provides
+    @Singleton
+    public SocketService provideSocketService(Socket socket,
+                                              JsonAdapter<Message> messageAdapter,
+                                              JsonAdapter<List<Message>> messageListAdapter,
+                                              Moshi moshi,
+                                              AuthDataStore authDataStore) {
+        return new SocketService(socket, messageAdapter, messageListAdapter, moshi, authDataStore);
     }
 
     @Provides
