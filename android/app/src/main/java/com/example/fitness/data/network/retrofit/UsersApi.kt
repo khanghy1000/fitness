@@ -42,15 +42,16 @@ interface UsersApi {
     /**
      * GET api/users/nutrition-plans
      * Get user assigned nutrition plans
-     * Get all nutrition plans assigned to the current user
+     * Get all nutrition plans assigned to the current user. Coaches can specify userId to get plans for specific users.
      * Responses:
      *  - 200: List of assigned nutrition plans
      *  - 401: Unauthorized
      *
+     * @param userId User ID for coach to specify which user (optional)
      * @return [Call]<[kotlin.collections.List<NutritionPlanAssignment>]>
      */
     @GET("api/users/nutrition-plans")
-    fun apiUsersNutritionPlansGet(): Call<kotlin.collections.List<NutritionPlanAssignment>>
+    fun apiUsersNutritionPlansGet(@Query("userId") userId: kotlin.String? = null): Call<kotlin.collections.List<NutritionPlanAssignment>>
 
     /**
      * GET api/users/nutrition/user-plans/{userNutritionPlanId}/adherence
@@ -203,15 +204,16 @@ interface UsersApi {
     /**
      * GET api/users/workout-plans
      * Get user assigned workout plans
-     * Get all workout plans assigned to the current user
+     * Get all workout plans assigned to the current user. Coaches can specify userId to get plans for specific users.
      * Responses:
      *  - 200: List of assigned workout plans
      *  - 401: Unauthorized
      *
+     * @param userId User ID for coach to specify which user (optional)
      * @return [Call]<[kotlin.collections.List<WorkoutPlanAssignment>]>
      */
     @GET("api/users/workout-plans")
-    fun apiUsersWorkoutPlansGet(): Call<kotlin.collections.List<WorkoutPlanAssignment>>
+    fun apiUsersWorkoutPlansGet(@Query("userId") userId: kotlin.String? = null): Call<kotlin.collections.List<WorkoutPlanAssignment>>
 
     /**
      * PUT api/users/workout/user-plans/{userWorkoutPlanId}/cancel

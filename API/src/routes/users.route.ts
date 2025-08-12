@@ -18,6 +18,7 @@ import {
     recordUserStatsSchema,
     nutritionAdherenceSchema,
     userSearchQuerySchema,
+    userIdQuerySchema,
     nutritionPlanIdParamSchema,
     userNutritionPlanIdParamSchema,
     workoutPlanIdParamSchema,
@@ -117,20 +118,50 @@ router.post(
 );
 
 // Get user's assigned workout plans
-router.get('/workout-plans', requireAuthenticated, async (req, res) => {
-    const plans = await WorkoutService.getUserAssignedWorkoutPlans(
-        req.session!.user.id
-    );
-    res.json(plans);
-});
+router.get(
+    '/workout-plans',
+    requireAuthenticated,
+    validateQuery(userIdQuerySchema),
+    async (req, res) => {
+        const user = req.session!.user;
+        const { userId } = req.query as { userId?: string };
+
+        // Determine which user's plans to get
+        let targetUserId: string;
+        if (user.role === 'coach' && userId) {
+            targetUserId = userId;
+        } else {
+            targetUserId = user.id;
+        }
+
+        const plans =
+            await WorkoutService.getUserAssignedWorkoutPlans(targetUserId);
+        res.json(plans);
+    }
+);
 
 // Get user's assigned nutrition plans
-router.get('/nutrition-plans', requireAuthenticated, async (req, res) => {
-    const plans = await NutritionService.getUserAssignedNutritionPlans(
-        req.session!.user.id
-    );
-    res.json(plans);
-});
+router.get(
+    '/nutrition-plans',
+    requireAuthenticated,
+    validateQuery(userIdQuerySchema),
+    async (req, res) => {
+        const user = req.session!.user;
+        const { userId } = req.query as { userId?: string };
+
+        // Determine which user's plans to get
+        let targetUserId: string;
+        if (user.role === 'coach' && userId) {
+            targetUserId = userId;
+        } else {
+            targetUserId = user.id;
+        }
+
+        const plans =
+            await NutritionService.getUserAssignedNutritionPlans(targetUserId);
+        res.json(plans);
+    }
+);
 
 // Search for users (for coaches to find trainees)
 router.get(

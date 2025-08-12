@@ -3728,7 +3728,20 @@
           "Users"
         ],
         "summary": "Get user assigned workout plans",
-        "description": "Get all workout plans assigned to the current user",
+        "description": "Get all workout plans assigned to the current user. Coaches can specify userId to get plans for specific users.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "description": "User ID for coach to specify which user",
+              "example": "user123"
+            },
+            "required": false,
+            "description": "User ID for coach to specify which user",
+            "name": "userId",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "List of assigned workout plans",
@@ -3755,7 +3768,20 @@
           "Users"
         ],
         "summary": "Get user assigned nutrition plans",
-        "description": "Get all nutrition plans assigned to the current user",
+        "description": "Get all nutrition plans assigned to the current user. Coaches can specify userId to get plans for specific users.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "description": "User ID for coach to specify which user",
+              "example": "user123"
+            },
+            "required": false,
+            "description": "User ID for coach to specify which user",
+            "name": "userId",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "List of assigned nutrition plans",

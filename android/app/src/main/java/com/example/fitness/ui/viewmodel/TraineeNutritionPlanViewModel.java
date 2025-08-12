@@ -78,7 +78,7 @@ public class TraineeNutritionPlanViewModel extends ViewModel {
 
     public void loadUserNutritionPlans() {
         _isLoading.setValue(true);
-        usersRepository.getUserNutritionPlans(new UsersRepository.UsersCallback<List<NutritionPlanAssignment>>() {
+        usersRepository.getUserNutritionPlans(null, new UsersRepository.UsersCallback<List<NutritionPlanAssignment>>() {
             @Override
             public void onSuccess(List<NutritionPlanAssignment> result) {
                 _isLoading.setValue(false);

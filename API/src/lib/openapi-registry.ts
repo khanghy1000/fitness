@@ -568,7 +568,11 @@ registry.registerPath({
     path: '/api/users/workout-plans',
     tags: ['Users'],
     summary: 'Get user assigned workout plans',
-    description: 'Get all workout plans assigned to the current user',
+    description:
+        'Get all workout plans assigned to the current user. Coaches can specify userId to get plans for specific users.',
+    request: {
+        query: userIdQuerySchema,
+    },
     responses: {
         200: {
             description: 'List of assigned workout plans',
@@ -611,7 +615,11 @@ registry.registerPath({
     path: '/api/users/nutrition-plans',
     tags: ['Users'],
     summary: 'Get user assigned nutrition plans',
-    description: 'Get all nutrition plans assigned to the current user',
+    description:
+        'Get all nutrition plans assigned to the current user. Coaches can specify userId to get plans for specific users.',
+    request: {
+        query: userIdQuerySchema,
+    },
     responses: {
         200: {
             description: 'List of assigned nutrition plans',

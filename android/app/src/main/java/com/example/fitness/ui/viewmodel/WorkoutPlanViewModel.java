@@ -111,7 +111,7 @@ public class WorkoutPlanViewModel extends ViewModel {
     // Load trainee workout plan assignments
     public void loadUserWorkoutPlanAssignments() {
         _isLoading.setValue(true);
-        usersRepository.getUserWorkoutPlans(new UsersRepository.UsersCallback<List<WorkoutPlanAssignment>>() {
+        usersRepository.getUserWorkoutPlans(null, new UsersRepository.UsersCallback<List<WorkoutPlanAssignment>>() {
             @Override
             public void onSuccess(List<WorkoutPlanAssignment> result) {
                 _isLoading.setValue(false);

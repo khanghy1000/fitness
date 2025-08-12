@@ -64,8 +64,8 @@ public class UsersRepository {
         });
     }
 
-    public void getUserNutritionPlans(UsersCallback<java.util.List<NutritionPlanAssignment>> callback) {
-        usersApi.apiUsersNutritionPlansGet().enqueue(new Callback<java.util.List<NutritionPlanAssignment>>() {
+    public void getUserNutritionPlans(String userId, UsersCallback<java.util.List<NutritionPlanAssignment>> callback) {
+        usersApi.apiUsersNutritionPlansGet(userId).enqueue(new Callback<java.util.List<NutritionPlanAssignment>>() {
             @Override
             public void onResponse(Call<java.util.List<NutritionPlanAssignment>> call, Response<java.util.List<NutritionPlanAssignment>> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -247,8 +247,8 @@ public class UsersRepository {
         });
     }
 
-    public void getUserWorkoutPlans(UsersCallback<java.util.List<WorkoutPlanAssignment>> callback) {
-        usersApi.apiUsersWorkoutPlansGet().enqueue(new Callback<java.util.List<WorkoutPlanAssignment>>() {
+    public void getUserWorkoutPlans(String userId, UsersCallback<java.util.List<WorkoutPlanAssignment>> callback) {
+        usersApi.apiUsersWorkoutPlansGet(userId).enqueue(new Callback<java.util.List<WorkoutPlanAssignment>>() {
             @Override
             public void onResponse(Call<java.util.List<WorkoutPlanAssignment>> call, Response<java.util.List<WorkoutPlanAssignment>> response) {
                 if (response.isSuccessful() && response.body() != null) {
