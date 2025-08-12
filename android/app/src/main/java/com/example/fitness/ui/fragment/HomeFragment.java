@@ -14,7 +14,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.fitness.databinding.FragmentHomeBinding;
 import com.example.fitness.ui.activity.MessageActivity;
 import com.example.fitness.ui.activity.coach.CoachNutritionPlanActivity;
-import com.example.fitness.ui.activity.coach.CoachTraineeActivity;
+import com.example.fitness.ui.activity.coach.CoachTraineesActivity;
 import com.example.fitness.ui.activity.coach.CoachWorkoutPlanActivity;
 import com.example.fitness.ui.activity.trainee.TraineeCoachActivity;
 import com.example.fitness.ui.activity.trainee.TraineeWorkoutPlanActivity;
@@ -55,7 +55,7 @@ public class HomeFragment extends Fragment {
     
     private void setupCoachActivityClickListeners() {
         binding.btnCoachTrainee.setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), CoachTraineeActivity.class);
+            Intent intent = new Intent(getActivity(), CoachTraineesActivity.class);
             startActivity(intent);
         });
         

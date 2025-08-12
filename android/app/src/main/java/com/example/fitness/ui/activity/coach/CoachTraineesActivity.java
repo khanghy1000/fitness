@@ -11,7 +11,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.fitness.R;
-import com.example.fitness.databinding.ActivityCoachTraineeBinding;
+import com.example.fitness.databinding.ActivityCoachTraineesBinding;
 import com.example.fitness.ui.adapter.CoachTraineePagerAdapter;
 import com.example.fitness.ui.viewmodel.ConnectionsViewModel;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -19,9 +19,9 @@ import com.google.android.material.tabs.TabLayoutMediator;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class CoachTraineeActivity extends AppCompatActivity {
+public class CoachTraineesActivity extends AppCompatActivity {
     
-    private ActivityCoachTraineeBinding binding;
+    private ActivityCoachTraineesBinding binding;
     private ConnectionsViewModel connectionsViewModel;
     private CoachTraineePagerAdapter pagerAdapter;
 
@@ -30,7 +30,7 @@ public class CoachTraineeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         
-        binding = ActivityCoachTraineeBinding.inflate(getLayoutInflater());
+        binding = ActivityCoachTraineesBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {

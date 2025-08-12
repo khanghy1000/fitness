@@ -76,7 +76,7 @@
             android:name=".ui.activity.coach.CoachWorkoutPlanActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.activity.coach.CoachTraineeActivity"
+            android:name=".ui.activity.coach.CoachTraineesActivity"
             android:exported="false" />
         <activity
             android:name=".ui.activity.coach.AssignWorkoutPlanActivity"
