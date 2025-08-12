@@ -47,7 +47,7 @@ public class TraineeStatsViewModel extends ViewModel {
         _isLoading.setValue(true);
         _errorMessage.setValue(null);
         
-        usersRepository.getUserStats(new UsersRepository.UsersCallback<List<UserStats>>() {
+        usersRepository.getUserStats(null, new UsersRepository.UsersCallback<List<UserStats>>() {
             @Override
             public void onSuccess(List<UserStats> result) {
                 _isLoading.setValue(false);
@@ -66,7 +66,7 @@ public class TraineeStatsViewModel extends ViewModel {
         _isLoading.setValue(true);
         _errorMessage.setValue(null);
         
-        usersRepository.getLatestUserStats(new UsersRepository.UsersCallback<LatestUserStats>() {
+        usersRepository.getLatestUserStats(null, new UsersRepository.UsersCallback<LatestUserStats>() {
             @Override
             public void onSuccess(LatestUserStats result) {
                 _isLoading.setValue(false);

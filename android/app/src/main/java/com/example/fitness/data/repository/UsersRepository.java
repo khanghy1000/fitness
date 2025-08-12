@@ -156,8 +156,8 @@ public class UsersRepository {
     }
 
     // User Stats methods
-    public void getUserStats(UsersCallback<java.util.List<UserStats>> callback) {
-        usersApi.apiUsersStatsGet().enqueue(new Callback<java.util.List<UserStats>>() {
+    public void getUserStats(String userId, UsersCallback<java.util.List<UserStats>> callback) {
+        usersApi.apiUsersStatsGet(userId).enqueue(new Callback<java.util.List<UserStats>>() {
             @Override
             public void onResponse(Call<java.util.List<UserStats>> call, Response<java.util.List<UserStats>> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -174,8 +174,8 @@ public class UsersRepository {
         });
     }
 
-    public void getLatestUserStats(UsersCallback<LatestUserStats> callback) {
-        usersApi.apiUsersStatsLatestGet().enqueue(new Callback<LatestUserStats>() {
+    public void getLatestUserStats(String userId, UsersCallback<LatestUserStats> callback) {
+        usersApi.apiUsersStatsLatestGet(userId).enqueue(new Callback<LatestUserStats>() {
             @Override
             public void onResponse(Call<LatestUserStats> call, Response<LatestUserStats> response) {
                 if (response.isSuccessful()) {

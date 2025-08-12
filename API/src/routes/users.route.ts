@@ -87,16 +87,48 @@ const router = Router();
 // );
 
 // Get user's body stats
-router.get('/stats', requireAuthenticated, async (req, res) => {
-    const stats = await UserService.getUserStats(req.session!.user.id);
-    res.json(stats);
-});
+router.get(
+    '/stats',
+    requireAuthenticated,
+    validateQuery(userIdQuerySchema),
+    async (req, res) => {
+        const user = req.session!.user;
+        const { userId } = req.query as { userId?: string };
+
+        // Determine which user's stats to get
+        let targetUserId: string;
+        if (user.role === 'coach' && userId) {
+            targetUserId = userId;
+        } else {
+            targetUserId = user.id;
+        }
+
+        const stats = await UserService.getUserStats(targetUserId);
+        res.json(stats);
+    }
+);
 
 // Get user's latest body stats
-router.get('/stats/latest', requireAuthenticated, async (req, res) => {
-    const stats = await UserService.getLatestUserStats(req.session!.user.id);
-    res.json(stats);
-});
+router.get(
+    '/stats/latest',
+    requireAuthenticated,
+    validateQuery(userIdQuerySchema),
+    async (req, res) => {
+        const user = req.session!.user;
+        const { userId } = req.query as { userId?: string };
+
+        // Determine which user's latest stats to get
+        let targetUserId: string;
+        if (user.role === 'coach' && userId) {
+            targetUserId = userId;
+        } else {
+            targetUserId = user.id;
+        }
+
+        const stats = await UserService.getLatestUserStats(targetUserId);
+        res.json(stats);
+    }
+);
 
 // Record user body stats
 router.post(
@@ -508,7 +540,7 @@ router.put(
         try {
             const cancelledPlan = await WorkoutService.cancelWorkoutPlan(
                 parseInt(userWorkoutPlanId),
-                req.session!.user.id,
+                req.session!.user.id
             );
 
             res.json(cancelledPlan);

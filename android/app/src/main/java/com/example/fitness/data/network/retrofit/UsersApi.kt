@@ -133,28 +133,30 @@ interface UsersApi {
     /**
      * GET api/users/stats
      * Get user body stats
-     * Get all body measurement statistics for the current user
+     * Get all body measurement statistics for the current user. Coaches can specify userId to get stats for specific users.
      * Responses:
      *  - 200: User body stats history
      *  - 401: Unauthorized
      *
+     * @param userId User ID for coach to specify which user (optional)
      * @return [Call]<[kotlin.collections.List<UserStats>]>
      */
     @GET("api/users/stats")
-    fun apiUsersStatsGet(): Call<kotlin.collections.List<UserStats>>
+    fun apiUsersStatsGet(@Query("userId") userId: kotlin.String? = null): Call<kotlin.collections.List<UserStats>>
 
     /**
      * GET api/users/stats/latest
      * Get latest user body stats
-     * Get the most recent body measurement statistics for the current user
+     * Get the most recent body measurement statistics for the current user. Coaches can specify userId to get latest stats for specific users.
      * Responses:
      *  - 200: Latest user body stats
      *  - 401: Unauthorized
      *
+     * @param userId User ID for coach to specify which user (optional)
      * @return [Call]<[LatestUserStats]>
      */
     @GET("api/users/stats/latest")
-    fun apiUsersStatsLatestGet(): Call<LatestUserStats>
+    fun apiUsersStatsLatestGet(@Query("userId") userId: kotlin.String? = null): Call<LatestUserStats>
 
     /**
      * POST api/users/stats

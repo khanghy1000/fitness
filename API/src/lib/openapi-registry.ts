@@ -438,7 +438,11 @@ registry.registerPath({
     path: '/api/users/stats',
     tags: ['Users'],
     summary: 'Get user body stats',
-    description: 'Get all body measurement statistics for the current user',
+    description:
+        'Get all body measurement statistics for the current user. Coaches can specify userId to get stats for specific users.',
+    request: {
+        query: userIdQuerySchema,
+    },
     responses: {
         200: {
             description: 'User body stats history',
@@ -479,7 +483,10 @@ registry.registerPath({
     tags: ['Users'],
     summary: 'Get latest user body stats',
     description:
-        'Get the most recent body measurement statistics for the current user',
+        'Get the most recent body measurement statistics for the current user. Coaches can specify userId to get latest stats for specific users.',
+    request: {
+        query: userIdQuerySchema,
+    },
     responses: {
         200: {
             description: 'Latest user body stats',
