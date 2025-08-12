@@ -21,6 +21,7 @@ import com.example.fitness.databinding.ActivityTraineeStatsBinding;
 import com.example.fitness.ui.viewmodel.TraineeStatsViewModel;
 import com.example.fitness.data.network.model.generated.UserStats;
 import com.example.fitness.data.network.model.generated.LatestUserStats;
+import com.example.fitness.ui.dialog.LatestStatsDialogFragment;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Description;
@@ -49,7 +50,7 @@ public class TraineeStatsActivity extends AppCompatActivity {
     private TraineeStatsViewModel viewModel;
     private List<UserStats> allStats = new ArrayList<>();
     private String currentChartType = "weight";
-    private boolean isLatestStatsExpanded = false;
+    private LatestUserStats latestStatsData;
     
     // Chart type options
     private final String[] chartTypes = {
@@ -99,8 +100,8 @@ public class TraineeStatsActivity extends AppCompatActivity {
         // Record button click
         binding.btnRecord.setOnClickListener(v -> recordStats());
         
-        // Latest stats toggle
-        binding.layoutLatestStatsHeader.setOnClickListener(v -> toggleLatestStats());
+        // View latest stats button
+        binding.btnViewLatestStats.setOnClickListener(v -> showLatestStatsDialog());
     }
 
     private void setupStatsDropdown() {
@@ -185,11 +186,8 @@ public class TraineeStatsActivity extends AppCompatActivity {
         });
 
         viewModel.latestStats.observe(this, latestStats -> {
-            if (latestStats != null) {
-                displayLatestStats(latestStats);
-            } else {
-                binding.tvLatestStats.setText("No measurements recorded yet");
-            }
+            latestStatsData = latestStats;
+            updateLatestStatsButtonText();
         });
     }
 
@@ -246,59 +244,21 @@ public class TraineeStatsActivity extends AppCompatActivity {
         hideRecordForm();
     }
 
-    private void displayLatestStats(LatestUserStats stats) {
-        if (stats == null) {
-            binding.tvLatestStats.setText("No measurements recorded yet");
-            return;
+    private void updateLatestStatsButtonText() {
+        if (latestStatsData != null) {
+            binding.btnViewLatestStats.setText("View Latest Measurements");
+        } else {
+            binding.btnViewLatestStats.setText("No Measurements Yet");
         }
-        
-        StringBuilder sb = new StringBuilder();
-        
-        if (stats.getWeight() != null) {
-            sb.append("Weight: ").append(stats.getWeight()).append(" kg\n");
+    }
+    
+    private void showLatestStatsDialog() {
+        if (latestStatsData != null) {
+            LatestStatsDialogFragment dialog = LatestStatsDialogFragment.newInstance(latestStatsData);
+            dialog.show(getSupportFragmentManager(), "LatestStatsDialog");
+        } else {
+            Toast.makeText(this, "No measurements recorded yet", Toast.LENGTH_SHORT).show();
         }
-        if (stats.getHeight() != null) {
-            sb.append("Height: ").append(stats.getHeight()).append(" cm\n");
-        }
-        if (stats.getBodyFat() != null) {
-            sb.append("Body Fat: ").append(stats.getBodyFat()).append("%\n");
-        }
-        if (stats.getMuscleMass() != null) {
-            sb.append("Muscle Mass: ").append(stats.getMuscleMass()).append(" kg\n");
-        }
-        if (stats.getChest() != null) {
-            sb.append("Chest: ").append(stats.getChest()).append(" cm\n");
-        }
-        if (stats.getWaist() != null) {
-            sb.append("Waist: ").append(stats.getWaist()).append(" cm\n");
-        }
-        if (stats.getHips() != null) {
-            sb.append("Hips: ").append(stats.getHips()).append(" cm\n");
-        }
-        if (stats.getArms() != null) {
-            sb.append("Arms: ").append(stats.getArms()).append(" cm\n");
-        }
-        if (stats.getThighs() != null) {
-            sb.append("Thighs: ").append(stats.getThighs()).append(" cm\n");
-        }
-        
-        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
-        SimpleDateFormat outputFormat = new SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault());
-        
-        try {
-            Date date = inputFormat.parse(stats.getRecordedAt());
-            if (date != null) {
-                sb.append("\nRecorded: ").append(outputFormat.format(date));
-            }
-        } catch (ParseException e) {
-            sb.append("\nRecorded: ").append(stats.getRecordedAt());
-        }
-        
-        if (stats.getNotes() != null && !stats.getNotes().isEmpty()) {
-            sb.append("\nNotes: ").append(stats.getNotes());
-        }
-
-        binding.tvLatestStats.setText(sb.toString());
     }
 
     private void updateChart() {
@@ -456,17 +416,7 @@ public class TraineeStatsActivity extends AppCompatActivity {
         binding.cardRecordStats.setVisibility(View.GONE);
     }
     
-    private void toggleLatestStats() {
-        isLatestStatsExpanded = !isLatestStatsExpanded;
-        
-        if (isLatestStatsExpanded) {
-            binding.layoutLatestStatsContent.setVisibility(View.VISIBLE);
-            binding.btnToggleLatestStats.setText("▲");
-        } else {
-            binding.layoutLatestStatsContent.setVisibility(View.GONE);
-            binding.btnToggleLatestStats.setText("▼");
-        }
-    }
+
 
     @Override
     protected void onDestroy() {

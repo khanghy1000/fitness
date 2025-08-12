@@ -31,73 +31,20 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginBottom="24dp" />
 
-            <!-- Latest Stats Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardLatestStats"
+            <!-- Latest Stats Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnViewLatestStats"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                app:cardElevation="4dp"
-                app:cardCornerRadius="12dp"
+                android:text="View Latest Measurements"
+                android:textSize="16sp"
+                android:drawableStart="@drawable/ic_info"
+                android:drawablePadding="8dp"
+                android:padding="16dp"
                 app:layout_constraintTop_toBottomOf="@id/tvTitle"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <LinearLayout
-                        android:id="@+id/layoutLatestStatsHeader"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:background="?attr/selectableItemBackground"
-                        android:layout_marginBottom="8dp">
-
-                        <com.google.android.material.textview.MaterialTextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Latest Measurements"
-                            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-                            android:textStyle="bold" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnToggleLatestStats"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:text="▼"
-                            android:textSize="12sp"
-                            style="@style/Widget.Material3.Button.IconButton" />
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/layoutLatestStatsContent"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:visibility="gone">
-
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/tvLatestStats"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="No measurements recorded yet"
-                            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                            android:lineSpacingExtra="4dp" />
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-            </com.google.android.material.card.MaterialCardView>
+                app:layout_constraintEnd_toEndOf="parent" />
 
             <!-- Charts Card -->
             <com.google.android.material.card.MaterialCardView
@@ -107,7 +54,7 @@
                 android:layout_marginTop="16dp"
                 app:cardElevation="4dp"
                 app:cardCornerRadius="12dp"
-                app:layout_constraintTop_toBottomOf="@id/cardLatestStats"
+                app:layout_constraintTop_toBottomOf="@id/btnViewLatestStats"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">
 
