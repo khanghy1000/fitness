@@ -187,6 +187,8 @@ public class TraineeStatsActivity extends AppCompatActivity {
         viewModel.latestStats.observe(this, latestStats -> {
             if (latestStats != null) {
                 displayLatestStats(latestStats);
+            } else {
+                binding.tvLatestStats.setText("No measurements recorded yet");
             }
         });
     }
@@ -245,6 +247,11 @@ public class TraineeStatsActivity extends AppCompatActivity {
     }
 
     private void displayLatestStats(LatestUserStats stats) {
+        if (stats == null) {
+            binding.tvLatestStats.setText("No measurements recorded yet");
+            return;
+        }
+        
         StringBuilder sb = new StringBuilder();
         
         if (stats.getWeight() != null) {

@@ -178,7 +178,7 @@ public class UsersRepository {
         usersApi.apiUsersStatsLatestGet().enqueue(new Callback<LatestUserStats>() {
             @Override
             public void onResponse(Call<LatestUserStats> call, Response<LatestUserStats> response) {
-                if (response.isSuccessful() && response.body() != null) {
+                if (response.isSuccessful()) {
                     callback.onSuccess(response.body());
                 } else {
                     callback.onError("Failed to get latest user stats: " + response.message());
