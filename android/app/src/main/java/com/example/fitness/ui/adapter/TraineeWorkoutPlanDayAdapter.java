@@ -27,6 +27,7 @@ public class TraineeWorkoutPlanDayAdapter extends RecyclerView.Adapter<TraineeWo
     private OnDayClickListener listener;
     private String startDate; // Start date of the workout plan assignment
     private boolean isCompleted = false; // Whether this is a completed workout plan
+    private boolean isCoachMode = false; // Whether this is being viewed by a coach
 
     public interface OnDayClickListener {
         void onDayClick(DetailedWorkoutPlanDay day);
@@ -48,6 +49,11 @@ public class TraineeWorkoutPlanDayAdapter extends RecyclerView.Adapter<TraineeWo
     
     public void setIsCompleted(boolean isCompleted) {
         this.isCompleted = isCompleted;
+        notifyDataSetChanged();
+    }
+    
+    public void setIsCoachMode(boolean isCoachMode) {
+        this.isCoachMode = isCoachMode;
         notifyDataSetChanged();
     }
 

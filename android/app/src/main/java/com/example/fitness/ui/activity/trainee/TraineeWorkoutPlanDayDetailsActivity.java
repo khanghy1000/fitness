@@ -60,6 +60,7 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
     private String startDate;
     private List<DetailedWorkoutPlanDayExercise> currentExercises;
     private boolean isCompleted = false;
+    private boolean isCoachMode = false;
     
     @Inject
     ExercisesRepository exercisesRepository;
@@ -132,6 +133,7 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
             assignmentId = getIntent().getIntExtra("ASSIGNMENT_ID", -1);
             startDate = getIntent().getStringExtra("START_DATE");
             isCompleted = getIntent().getBooleanExtra("IS_COMPLETED", false);
+            isCoachMode = getIntent().getBooleanExtra("IS_COACH_MODE", false);
         }
     }
 
@@ -306,8 +308,8 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
     }
 
     private void updateButtonVisibility(List<DetailedWorkoutPlanDayExercise> uncompletedExercises) {
-        if (isRestDay || isCompleted) {
-            // Hide workout buttons for rest days or completed workout plans
+        if (isRestDay || isCompleted || isCoachMode) {
+            // Hide workout buttons for rest days, completed workout plans, or coach mode
             binding.buttonStart.setVisibility(View.GONE);
             binding.buttonReset.setVisibility(View.GONE);
             return;
@@ -414,6 +416,12 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
     }
 
     private void checkEditPermission(String currentUserId) {
+        // Hide edit button in coach mode
+        if (isCoachMode) {
+            binding.buttonEdit.setVisibility(View.GONE);
+            return;
+        }
+        
         if (viewModel.currentPlan.getValue() != null) {
             String planCreatorId = viewModel.currentPlan.getValue().getCreatedBy();
             boolean canEdit = currentUserId.equals(planCreatorId) && !isCompleted;
@@ -457,8 +465,8 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
             binding.layoutWorkoutInfo.setVisibility(View.VISIBLE);
             binding.textViewExercisesTitle.setVisibility(View.VISIBLE);
             binding.recyclerViewExercises.setVisibility(View.VISIBLE);
-            // Hide button container for completed plans
-            binding.layoutButtonContainer.setVisibility(isCompleted ? View.GONE : View.VISIBLE);
+            // Hide button container for completed plans or coach mode
+            binding.layoutButtonContainer.setVisibility((isCompleted || isCoachMode) ? View.GONE : View.VISIBLE);
             
             // Display actual data from intent
             int duration = dayDuration != null ? dayDuration : 0;

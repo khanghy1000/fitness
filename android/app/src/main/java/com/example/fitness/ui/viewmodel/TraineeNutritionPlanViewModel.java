@@ -245,15 +245,19 @@ public class TraineeNutritionPlanViewModel extends ViewModel {
 
     public void loadNutritionAdherenceHistory(String userNutritionPlanId) {
         String currentUserId = _currentUserId.getValue();
-        android.util.Log.d("AdherenceDebug", "Loading adherence history for userNutritionPlanId: " + userNutritionPlanId + ", currentUserId: " + currentUserId);
+        loadNutritionAdherenceHistory(userNutritionPlanId, currentUserId);
+    }
+    
+    public void loadNutritionAdherenceHistory(String userNutritionPlanId, String userId) {
+        android.util.Log.d("AdherenceDebug", "Loading adherence history for userNutritionPlanId: " + userNutritionPlanId + ", userId: " + userId);
         
-        if (currentUserId == null) {
-            android.util.Log.w("AdherenceDebug", "Current user ID is null, cannot load adherence history");
+        if (userId == null) {
+            android.util.Log.w("AdherenceDebug", "User ID is null, cannot load adherence history");
             _isLoading.setValue(false);
             return;
         }
         
-        usersRepository.getNutritionAdherenceHistory(userNutritionPlanId, currentUserId, new UsersRepository.UsersCallback<List<DetailedNutritionAdherenceHistory>>() {
+        usersRepository.getNutritionAdherenceHistory(userNutritionPlanId, userId, new UsersRepository.UsersCallback<List<DetailedNutritionAdherenceHistory>>() {
             @Override
             public void onSuccess(List<DetailedNutritionAdherenceHistory> result) {
                 android.util.Log.d("AdherenceDebug", "Successfully loaded " + (result != null ? result.size() : 0) + " adherence records");

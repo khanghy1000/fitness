@@ -1,5 +1,6 @@
 package com.example.fitness.ui.fragment.trainee;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.fitness.data.network.model.generated.NutritionPlanAssignment;
 import com.example.fitness.databinding.FragmentTraineeNutritionPlansBinding;
+import com.example.fitness.ui.activity.trainee.TraineeNutritionProgressActivity;
 import com.example.fitness.ui.adapter.TraineeNutritionPlanAssignmentAdapter;
 import com.example.fitness.ui.viewmodel.TraineeManagementViewModel;
 
@@ -25,7 +27,7 @@ import java.util.List;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class TraineeNutritionPlansFragment extends Fragment {
+public class TraineeNutritionPlansFragment extends Fragment implements TraineeNutritionPlanAssignmentAdapter.OnAssignmentClickListener {
     private static final String ARG_TRAINEE_ID = "trainee_id";
     
     private FragmentTraineeNutritionPlansBinding binding;
@@ -72,7 +74,7 @@ public class TraineeNutritionPlansFragment extends Fragment {
     }
 
     private void setupRecyclerView() {
-        adapter = new TraineeNutritionPlanAssignmentAdapter(null);
+        adapter = new TraineeNutritionPlanAssignmentAdapter(this);
         binding.rvNutritionPlans.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.rvNutritionPlans.setAdapter(adapter);
     }
@@ -155,5 +157,33 @@ public class TraineeNutritionPlansFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    @Override
+    public void onAssignmentClick(NutritionPlanAssignment assignment) {
+        // Open TraineeNutritionProgressActivity to show trainee progress
+        Intent intent = new Intent(getContext(), TraineeNutritionProgressActivity.class);
+        intent.putExtra("ASSIGNMENT_ID", assignment.getId());
+        intent.putExtra("PLAN_ID", assignment.getNutritionPlanId());
+        intent.putExtra("PLAN_NAME", assignment.getNutritionPlan().getName());
+        intent.putExtra("TRAINEE_ID", assignment.getUserId());
+        
+        // Get trainee name from parent activity (CoachTraineeManagementActivity)
+        if (getActivity() != null && getActivity().getIntent() != null) {
+            String traineeName = getActivity().getIntent().getStringExtra("TRAINEE_NAME");
+            intent.putExtra("TRAINEE_NAME", traineeName);
+        }
+        
+        // Add plan dates
+        intent.putExtra("START_DATE", assignment.getStartDate());
+        intent.putExtra("END_DATE", assignment.getEndDate());
+        
+        startActivity(intent);
+    }
+
+    @Override
+    public void onAssignmentEdit(NutritionPlanAssignment assignment) {
+        // This is not needed for coach mode, but we need to implement it
+        // Could be used if coach wants to edit the plan
     }
 }

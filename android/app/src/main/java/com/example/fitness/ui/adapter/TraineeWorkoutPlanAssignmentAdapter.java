@@ -18,6 +18,15 @@ import java.util.List;
 public class TraineeWorkoutPlanAssignmentAdapter extends RecyclerView.Adapter<TraineeWorkoutPlanAssignmentAdapter.WorkoutPlanAssignmentViewHolder> {
     private List<WorkoutPlanAssignment> workoutPlanAssignments = new ArrayList<>();
     private List<WorkoutPlanAssignment> filteredAssignments = new ArrayList<>();
+    private OnWorkoutPlanAssignmentClickListener listener;
+
+    public interface OnWorkoutPlanAssignmentClickListener {
+        void onWorkoutPlanAssignmentClick(WorkoutPlanAssignment assignment);
+    }
+
+    public void setOnWorkoutPlanAssignmentClickListener(OnWorkoutPlanAssignmentClickListener listener) {
+        this.listener = listener;
+    }
 
     @NonNull
     @Override
@@ -30,7 +39,7 @@ public class TraineeWorkoutPlanAssignmentAdapter extends RecyclerView.Adapter<Tr
     @Override
     public void onBindViewHolder(@NonNull WorkoutPlanAssignmentViewHolder holder, int position) {
         WorkoutPlanAssignment assignment = filteredAssignments.get(position);
-        holder.bind(assignment);
+        holder.bind(assignment, listener);
     }
 
     @Override
@@ -82,7 +91,7 @@ public class TraineeWorkoutPlanAssignmentAdapter extends RecyclerView.Adapter<Tr
             cardView = itemView.findViewById(R.id.card_view);
         }
 
-        public void bind(WorkoutPlanAssignment assignment) {
+        public void bind(WorkoutPlanAssignment assignment, OnWorkoutPlanAssignmentClickListener listener) {
             tvPlanName.setText(assignment.getWorkoutPlan().getName());
             
             // Handle description visibility
@@ -120,6 +129,13 @@ public class TraineeWorkoutPlanAssignmentAdapter extends RecyclerView.Adapter<Tr
                     cardView.setCardBackgroundColor(itemView.getContext().getColor(android.R.color.holo_red_light));
                     break;
             }
+
+            // Set click listener
+            itemView.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onWorkoutPlanAssignmentClick(assignment);
+                }
+            });
         }
     }
 }

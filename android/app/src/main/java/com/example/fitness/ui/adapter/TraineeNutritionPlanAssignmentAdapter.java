@@ -32,6 +32,10 @@ public class TraineeNutritionPlanAssignmentAdapter extends RecyclerView.Adapter<
         void onAssignmentEdit(NutritionPlanAssignment assignment);
     }
 
+    public void setOnAssignmentClickListener(OnAssignmentClickListener listener) {
+        this.listener = listener;
+    }
+
     public TraineeNutritionPlanAssignmentAdapter(OnAssignmentClickListener listener) {
         this.listener = listener;
     }

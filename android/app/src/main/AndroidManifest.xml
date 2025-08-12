@@ -63,7 +63,7 @@
             android:name=".ui.activity.trainee.TraineeNutritionPlanDetailsActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.activity.trainee.TraineeNutritionPlanEditActivity"
+            android:name=".ui.activity.trainee.TraineeNutritionProgressActivity"
             android:exported="false" />
         <activity
             android:name=".ui.activity.NutritionPlanEditActivity"

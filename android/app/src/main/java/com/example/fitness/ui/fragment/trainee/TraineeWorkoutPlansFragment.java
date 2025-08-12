@@ -1,5 +1,6 @@
 package com.example.fitness.ui.fragment.trainee;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.fitness.data.network.model.generated.WorkoutPlanAssignment;
 import com.example.fitness.databinding.FragmentTraineeWorkoutPlansBinding;
+import com.example.fitness.ui.activity.trainee.TraineeWorkoutPlanDetailsActivity;
 import com.example.fitness.ui.adapter.TraineeWorkoutPlanAssignmentAdapter;
 import com.example.fitness.ui.viewmodel.TraineeManagementViewModel;
 
@@ -25,7 +27,7 @@ import java.util.List;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class TraineeWorkoutPlansFragment extends Fragment {
+public class TraineeWorkoutPlansFragment extends Fragment implements TraineeWorkoutPlanAssignmentAdapter.OnWorkoutPlanAssignmentClickListener {
     private static final String ARG_TRAINEE_ID = "trainee_id";
     
     private FragmentTraineeWorkoutPlansBinding binding;
@@ -73,6 +75,7 @@ public class TraineeWorkoutPlansFragment extends Fragment {
 
     private void setupRecyclerView() {
         adapter = new TraineeWorkoutPlanAssignmentAdapter();
+        adapter.setOnWorkoutPlanAssignmentClickListener(this);
         binding.rvWorkoutPlans.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.rvWorkoutPlans.setAdapter(adapter);
     }
@@ -155,5 +158,18 @@ public class TraineeWorkoutPlansFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    @Override
+    public void onWorkoutPlanAssignmentClick(WorkoutPlanAssignment assignment) {
+        // Open TraineeWorkoutPlanDetailsActivity in coach mode
+        Intent intent = new Intent(getContext(), TraineeWorkoutPlanDetailsActivity.class);
+        intent.putExtra("PLAN_ID", assignment.getWorkoutPlanId());
+        intent.putExtra("PLAN_NAME", assignment.getWorkoutPlan().getName());
+        intent.putExtra("ASSIGNMENT_ID", assignment.getId());
+        intent.putExtra("START_DATE", assignment.getStartDate());
+        intent.putExtra("IS_COMPLETED", assignment.getStatus() == WorkoutPlanAssignment.Status.completed);
+        intent.putExtra("IS_COACH_MODE", true); // Add coach mode flag
+        startActivity(intent);
     }
 }

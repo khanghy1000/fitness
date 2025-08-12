@@ -37,6 +37,7 @@ public class TraineeWorkoutPlanDetailsActivity extends AppCompatActivity impleme
     private String startDate;
     private DetailedWorkoutPlan currentPlan;
     private boolean isCompleted = false;
+    private boolean isCoachMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +76,7 @@ public class TraineeWorkoutPlanDetailsActivity extends AppCompatActivity impleme
         assignmentId = intent.getIntExtra("ASSIGNMENT_ID", -1);
         startDate = intent.getStringExtra("START_DATE");
         isCompleted = intent.getBooleanExtra("IS_COMPLETED", false);
+        isCoachMode = intent.getBooleanExtra("IS_COACH_MODE", false);
         
         if (planIdInt != -1) {
             planId = String.valueOf(planIdInt);
@@ -97,6 +99,7 @@ public class TraineeWorkoutPlanDetailsActivity extends AppCompatActivity impleme
         dayAdapter = new TraineeWorkoutPlanDayAdapter();
         dayAdapter.setOnDayClickListener(this);
         dayAdapter.setIsCompleted(isCompleted); // Pass completed status to adapter
+        dayAdapter.setIsCoachMode(isCoachMode); // Pass coach mode to adapter
         // Pass the start date to the adapter for current day indication
         if (startDate != null) {
             dayAdapter.setStartDate(startDate);
@@ -191,6 +194,12 @@ public class TraineeWorkoutPlanDetailsActivity extends AppCompatActivity impleme
     }
 
     private void updateEditButtonVisibility(DetailedWorkoutPlan plan) {
+        // Hide edit button in coach mode, completed plans, or if not created by current user
+        if (isCoachMode) {
+            binding.buttonEdit.setVisibility(View.GONE);
+            return;
+        }
+        
         String currentUserId = viewModel.currentUserId.getValue();
         boolean isCreatedByCurrentUser = plan != null && plan.getCreatedBy() != null && 
                                        plan.getCreatedBy().equals(currentUserId);
@@ -219,6 +228,7 @@ public class TraineeWorkoutPlanDetailsActivity extends AppCompatActivity impleme
         intent.putExtra("DAY_DURATION", day.getDuration());
         intent.putExtra("DAY_CALORIES", day.getEstimatedCalories());
         intent.putExtra("IS_COMPLETED", isCompleted); // Pass completed status
+        intent.putExtra("IS_COACH_MODE", isCoachMode); // Pass coach mode
         // Pass assignment info for workout day validation
         if (assignmentId != -1) {
             intent.putExtra("ASSIGNMENT_ID", assignmentId);
