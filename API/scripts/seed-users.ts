@@ -15,14 +15,50 @@ const users: User[] = [
         role: 'trainee',
     },
     {
+        name: 'trainee2',
+        email: 'trainee2@a.com',
+        password: 'Test12345*',
+        role: 'trainee',
+    },
+    {
+        name: 'trainee3',
+        email: 'trainee3@a.com',
+        password: 'Test12345*',
+        role: 'trainee',
+    },
+    {
+        name: 'trainee4',
+        email: 'trainee4@a.com',
+        password: 'Test12345*',
+        role: 'trainee',
+    },
+    {
         name: 'coach',
         email: 'coach@a.com',
         password: 'Test12345*',
         role: 'coach',
     },
+    {
+        name: 'coach2',
+        email: 'coach2@a.com',
+        password: 'Test12345*',
+        role: 'coach',
+    },
+    {
+        name: 'coach3',
+        email: 'coach3@a.com',
+        password: 'Test12345*',
+        role: 'coach',
+    },
+    {
+        name: 'coach4',
+        email: 'coach4@a.com',
+        password: 'Test12345*',
+        role: 'coach',
+    },
 ];
 
-async function seedUsers() {
+export async function seedUsers() {
     for (const user of users) {
         try {
             await auth.api.signUpEmail({ body: user });
@@ -32,4 +68,3 @@ async function seedUsers() {
     }
     console.log('\n✅ Users seeding completed!');
 }
-seedUsers();

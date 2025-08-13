@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { db } from '../src/lib/db.js';
+import { eq } from 'drizzle-orm';
 import {
     nutritionPlan,
     nutritionPlanDay,
@@ -8,24 +9,40 @@ import {
     user,
 } from '../src/db/schema/tables.js';
 
-async function seedNutritionPlans() {
+async function getCoachIdByEmail(email: string) {
+    const coach = await db
+        .select({ id: user.id })
+        .from(user)
+        .where(eq(user.email, email));
+    if (!coach.length) throw new Error(`Coach with email ${email} not found`);
+    return coach[0].id;
+}
+
+export async function seedNutritionPlans() {
     try {
         console.log('Starting to seed nutrition plans...');
 
-        // First, let's create a sample nutrition plan
+        // Look up coach user ID
+        const coachEmail = 'coach@a.com';
+        const coachId = await getCoachIdByEmail(coachEmail);
+
+        // Nutrition plan data
+        const planData = {
+            name: 'Balanced Weekly Meal Plan',
+            description:
+                'A balanced nutrition plan for general fitness with meals for all 7 days',
+            createdBy: coachId,
+        };
+
+        // Insert the nutrition plan
         const [plan] = await db
             .insert(nutritionPlan)
-            .values({
-                name: 'Balanced Weekly Meal Plan',
-                description:
-                    'A balanced nutrition plan for general fitness with meals for all 7 days',
-                createdBy: 'sample-coach-id', // You'll need to replace this with an actual coach ID
-            })
+            .values(planData)
             .returning();
 
         console.log(`Created nutrition plan: ${plan.name}`);
 
-        // Sample meal structure for each weekday
+        // Sample meal structure for each weekday (add more days as needed)
         const weekdayMeals = [
             // Sunday
             {
@@ -43,6 +60,7 @@ async function seedNutritionPlans() {
                         protein: 25,
                         carbs: 60,
                         fat: 20,
+                        fiber: 7,
                         foods: [
                             {
                                 name: 'Oatmeal',
@@ -51,6 +69,7 @@ async function seedNutritionPlans() {
                                 protein: 5,
                                 carbs: 27,
                                 fat: 3,
+                                fiber: 4,
                             },
                             {
                                 name: 'Banana',
@@ -59,6 +78,7 @@ async function seedNutritionPlans() {
                                 protein: 1,
                                 carbs: 27,
                                 fat: 0,
+                                fiber: 3,
                             },
                             {
                                 name: 'Almond Milk',
@@ -67,6 +87,7 @@ async function seedNutritionPlans() {
                                 protein: 1,
                                 carbs: 8,
                                 fat: 3,
+                                fiber: 1,
                             },
                             {
                                 name: 'Almonds',
@@ -75,6 +96,7 @@ async function seedNutritionPlans() {
                                 protein: 6,
                                 carbs: 6,
                                 fat: 14,
+                                fiber: 3,
                             },
                         ],
                     },
@@ -85,6 +107,7 @@ async function seedNutritionPlans() {
                         protein: 35,
                         carbs: 70,
                         fat: 20,
+                        fiber: 8,
                         foods: [
                             {
                                 name: 'Grilled Chicken Breast',
@@ -93,6 +116,7 @@ async function seedNutritionPlans() {
                                 protein: 35,
                                 carbs: 0,
                                 fat: 4,
+                                fiber: 0,
                             },
                             {
                                 name: 'Brown Rice',
@@ -101,6 +125,7 @@ async function seedNutritionPlans() {
                                 protein: 5,
                                 carbs: 45,
                                 fat: 2,
+                                fiber: 3,
                             },
                             {
                                 name: 'Mixed Vegetables',
@@ -109,6 +134,7 @@ async function seedNutritionPlans() {
                                 protein: 2,
                                 carbs: 10,
                                 fat: 0,
+                                fiber: 3,
                             },
                             {
                                 name: 'Olive Oil',
@@ -117,6 +143,7 @@ async function seedNutritionPlans() {
                                 protein: 0,
                                 carbs: 0,
                                 fat: 14,
+                                fiber: 0,
                             },
                         ],
                     },
@@ -127,6 +154,7 @@ async function seedNutritionPlans() {
                         protein: 15,
                         carbs: 20,
                         fat: 8,
+                        fiber: 2,
                         foods: [
                             {
                                 name: 'Greek Yogurt',
@@ -135,6 +163,7 @@ async function seedNutritionPlans() {
                                 protein: 15,
                                 carbs: 20,
                                 fat: 0,
+                                fiber: 0,
                             },
                             {
                                 name: 'Walnuts',
@@ -143,6 +172,7 @@ async function seedNutritionPlans() {
                                 protein: 2,
                                 carbs: 2,
                                 fat: 8,
+                                fiber: 2,
                             },
                         ],
                     },
@@ -153,6 +183,7 @@ async function seedNutritionPlans() {
                         protein: 45,
                         carbs: 80,
                         fat: 25,
+                        fiber: 8,
                         foods: [
                             {
                                 name: 'Salmon Fillet',
@@ -161,6 +192,7 @@ async function seedNutritionPlans() {
                                 protein: 40,
                                 carbs: 0,
                                 fat: 12,
+                                fiber: 0,
                             },
                             {
                                 name: 'Sweet Potato',
@@ -169,6 +201,7 @@ async function seedNutritionPlans() {
                                 protein: 4,
                                 carbs: 41,
                                 fat: 0,
+                                fiber: 4,
                             },
                             {
                                 name: 'Broccoli',
@@ -177,6 +210,7 @@ async function seedNutritionPlans() {
                                 protein: 4,
                                 carbs: 11,
                                 fat: 1,
+                                fiber: 3,
                             },
                             {
                                 name: 'Avocado',
@@ -185,6 +219,7 @@ async function seedNutritionPlans() {
                                 protein: 2,
                                 carbs: 6,
                                 fat: 11,
+                                fiber: 1,
                             },
                         ],
                     },
@@ -206,6 +241,7 @@ async function seedNutritionPlans() {
                         protein: 30,
                         carbs: 65,
                         fat: 18,
+                        fiber: undefined,
                         foods: [
                             {
                                 name: 'Scrambled Eggs',
@@ -214,6 +250,7 @@ async function seedNutritionPlans() {
                                 protein: 18,
                                 carbs: 2,
                                 fat: 15,
+                                fiber: undefined,
                             },
                             {
                                 name: 'Whole Grain Toast',
@@ -222,6 +259,7 @@ async function seedNutritionPlans() {
                                 protein: 8,
                                 carbs: 30,
                                 fat: 2,
+                                fiber: undefined,
                             },
                             {
                                 name: 'Spinach',
@@ -230,6 +268,7 @@ async function seedNutritionPlans() {
                                 protein: 1,
                                 carbs: 1,
                                 fat: 0,
+                                fiber: undefined,
                             },
                             {
                                 name: 'Orange Juice',
@@ -238,6 +277,7 @@ async function seedNutritionPlans() {
                                 protein: 2,
                                 carbs: 26,
                                 fat: 0,
+                                fiber: undefined,
                             },
                         ],
                     },
@@ -248,6 +288,7 @@ async function seedNutritionPlans() {
                         protein: 40,
                         carbs: 75,
                         fat: 22,
+                        fiber: undefined,
                         foods: [
                             {
                                 name: 'Turkey Sandwich',
@@ -256,6 +297,7 @@ async function seedNutritionPlans() {
                                 protein: 25,
                                 carbs: 35,
                                 fat: 12,
+                                fiber: undefined,
                             },
                             {
                                 name: 'Apple',
@@ -264,6 +306,7 @@ async function seedNutritionPlans() {
                                 protein: 0,
                                 carbs: 25,
                                 fat: 0,
+                                fiber: undefined,
                             },
                             {
                                 name: 'Hummus',
@@ -272,6 +315,7 @@ async function seedNutritionPlans() {
                                 protein: 3,
                                 carbs: 6,
                                 fat: 5,
+                                fiber: undefined,
                             },
                             {
                                 name: 'Baby Carrots',
@@ -280,6 +324,7 @@ async function seedNutritionPlans() {
                                 protein: 1,
                                 carbs: 12,
                                 fat: 0,
+                                fiber: undefined,
                             },
                         ],
                     },
@@ -290,6 +335,7 @@ async function seedNutritionPlans() {
                         protein: 12,
                         carbs: 25,
                         fat: 6,
+                        fiber: undefined,
                         foods: [
                             {
                                 name: 'Protein Smoothie',
@@ -298,6 +344,7 @@ async function seedNutritionPlans() {
                                 protein: 12,
                                 carbs: 25,
                                 fat: 6,
+                                fiber: undefined,
                             },
                         ],
                     },
@@ -308,6 +355,7 @@ async function seedNutritionPlans() {
                         protein: 43,
                         carbs: 85,
                         fat: 24,
+                        fiber: undefined,
                         foods: [
                             {
                                 name: 'Lean Beef',
@@ -316,6 +364,7 @@ async function seedNutritionPlans() {
                                 protein: 32,
                                 carbs: 0,
                                 fat: 10,
+                                fiber: undefined,
                             },
                             {
                                 name: 'Quinoa',
@@ -324,6 +373,7 @@ async function seedNutritionPlans() {
                                 protein: 8,
                                 carbs: 39,
                                 fat: 4,
+                                fiber: undefined,
                             },
                             {
                                 name: 'Roasted Vegetables',
@@ -332,6 +382,7 @@ async function seedNutritionPlans() {
                                 protein: 3,
                                 carbs: 25,
                                 fat: 3,
+                                fiber: undefined,
                             },
                             {
                                 name: 'Olive Oil',
@@ -340,6 +391,1002 @@ async function seedNutritionPlans() {
                                 protein: 0,
                                 carbs: 0,
                                 fat: 14,
+                                fiber: undefined,
+                            },
+                        ],
+                    },
+                ],
+            },
+            // Tuesday
+            {
+                weekday: 'tue' as const,
+                totalCalories: 2050,
+                protein: 122,
+                carbs: 255,
+                fat: 68,
+                fiber: 26,
+                meals: [
+                    {
+                        name: 'Breakfast',
+                        time: '08:00:00',
+                        calories: 520,
+                        protein: 27,
+                        carbs: 62,
+                        fat: 17,
+                        fiber: 6,
+                        foods: [
+                            {
+                                name: 'Greek Yogurt',
+                                quantity: '1 cup',
+                                calories: 130,
+                                protein: 15,
+                                carbs: 20,
+                                fat: 0,
+                                fiber: 0,
+                            },
+                            {
+                                name: 'Granola',
+                                quantity: '0.5 cup',
+                                calories: 200,
+                                protein: 5,
+                                carbs: 32,
+                                fat: 6,
+                                fiber: 2,
+                            },
+                            {
+                                name: 'Blueberries',
+                                quantity: '0.5 cup',
+                                calories: 45,
+                                protein: 1,
+                                carbs: 11,
+                                fat: 0,
+                                fiber: 1,
+                            },
+                            {
+                                name: 'Almonds',
+                                quantity: '0.5 oz',
+                                calories: 80,
+                                protein: 3,
+                                carbs: 3,
+                                fat: 7,
+                                fiber: 3,
+                            },
+                        ],
+                    },
+                    {
+                        name: 'Lunch',
+                        time: '12:15:00',
+                        calories: 610,
+                        protein: 33,
+                        carbs: 72,
+                        fat: 19,
+                        fiber: 7,
+                        foods: [
+                            {
+                                name: 'Grilled Chicken Wrap',
+                                quantity: '1 wrap',
+                                calories: 350,
+                                protein: 25,
+                                carbs: 40,
+                                fat: 10,
+                                fiber: 3,
+                            },
+                            {
+                                name: 'Mixed Greens',
+                                quantity: '1 cup',
+                                calories: 20,
+                                protein: 1,
+                                carbs: 4,
+                                fat: 0,
+                                fiber: 2,
+                            },
+                            {
+                                name: 'Apple',
+                                quantity: '1 medium',
+                                calories: 95,
+                                protein: 0,
+                                carbs: 25,
+                                fat: 0,
+                                fiber: 2,
+                            },
+                            {
+                                name: 'Hummus',
+                                quantity: '2 tbsp',
+                                calories: 70,
+                                protein: 3,
+                                carbs: 6,
+                                fat: 5,
+                                fiber: 0,
+                            },
+                        ],
+                    },
+                    {
+                        name: 'Snack',
+                        time: '15:30:00',
+                        calories: 190,
+                        protein: 13,
+                        carbs: 22,
+                        fat: 7,
+                        fiber: 2,
+                        foods: [
+                            {
+                                name: 'Cottage Cheese',
+                                quantity: '0.5 cup',
+                                calories: 90,
+                                protein: 11,
+                                carbs: 4,
+                                fat: 4,
+                                fiber: 0,
+                            },
+                            {
+                                name: 'Pineapple',
+                                quantity: '0.5 cup',
+                                calories: 50,
+                                protein: 0,
+                                carbs: 13,
+                                fat: 0,
+                                fiber: 1,
+                            },
+                            {
+                                name: 'Almonds',
+                                quantity: '0.25 oz',
+                                calories: 50,
+                                protein: 2,
+                                carbs: 1,
+                                fat: 3,
+                                fiber: 1,
+                            },
+                        ],
+                    },
+                    {
+                        name: 'Dinner',
+                        time: '19:00:00',
+                        calories: 730,
+                        protein: 49,
+                        carbs: 99,
+                        fat: 25,
+                        fiber: 11,
+                        foods: [
+                            {
+                                name: 'Baked Cod',
+                                quantity: '5 oz',
+                                calories: 120,
+                                protein: 26,
+                                carbs: 0,
+                                fat: 1,
+                                fiber: 0,
+                            },
+                            {
+                                name: 'Brown Rice',
+                                quantity: '1 cup',
+                                calories: 220,
+                                protein: 5,
+                                carbs: 45,
+                                fat: 2,
+                                fiber: 3,
+                            },
+                            {
+                                name: 'Steamed Broccoli',
+                                quantity: '1 cup',
+                                calories: 55,
+                                protein: 4,
+                                carbs: 11,
+                                fat: 1,
+                                fiber: 3,
+                            },
+                            {
+                                name: 'Avocado',
+                                quantity: '0.5 medium',
+                                calories: 120,
+                                protein: 2,
+                                carbs: 6,
+                                fat: 11,
+                                fiber: 1,
+                            },
+                            {
+                                name: 'Olive Oil',
+                                quantity: '1 tbsp',
+                                calories: 120,
+                                protein: 0,
+                                carbs: 0,
+                                fat: 14,
+                                fiber: 0,
+                            },
+                        ],
+                    },
+                ],
+            },
+            // Wednesday
+            {
+                weekday: 'wed' as const,
+                totalCalories: 2150,
+                protein: 130,
+                carbs: 270,
+                fat: 72,
+                fiber: 29,
+                meals: [
+                    {
+                        name: 'Breakfast',
+                        time: '07:45:00',
+                        calories: 540,
+                        protein: 28,
+                        carbs: 68,
+                        fat: 16,
+                        fiber: 7,
+                        foods: [
+                            {
+                                name: 'Egg White Omelette',
+                                quantity: '3 eggs',
+                                calories: 120,
+                                protein: 18,
+                                carbs: 2,
+                                fat: 2,
+                                fiber: 0,
+                            },
+                            {
+                                name: 'Whole Wheat Toast',
+                                quantity: '2 slices',
+                                calories: 160,
+                                protein: 8,
+                                carbs: 30,
+                                fat: 2,
+                                fiber: 3,
+                            },
+                            {
+                                name: 'Orange',
+                                quantity: '1 medium',
+                                calories: 80,
+                                protein: 1,
+                                carbs: 19,
+                                fat: 0,
+                                fiber: 3,
+                            },
+                            {
+                                name: 'Peanut Butter',
+                                quantity: '1 tbsp',
+                                calories: 90,
+                                protein: 3,
+                                carbs: 3,
+                                fat: 8,
+                                fiber: 1,
+                            },
+                            {
+                                name: 'Spinach',
+                                quantity: '1 cup',
+                                calories: 7,
+                                protein: 1,
+                                carbs: 1,
+                                fat: 0,
+                                fiber: 0,
+                            },
+                        ],
+                    },
+                    {
+                        name: 'Lunch',
+                        time: '12:30:00',
+                        calories: 670,
+                        protein: 38,
+                        carbs: 80,
+                        fat: 22,
+                        fiber: 8,
+                        foods: [
+                            {
+                                name: 'Grilled Turkey',
+                                quantity: '4 oz',
+                                calories: 160,
+                                protein: 28,
+                                carbs: 0,
+                                fat: 4,
+                                fiber: 0,
+                            },
+                            {
+                                name: 'Quinoa',
+                                quantity: '1 cup',
+                                calories: 220,
+                                protein: 8,
+                                carbs: 39,
+                                fat: 4,
+                                fiber: 3,
+                            },
+                            {
+                                name: 'Roasted Vegetables',
+                                quantity: '1 cup',
+                                calories: 120,
+                                protein: 3,
+                                carbs: 25,
+                                fat: 3,
+                                fiber: 2,
+                            },
+                            {
+                                name: 'Apple',
+                                quantity: '1 medium',
+                                calories: 95,
+                                protein: 0,
+                                carbs: 25,
+                                fat: 0,
+                                fiber: 3,
+                            },
+                            {
+                                name: 'Olive Oil',
+                                quantity: '1 tbsp',
+                                calories: 120,
+                                protein: 0,
+                                carbs: 0,
+                                fat: 14,
+                                fiber: 0,
+                            },
+                        ],
+                    },
+                    {
+                        name: 'Snack',
+                        time: '16:00:00',
+                        calories: 200,
+                        protein: 14,
+                        carbs: 22,
+                        fat: 8,
+                        fiber: 2,
+                        foods: [
+                            {
+                                name: 'Protein Bar',
+                                quantity: '1 bar',
+                                calories: 200,
+                                protein: 14,
+                                carbs: 22,
+                                fat: 8,
+                                fiber: 2,
+                            },
+                        ],
+                    },
+                    {
+                        name: 'Dinner',
+                        time: '19:00:00',
+                        calories: 740,
+                        protein: 50,
+                        carbs: 100,
+                        fat: 26,
+                        fiber: 12,
+                        foods: [
+                            {
+                                name: 'Baked Salmon',
+                                quantity: '5 oz',
+                                calories: 280,
+                                protein: 40,
+                                carbs: 0,
+                                fat: 12,
+                                fiber: 0,
+                            },
+                            {
+                                name: 'Sweet Potato',
+                                quantity: '1 medium',
+                                calories: 180,
+                                protein: 4,
+                                carbs: 41,
+                                fat: 0,
+                                fiber: 4,
+                            },
+                            {
+                                name: 'Broccoli',
+                                quantity: '1 cup',
+                                calories: 55,
+                                protein: 4,
+                                carbs: 11,
+                                fat: 1,
+                                fiber: 3,
+                            },
+                            {
+                                name: 'Avocado',
+                                quantity: '0.5 medium',
+                                calories: 120,
+                                protein: 2,
+                                carbs: 6,
+                                fat: 11,
+                                fiber: 1,
+                            },
+                            {
+                                name: 'Olive Oil',
+                                quantity: '1 tbsp',
+                                calories: 120,
+                                protein: 0,
+                                carbs: 0,
+                                fat: 14,
+                                fiber: 0,
+                            },
+                        ],
+                    },
+                ],
+            },
+            // Thursday
+            {
+                weekday: 'thu' as const,
+                totalCalories: 2080,
+                protein: 124,
+                carbs: 258,
+                fat: 69,
+                fiber: 27,
+                meals: [
+                    {
+                        name: 'Breakfast',
+                        time: '08:00:00',
+                        calories: 510,
+                        protein: 26,
+                        carbs: 60,
+                        fat: 16,
+                        fiber: 6,
+                        foods: [
+                            {
+                                name: 'Oatmeal',
+                                quantity: '1 cup',
+                                calories: 150,
+                                protein: 5,
+                                carbs: 27,
+                                fat: 3,
+                                fiber: 4,
+                            },
+                            {
+                                name: 'Banana',
+                                quantity: '1 medium',
+                                calories: 105,
+                                protein: 1,
+                                carbs: 27,
+                                fat: 0,
+                                fiber: 3,
+                            },
+                            {
+                                name: 'Almond Milk',
+                                quantity: '1 cup',
+                                calories: 60,
+                                protein: 1,
+                                carbs: 8,
+                                fat: 3,
+                                fiber: 1,
+                            },
+                            {
+                                name: 'Almonds',
+                                quantity: '1 oz',
+                                calories: 160,
+                                protein: 6,
+                                carbs: 6,
+                                fat: 14,
+                                fiber: 3,
+                            },
+                        ],
+                    },
+                    {
+                        name: 'Lunch',
+                        time: '12:30:00',
+                        calories: 620,
+                        protein: 36,
+                        carbs: 74,
+                        fat: 20,
+                        fiber: 8,
+                        foods: [
+                            {
+                                name: 'Grilled Chicken Breast',
+                                quantity: '4 oz',
+                                calories: 185,
+                                protein: 35,
+                                carbs: 0,
+                                fat: 4,
+                                fiber: 0,
+                            },
+                            {
+                                name: 'Brown Rice',
+                                quantity: '1 cup',
+                                calories: 220,
+                                protein: 5,
+                                carbs: 45,
+                                fat: 2,
+                                fiber: 3,
+                            },
+                            {
+                                name: 'Mixed Vegetables',
+                                quantity: '1 cup',
+                                calories: 50,
+                                protein: 2,
+                                carbs: 10,
+                                fat: 0,
+                                fiber: 3,
+                            },
+                            {
+                                name: 'Olive Oil',
+                                quantity: '1 tbsp',
+                                calories: 120,
+                                protein: 0,
+                                carbs: 0,
+                                fat: 14,
+                                fiber: 0,
+                            },
+                        ],
+                    },
+                    {
+                        name: 'Snack',
+                        time: '15:30:00',
+                        calories: 190,
+                        protein: 13,
+                        carbs: 22,
+                        fat: 7,
+                        fiber: 2,
+                        foods: [
+                            {
+                                name: 'Greek Yogurt',
+                                quantity: '1 cup',
+                                calories: 130,
+                                protein: 15,
+                                carbs: 20,
+                                fat: 0,
+                                fiber: 0,
+                            },
+                            {
+                                name: 'Walnuts',
+                                quantity: '0.5 oz',
+                                calories: 60,
+                                protein: 2,
+                                carbs: 2,
+                                fat: 5,
+                                fiber: 2,
+                            },
+                        ],
+                    },
+                    {
+                        name: 'Dinner',
+                        time: '19:00:00',
+                        calories: 760,
+                        protein: 49,
+                        carbs: 102,
+                        fat: 26,
+                        fiber: 11,
+                        foods: [
+                            {
+                                name: 'Salmon Fillet',
+                                quantity: '5 oz',
+                                calories: 280,
+                                protein: 40,
+                                carbs: 0,
+                                fat: 12,
+                                fiber: 0,
+                            },
+                            {
+                                name: 'Sweet Potato',
+                                quantity: '1 medium',
+                                calories: 180,
+                                protein: 4,
+                                carbs: 41,
+                                fat: 0,
+                                fiber: 4,
+                            },
+                            {
+                                name: 'Broccoli',
+                                quantity: '1 cup',
+                                calories: 55,
+                                protein: 4,
+                                carbs: 11,
+                                fat: 1,
+                                fiber: 3,
+                            },
+                            {
+                                name: 'Avocado',
+                                quantity: '0.5 medium',
+                                calories: 120,
+                                protein: 2,
+                                carbs: 6,
+                                fat: 11,
+                                fiber: 1,
+                            },
+                            {
+                                name: 'Olive Oil',
+                                quantity: '1 tbsp',
+                                calories: 120,
+                                protein: 0,
+                                carbs: 0,
+                                fat: 14,
+                                fiber: 0,
+                            },
+                        ],
+                    },
+                ],
+            },
+            // Friday
+            {
+                weekday: 'fri' as const,
+                totalCalories: 2120,
+                protein: 128,
+                carbs: 265,
+                fat: 71,
+                fiber: 28,
+                meals: [
+                    {
+                        name: 'Breakfast',
+                        time: '08:00:00',
+                        calories: 530,
+                        protein: 29,
+                        carbs: 64,
+                        fat: 18,
+                        fiber: 7,
+                        foods: [
+                            {
+                                name: 'Greek Yogurt',
+                                quantity: '1 cup',
+                                calories: 130,
+                                protein: 15,
+                                carbs: 20,
+                                fat: 0,
+                                fiber: 0,
+                            },
+                            {
+                                name: 'Granola',
+                                quantity: '0.5 cup',
+                                calories: 200,
+                                protein: 5,
+                                carbs: 32,
+                                fat: 6,
+                                fiber: 2,
+                            },
+                            {
+                                name: 'Blueberries',
+                                quantity: '0.5 cup',
+                                calories: 45,
+                                protein: 1,
+                                carbs: 11,
+                                fat: 0,
+                                fiber: 1,
+                            },
+                            {
+                                name: 'Almonds',
+                                quantity: '0.5 oz',
+                                calories: 80,
+                                protein: 3,
+                                carbs: 3,
+                                fat: 7,
+                                fiber: 3,
+                            },
+                        ],
+                    },
+                    {
+                        name: 'Lunch',
+                        time: '12:15:00',
+                        calories: 630,
+                        protein: 35,
+                        carbs: 76,
+                        fat: 21,
+                        fiber: 8,
+                        foods: [
+                            {
+                                name: 'Grilled Chicken Wrap',
+                                quantity: '1 wrap',
+                                calories: 350,
+                                protein: 25,
+                                carbs: 40,
+                                fat: 10,
+                                fiber: 3,
+                            },
+                            {
+                                name: 'Mixed Greens',
+                                quantity: '1 cup',
+                                calories: 20,
+                                protein: 1,
+                                carbs: 4,
+                                fat: 0,
+                                fiber: 2,
+                            },
+                            {
+                                name: 'Apple',
+                                quantity: '1 medium',
+                                calories: 95,
+                                protein: 0,
+                                carbs: 25,
+                                fat: 0,
+                                fiber: 2,
+                            },
+                            {
+                                name: 'Hummus',
+                                quantity: '2 tbsp',
+                                calories: 70,
+                                protein: 3,
+                                carbs: 6,
+                                fat: 5,
+                                fiber: 0,
+                            },
+                        ],
+                    },
+                    {
+                        name: 'Snack',
+                        time: '15:30:00',
+                        calories: 200,
+                        protein: 14,
+                        carbs: 22,
+                        fat: 8,
+                        fiber: 2,
+                        foods: [
+                            {
+                                name: 'Cottage Cheese',
+                                quantity: '0.5 cup',
+                                calories: 90,
+                                protein: 11,
+                                carbs: 4,
+                                fat: 4,
+                                fiber: 0,
+                            },
+                            {
+                                name: 'Pineapple',
+                                quantity: '0.5 cup',
+                                calories: 50,
+                                protein: 0,
+                                carbs: 13,
+                                fat: 0,
+                                fiber: 1,
+                            },
+                            {
+                                name: 'Almonds',
+                                quantity: '0.25 oz',
+                                calories: 50,
+                                protein: 2,
+                                carbs: 1,
+                                fat: 3,
+                                fiber: 1,
+                            },
+                        ],
+                    },
+                    {
+                        name: 'Dinner',
+                        time: '19:00:00',
+                        calories: 760,
+                        protein: 50,
+                        carbs: 103,
+                        fat: 24,
+                        fiber: 11,
+                        foods: [
+                            {
+                                name: 'Baked Cod',
+                                quantity: '5 oz',
+                                calories: 120,
+                                protein: 26,
+                                carbs: 0,
+                                fat: 1,
+                                fiber: 0,
+                            },
+                            {
+                                name: 'Brown Rice',
+                                quantity: '1 cup',
+                                calories: 220,
+                                protein: 5,
+                                carbs: 45,
+                                fat: 2,
+                                fiber: 3,
+                            },
+                            {
+                                name: 'Steamed Broccoli',
+                                quantity: '1 cup',
+                                calories: 55,
+                                protein: 4,
+                                carbs: 11,
+                                fat: 1,
+                                fiber: 3,
+                            },
+                            {
+                                name: 'Avocado',
+                                quantity: '0.5 medium',
+                                calories: 120,
+                                protein: 2,
+                                carbs: 6,
+                                fat: 11,
+                                fiber: 1,
+                            },
+                            {
+                                name: 'Olive Oil',
+                                quantity: '1 tbsp',
+                                calories: 120,
+                                protein: 0,
+                                carbs: 0,
+                                fat: 14,
+                                fiber: 0,
+                            },
+                        ],
+                    },
+                ],
+            },
+            // Saturday
+            {
+                weekday: 'sat' as const,
+                totalCalories: 2180,
+                protein: 132,
+                carbs: 275,
+                fat: 73,
+                fiber: 30,
+                meals: [
+                    {
+                        name: 'Breakfast',
+                        time: '08:00:00',
+                        calories: 550,
+                        protein: 30,
+                        carbs: 66,
+                        fat: 18,
+                        fiber: 7,
+                        foods: [
+                            {
+                                name: 'Egg White Omelette',
+                                quantity: '3 eggs',
+                                calories: 120,
+                                protein: 18,
+                                carbs: 2,
+                                fat: 2,
+                                fiber: 0,
+                            },
+                            {
+                                name: 'Whole Wheat Toast',
+                                quantity: '2 slices',
+                                calories: 160,
+                                protein: 8,
+                                carbs: 30,
+                                fat: 2,
+                                fiber: 3,
+                            },
+                            {
+                                name: 'Orange',
+                                quantity: '1 medium',
+                                calories: 80,
+                                protein: 1,
+                                carbs: 19,
+                                fat: 0,
+                                fiber: 3,
+                            },
+                            {
+                                name: 'Peanut Butter',
+                                quantity: '1 tbsp',
+                                calories: 90,
+                                protein: 3,
+                                carbs: 3,
+                                fat: 8,
+                                fiber: 1,
+                            },
+                            {
+                                name: 'Spinach',
+                                quantity: '1 cup',
+                                calories: 7,
+                                protein: 1,
+                                carbs: 1,
+                                fat: 0,
+                                fiber: 0,
+                            },
+                        ],
+                    },
+                    {
+                        name: 'Lunch',
+                        time: '12:30:00',
+                        calories: 680,
+                        protein: 40,
+                        carbs: 82,
+                        fat: 23,
+                        fiber: 9,
+                        foods: [
+                            {
+                                name: 'Grilled Turkey',
+                                quantity: '4 oz',
+                                calories: 160,
+                                protein: 28,
+                                carbs: 0,
+                                fat: 4,
+                                fiber: 0,
+                            },
+                            {
+                                name: 'Quinoa',
+                                quantity: '1 cup',
+                                calories: 220,
+                                protein: 8,
+                                carbs: 39,
+                                fat: 4,
+                                fiber: 3,
+                            },
+                            {
+                                name: 'Roasted Vegetables',
+                                quantity: '1 cup',
+                                calories: 120,
+                                protein: 3,
+                                carbs: 25,
+                                fat: 3,
+                                fiber: 2,
+                            },
+                            {
+                                name: 'Apple',
+                                quantity: '1 medium',
+                                calories: 95,
+                                protein: 0,
+                                carbs: 25,
+                                fat: 0,
+                                fiber: 3,
+                            },
+                            {
+                                name: 'Olive Oil',
+                                quantity: '1 tbsp',
+                                calories: 120,
+                                protein: 0,
+                                carbs: 0,
+                                fat: 14,
+                                fiber: 0,
+                            },
+                        ],
+                    },
+                    {
+                        name: 'Snack',
+                        time: '16:00:00',
+                        calories: 210,
+                        protein: 15,
+                        carbs: 24,
+                        fat: 9,
+                        fiber: 3,
+                        foods: [
+                            {
+                                name: 'Protein Bar',
+                                quantity: '1 bar',
+                                calories: 200,
+                                protein: 14,
+                                carbs: 22,
+                                fat: 8,
+                                fiber: 2,
+                            },
+                            {
+                                name: 'Blueberries',
+                                quantity: '0.25 cup',
+                                calories: 10,
+                                protein: 0,
+                                carbs: 2,
+                                fat: 0,
+                                fiber: 1,
+                            },
+                        ],
+                    },
+                    {
+                        name: 'Dinner',
+                        time: '19:00:00',
+                        calories: 740,
+                        protein: 47,
+                        carbs: 103,
+                        fat: 23,
+                        fiber: 11,
+                        foods: [
+                            {
+                                name: 'Baked Salmon',
+                                quantity: '5 oz',
+                                calories: 280,
+                                protein: 40,
+                                carbs: 0,
+                                fat: 12,
+                                fiber: 0,
+                            },
+                            {
+                                name: 'Sweet Potato',
+                                quantity: '1 medium',
+                                calories: 180,
+                                protein: 4,
+                                carbs: 41,
+                                fat: 0,
+                                fiber: 4,
+                            },
+                            {
+                                name: 'Broccoli',
+                                quantity: '1 cup',
+                                calories: 55,
+                                protein: 4,
+                                carbs: 11,
+                                fat: 1,
+                                fiber: 3,
+                            },
+                            {
+                                name: 'Avocado',
+                                quantity: '0.5 medium',
+                                calories: 120,
+                                protein: 2,
+                                carbs: 6,
+                                fat: 11,
+                                fiber: 1,
+                            },
+                            {
+                                name: 'Olive Oil',
+                                quantity: '1 tbsp',
+                                calories: 120,
+                                protein: 0,
+                                carbs: 0,
+                                fat: 14,
+                                fiber: 0,
                             },
                         ],
                     },
@@ -376,6 +1423,10 @@ async function seedNutritionPlans() {
                         protein: mealData.protein,
                         carbs: mealData.carbs,
                         fat: mealData.fat,
+                        fiber:
+                            typeof mealData.fiber === 'number'
+                                ? mealData.fiber
+                                : undefined,
                     })
                     .returning();
 
@@ -391,6 +1442,10 @@ async function seedNutritionPlans() {
                         protein: foodData.protein,
                         carbs: foodData.carbs,
                         fat: foodData.fat,
+                        fiber:
+                            typeof foodData.fiber === 'number'
+                                ? foodData.fiber
+                                : undefined,
                     });
                 }
 
@@ -404,17 +1459,6 @@ async function seedNutritionPlans() {
         console.log(`Created plan with ID: ${plan.id}`);
     } catch (error) {
         console.error('❌ Error seeding nutrition plans:', error);
-        throw error;
+        // process.exit(1); // Removed to allow main script to continue
     }
 }
-
-// Run the seeding
-seedNutritionPlans()
-    .then(() => {
-        console.log('Seeding completed');
-        process.exit(0);
-    })
-    .catch((error) => {
-        console.error('Seeding failed:', error);
-        process.exit(1);
-    });

@@ -13,7 +13,7 @@ const exerciseTypes = [
     { name: 'Cobra', devicePosition: 'none', logType: 'duration' },
 ];
 
-async function seedExerciseTypes() {
+export async function seedExerciseTypes() {
     try {
         console.log('Starting to seed exercise types...');
 
@@ -55,9 +55,5 @@ async function seedExerciseTypes() {
         });
     } catch (error) {
         console.error('❌ Error seeding exercise types:', error);
-    } finally {
-        process.exit(0);
     }
 }
-
-seedExerciseTypes();
