@@ -323,4 +323,25 @@ public class WorkoutPlanViewModel extends ViewModel {
                 }
             );
     }
+
+    public void cancelWorkoutPlan(String userWorkoutPlanId) {
+        _isLoading.setValue(true);
+        usersRepository.cancelWorkoutPlan(userWorkoutPlanId, new UsersRepository.UsersCallback<kotlin.Unit>() {
+            @Override
+            public void onSuccess(kotlin.Unit result) {
+                _isLoading.setValue(false);
+                _successMessage.setValue("Workout plan cancelled successfully!");
+                _errorMessage.setValue(null);
+                // Refresh the assignments to update the plan status
+                loadUserWorkoutPlanAssignments();
+            }
+
+            @Override
+            public void onError(String error) {
+                _isLoading.setValue(false);
+                _errorMessage.setValue("Failed to cancel workout plan: " + error);
+                _successMessage.setValue(null);
+            }
+        });
+    }
 }

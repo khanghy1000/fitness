@@ -183,14 +183,41 @@ public class WorkoutPlanListFragment extends Fragment implements TraineeWorkoutP
     }
 
     @Override
+    public void onWorkoutPlanCancel(WorkoutPlanAssignment workoutPlanAssignment) {
+        showCancelConfirmationDialog(workoutPlanAssignment);
+    }
+
+    @Override
     public void onWorkoutPlanOptionsClick(WorkoutPlan workoutPlan, View anchorView) {
+        // Find the corresponding assignment to get assignment details
+        WorkoutPlanAssignment assignment = findAssignmentForPlan(workoutPlan);
+        
         PopupMenu popup = new PopupMenu(getContext(), anchorView);
         popup.getMenuInflater().inflate(R.menu.menu_workout_plan_options, popup.getMenu());
+        
+        // Check if current user created the plan
+        String currentUserId = viewModel.currentUserId.getValue();
+        boolean isCreatedByCurrentUser = workoutPlan.getCreatedBy() != null && 
+            workoutPlan.getCreatedBy().equals(currentUserId);
+        
+        // Show cancel option only for active assignments
+        popup.getMenu().findItem(R.id.action_cancel).setVisible(
+            assignment != null && assignment.getStatus() == WorkoutPlanAssignment.Status.active
+        );
+        
+        // Show edit/delete options only for plans created by current user
+        popup.getMenu().findItem(R.id.action_edit).setVisible(isCreatedByCurrentUser);
+        popup.getMenu().findItem(R.id.action_delete).setVisible(isCreatedByCurrentUser);
         
         popup.setOnMenuItemClickListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.action_view_details) {
                 onWorkoutPlanClick(workoutPlan);
+                return true;
+            } else if (itemId == R.id.action_cancel) {
+                if (assignment != null) {
+                    onWorkoutPlanCancel(assignment);
+                }
                 return true;
             } else if (itemId == R.id.action_edit) {
                 onWorkoutPlanEdit(workoutPlan);
@@ -213,6 +240,19 @@ public class WorkoutPlanListFragment extends Fragment implements TraineeWorkoutP
                     viewModel.deleteWorkoutPlan(String.valueOf(workoutPlan.getId()));
                 })
                 .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void showCancelConfirmationDialog(WorkoutPlanAssignment workoutPlanAssignment) {
+        String planName = workoutPlanAssignment.getWorkoutPlan().getName();
+        
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Cancel Workout Plan")
+                .setMessage("Are you sure you want to cancel \"" + planName + "\"? This will mark the plan as cancelled.")
+                .setPositiveButton("Cancel Plan", (dialog, which) -> {
+                    viewModel.cancelWorkoutPlan(String.valueOf(workoutPlanAssignment.getId()));
+                })
+                .setNegativeButton("Keep Plan", null)
                 .show();
     }
 

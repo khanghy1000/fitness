@@ -90,18 +90,12 @@ public class TraineeNutritionPlanViewModel extends ViewModel {
                 _isLoading.setValue(false);
                 _isRefreshing.setValue(false);
 
-                List<NutritionPlanAssignment> activeAssignments = new ArrayList<>();
-                for (NutritionPlanAssignment assignment : result) {
-                    if (assignment.getStatus() == NutritionPlanAssignment.Status.active) {
-                        activeAssignments.add(assignment);
-                    }
-                }
-
-                _nutritionPlanAssignments.setValue(activeAssignments);
+                // Show all assignments (active, completed, etc.)
+                _nutritionPlanAssignments.setValue(result);
                 _error.setValue(null);
                 
                 // Fetch creator details for all plans
-                fetchCreatorDetailsForAssignments(activeAssignments);
+                fetchCreatorDetailsForAssignments(result);
             }
 
             @Override
@@ -342,5 +336,24 @@ public class TraineeNutritionPlanViewModel extends ViewModel {
 
     public void clearCreatedPlan() {
         _createdPlan.setValue(null);
+    }
+
+    public void completeNutritionPlan(String userNutritionPlanId) {
+        _isLoading.setValue(true);
+        usersRepository.completeNutritionPlan(userNutritionPlanId, new UsersRepository.UsersCallback<kotlin.Unit>() {
+            @Override
+            public void onSuccess(kotlin.Unit result) {
+                _isLoading.setValue(false);
+                _successMessage.setValue("Nutrition plan completed successfully!");
+                // Refresh the list to update the plan status
+                loadUserNutritionPlans();
+            }
+
+            @Override
+            public void onError(String error) {
+                _isLoading.setValue(false);
+                _error.setValue("Failed to complete nutrition plan: " + error);
+            }
+        });
     }
 }

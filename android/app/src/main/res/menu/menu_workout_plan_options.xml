@@ -4,6 +4,9 @@
         android:id="@+id/action_view_details"
         android:title="View Details" />
     <item
+        android:id="@+id/action_cancel"
+        android:title="Cancel Plan" />
+    <item
         android:id="@+id/action_edit"
         android:title="Edit" />
     <item

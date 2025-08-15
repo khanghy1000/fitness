@@ -31,6 +31,7 @@ public class TraineeWorkoutPlanAdapter extends RecyclerView.Adapter<TraineeWorko
         void onWorkoutPlanClick(WorkoutPlan workoutPlan);
         void onWorkoutPlanEdit(WorkoutPlan workoutPlan);
         void onWorkoutPlanDelete(WorkoutPlan workoutPlan);
+        void onWorkoutPlanCancel(WorkoutPlanAssignment workoutPlanAssignment);
         void onWorkoutPlanOptionsClick(WorkoutPlan workoutPlan, View anchorView);
     }
 
@@ -173,13 +174,15 @@ public class TraineeWorkoutPlanAdapter extends RecyclerView.Adapter<TraineeWorko
             chipStatus.setText(status.substring(0, 1).toUpperCase() + status.substring(1));
             chipStatus.setChecked(workoutPlanAssignment.getStatus() == WorkoutPlanAssignment.Status.active);
 
-            // Show options button only if current user created this plan
+            // Show options button if current user created this plan OR it's an active assignment (for cancel action)
             boolean isCreatedByCurrentUser = workoutPlan.getCreatedBy() != null && 
                                            workoutPlan.getCreatedBy().equals(currentUserId);
             
+            boolean isActiveAssignment = workoutPlanAssignment.getStatus() == WorkoutPlanAssignment.Status.active;
+            
             if (buttonOptions != null) {
-                buttonOptions.setVisibility(isCreatedByCurrentUser ? View.VISIBLE : View.GONE);
-                if (isCreatedByCurrentUser) {
+                buttonOptions.setVisibility((isCreatedByCurrentUser || isActiveAssignment) ? View.VISIBLE : View.GONE);
+                if (isCreatedByCurrentUser || isActiveAssignment) {
                     buttonOptions.setOnClickListener(v -> {
                         if (listener != null) {
                             listener.onWorkoutPlanOptionsClick(workoutPlan, v);

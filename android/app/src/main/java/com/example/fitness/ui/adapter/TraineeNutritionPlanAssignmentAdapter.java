@@ -164,30 +164,16 @@ public class TraineeNutritionPlanAssignmentAdapter extends RecyclerView.Adapter<
                 textViewCreatedBy.setVisibility(View.GONE);
             }
 
-            // Set different background colors based on status
-            switch (assignment.getStatus()) {
-                case active:
-                    cardView.setCardBackgroundColor(itemView.getContext().getColor(android.R.color.white));
-                    break;
-                case completed:
-                    cardView.setCardBackgroundColor(itemView.getContext().getColor(android.R.color.holo_green_light));
-                    break;
-                case paused:
-                    cardView.setCardBackgroundColor(itemView.getContext().getColor(android.R.color.holo_orange_light));
-                    break;
-                case cancelled:
-                    cardView.setCardBackgroundColor(itemView.getContext().getColor(android.R.color.holo_red_light));
-                    break;
-            }
-
-            // Show options button only if current user created the plan
+            // Show options button only if current user created the plan OR it's an active assignment (for complete action)
             boolean isCreatedByCurrentUser = assignment.getNutritionPlan() != null && 
                 assignment.getNutritionPlan().getCreatedBy() != null && 
                 assignment.getNutritionPlan().getCreatedBy().equals(currentUserId);
             
-            buttonOptions.setVisibility(isCreatedByCurrentUser ? View.VISIBLE : View.GONE);
+            boolean isActiveAssignment = assignment.getStatus() == NutritionPlanAssignment.Status.active;
             
-            if (isCreatedByCurrentUser) {
+            buttonOptions.setVisibility((isCreatedByCurrentUser || isActiveAssignment) ? View.VISIBLE : View.GONE);
+            
+            if (isCreatedByCurrentUser || isActiveAssignment) {
                 buttonOptions.setOnClickListener(v -> {
                     if (listener != null) {
                         listener.onAssignmentOptions(assignment, v);
