@@ -186,4 +186,11 @@ public class TraineeNutritionPlansFragment extends Fragment implements TraineeNu
         // This is not needed for coach mode, but we need to implement it
         // Could be used if coach wants to edit the plan
     }
+
+    @Override
+    public void onAssignmentOptions(NutritionPlanAssignment assignment, View anchorView) {
+        // This is not needed for coach mode in this fragment
+        // The options are primarily for trainee's own plans
+        // If needed in the future, coach-specific options can be added here
+    }
 }

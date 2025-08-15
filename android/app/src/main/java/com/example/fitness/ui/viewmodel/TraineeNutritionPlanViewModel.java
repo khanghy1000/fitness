@@ -4,12 +4,15 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.fitness.data.network.model.generated.CreateNutritionPlan;
 import com.example.fitness.data.network.model.generated.DetailedNutritionPlan;
 import com.example.fitness.data.network.model.generated.DetailedUser;
 import com.example.fitness.data.network.model.generated.MealCompletion;
 import com.example.fitness.data.network.model.generated.MealCompletionResponse;
 import com.example.fitness.data.network.model.generated.DetailedNutritionAdherenceHistory;
+import com.example.fitness.data.network.model.generated.NutritionPlan;
 import com.example.fitness.data.network.model.generated.NutritionPlanAssignment;
+import com.example.fitness.data.network.model.generated.SuccessMessage;
 import com.example.fitness.data.repository.AuthRepository;
 import com.example.fitness.data.repository.NutritionRepository;
 import com.example.fitness.data.repository.UsersRepository;
@@ -66,6 +69,9 @@ public class TraineeNutritionPlanViewModel extends ViewModel {
 
     private final MutableLiveData<String> _currentUserId = new MutableLiveData<>();
     public final LiveData<String> currentUserId = _currentUserId;
+
+    private final MutableLiveData<NutritionPlan> _createdPlan = new MutableLiveData<>();
+    public final LiveData<NutritionPlan> createdPlan = _createdPlan;
 
     @Inject
     public TraineeNutritionPlanViewModel(UsersRepository usersRepository, NutritionRepository nutritionRepository, AuthRepository authRepository) {
@@ -287,5 +293,44 @@ public class TraineeNutritionPlanViewModel extends ViewModel {
                     android.util.Log.e("TraineeNutritionPlanViewModel", "Failed to get current user ID", throwable);
                 }
             );
+    }
+
+    public void createNutritionPlan(String name, String description) {
+        CreateNutritionPlan createNutritionPlan = new CreateNutritionPlan(name, description);
+
+        nutritionRepository.createNutritionPlan(createNutritionPlan, new NutritionRepository.NutritionCallback<NutritionPlan>() {
+            @Override
+            public void onSuccess(NutritionPlan result) {
+                _createdPlan.setValue(result);
+                _successMessage.setValue("Nutrition plan created successfully!");
+                // Refresh the list to show the new plan
+                loadUserNutritionPlans();
+            }
+
+            @Override
+            public void onError(String error) {
+                _error.setValue("Failed to create nutrition plan: " + error);
+            }
+        });
+    }
+
+    public void deleteNutritionPlan(String planId) {
+        nutritionRepository.deleteNutritionPlan(planId, new NutritionRepository.NutritionCallback<SuccessMessage>() {
+            @Override
+            public void onSuccess(SuccessMessage result) {
+                _successMessage.setValue("Nutrition plan deleted successfully!");
+                // Refresh the list to remove the deleted plan
+                loadUserNutritionPlans();
+            }
+
+            @Override
+            public void onError(String error) {
+                _error.setValue("Failed to delete nutrition plan: " + error);
+            }
+        });
+    }
+
+    public void clearCreatedPlan() {
+        _createdPlan.setValue(null);
     }
 }

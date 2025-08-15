@@ -30,6 +30,7 @@ public class TraineeNutritionPlanAssignmentAdapter extends RecyclerView.Adapter<
     public interface OnAssignmentClickListener {
         void onAssignmentClick(NutritionPlanAssignment assignment);
         void onAssignmentEdit(NutritionPlanAssignment assignment);
+        void onAssignmentOptions(NutritionPlanAssignment assignment, View anchorView);
     }
 
     public void setOnAssignmentClickListener(OnAssignmentClickListener listener) {
@@ -104,6 +105,7 @@ public class TraineeNutritionPlanAssignmentAdapter extends RecyclerView.Adapter<
         private TextView textViewStartDate;
         private TextView textViewCreatedBy;
         private androidx.cardview.widget.CardView cardView;
+        private android.widget.ImageButton buttonOptions;
 
         public AssignmentViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -113,6 +115,7 @@ public class TraineeNutritionPlanAssignmentAdapter extends RecyclerView.Adapter<
             textViewStartDate = itemView.findViewById(R.id.textViewStartDate);
             textViewCreatedBy = itemView.findViewById(R.id.textViewCreatedBy);
             cardView = itemView.findViewById(R.id.card_view);
+            buttonOptions = itemView.findViewById(R.id.buttonOptions);
         }
 
         public void bind(NutritionPlanAssignment assignment, OnAssignmentClickListener listener, Map<String, String> creatorNames, String currentUserId) {
@@ -175,6 +178,21 @@ public class TraineeNutritionPlanAssignmentAdapter extends RecyclerView.Adapter<
                 case cancelled:
                     cardView.setCardBackgroundColor(itemView.getContext().getColor(android.R.color.holo_red_light));
                     break;
+            }
+
+            // Show options button only if current user created the plan
+            boolean isCreatedByCurrentUser = assignment.getNutritionPlan() != null && 
+                assignment.getNutritionPlan().getCreatedBy() != null && 
+                assignment.getNutritionPlan().getCreatedBy().equals(currentUserId);
+            
+            buttonOptions.setVisibility(isCreatedByCurrentUser ? View.VISIBLE : View.GONE);
+            
+            if (isCreatedByCurrentUser) {
+                buttonOptions.setOnClickListener(v -> {
+                    if (listener != null) {
+                        listener.onAssignmentOptions(assignment, v);
+                    }
+                });
             }
 
             // Set click listener
