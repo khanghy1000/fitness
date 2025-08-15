@@ -119,7 +119,7 @@ public class TraineeNutritionPlanDetailsActivity extends AppCompatActivity imple
 
     private void setupListeners() {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
-        binding.swipeRefreshLayout.setOnRefreshListener(() -> loadInitialData());
+        binding.swipeRefreshLayout.setOnRefreshListener(() -> refreshData());
         
         binding.buttonEdit.setOnClickListener(v -> {
             Intent intent = new Intent(this, NutritionPlanEditActivity.class);
@@ -212,7 +212,7 @@ public class TraineeNutritionPlanDetailsActivity extends AppCompatActivity imple
                 Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
                 viewModel.clearSuccessMessage();
                 // Refresh data after successful meal completion
-                loadInitialData();
+                refreshData();
             }
         });
     }
@@ -230,8 +230,21 @@ public class TraineeNutritionPlanDetailsActivity extends AppCompatActivity imple
         }
     }
 
+    private void refreshData() {
+        android.util.Log.d("DataLoading", "Refreshing data - planId: " + planId + ", assignmentId: " + assignmentId);
+        if (planId != -1) {
+            if (assignmentId != -1) {
+                // Refresh both plan and adherence history
+                viewModel.refreshNutritionPlanDetailsWithAdherence(String.valueOf(planId), String.valueOf(assignmentId));
+            } else {
+                // Just refresh plan details
+                viewModel.refreshNutritionPlanDetails(String.valueOf(planId));
+            }
+        }
+    }
+
     private void loadPlanDetails() {
-        loadInitialData();
+        refreshData();
     }
 
     private void setViewMode(ViewMode mode) {
@@ -585,7 +598,8 @@ public class TraineeNutritionPlanDetailsActivity extends AppCompatActivity imple
     protected void onResume() {
         super.onResume();
         // Refresh data when returning from edit activity
-        loadInitialData();
+        // This ensures we get the latest plan details and any changes made during editing
+        refreshData();
     }
 
     @Override

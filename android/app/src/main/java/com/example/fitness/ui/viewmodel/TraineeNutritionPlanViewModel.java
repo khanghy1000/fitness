@@ -174,6 +174,16 @@ public class TraineeNutritionPlanViewModel extends ViewModel {
         loadUserNutritionPlans();
     }
 
+    public void refreshNutritionPlanDetails(String planId) {
+        // Force refresh plan details without checking cache
+        loadNutritionPlanDetails(planId);
+    }
+
+    public void refreshNutritionPlanDetailsWithAdherence(String planId, String userNutritionPlanId) {
+        // Force refresh both plan details and adherence history
+        loadNutritionPlanDetailsWithAdherence(planId, userNutritionPlanId);
+    }
+
     public void loadNutritionPlanDetails(String planId) {
         _isLoading.setValue(true);
         nutritionRepository.getNutritionPlanById(planId, new NutritionRepository.NutritionCallback<DetailedNutritionPlan>() {

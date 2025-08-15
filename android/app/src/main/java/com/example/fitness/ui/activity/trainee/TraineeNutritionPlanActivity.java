@@ -225,6 +225,13 @@ public class TraineeNutritionPlanActivity extends AppCompatActivity implements T
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh data when returning from edit activity or other activities
+        viewModel.refreshNutritionPlans();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         binding = null;
