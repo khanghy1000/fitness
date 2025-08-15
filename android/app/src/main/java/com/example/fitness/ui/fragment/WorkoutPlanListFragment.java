@@ -5,13 +5,17 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.example.fitness.R;
 import com.example.fitness.data.network.model.generated.WorkoutPlan;
 import com.example.fitness.data.network.model.generated.WorkoutPlanAssignment;
 import com.example.fitness.databinding.FragmentWorkoutPlanListBinding;
@@ -113,6 +117,21 @@ public class WorkoutPlanListFragment extends Fragment implements TraineeWorkoutP
                 workoutPlanAdapter.setCurrentUserId(currentUserId);
             }
         });
+
+        // Observe delete success/error messages
+        viewModel.successMessage.observe(getViewLifecycleOwner(), successMessage -> {
+            if (successMessage != null) {
+                Toast.makeText(getContext(), successMessage, Toast.LENGTH_SHORT).show();
+                viewModel.clearMessages();
+            }
+        });
+
+        viewModel.errorMessage.observe(getViewLifecycleOwner(), errorMessage -> {
+            if (errorMessage != null) {
+                Toast.makeText(getContext(), errorMessage, Toast.LENGTH_LONG).show();
+                viewModel.clearMessages();
+            }
+        });
     }
 
     private void updateWorkoutPlans(List<WorkoutPlanAssignment> workoutPlanAssignments) {
@@ -156,6 +175,45 @@ public class WorkoutPlanListFragment extends Fragment implements TraineeWorkoutP
         intent.putExtra("PLAN_ID", workoutPlan.getId());
         intent.putExtra("PLAN_NAME", workoutPlan.getName());
         startActivity(intent);
+    }
+
+    @Override
+    public void onWorkoutPlanDelete(WorkoutPlan workoutPlan) {
+        showDeleteConfirmationDialog(workoutPlan);
+    }
+
+    @Override
+    public void onWorkoutPlanOptionsClick(WorkoutPlan workoutPlan, View anchorView) {
+        PopupMenu popup = new PopupMenu(getContext(), anchorView);
+        popup.getMenuInflater().inflate(R.menu.menu_workout_plan_options, popup.getMenu());
+        
+        popup.setOnMenuItemClickListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.action_view_details) {
+                onWorkoutPlanClick(workoutPlan);
+                return true;
+            } else if (itemId == R.id.action_edit) {
+                onWorkoutPlanEdit(workoutPlan);
+                return true;
+            } else if (itemId == R.id.action_delete) {
+                onWorkoutPlanDelete(workoutPlan);
+                return true;
+            }
+            return false;
+        });
+        
+        popup.show();
+    }
+
+    private void showDeleteConfirmationDialog(WorkoutPlan workoutPlan) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Delete Workout Plan")
+                .setMessage("Are you sure you want to delete \"" + workoutPlan.getName() + "\"? This action cannot be undone.")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    viewModel.deleteWorkoutPlan(String.valueOf(workoutPlan.getId()));
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private WorkoutPlanAssignment findAssignmentForPlan(WorkoutPlan workoutPlan) {

@@ -123,13 +123,13 @@
                     style="@style/Widget.MaterialComponents.Chip.Choice" />
 
                 <ImageButton
-                    android:id="@+id/buttonEdit"
+                    android:id="@+id/buttonOptions"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:layout_marginTop="8dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_edit"
-                    android:contentDescription="Edit workout plan"
+                    android:src="@drawable/ic_more_vert"
+                    android:contentDescription="More options"
                     android:visibility="gone" />
 
             </LinearLayout>

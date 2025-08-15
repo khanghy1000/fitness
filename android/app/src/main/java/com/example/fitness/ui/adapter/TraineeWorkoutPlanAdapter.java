@@ -30,6 +30,8 @@ public class TraineeWorkoutPlanAdapter extends RecyclerView.Adapter<TraineeWorko
     public interface OnWorkoutPlanClickListener {
         void onWorkoutPlanClick(WorkoutPlan workoutPlan);
         void onWorkoutPlanEdit(WorkoutPlan workoutPlan);
+        void onWorkoutPlanDelete(WorkoutPlan workoutPlan);
+        void onWorkoutPlanOptionsClick(WorkoutPlan workoutPlan, View anchorView);
     }
 
     public TraineeWorkoutPlanAdapter(OnWorkoutPlanClickListener listener) {
@@ -84,7 +86,7 @@ public class TraineeWorkoutPlanAdapter extends RecyclerView.Adapter<TraineeWorko
         private TextView textViewProgress;
         private TextView textViewCreatedBy;
         private Chip chipStatus;
-        private View buttonEdit;
+        private View buttonOptions;
 
         public TraineeWorkoutPlanViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -96,7 +98,7 @@ public class TraineeWorkoutPlanAdapter extends RecyclerView.Adapter<TraineeWorko
             textViewProgress = itemView.findViewById(R.id.textViewProgress);
             textViewCreatedBy = itemView.findViewById(R.id.textViewCreatedBy);
             chipStatus = itemView.findViewById(R.id.chipStatus);
-            buttonEdit = itemView.findViewById(R.id.buttonEdit);
+            buttonOptions = itemView.findViewById(R.id.buttonOptions);
         }
 
         public void bind(WorkoutPlanAssignment workoutPlanAssignment, OnWorkoutPlanClickListener listener, Map<String, String> creatorNames, String currentUserId) {
@@ -171,18 +173,16 @@ public class TraineeWorkoutPlanAdapter extends RecyclerView.Adapter<TraineeWorko
             chipStatus.setText(status.substring(0, 1).toUpperCase() + status.substring(1));
             chipStatus.setChecked(workoutPlanAssignment.getStatus() == WorkoutPlanAssignment.Status.active);
 
-            // Show edit button only if current user created this plan and it's not completed
+            // Show options button only if current user created this plan
             boolean isCreatedByCurrentUser = workoutPlan.getCreatedBy() != null && 
                                            workoutPlan.getCreatedBy().equals(currentUserId);
-            boolean isCompleted = workoutPlanAssignment.getStatus() == WorkoutPlanAssignment.Status.completed;
-            boolean shouldShowEdit = isCreatedByCurrentUser && !isCompleted;
             
-            if (buttonEdit != null) {
-                buttonEdit.setVisibility(shouldShowEdit ? View.VISIBLE : View.GONE);
-                if (shouldShowEdit) {
-                    buttonEdit.setOnClickListener(v -> {
+            if (buttonOptions != null) {
+                buttonOptions.setVisibility(isCreatedByCurrentUser ? View.VISIBLE : View.GONE);
+                if (isCreatedByCurrentUser) {
+                    buttonOptions.setOnClickListener(v -> {
                         if (listener != null) {
-                            listener.onWorkoutPlanEdit(workoutPlan);
+                            listener.onWorkoutPlanOptionsClick(workoutPlan, v);
                         }
                     });
                 }

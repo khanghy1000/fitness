@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.fitness.data.network.model.generated.CreateWorkoutPlan;
 import com.example.fitness.data.network.model.generated.DetailedUser;
+import com.example.fitness.data.network.model.generated.SuccessMessage;
 import com.example.fitness.data.network.model.generated.WorkoutPlan;
 import com.example.fitness.data.network.model.generated.WorkoutPlanAssignment;
 import com.example.fitness.data.network.model.generated.WorkoutPlanAssignmentResponse;
@@ -237,8 +238,9 @@ public class WorkoutPlanViewModel extends ViewModel {
                 _isLoading.setValue(false);
                 _createdPlan.setValue(result);
                 _error.setValue(null);
-                // Refresh the list
+                // Since API auto-assigns to trainee, refresh both lists
                 loadWorkoutPlans();
+                loadUserWorkoutPlanAssignments();
             }
 
             @Override
@@ -271,6 +273,28 @@ public class WorkoutPlanViewModel extends ViewModel {
                 _isLoading.setValue(false);
                 _successMessage.setValue("Workout plan assigned successfully!");
                 _errorMessage.setValue(null);
+            }
+
+            @Override
+            public void onError(String error) {
+                _isLoading.setValue(false);
+                _errorMessage.setValue(error);
+                _successMessage.setValue(null);
+            }
+        });
+    }
+
+    public void deleteWorkoutPlan(String workoutPlanId) {
+        _isLoading.setValue(true);
+        workoutsRepository.deleteWorkoutPlan(workoutPlanId, new WorkoutsRepository.WorkoutsCallback<SuccessMessage>() {
+            @Override
+            public void onSuccess(SuccessMessage result) {
+                _isLoading.setValue(false);
+                _successMessage.setValue("Workout plan deleted successfully!");
+                _errorMessage.setValue(null);
+                // Refresh both lists
+                loadWorkoutPlans();
+                loadUserWorkoutPlanAssignments();
             }
 
             @Override

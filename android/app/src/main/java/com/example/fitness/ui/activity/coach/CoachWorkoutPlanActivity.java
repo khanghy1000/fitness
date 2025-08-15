@@ -7,6 +7,7 @@ import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -114,6 +115,21 @@ public class CoachWorkoutPlanActivity extends AppCompatActivity implements Worko
                 viewModel.clearCreatedPlan();
             }
         });
+
+        // Observe delete success/error messages
+        viewModel.successMessage.observe(this, successMessage -> {
+            if (successMessage != null) {
+                Toast.makeText(this, successMessage, Toast.LENGTH_SHORT).show();
+                viewModel.clearMessages();
+            }
+        });
+
+        viewModel.errorMessage.observe(this, errorMessage -> {
+            if (errorMessage != null) {
+                Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
+                viewModel.clearMessages();
+            }
+        });
     }
 
     private void showCreateWorkoutPlanDialog() {
@@ -122,6 +138,17 @@ public class CoachWorkoutPlanActivity extends AppCompatActivity implements Worko
             viewModel.createWorkoutPlan(name, description, difficulty);
         });
         dialog.show(getSupportFragmentManager(), "CreateWorkoutPlanDialog");
+    }
+
+    private void showDeleteConfirmationDialog(WorkoutPlan workoutPlan) {
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Workout Plan")
+                .setMessage("Are you sure you want to delete \"" + workoutPlan.getName() + "\"? This action cannot be undone.")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    viewModel.deleteWorkoutPlan(String.valueOf(workoutPlan.getId()));
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     @Override
@@ -149,8 +176,7 @@ public class CoachWorkoutPlanActivity extends AppCompatActivity implements Worko
                 startActivity(intent);
                 return true;
             } else if (itemId == R.id.action_delete) {
-                // TODO: Implement delete functionality
-                Toast.makeText(this, "Delete functionality coming soon", Toast.LENGTH_SHORT).show();
+                showDeleteConfirmationDialog(workoutPlan);
                 return true;
             }
             return false;

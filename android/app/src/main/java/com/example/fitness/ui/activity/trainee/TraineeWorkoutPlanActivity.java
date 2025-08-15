@@ -101,6 +101,14 @@ public class TraineeWorkoutPlanActivity extends AppCompatActivity {
             if (createdPlan != null) {
                 Toast.makeText(this, "Workout plan created successfully", Toast.LENGTH_SHORT).show();
                 viewModel.clearCreatedPlan();
+                
+                // Refresh the workout plan assignments list to show any updates
+                viewModel.loadUserWorkoutPlanAssignments();
+                
+                // Also refresh the fragments explicitly
+                if (tabAdapter != null) {
+                    tabAdapter.refreshFragments();
+                }
             }
         });
     }

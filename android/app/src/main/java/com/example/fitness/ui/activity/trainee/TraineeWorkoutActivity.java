@@ -4,11 +4,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -25,6 +28,8 @@ import com.example.fitness.data.repository.ExercisesRepository;
 import com.example.fitness.databinding.ActivityTraineeWorkoutBinding;
 import com.example.fitness.ui.viewmodel.TraineeWorkoutViewModel;
 import com.example.fitness.ui.viewmodel.WorkoutDayDetailsViewModel;
+import com.example.fitness.ui.viewmodel.WorkoutPlanDetailsViewModel;
+import com.example.fitness.ui.viewmodel.WorkoutPlanViewModel;
 
 import org.json.JSONObject;
 
@@ -42,6 +47,8 @@ public class TraineeWorkoutActivity extends AppCompatActivity {
     private ActivityTraineeWorkoutBinding binding;
     private TraineeWorkoutViewModel workoutViewModel;
     private WorkoutDayDetailsViewModel dayDetailsViewModel;
+    private WorkoutPlanDetailsViewModel planDetailsViewModel;
+    private WorkoutPlanViewModel planViewModel;
     
     @Inject
     ExercisesRepository exercisesRepository;
@@ -149,6 +156,8 @@ public class TraineeWorkoutActivity extends AppCompatActivity {
     private void setupViewModels() {
         workoutViewModel = new ViewModelProvider(this).get(TraineeWorkoutViewModel.class);
         dayDetailsViewModel = new ViewModelProvider(this).get(WorkoutDayDetailsViewModel.class);
+        planDetailsViewModel = new ViewModelProvider(this).get(WorkoutPlanDetailsViewModel.class);
+        planViewModel = new ViewModelProvider(this).get(WorkoutPlanViewModel.class);
         
         if (userWorkoutPlanId != null) {
             workoutViewModel.setUserWorkoutPlanId(userWorkoutPlanId);
@@ -156,6 +165,11 @@ public class TraineeWorkoutActivity extends AppCompatActivity {
         
         // Set whether to allow recording results
         workoutViewModel.setAllowRecording(allowRecording);
+        
+        // Load plan details to check if user can delete it
+        if (planId != null) {
+            planDetailsViewModel.loadWorkoutPlan(planId);
+        }
     }
     
     private void setupBleIfConnected() {
@@ -370,6 +384,34 @@ public class TraineeWorkoutActivity extends AppCompatActivity {
         
         workoutViewModel.isRecordingResult.observe(this, isRecording -> {
             // You can show a loading indicator here if needed
+        });
+        
+        // Observe plan details to enable/disable delete option
+        planDetailsViewModel.detailedWorkoutPlan.observe(this, detailedPlan -> {
+            // Invalidate options menu to update delete option visibility
+            invalidateOptionsMenu();
+        });
+
+        planDetailsViewModel.currentUserId.observe(this, currentUserId -> {
+            // Invalidate options menu when current user ID is loaded
+            invalidateOptionsMenu();
+        });
+
+        // Observe delete messages from plan view model
+        planViewModel.successMessage.observe(this, successMessage -> {
+            if (successMessage != null) {
+                Toast.makeText(this, successMessage, Toast.LENGTH_SHORT).show();
+                planViewModel.clearMessages();
+                // Close activity after successful delete
+                finish();
+            }
+        });
+
+        planViewModel.errorMessage.observe(this, errorMessage -> {
+            if (errorMessage != null) {
+                Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
+                planViewModel.clearMessages();
+            }
         });
     }
 
@@ -680,6 +722,59 @@ public class TraineeWorkoutActivity extends AppCompatActivity {
                 startExerciseTimer();
             }
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_trainee_workout, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        
+        MenuItem deleteItem = menu.findItem(R.id.action_delete_plan);
+        if (deleteItem != null) {
+            // Show delete option only if current user created this plan
+            boolean canDelete = canCurrentUserDeletePlan();
+            deleteItem.setVisible(canDelete);
+        }
+        
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.action_delete_plan) {
+            showDeleteConfirmationDialog();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private boolean canCurrentUserDeletePlan() {
+        if (planDetailsViewModel.detailedWorkoutPlan.getValue() == null || 
+            planDetailsViewModel.currentUserId.getValue() == null) {
+            return false;
+        }
+        
+        String currentUserId = planDetailsViewModel.currentUserId.getValue();
+        String planCreatorId = planDetailsViewModel.detailedWorkoutPlan.getValue().getCreatedBy();
+        
+        return currentUserId != null && currentUserId.equals(planCreatorId);
+    }
+
+    private void showDeleteConfirmationDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Workout Plan")
+                .setMessage("Are you sure you want to delete \"" + planName + "\"? This will stop your current workout and cannot be undone.")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    planViewModel.deleteWorkoutPlan(planId);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     @Override
