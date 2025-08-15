@@ -114,6 +114,18 @@ public class TraineeWorkoutPlanActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh data when returning from create activities
+        viewModel.loadUserWorkoutPlanAssignments();
+        
+        // Also refresh the fragments explicitly
+        if (tabAdapter != null) {
+            tabAdapter.refreshFragments();
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         binding = null;

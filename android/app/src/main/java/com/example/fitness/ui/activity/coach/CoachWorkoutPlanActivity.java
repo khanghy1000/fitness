@@ -51,6 +51,9 @@ public class CoachWorkoutPlanActivity extends AppCompatActivity implements Worko
         setupRecyclerView();
         setupListeners();
         observeViewModel();
+        
+        // Load initial data
+        viewModel.refreshWorkoutPlans();
     }
 
     private void initializeViews() {
@@ -154,6 +157,13 @@ public class CoachWorkoutPlanActivity extends AppCompatActivity implements Worko
         });
         
         popup.show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh data when returning from create/edit activities
+        viewModel.refreshWorkoutPlans();
     }
 
     @Override

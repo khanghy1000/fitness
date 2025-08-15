@@ -176,6 +176,14 @@ public class WorkoutPlanListFragment extends Fragment implements TraineeWorkoutP
         return null;
     }
 
+    public void refreshData() {
+        if (status == Status.ACTIVE) {
+            viewModel.refreshActiveWorkoutPlanAssignments();
+        } else {
+            viewModel.refreshCompletedWorkoutPlanAssignments();
+        }
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();

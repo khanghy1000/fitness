@@ -160,6 +160,15 @@ public class WorkoutPlanDetailsActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh data when returning from edit activity
+        if (planId != null) {
+            viewModel.loadWorkoutPlan(planId);
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         binding = null;

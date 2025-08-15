@@ -7,7 +7,12 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.example.fitness.ui.fragment.WorkoutPlanListFragment;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class WorkoutPlanTabAdapter extends FragmentStateAdapter {
+
+    private Map<Integer, WorkoutPlanListFragment> fragmentMap = new HashMap<>();
 
     public WorkoutPlanTabAdapter(@NonNull FragmentActivity fragmentActivity) {
         super(fragmentActivity);
@@ -16,18 +21,32 @@ public class WorkoutPlanTabAdapter extends FragmentStateAdapter {
     @NonNull
     @Override
     public Fragment createFragment(int position) {
+        WorkoutPlanListFragment fragment;
         switch (position) {
             case 0:
-                return WorkoutPlanListFragment.newInstance(WorkoutPlanListFragment.Status.ACTIVE);
+                fragment = WorkoutPlanListFragment.newInstance(WorkoutPlanListFragment.Status.ACTIVE);
+                break;
             case 1:
-                return WorkoutPlanListFragment.newInstance(WorkoutPlanListFragment.Status.COMPLETED);
+                fragment = WorkoutPlanListFragment.newInstance(WorkoutPlanListFragment.Status.COMPLETED);
+                break;
             default:
-                return WorkoutPlanListFragment.newInstance(WorkoutPlanListFragment.Status.ACTIVE);
+                fragment = WorkoutPlanListFragment.newInstance(WorkoutPlanListFragment.Status.ACTIVE);
+                break;
         }
+        fragmentMap.put(position, fragment);
+        return fragment;
     }
 
     @Override
     public int getItemCount() {
         return 2; // Active and Completed tabs
+    }
+
+    public void refreshFragments() {
+        for (WorkoutPlanListFragment fragment : fragmentMap.values()) {
+            if (fragment != null && fragment.isAdded()) {
+                fragment.refreshData();
+            }
+        }
     }
 }
