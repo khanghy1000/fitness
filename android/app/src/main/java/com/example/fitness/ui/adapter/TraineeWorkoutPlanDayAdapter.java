@@ -104,7 +104,7 @@ public class TraineeWorkoutPlanDayAdapter extends RecyclerView.Adapter<TraineeWo
             binding.textViewDayNumber.setText("Day " + day.getDay());
             
             // Show/hide Today chip and apply styling - but not for completed plans
-            if (!isCompleted && startDate != null && DateUtils.isCurrentDay(startDate, day.getDay())) {
+            if (!isCompleted && startDate != null && DateUtils.isWorkoutPlanActive(startDate) && DateUtils.isCurrentDay(startDate, day.getDay())) {
                 // Current day styling
                 binding.chipToday.setVisibility(android.view.View.VISIBLE);
                 binding.textViewDayNumber.setTextColor(binding.getRoot().getContext().getResources().getColor(com.example.fitness.R.color.current_day_text));

@@ -434,7 +434,7 @@ public class TraineeWorkoutPlanDayDetailsActivity extends AppCompatActivity {
         binding.textViewDayTitle.setText("Day " + dayNumber);
         
         // Show/hide Today chip based on current day, but not for completed plans
-        if (!isCompleted && startDate != null && DateUtils.isCurrentDay(startDate, dayNumber)) {
+        if (!isCompleted && startDate != null && DateUtils.isWorkoutPlanActive(startDate) && DateUtils.isCurrentDay(startDate, dayNumber)) {
             binding.chipTodayDetails.setVisibility(View.VISIBLE);
             binding.textViewDayTitle.setTextColor(getResources().getColor(R.color.current_day_text));
         } else {
