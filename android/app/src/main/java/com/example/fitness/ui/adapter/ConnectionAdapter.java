@@ -22,6 +22,7 @@ public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.Co
 
     public enum ConnectionType {
         ACTIVE_CONNECTION,
+        ACTIVE_COACHES,
         RECEIVED_REQUEST,
         SENT_REQUEST
     }
@@ -92,7 +93,7 @@ public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.Co
                 tvUserName.setText(connection.getTrainee().getName());
                 tvUserEmail.setText(connection.getTrainee().getEmail());
             } else {
-                // For trainee viewing coach info
+                // For trainee viewing coach info (ACTIVE_COACHES, SENT_REQUEST)
                 tvUserName.setText(connection.getCoach().getName());
                 tvUserEmail.setText(connection.getCoach().getEmail());
             }
@@ -107,7 +108,7 @@ public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.Co
                 tvNotes.setVisibility(View.GONE);
             }
 
-            // Add click listener for active connections to open trainee management
+            // Add click listener for coach active connections to open trainee management
             if (connectionType == ConnectionType.ACTIVE_CONNECTION) {
                 itemView.setOnClickListener(v -> {
                     if (listener != null) {
@@ -117,6 +118,7 @@ public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.Co
                 itemView.setClickable(true);
                 itemView.setFocusable(true);
             } else {
+                // Remove click listeners for other types (including ACTIVE_COACHES)
                 itemView.setOnClickListener(null);
                 itemView.setClickable(false);
                 itemView.setFocusable(false);
@@ -152,6 +154,13 @@ public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.Co
                             listener.onDisconnectTrainee(connection.getTraineeId());
                         }
                     });
+                    break;
+
+                case ACTIVE_COACHES:
+                    // For trainee viewing active coaches - no buttons should be shown
+                    btnAccept.setVisibility(View.GONE);
+                    btnReject.setVisibility(View.GONE);
+                    btnDisconnect.setVisibility(View.GONE);
                     break;
 
                 case SENT_REQUEST:

@@ -85,6 +85,20 @@ public class ConnectionsListFragment extends Fragment implements ConnectionAdapt
                     }
                 });
                 break;
+
+            case ACTIVE_COACHES:
+                viewModel.activeConnections.observe(getViewLifecycleOwner(), connections -> {
+                    if (connections != null && !connections.isEmpty()) {
+                        adapter.updateConnections(connections);
+                        binding.tvEmptyState.setVisibility(View.GONE);
+                        binding.rvConnections.setVisibility(View.VISIBLE);
+                    } else {
+                        binding.tvEmptyState.setVisibility(View.VISIBLE);
+                        binding.rvConnections.setVisibility(View.GONE);
+                        binding.tvEmptyState.setText("No active coaches found");
+                    }
+                });
+                break;
                 
             case SENT_REQUEST:
                 viewModel.sentRequests.observe(getViewLifecycleOwner(), connections -> {
@@ -119,6 +133,9 @@ public class ConnectionsListFragment extends Fragment implements ConnectionAdapt
     private void loadData() {
         switch (connectionType) {
             case ACTIVE_CONNECTION:
+                viewModel.loadActiveConnections();
+                break;
+            case ACTIVE_COACHES:
                 viewModel.loadActiveConnections();
                 break;
             case SENT_REQUEST:

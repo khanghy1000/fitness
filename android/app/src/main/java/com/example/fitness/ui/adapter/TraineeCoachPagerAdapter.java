@@ -19,13 +19,13 @@ public class TraineeCoachPagerAdapter extends FragmentStateAdapter {
     public Fragment createFragment(int position) {
         switch (position) {
             case 0:
-                return ConnectionsListFragment.newInstance(ConnectionAdapter.ConnectionType.ACTIVE_CONNECTION);
+                return ConnectionsListFragment.newInstance(ConnectionAdapter.ConnectionType.ACTIVE_COACHES);
             case 1:
                 return CoachSearchFragment.newInstance();
             case 2:
                 return ConnectionsListFragment.newInstance(ConnectionAdapter.ConnectionType.SENT_REQUEST);
             default:
-                return ConnectionsListFragment.newInstance(ConnectionAdapter.ConnectionType.ACTIVE_CONNECTION);
+                return ConnectionsListFragment.newInstance(ConnectionAdapter.ConnectionType.ACTIVE_COACHES);
         }
     }
 
