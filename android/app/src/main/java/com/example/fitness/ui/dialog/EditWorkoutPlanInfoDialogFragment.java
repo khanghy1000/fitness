@@ -61,8 +61,7 @@ public class EditWorkoutPlanInfoDialogFragment extends DialogFragment {
         if (args != null) {
             binding.editTextPlanName.setText(args.getString(ARG_NAME));
             binding.editTextPlanDescription.setText(args.getString(ARG_DESCRIPTION));
-            binding.switchIsActive.setChecked(args.getBoolean(ARG_IS_ACTIVE));
-            
+
             String difficulty = args.getString(ARG_DIFFICULTY);
             if (difficulty != null) {
                 String capitalizedDifficulty = difficulty.substring(0, 1).toUpperCase() + difficulty.substring(1);
@@ -96,7 +95,6 @@ public class EditWorkoutPlanInfoDialogFragment extends DialogFragment {
             binding.editTextPlanName.getText().toString().trim() : "";
         String description = binding.editTextPlanDescription.getText() != null ? 
             binding.editTextPlanDescription.getText().toString().trim() : "";
-        boolean isActive = binding.switchIsActive.isChecked();
         String difficultyText = binding.spinnerDifficulty.getText().toString();
         
         if (name.isEmpty()) {
@@ -121,7 +119,7 @@ public class EditWorkoutPlanInfoDialogFragment extends DialogFragment {
         }
         
         if (listener != null) {
-            listener.onWorkoutPlanInfoEdited(name, description.isEmpty() ? null : description, difficulty, isActive);
+            listener.onWorkoutPlanInfoEdited(name, description.isEmpty() ? null : description, difficulty, true);
         }
         
         return true;

@@ -39,9 +39,6 @@ public class CreateWorkoutPlanDialogFragment extends DialogFragment {
         binding.spinnerDifficulty.setAdapter(adapter);
         binding.spinnerDifficulty.setText(difficulties[0], false);
         
-        // Set active by default
-        binding.switchIsActive.setChecked(true);
-        
         AlertDialog dialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Create Workout Plan")
                 .setView(binding.getRoot())
