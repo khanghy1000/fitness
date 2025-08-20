@@ -27,7 +27,7 @@ public class ExercisesRepository {
         this.exerciseMetaData = new ArrayList<>();
 
         exerciseMetaData.add(new ExerciseMetaData("Squat", R.drawable.exercise_squat, "squat"));
-        exerciseMetaData.add(new ExerciseMetaData("Sit-up", R.drawable.exercise_squat, "sit_up"));
+        exerciseMetaData.add(new ExerciseMetaData("Sit-up", R.drawable.exercise_sit_up, "sit_up"));
         exerciseMetaData.add(new ExerciseMetaData("Lunge", R.drawable.exercise_lunge, "lunge"));
 //        exerciseMetaData.add(new ExerciseMetaData("Bicep Curl", R.drawable.exercise_bicep_curl, "bicep_curl"));
 //        exerciseMetaData.add(new ExerciseMetaData("Crunch", R.drawable.exercise_crunch, "crunch"));

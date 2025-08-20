@@ -26,10 +26,6 @@ import org.json.JSONObject;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
-/**
- * BLE service manager for connecting to ESP32 device
- * Based on the Python count_rep_3.py implementation
- */
 public class BleServiceManager {
     
     private static final String TAG = "BleServiceManager";
